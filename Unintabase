@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuro-Rastreio TDAH | Matheus - Uninta</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; --white: #ffffff; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--primary); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: var(--white); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; }
+        .avatar { width: 120px; height: 120px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--secondary); overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        h1 { font-size: 1.8rem; margin-bottom: 10px; }
+        p { color: #7f8c8d; margin-bottom: 25px; }
+        input { width: 90%; padding: 12px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 10px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--secondary); }
+        .btn { background: var(--secondary); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; width: 100%; }
+        .btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .footer-logo { margin-top: 30px; font-size: 0.8rem; color: #bdc3c7; font-weight: bold; text-transform: uppercase; }
+        #quiz-section, #result-section { display: none; }
+        .question { text-align: left; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+    <div id="login-section">
+        <div class="avatar">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Matheus" alt="Avatar Matheus">
+        </div>
+        <h1>Olá, Mestre Matheus!</h1>
+        <p>Laboratório Digital de Neurociência - UNINTA</p>
+        <input type="text" id="userName" placeholder="Digite seu ID ou Nome">
+        <button class="btn" onclick="iniciarRastreio()">Acessar Laboratório</button>
+    </div>
+
+    <div id="quiz-section">
+        <h3>Triagem de Marcadores</h3>
+        <div class="question">
+            <p>1. Com que frequência você tem dificuldade para finalizar os detalhes de um projeto?</p>
+            <select id="q1" style="width:100%; padding: 8px; border-radius: 5px;">
+                <option value="0">Nunca</option>
+                <option value="1">Raramente</option>
+                <option value="2">Às vezes</option>
+                <option value="3">Frequentemente</option>
+                <option value="4">Muito Frequentemente</option>
+            </select>
+        </div>
+        <button class="btn" onclick="finalizar()">Analisar Resultados</button>
+    </div>
+
+    <div id="result-section">
+        <h2 id="msg-final">Análise Concluída</h2>
+        <div style="font-size: 3rem; margin: 20px 0; color: var(--secondary);" id="porcentagem">0%</div>
+        <p>Compatibilidade estatística com TDAH.</p>
+        <button class="btn" onclick="baixarPDF()" style="background: #27ae60;">Baixar Relatório PDF</button>
+    </div>
+
+    <div class="footer-logo">Projeto TCC Extensão - UNINTA</div>
+</div>
+
+<script>
+    function iniciarRastreio() {
+        const nome = document.getElementById('userName').value;
+        if(nome === "") { alert("Por favor, mestre, insira um ID."); return; }
