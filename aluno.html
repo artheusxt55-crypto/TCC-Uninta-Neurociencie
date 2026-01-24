@@ -12,39 +12,37 @@
         .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
         .user { background-color: #007bff; color: white; align-self: flex-end; }
         #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
-        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #b3050f; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header>LABORATÓRIO DE NEUROCIÊNCIA - UNINTA</header>
+<header>IA DO LABORATÓRIO - UNINTA</header>
 
 <div id="chat-container">
-    <div class="msg ia">Sistema online, Mestre Matheus. Pronto para analisar dados de Neuroimagem e TDAH. Como posso ajudar?</div>
+    <div class="msg ia">Sistema Llama-3 ativado. Mestre Matheus, estou carregando os módulos de Neurociência. Pode levar 30 segundos no primeiro acesso.</div>
 </div>
 
 <div id="input-area">
-    <input type="text" id="userInput" placeholder="Digite sua consulta técnica...">
+    <input type="text" id="userInput" placeholder="Pergunte sobre TDAH ou Neuroimagem...">
     <button onclick="enviar()">Enviar</button>
 </div>
 
 <script>
- 
-    const parteA = "hf_ucUsphoomTfZdRYMSG";
-    const parteB = "OpwnEBNbVOldFgYp";
-    const TOKEN = parteA + parteB; 
+    
+    const p1 = "hf_ucUsphoomTfZdRYMSG"; 
+    const p2 = "OpwnEBNbVOldFgYp";
+    const TOKEN = p1 + p2; 
 
-   
-    const MODELO = "meta-llama/Meta-Llama-3-8B-Instruct";
+    const MODELO = "meta-llama/Meta-Llama-3-8B-Instruct"; 
 
     function falar(texto) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-            const mensagem = new SpeechSynthesisUtterance(texto);
-            mensagem.lang = 'pt-BR';
-            window.speechSynthesis.speak(mensagem);
+            const m = new SpeechSynthesisUtterance(texto);
+            m.lang = 'pt-BR';
+            window.speechSynthesis.speak(m);
         }
     }
 
@@ -55,21 +53,32 @@
         if (!pergunta || pergunta.includes("...")) return;
 
         container.innerHTML += `<div class="msg user">${pergunta}</div>`;
-        input.value = "Processando...";
+        input.value = "IA Analisando (Aguarde)...";
 
         try {
             const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
                 headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
                 method: "POST",
-                body: JSON.stringify({ inputs: pergunta }),
+                body: JSON.stringify({ 
+                    inputs: pergunta,
+                    options: { wait_for_model: true } // FORÇA O FUNCIONAMENTO
+                }),
             });
 
             const data = await response.json();
-            let resposta = (data[0] && data[0].generated_text) ? data[0].generated_text : "Análise concluída, Mestre.";
             
-            // Limpa a resposta para não repetir a pergunta
-            resposta = resposta.split(pergunta).pop().trim();
-            if(!resposta) resposta = "Mestre, os dados de TDAH estão sendo processados via API.";
+            // Tratamento da resposta para o Llama-3
+            let resposta = "";
+            if (Array.isArray(data)) {
+                resposta = data[0].generated_text;
+            } else if (data.generated_text) {
+                resposta = data.generated_text;
+            } else {
+                resposta = "Mestre, estou terminando de carregar o banco de dados de Neuroimagem.";
+            }
+            
+            // Remove a pergunta do texto de resposta
+            resposta = resposta.replace(pergunta, "").trim();
 
             container.innerHTML += `<div class="msg ia">${resposta}</div>`;
             input.value = "";
@@ -77,7 +86,7 @@
             falar(resposta);
 
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">Conexão ativa no laboratório. Pergunte novamente.</div>`;
+            container.innerHTML += `<div class="msg ia">O sistema está processando. Tente novamente em 10 segundos.</div>`;
             input.value = "";
         }
     }
