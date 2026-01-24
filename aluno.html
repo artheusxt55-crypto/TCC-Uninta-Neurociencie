@@ -8,7 +8,6 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
         header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .mestre-tag { font-size: 0.8rem; color: #666; text-align: center; margin-bottom: 10px; }
         .msg { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
         .user { background-color: #007bff; color: white; align-self: flex-end; }
@@ -19,27 +18,29 @@
 </head>
 <body>
 
-<header>IA DO LABORATÓRIO DE NEUROCIÊNCIA</header>
-<div class="mestre-tag">Propriedade Intelectual: Mestre Matheus (UNINTA)</div>
+<header>LABORATÓRIO DO MESTRE MATHEUS</header>
 
 <div id="chat-container">
-    <div class="msg ia">Olá! Sou a IA do Mestre Matheus. Como posso ajudar em suas pesquisas sobre TDAH hoje?</div>
+    <div class="msg ia">Sistema online. Mestre Matheus, aguardando sua consulta sobre Neurociência.</div>
 </div>
 
 <div id="input-area">
-    <input type="text" id="userInput" placeholder="Digite sua pergunta...">
+    <input type="text" id="userInput" placeholder="Pergunte sobre TDAH ou Neuroimagem...">
     <button onclick="enviar()">Enviar</button>
 </div>
 
 <script>
-    const API_TOKEN = "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"; 
     
-    const MODELO = "gpt2";
+    const API_TOKEN = "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"; 
+    
+    const MODELO = "gpt2"; 
 
     function falar(texto) {
-        const mensagem = new SpeechSynthesisUtterance(texto);
-        mensagem.lang = 'pt-BR';
-        window.speechSynthesis.speak(mensagem);
+        if ('speechSynthesis' in window) {
+            const mensagem = new SpeechSynthesisUtterance(texto);
+            mensagem.lang = 'pt-BR';
+            window.speechSynthesis.speak(mensagem);
+        }
     }
 
     async function enviar() {
@@ -49,7 +50,7 @@
         if (!texto) return;
 
         container.innerHTML += `<div class="msg user">${texto}</div>`;
-        input.value = "IA processando...";
+        input.value = "IA Processando...";
 
         try {
             const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
@@ -59,16 +60,18 @@
             });
 
             const data = await response.json();
-           
-            let resposta = data.generated_text || data[0]?.generated_text || "Mestre Matheus, estou pronto para falar sobre Neuroimagem.";
+   
+            let resposta = (data[0] && data[0].generated_text) ? data[0].generated_text : "Processamento concluído, Mestre.";
+            
+            resposta = resposta.replace(texto, "").trim();
 
-            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
+            container.innerHTML += `<div class="msg ia">${resposta || "Estou pronto para prosseguir."}</div>`;
             input.value = "";
             container.scrollTop = container.scrollHeight;
-            falar(resposta);
+            falar(resposta || "Estou pronto para prosseguir.");
 
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">Conexão estabelecida. Tente perguntar novamente, Mestre.</div>`;
+            container.innerHTML += `<div class="msg ia">Conexão ativa. Tente novamente, Mestre Matheus.</div>`;
             input.value = "";
         }
     }
