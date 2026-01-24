@@ -36,11 +36,27 @@
     function falar(texto) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-            const m = new SpeechSynthesisUtterance(texto);
-            m.lang = 'pt-BR';
-            window.speechSynthesis.speak(m);
+            
+            const msg = new SpeechSynthesisUtterance(texto);
+            const vozes = window.speechSynthesis.getVoices();
+            
+            // Procura as vozes "Neural" que são as que parecem humanas
+            const vozTop = vozes.find(v => v.name.includes('Neural') && v.lang.includes('pt-BR')) || 
+                           vozes.find(v => v.name.includes('Google') && v.lang.includes('pt-BR')) ||
+                           vozes.find(v => v.lang.includes('pt-BR'));
+
+            if (vozTop) msg.voice = vozTop;
+
+            msg.lang = 'pt-BR';
+            msg.rate = 1.0; // Velocidade natural
+            msg.pitch = 1.0; // Tom natural
+            
+            window.speechSynthesis.speak(msg);
         }
     }
+
+    // Carregamento forçado das vozes para o navegador não esquecer
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 
     async function enviar() {
         const input = document.getElementById('userInput');
