@@ -23,15 +23,15 @@
 
 <div class="card">
     <div class="header-status">
-        SESSÃO ATIVA: <span id="idPaciente">CARREGANDO...</span>
+        ID DO PACIENTE: <span id="idPaciente">IDENTIFICANDO...</span>
     </div>
 
     <div id="quiz-section">
         <h2 style="margin-top:0;">Triagem de Marcadores TDAH</h2>
-        <p style="color: #7f8c8d; font-size: 14px;">Responda com sinceridade para a análise neuropsicológica preliminar.</p>
+        <p style="color: #7f8c8d; font-size: 14px;">Análise Neuropsicológica preliminar - UNINTA</p>
         
         <div class="question">
-            <p><strong>1. Dificuldade em manter a atenção:</strong><br>Com que frequência você tem dificuldade para manter a atenção em tarefas ou atividades de lazer?</p>
+            <p><strong>1. Atenção aos Detalhes:</strong><br>Com que frequência você comete erros por descuido em tarefas escolares ou de trabalho?</p>
             <select id="q1">
                 <option value="0">Nunca</option>
                 <option value="1">Raramente</option>
@@ -41,28 +41,27 @@
             </select>
         </div>
 
-        <button class="btn" onclick="finalizarAnalyse()">Finalizar e Gerar Laudo</button>
+        <button class="btn" onclick="finalizarAnalyse()">Analisar Resultados</button>
     </div>
 
     <div id="result-section">
         <h2 style="color: #27ae60;">Análise Concluída</h2>
         <div class="porcentagem-display" id="valPorcentagem">0%</div>
-        <p id="feedback-texto">Compatibilidade identificada com o perfil neurobiológico TDAH.</p>
-        <button class="btn" onclick="gerarPDF()" style="background: #27ae60; margin-top: 20px;">Baixar Relatório PDF Profissional</button>
-        <button class="btn" onclick="window.location.href='index.html'" style="background: #95a5a6; margin-top: 10px; font-size: 0.8rem; padding: 10px;">Sair do Sistema</button>
+        <p id="feedback-texto">Compatibilidade identificada com o perfil TDAH.</p>
+        <button class="btn" onclick="gerarPDF()" style="background: #27ae60; margin-top: 20px;">Baixar Laudo PDF Profissional</button>
+        <button class="btn" onclick="voltar()" style="background: #95a5a6; margin-top: 10px; font-size: 0.8rem; padding: 10px;">Sair do Laboratório</button>
     </div>
 
-    <div class="footer-logo">PROJETO TCC EXTENSÃO - LABORATÓRIO NEURO-UNINTA</div>
+    <div class="footer-logo">PROJETO TCC EXTENSÃO - NEUROCIÊNCIA UNINTA</div>
 </div>
 
 <script>
-    // Recupera o ID salvo na entrada
+    // Conecta com o ID que foi validado no index.html
     const usuarioId = localStorage.getItem("usuarioLogado") || "PACIENTE_TESTE";
     document.getElementById('idPaciente').innerText = usuarioId;
 
     function finalizarAnalyse() {
         const p1 = parseInt(document.getElementById('q1').value);
-        // Cálculo simples (se adicionar mais perguntas, ajuste a divisão)
         const total = (p1 / 4) * 100;
         
         document.getElementById('quiz-section').style.display = 'none';
@@ -70,12 +69,16 @@
         document.getElementById('valPorcentagem').innerText = total.toFixed(0) + "%";
     }
 
+    function voltar() {
+        localStorage.removeItem("usuarioLogado"); // Limpa o acesso ao sair
+        window.location.href = 'index.html';
+    }
+
     function gerarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const score = document.getElementById('valPorcentagem').innerText;
 
-        // Estilização do PDF
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
         doc.text("LAUDO DE TRIAGEM NEURODIGITAL", 105, 20, { align: "center" });
@@ -83,9 +86,9 @@
         doc.setFontSize(12);
         doc.setFont("helvetica", "normal");
         doc.text("Instituição: Centro Universitário Inta - UNINTA", 20, 40);
-        doc.text("Responsável Técnico: Mestre Matheus", 20, 48);
-        doc.text("ID do Paciente: " + usuarioId, 20, 56);
-        doc.text("Data da Avaliação: " + new Date().toLocaleDateString(), 20, 64);
+        doc.text("Responsável: Mestre Matheus", 20, 48);
+        doc.text("ID DO PACIENTE: " + usuarioId, 20, 56);
+        doc.text("Data: " + new Date().toLocaleDateString(), 20, 64);
         
         doc.setLineWidth(0.5);
         doc.line(20, 70, 190, 70);
@@ -98,11 +101,9 @@
         
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(10);
-        doc.setFont("helvetica", "italic");
-        doc.text("Nota: Este documento é uma ferramenta de triagem para fins acadêmicos (TCC).", 20, 110);
-        doc.text("Não substitui o diagnóstico clínico realizado por um profissional.", 20, 115);
-
-        // Salva o arquivo com o nome do ID personalizado
+        doc.text("Este documento é parte integrante de um TCC de extensão.", 20, 110);
+        
+        // Nome do arquivo salvo com o ID Premiado
         doc.save("Laudo_Neuro_" + usuarioId + ".pdf");
     }
 </script>
