@@ -3,75 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA Neuro-UNINTA | Mestre Matheus</title>
+    <title>Laboratório de Neurociência - Mestre Matheus</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
-        .user { background-color: #e30613; color: white; align-self: flex-end; }
-        #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
-        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #b3050f; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #chat-container { width: 100%; max-width: 500px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; }
+        #messages { height: 300px; overflow-y: auto; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 10px; }
+        .msg { margin: 5px 0; padding: 8px 12px; border-radius: 10px; }
+        .user { background: #007bff; color: white; align-self: flex-end; text-align: right; }
+        .bot { background: #e9ecef; color: #333; }
+        input { width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        button { padding: 10px; border: none; background: #28a745; color: white; border-radius: 5px; cursor: pointer; }
+        .mestre-label { font-size: 0.8em; color: #666; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <header>IA DO LABORATÓRIO DE NEUROCIÊNCIA</header>
+
     <div id="chat-container">
-        <div class="msg ia">Olá, Mestre Matheus e alunos! Sou a IA oficial deste laboratório. Como posso ajudar com suas pesquisas sobre TDAH ou Neurociência hoje?</div>
-    </div>
-    <div id="input-area">
-        <input type="text" id="userInput" placeholder="Digite sua pergunta...">
-        <button onclick="sendMessage()">ENVIAR</button>
+        <div class="mestre-label">Propriedade Intelectual: <b>Mestre Matheus</b> (UNINTA)</div>
+        <div id="messages"></div>
+        <input type="text" id="userInput" placeholder="Perunte sobre Neuroimagem ou TDAH...">
+        <button onclick="enviar()">Enviar</button>
     </div>
 
     <script>
-        async function sendMessage() {
-    const input = document.getElementById('userInput');
-    const container = document.getElementById('chat-container');
-    const userText = input.value;
-    if (!userText) return;
+        const API_TOKEN = "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";
+        const MODELO = "meta-llama/Meta-Llama-3-8B-Instruct";
 
-    // Interface de Neurovisão: Adiciona a mensagem do usuário imediatamente [cite: 2026-01-07]
-    const userDiv = document.createElement('div');
-    userDiv.className = 'msg user';
-    userDiv.innerText = userText;
-    container.appendChild(userDiv);
-    input.value = '';
-
-    try {
-        // Usando a versão v1beta, que é mais flexível com contas gratuitas [cite: 2026-01-07]
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBnB1MsAM0RCDcKm5WeC3Qcn2DdhU-a62E`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: "Você é a IA do Mestre Matheus. Responda sobre: " + userText
-                    }]
-                }]
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0].content) {
-            const iaText = data.candidates[0].content.parts[0].text;
-            const iaDiv = document.createElement('div');
-            iaDiv.className = 'msg ia';
-            iaDiv.innerText = iaText;
-            container.appendChild(iaDiv);
-        } else {
-            // Se o Google bloquear, ele vai avisar aqui [cite: 2026-01-07]
-            console.error("Erro do Google:", data);
-            alert("A IA recebeu a mensagem, mas o Google pediu para verificar a conta no painel AI Studio.");
+        // Função para a IA falar
+        function falar(texto) {
+            const vozes = window.speechSynthesis.getVoices();
+            const mensagem = new SpeechSynthesisUtterance(texto);
+            mensagem.lang = 'pt-BR';
+            // Tenta pegar uma voz brasileira natural se disponível
+            const vozBR = vozes.find(v => v.lang.includes('PT-BR'));
+            if(vozBR) mensagem.voice = vozBR;
+            window.speechSynthesis.speak(mensagem);
         }
-    } catch (e) {
-        alert("Erro de conexão. Verifique se o GitHub está bloqueando o acesso.");
-    }
-    container.scrollTop = container.scrollHeight;
+
+        async function enviar() {
+            const input = document.getElementById('userInput');
+            const msgDiv = document.getElementById('messages');
+            if (!input.value) return;
+
+            // Exibe mensagem do usuário
+            msgDiv.innerHTML += `<div class="msg user"><b>Você:</b> ${input.value}</div>`;
+            
+            const promptMestre = `Você é a IA proprietária do Laboratório de Neurociência do Mestre Matheus na UNINTA. 
+            Responda sempre em Português do Brasil. Seja técnico e acadêmico. 
+            Fale com autoridade sobre Neuroimagem, TDAH e Neurociências. 
+            Sempre que possível, cite a USP, UFRGS ou CBI of Miami como referências. 
+            Pergunta do aluno: ${input.value}`;
+
+            input.value = "Pensando...";
+
+            try {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
+                    headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+                    method: "POST",
+                    body: JSON.stringify({ inputs: promptMestre, parameters: { max_new_tokens: 250, return_full_text: false } }),
+                });
+
+                const data = await response.json();
+                let respostaTexto = data[0].generated_text || "Mestre, estou processando...";
+                
+                // Limpa a resposta de códigos e exibe
+                msgDiv.innerHTML += `<div class="msg bot"><b>IA do Mestre:</b> ${respostaTexto}</div>`;
+                input.value = "";
+                msgDiv.scrollTop = msgDiv.scrollHeight;
+
+                // Faz a IA falar
+                falar(respostaTexto);
+
+            } catch (error) {
+                msgDiv.innerHTML += `<div class="msg bot">Erro ao conectar com o laboratório.</div>`;
+                input.value = "";
+            }
+        }
     </script>
 </body>
 </html>
