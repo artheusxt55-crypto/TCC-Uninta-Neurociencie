@@ -1,44 +1,111 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuro-Rastreio | UNINTA</title>
+    <title>Laboratório Neuro-UNINTA | Rastreio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 40px; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #3498db; margin-bottom: 15px; }
-        h1 { color: #2c3e50; margin-bottom: 5px; }
-        p.subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
-        input { padding: 12px; width: 90%; margin-bottom: 15px; border: 2px solid #e0e0e0; border-radius: 8px; outline: none; transition: 0.3s; }
-        input:focus { border-color: #3498db; }
-        button { background-color: #3498db; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: 0.3s; }
-        button:hover { background-color: #2980b9; transform: translateY(-2px); }
-        .qr-container { margin-top: 35px; padding-top: 20px; border-top: 1px dashed #ccc; }
-        .qr-code { width: 180px; margin-top: 10px; }
-        .link-text { display: block; margin-top: 10px; color: #3498db; font-weight: bold; text-decoration: none; }
+        :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; --white: #ffffff; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--primary); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .card { background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 550px; width: 100%; text-align: center; }
+        .header-status { background: #e8f4fd; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; color: var(--secondary); border: 1px solid #3498db; }
+        .question { text-align: left; margin-bottom: 20px; background: #f9f9f9; padding: 20px; border-radius: 12px; border-left: 6px solid var(--secondary); }
+        select { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%; transition: 0.3s; }
+        .btn:hover { background: #2980b9; transform: translateY(-2px); }
+        #result-section { display: none; }
+        .porcentagem-display { font-size: 4rem; font-weight: bold; color: var(--secondary); margin: 20px 0; }
+        .footer-logo { margin-top: 30px; font-size: 0.7rem; color: #bdc3c7; font-weight: bold; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <img src="https://github.com/artheusxt55-crypto.png" alt="Mestre Matheus" class="avatar">
-        <h1>Olá, Mestre Matheus!</h1>
-        <p class="subtitle">Laboratório Digital de Neurociência - UNINTA</p>
-
-        <form action="teste.html">
-            <input type="text" placeholder="Digite seu ID ou Nome" required>
-            <button type="submit">Acessar Laboratório</button>
-        </form>
-
-        <div class="qr-container">
-            <p style="font-size: 13px; color: #555;">Escaneie para acessar o Projeto Oficial:</p>
-            <img src="https://raw.githubusercontent.com/artheusxt55-crypto/TCC-Uninta-Neuroscience/main/Qq1nlY7ccGXqPau.png" alt="QR Code Vermelho" class="qr-code">
-            <a href="https://bit.ly/tcc-uninta" class="link-text">bit.ly/tcc-uninta</a>
-        </div>
-        
-        <p style="margin-top: 20px; font-size: 10px; color: #bdc3c7;">PROJETO TCC EXTENSÃO - UNINTA</p>
+<div class="card">
+    <div class="header-status">
+        SESSÃO ATIVA: <span id="idPaciente">CARREGANDO...</span>
     </div>
+
+    <div id="quiz-section">
+        <h2 style="margin-top:0;">Triagem de Marcadores TDAH</h2>
+        <p style="color: #7f8c8d; font-size: 14px;">Responda com sinceridade para a análise neuropsicológica preliminar.</p>
+        
+        <div class="question">
+            <p><strong>1. Dificuldade em manter a atenção:</strong><br>Com que frequência você tem dificuldade para manter a atenção em tarefas ou atividades de lazer?</p>
+            <select id="q1">
+                <option value="0">Nunca</option>
+                <option value="1">Raramente</option>
+                <option value="2">Às vezes</option>
+                <option value="3">Frequentemente</option>
+                <option value="4">Muito Frequentemente</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="finalizarAnalyse()">Finalizar e Gerar Laudo</button>
+    </div>
+
+    <div id="result-section">
+        <h2 style="color: #27ae60;">Análise Concluída</h2>
+        <div class="porcentagem-display" id="valPorcentagem">0%</div>
+        <p id="feedback-texto">Compatibilidade identificada com o perfil neurobiológico TDAH.</p>
+        <button class="btn" onclick="gerarPDF()" style="background: #27ae60; margin-top: 20px;">Baixar Relatório PDF Profissional</button>
+        <button class="btn" onclick="window.location.href='index.html'" style="background: #95a5a6; margin-top: 10px; font-size: 0.8rem; padding: 10px;">Sair do Sistema</button>
+    </div>
+
+    <div class="footer-logo">PROJETO TCC EXTENSÃO - LABORATÓRIO NEURO-UNINTA</div>
+</div>
+
+<script>
+    // Recupera o ID salvo na entrada
+    const usuarioId = localStorage.getItem("usuarioLogado") || "PACIENTE_TESTE";
+    document.getElementById('idPaciente').innerText = usuarioId;
+
+    function finalizarAnalyse() {
+        const p1 = parseInt(document.getElementById('q1').value);
+        // Cálculo simples (se adicionar mais perguntas, ajuste a divisão)
+        const total = (p1 / 4) * 100;
+        
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('valPorcentagem').innerText = total.toFixed(0) + "%";
+    }
+
+    function gerarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const score = document.getElementById('valPorcentagem').innerText;
+
+        // Estilização do PDF
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text("LAUDO DE TRIAGEM NEURODIGITAL", 105, 20, { align: "center" });
+        
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text("Instituição: Centro Universitário Inta - UNINTA", 20, 40);
+        doc.text("Responsável Técnico: Mestre Matheus", 20, 48);
+        doc.text("ID do Paciente: " + usuarioId, 20, 56);
+        doc.text("Data da Avaliação: " + new Date().toLocaleDateString(), 20, 64);
+        
+        doc.setLineWidth(0.5);
+        doc.line(20, 70, 190, 70);
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("RESULTADO DO RASTREIO:", 20, 85);
+        doc.setFontSize(16);
+        doc.setTextColor(52, 152, 219);
+        doc.text(score + " de compatibilidade estatística", 20, 95);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.text("Nota: Este documento é uma ferramenta de triagem para fins acadêmicos (TCC).", 20, 110);
+        doc.text("Não substitui o diagnóstico clínico realizado por um profissional.", 20, 115);
+
+        // Salva o arquivo com o nome do ID personalizado
+        doc.save("Laudo_Neuro_" + usuarioId + ".pdf");
+    }
+</script>
 
 </body>
 </html>
