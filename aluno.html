@@ -21,19 +21,17 @@
 <header>IA DO LABORATÓRIO - UNINTA</header>
 
 <div id="chat-container">
-    <div class="msg ia">Sistema UnintaBot ativado. Mestre Matheus, digite sua pergunta e aguarde o "aquecimento" dos motores.</div>
+    <div class="msg ia">Conexão Ultra-Rápida estabelecida, Mestre Matheus. Estou pronto para analisar temas de Neurociência, TDAH e Neuroimagem.</div>
 </div>
 
 <div id="input-area">
-    <input type="text" id="userInput" placeholder="Pergunte sobre TDAH ou Neuroimagem...">
+    <input type="text" id="userInput" placeholder="Pergunte algo sobre Neurociência...">
     <button id="btnEnviar" onclick="enviar()">Enviar</button>
 </div>
 
 <script>
-    const p1 = "hf_fGKSQsdLcaOyNwcx";
-    const p2 = "lVklzQcmAugQLOhXVO";
-    const TOKEN = p1 + p2; 
-    const MODELO = "microsoft/Phi-3-mini-4k-instruct"
+    // SUA CHAVE DA GROQ
+    const API_KEY = "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";
 
     function falar(texto) {
         if ('speechSynthesis' in window) {
@@ -52,49 +50,48 @@
 
         if (!pergunta) return;
 
-        container.innerHTML += `<div class="msg user">${pergunta}</div>`;
-        input.value = "";
+        // Exibe pergunta do usuário
+        container.innerHTML += `<div class="msg user">${input.value}</div>`;
+        input.value = "IA Analisando...";
         btn.disabled = true;
-        btn.innerText = "Aguarde...";
 
         try {
-            let sucesso = false;
-            let tentativas = 0;
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: "Você é uma IA especialista em Neurociência para o laboratório da UNINTA. Responda de forma clara e profissional." },
+                        { role: "user", content: pergunta }
+                    ],
+                    temperature: 0.7
+                })
+            });
 
-            while (tentativas < 3 && !sucesso) {
-                const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
-                    headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
-                    method: "POST",
-                    body: JSON.stringify({ inputs: pergunta, options: { wait_for_model: true } }),
-                });
+            const data = await response.json();
+            const resposta = data.choices[0].message.content;
 
-                const data = await response.json();
+            // Exibe resposta da IA
+            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
+            falar(resposta);
 
-                if (data.error && data.error.includes("loading")) {
-                    tentativas++;
-                    btn.innerText = `Acordando (${tentativas}/3)...`;
-                    await new Promise(r => setTimeout(r, 8000));
-                } else {
-                    let resRaw = Array.isArray(data) ? data[0].generated_text : data.generated_text;
-                    if (resRaw) {
-                        let resposta = resRaw.replace(pergunta, "").trim();
-                        container.innerHTML += `<div class="msg ia">${resposta}</div>`;
-                        falar(resposta);
-                        sucesso = true;
-                    } else {
-                        throw new Error("Resposta vazia");
-                    }
-                }
-            }
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">Ainda estou aquecendo. Por favor, tente clicar em Enviar de novo.</div>`;
+            container.innerHTML += `<div class="msg ia">Erro de conexão. Verifique sua internet ou a chave da Groq.</div>`;
         } finally {
             btn.disabled = false;
-            btn.innerText = "Enviar";
+            input.value = "";
             container.scrollTop = container.scrollHeight;
         }
     }
+
+    // Enviar com a tecla Enter
+    document.getElementById('userInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') enviar();
+    });
 </script>
 </body>
 </html>
-        
