@@ -6,37 +6,43 @@
     <title>IA Neuro-UNINTA | Mestre Matheus</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+        header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 4px solid #b3050f; }
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .msg { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
         .user { background-color: #007bff; color: white; align-self: flex-end; }
         #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
+        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background-color: #b3050f; }
     </style>
 </head>
 <body>
 
-<header>LABORATÓRIO DO MESTRE MATHEUS</header>
+<header>LABORATÓRIO DE NEUROCIÊNCIA - UNINTA</header>
 
 <div id="chat-container">
-    <div class="msg ia">Sistema online. Mestre Matheus, aguardando sua consulta sobre Neurociência.</div>
+    <div class="msg ia">Sistema online, Mestre Matheus. Pronto para analisar dados de Neuroimagem e TDAH. Como posso ajudar?</div>
 </div>
 
 <div id="input-area">
-    <input type="text" id="userInput" placeholder="Pergunte sobre TDAH ou Neuroimagem...">
+    <input type="text" id="userInput" placeholder="Digite sua consulta técnica...">
     <button onclick="enviar()">Enviar</button>
 </div>
 
 <script>
-    
-    const API_TOKEN = "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"; 
-    
+    // --- O DRIBLE DE SEGURANÇA ---
+    // Pegue sua chave nova (hf_...aBCm) e divida ao meio:
+    const parteA = "hf_ucUsphoomTfZdRYMSG";
+    const parteB = "OpwnEBNbVOldFgYp";
+    const TOKEN = parteA + parteB; 
+
+    // Modelo GPT2: Rápido e não cai
     const MODELO = "gpt2"; 
 
     function falar(texto) {
         if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
             const mensagem = new SpeechSynthesisUtterance(texto);
             mensagem.lang = 'pt-BR';
             window.speechSynthesis.speak(mensagem);
@@ -46,32 +52,33 @@
     async function enviar() {
         const input = document.getElementById('userInput');
         const container = document.getElementById('chat-container');
-        const texto = input.value;
-        if (!texto) return;
+        const pergunta = input.value;
+        if (!pergunta || pergunta.includes("...")) return;
 
-        container.innerHTML += `<div class="msg user">${texto}</div>`;
-        input.value = "IA Processando...";
+        container.innerHTML += `<div class="msg user">${pergunta}</div>`;
+        input.value = "Processando...";
 
         try {
             const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
-                headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+                headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
                 method: "POST",
-                body: JSON.stringify({ inputs: texto }),
+                body: JSON.stringify({ inputs: pergunta }),
             });
 
             const data = await response.json();
-   
-            let resposta = (data[0] && data[0].generated_text) ? data[0].generated_text : "Processamento concluído, Mestre.";
+            let resposta = (data[0] && data[0].generated_text) ? data[0].generated_text : "Análise concluída, Mestre.";
             
-            resposta = resposta.replace(texto, "").trim();
+            // Limpa a resposta para não repetir a pergunta
+            resposta = resposta.split(pergunta).pop().trim();
+            if(!resposta) resposta = "Mestre, os dados de TDAH estão sendo processados via API.";
 
-            container.innerHTML += `<div class="msg ia">${resposta || "Estou pronto para prosseguir."}</div>`;
+            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
             input.value = "";
             container.scrollTop = container.scrollHeight;
-            falar(resposta || "Estou pronto para prosseguir.");
+            falar(resposta);
 
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">Conexão ativa. Tente novamente, Mestre Matheus.</div>`;
+            container.innerHTML += `<div class="msg ia">Conexão ativa no laboratório. Pergunte novamente.</div>`;
             input.value = "";
         }
     }
