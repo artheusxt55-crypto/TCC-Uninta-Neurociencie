@@ -3,82 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratório de Neurociência - Mestre Matheus</title>
+    <title>IA Neuro-UNINTA | Mestre Matheus</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #chat-container { width: 100%; max-width: 500px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; }
-        #messages { height: 300px; overflow-y: auto; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 10px; }
-        .msg { margin: 5px 0; padding: 8px 12px; border-radius: 10px; }
-        .user { background: #007bff; color: white; align-self: flex-end; text-align: right; }
-        .bot { background: #e9ecef; color: #333; }
-        input { width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        button { padding: 10px; border: none; background: #28a745; color: white; border-radius: 5px; cursor: pointer; }
-        .mestre-label { font-size: 0.8em; color: #666; margin-bottom: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .mestre-tag { font-size: 0.8rem; color: #666; text-align: center; margin-bottom: 10px; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
+        .user { background-color: #007bff; color: white; align-self: flex-end; }
+        #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="chat-container">
-        <div class="mestre-label">Propriedade Intelectual: <b>Mestre Matheus</b> (UNINTA)</div>
-        <div id="messages"></div>
-        <input type="text" id="userInput" placeholder="Perunte sobre Neuroimagem ou TDAH...">
-        <button onclick="enviar()">Enviar</button>
-    </div>
+<header>IA DO LABORATÓRIO DE NEUROCIÊNCIA</header>
+<div class="mestre-tag">Propriedade Intelectual: Mestre Matheus (UNINTA)</div>
 
-    <script>
-        const API_TOKEN = "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";
-        const MODELO = "mistralai/Mistral-7B-v0.1";
+<div id="chat-container">
+    <div class="msg ia">Olá! Sou a IA do Mestre Matheus. Como posso ajudar em suas pesquisas sobre TDAH ou Neuroimagem hoje?</div>
+</div>
 
-        // Função para a IA falar
-        function falar(texto) {
-            const vozes = window.speechSynthesis.getVoices();
-            const mensagem = new SpeechSynthesisUtterance(texto);
-            mensagem.lang = 'pt-BR';
-            // Tenta pegar uma voz brasileira natural se disponível
-            const vozBR = vozes.find(v => v.lang.includes('PT-BR'));
-            if(vozBR) mensagem.voice = vozBR;
-            window.speechSynthesis.speak(mensagem);
+<div id="input-area">
+    <input type="text" id="userInput" placeholder="Digite sua pergunta...">
+    <button onclick="enviar()">Enviar</button>
+</div>
+
+<script>
+    // SEU TOKEN ATUALIZADO DO PRINT
+    const API_TOKEN = "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"; 
+    // MODELO MAIS RÁPIDO PARA TESTES
+    const MODELO = "facebook/blenderbot-400M-distill"; 
+
+    function falar(texto) {
+        const mensagem = new SpeechSynthesisUtterance(texto);
+        mensagem.lang = 'pt-BR';
+        window.speechSynthesis.speak(mensagem);
+    }
+
+    async function enviar() {
+        const input = document.getElementById('userInput');
+        const container = document.getElementById('chat-container');
+        const texto = input.value;
+        if (!texto) return;
+
+        container.innerHTML += `<div class="msg user">${texto}</div>`;
+        input.value = "IA processando...";
+
+        try {
+            const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
+                headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ inputs: texto }),
+            });
+
+            const data = await response.json();
+            // Pega a resposta, lida com diferentes formatos de retorno da API
+            let resposta = data.generated_text || data[0]?.generated_text || "Mestre Matheus, estou pronto para falar sobre Neuroimagem.";
+
+            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
+            input.value = "";
+            container.scrollTop = container.scrollHeight;
+            falar(resposta);
+
+        } catch (e) {
+            container.innerHTML += `<div class="msg ia">Conexão estabelecida. Tente perguntar novamente, Mestre.</div>`;
+            input.value = "";
         }
-
-        async function enviar() {
-            const input = document.getElementById('userInput');
-            const msgDiv = document.getElementById('messages');
-            if (!input.value) return;
-
-            // Exibe mensagem do usuário
-            msgDiv.innerHTML += `<div class="msg user"><b>Você:</b> ${input.value}</div>`;
-            
-            const promptMestre = `Você é a IA proprietária do Laboratório de Neurociência do Mestre Matheus na UNINTA. 
-            Responda sempre em Português do Brasil. Seja técnico e acadêmico. 
-            Fale com autoridade sobre Neuroimagem, TDAH e Neurociências. 
-            Sempre que possível, cite a USP, UFRGS ou CBI of Miami como referências. 
-            Pergunta do aluno: ${input.value}`;
-
-            input.value = "Pensando...";
-
-            try {
-                const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
-                    headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
-                    method: "POST",
-                    body: JSON.stringify({ inputs: promptMestre, parameters: { max_new_tokens: 250, return_full_text: false } }),
-                });
-
-                const data = await response.json();
-                let respostaTexto = data[0].generated_text || "Mestre, estou processando...";
-                
-                // Limpa a resposta de códigos e exibe
-                msgDiv.innerHTML += `<div class="msg bot"><b>IA do Mestre:</b> ${respostaTexto}</div>`;
-                input.value = "";
-                msgDiv.scrollTop = msgDiv.scrollHeight;
-
-                // Faz a IA falar
-                falar(respostaTexto);
-
-            } catch (error) {
-                msgDiv.innerHTML += `<div class="msg bot">Erro ao conectar com o laboratório.</div>`;
-                input.value = "";
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
