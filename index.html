@@ -43,31 +43,28 @@
     }
 </style>
 <body>
-<div style="text-align: right; padding: 20px;">
-    <a href="javascript:void(0)" onclick="validarAcesso()" class="btn-uninta-tcc">Área do Aluno</a>
-</div>
-
+    <div class="card">
         <h2>Olá, Mestre Matheus!</h2>
         <p>Laboratório Digital de Neurociência - UNINTA</p>
 
-        <div id="error" class="error-msg">ID PREMIADO INVÁLIDO!</div>
-        
+        <div id="error" class="error-msg" style="display: none;">ID PREMIADO INVÁLIDO!</div>
+
         <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
         <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
-     <div class="avatar">
-    <img src="robo-freud.png" class="avatar-freud" alt="Avatar">
-</div>
-    <img src="https://raw.githubusercontent.com/artheusxt55-crypto/TCC-Uninta-Neuroscience/main/Qq1nlY7ccGXqPau.png" style="width: 100%;">
+
+        <div class="avatar">
+            <img src="robo-freud.png" class="avatar-freud" alt="Avatar">
+        </div>
+
+        <div class="qr-code">
+            <img src="https://raw.githubusercontent.com/artheusxt55-crypto/TCC-Uninta-Neuroscience/main/Qq1nlY7ccGXqPau.png" style="width: 80px;">
             <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
         </div>
     </div>
-<div style="text-align: right; padding: 20px;">
-<a href="javascript:void(0)" onclick="validarAcesso()" class="btn-uninta-tcc">Área do Aluno</a>
-</div>
 
-<div style="text-align: center; margin-top: 50px;">
-    <img src="robo-freud.png" class="avatar-freud" alt="Robô Freud">
-    <p style="font-family: Arial, sans-serif; color: #666;">Olá! Sou o assistente do seu TCC.</p>
+    <div style="text-align: right; padding: 20px;">
+        <a href="javascript:void(0)" onclick="validarAcesso()" class="btn-uninta-tcc">Área do Aluno</a>
+    </div>
 </div>
     <script>
         function validarAcesso() {
