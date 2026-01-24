@@ -23,7 +23,7 @@
 <div class="mestre-tag">Propriedade Intelectual: Mestre Matheus (UNINTA)</div>
 
 <div id="chat-container">
-    <div class="msg ia">Olá! Sou a IA do Mestre Matheus. Como posso ajudar em suas pesquisas sobre TDAH ou Neuroimagem hoje?</div>
+    <div class="msg ia">Olá! Sou a IA do Mestre Matheus. Como posso ajudar em suas pesquisas sobre TDAH hoje?</div>
 </div>
 
 <div id="input-area">
@@ -32,10 +32,9 @@
 </div>
 
 <script>
-    // SEU TOKEN ATUALIZADO DO PRINT
     const API_TOKEN = "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"; 
-    // MODELO MAIS RÁPIDO PARA TESTES
-    const MODELO = "facebook/blenderbot-400M-distill"; 
+    
+    const MODELO = "gpt2";
 
     function falar(texto) {
         const mensagem = new SpeechSynthesisUtterance(texto);
@@ -60,7 +59,7 @@
             });
 
             const data = await response.json();
-            // Pega a resposta, lida com diferentes formatos de retorno da API
+           
             let resposta = data.generated_text || data[0]?.generated_text || "Mestre Matheus, estou pronto para falar sobre Neuroimagem.";
 
             container.innerHTML += `<div class="msg ia">${resposta}</div>`;
