@@ -31,14 +31,13 @@
 </div>
 
 <script>
-    // --- O DRIBLE DE SEGURANÇA ---
-    // Pegue sua chave nova (hf_...aBCm) e divida ao meio:
+ 
     const parteA = "hf_ucUsphoomTfZdRYMSG";
     const parteB = "OpwnEBNbVOldFgYp";
     const TOKEN = parteA + parteB; 
 
-    // Modelo GPT2: Rápido e não cai
-    const MODELO = "gpt2"; 
+   
+    const MODELO = "meta-llama/Meta-Llama-3-8B-Instruct";
 
     function falar(texto) {
         if ('speechSynthesis' in window) {
