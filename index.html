@@ -46,8 +46,13 @@
             const idsPermitidos = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
             
             if (idsPermitidos.includes(input)) {
-                // Salva o ID e pula para o arquivo de perguntas
                 localStorage.setItem("usuarioLogado", input);
                 window.location.href = "unt.html";
             } else {
-                document.getElementById('error').
+                document.getElementById('error').style.display = "block";
+                document.getElementById('idInput').style.borderColor = "#e74c3c";
+            }
+        }
+    </script>
+</body>
+</html>
