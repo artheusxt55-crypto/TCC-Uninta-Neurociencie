@@ -69,27 +69,41 @@
             
             // Tratamento da resposta para o Llama-3
             let resposta = "";
-            if (Array.isArray(data)) {
-                resposta = data[0].generated_text;
-            } else if (data.generated_text) {
-                resposta = data.generated_text;
-            } else {
-                resposta = "Mestre, estou terminando de carregar o banco de dados de Neuroimagem.";
+          try {
+            let tentativa = 0;
+            let sucesso = false;
+            
+            while(tentativa < 3 && !sucesso) {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${MODELO}`, {
+                    headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        inputs: pergunta,
+                        options: { wait_for_model: true, use_cache: false } 
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.error && data.error.includes("loading")) {
+                    tentativa++;
+                    input.value = `IA Acordando (Tentativa ${tentativa}/3)...`;
+                    await new Promise(r => setTimeout(r, 5000)); // Espera 5 segundos antes de tentar de novo
+                } else if (data[0] || data.generated_text) {
+                    let resposta = data[0]?.generated_text || data.generated_text;
+                    resposta = resposta.replace(pergunta, "").trim();
+                    container.innerHTML += `<div class="msg ia">${resposta}</div>`;
+                    falar(resposta);
+                    sucesso = true;
+                } else {
+                    throw new Error("Erro desconhecido");
+                }
             }
             
-            // Remove a pergunta do texto de resposta
-            resposta = resposta.replace(pergunta, "").trim();
-
-            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
             input.value = "";
             container.scrollTop = container.scrollHeight;
-            falar(resposta);
 
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">O sistema está processando. Tente novamente em 10 segundos.</div>`;
+            container.innerHTML += `<div class="msg ia">Servidor ocupado. Mestre, tente clicar em enviar mais uma vez em instantes.</div>`;
             input.value = "";
         }
-    }
-</script>
-</body>
-</html>
