@@ -41,36 +41,36 @@
     border: 4px solid #e30613;
     object-fit: cover;
     }
-</style>
-<body>
+</style> 
+   <body>
     <div class="card">
-        <h2>Olá, Mestre Matheus!</h2>
-        <p>Laboratório Digital de Neurociência - UNINTA</p>
-
-        <div id="error" class="error-msg" style="display: none;">ID PREMIADO INVÁLIDO!</div>
-
-        <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
-        <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
-
         <div class="avatar">
             <img src="robo-freud.png" class="avatar-freud" alt="Avatar">
         </div>
 
-        <div class="qr-code">
+        <h2>Olá, Mestre Matheus!</h2>
+        <p>Laboratório Digital de Neurociência - UNINTA</p>
+
+        <div id="error" class="error-msg">ID PREMIADO INVÁLIDO!</div>
+
+        <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
+        <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
+
+        <div class="qr-code" style="margin: 0 auto;">
             <img src="https://raw.githubusercontent.com/artheusxt55-crypto/TCC-Uninta-Neuroscience/main/Qq1nlY7ccGXqPau.png" style="width: 80px;">
             <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
         </div>
     </div>
 
-    <div style="text-align: right; padding: 20px;">
+    <div style="position: absolute; bottom: 20px; right: 20px;">
         <a href="javascript:void(0)" onclick="validarAcesso()" class="btn-uninta-tcc">Área do Aluno</a>
     </div>
-</div>
+
     <script>
         function validarAcesso() {
             const input = document.getElementById('idInput').value.trim();
             const idsPermitidos = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
-            
+
             if (idsPermitidos.includes(input)) {
                 localStorage.setItem("usuarioLogado", input);
                 window.location.href = "unt.html";
