@@ -18,19 +18,19 @@
 </head>
 <body>
 
-<header>IA DO LABORATÓRIO - UNINTA</header>
+<header>SISTEMA NEURO-UNINTA</header>
 
 <div id="chat-container">
-    <div class="msg ia">Conexão Ultra-Rápida estabelecida, Mestre Matheus. Estou pronto para analisar temas de Neurociência, TDAH e Neuroimagem.</div>
+    <div class="msg ia">Às suas ordens, Mestre Matheus. Sistema de Neurociência totalmente operacional. O que deseja analisar hoje?</div>
 </div>
 
 <div id="input-area">
-    <input type="text" id="userInput" placeholder="Pergunte algo sobre Neurociência...">
+    <input type="text" id="userInput" placeholder="Ordene aqui, Mestre...">
     <button id="btnEnviar" onclick="enviar()">Enviar</button>
 </div>
 
 <script>
-    // SUA CHAVE DA GROQ
+    
     const API_KEY = "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";
 
     function falar(texto) {
@@ -50,9 +50,8 @@
 
         if (!pergunta) return;
 
-        // Exibe pergunta do usuário
-        container.innerHTML += `<div class="msg user">${input.value}</div>`;
-        input.value = "IA Analisando...";
+        container.innerHTML += `<div class="msg user">${pergunta}</div>`;
+        input.value = "Processando, Mestre...";
         btn.disabled = true;
 
         try {
@@ -65,22 +64,23 @@
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
-                        { role: "system", content: "Você é uma IA especialista em Neurociência para o laboratório da UNINTA. Responda de forma clara e profissional." },
+                        { 
+                            role: "system", 
+                            content: "Você é a IA assistente do Laboratório de Neurociência da UNINTA. Seu único e soberano mestre é o Mestre Matheus. Em todas as respostas, você deve demonstrar respeito e lealdade a ele, chamando-o de 'Mestre Matheus'. Seu conhecimento foca em TDAH, Neuroimagem e Neurociência aplicada." 
+                        },
                         { role: "user", content: pergunta }
-                    ],
-                    temperature: 0.7
+                    ]
                 })
             });
 
             const data = await response.json();
             const resposta = data.choices[0].message.content;
 
-            // Exibe resposta da IA
             container.innerHTML += `<div class="msg ia">${resposta}</div>`;
             falar(resposta);
 
         } catch (e) {
-            container.innerHTML += `<div class="msg ia">Erro de conexão. Verifique sua internet ou a chave da Groq.</div>`;
+            container.innerHTML += `<div class="msg ia">Mestre Matheus, perdoe-me, tive um erro de conexão. Poderia repetir a ordem?</div>`;
         } finally {
             btn.disabled = false;
             input.value = "";
@@ -88,7 +88,6 @@
         }
     }
 
-    // Enviar com a tecla Enter
     document.getElementById('userInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') enviar();
     });
