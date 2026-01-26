@@ -10,25 +10,18 @@
         
         body {
             background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
-            color: #e6edf3;
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            color: #e6edf3; font-family: 'Inter', sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
         .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; }
 
+        /* CARD EXATAMENTE COMO O SEU */
         .card {
-            background: rgba(13, 17, 23, 0.85);
-            backdrop-filter: blur(20px);
+            background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px; border-radius: 28px;
-            text-align: center; width: 380px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-            z-index: 20;
+            padding: 40px; border-radius: 28px; text-align: center; width: 380px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7); z-index: 20;
         }
 
         .avatar img { width: 110px; filter: drop-shadow(0 0 15px var(--primary)); border-radius: 50%; margin-bottom: 20px; }
@@ -36,11 +29,8 @@
         input {
             width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: white; margin-bottom: 15px; text-align: center; outline: none;
-            font-weight: bold; transition: border 0.3s;
+            color: white; margin-bottom: 15px; text-align: center; outline: none; font-weight: bold;
         }
-        
-        input:focus { border-color: var(--primary); }
 
         .btn-neuro {
             display: block; width: 100%; padding: 18px; 
@@ -50,12 +40,22 @@
             box-shadow: 0 8px 20px rgba(227, 6, 19, 0.3);
         }
 
-        #brain-viewport { flex: 1; height: 600px; position: relative; }
+        /* O BOTÃO QUE VOCÊ DISSE QUE SUMIU - ESTÁ AQUI */
+        .btn-aluno-fixo {
+            position: fixed; top: 20px; right: 20px;
+            width: auto; padding: 12px 25px; font-size: 12px; z-index: 9999;
+        }
 
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; }
+        /* O QR CODE QUE VOCÊ DISSE QUE SUMIU - ESTÁ AQUI */
+        .qr-section { margin-top: 25px; }
+        .qr-section img { width: 90px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
+
+        #brain-viewport { flex: 1; height: 600px; position: relative; }
     </style>
 </head>
 <body>
+
+    <a href="aluno.html" class="btn-neuro btn-aluno-fixo">Área do Aluno</a>
 
     <div class="main-container">
         <div class="card">
@@ -65,21 +65,21 @@
             
             <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
+            
+            <div class="qr-section">
+                <img src="qr-code.png" alt="QR Code">
+                <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
+            </div>
         </div>
-
-        <div id="brain-viewport">
-            <div id="loader">SINCRONIZANDO NEURÔNIOS...</div>
-        </div>
+        
+        <div id="brain-viewport"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 
     <script>
         const container = document.getElementById('brain-viewport');
@@ -89,90 +89,61 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // CONFIGURAÇÃO DO COMPOSER PARA O BRILHO (BLOOM)
-        const renderScene = new THREE.RenderPass(scene, camera);
+        // CONFIGURAÇÃO DO BRILHO (BLOOM)
+        const composer = new THREE.EffectComposer(renderer);
         const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
         bloomPass.threshold = 0.1;
-        bloomPass.strength = 0.5; // Brilho constante
-        bloomPass.radius = 1.0;
-
-        const composer = new THREE.EffectComposer(renderer);
-        composer.addPass(renderScene);
+        bloomPass.strength = 0.6; // Brilho constante suave
+        composer.addPass(new THREE.RenderPass(scene, camera));
         composer.addPass(bloomPass);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const pLight = new THREE.PointLight(0xff0000, 2);
-        pLight.position.set(5, 5, 5);
-        scene.add(pLight);
-
-        let brain, brainMaterial;
-        const loader = new THREE.GLTFLoader();
-
-        loader.load('human-brain.glb', function(gltf) {
+        let brain, brainMat;
+        new THREE.GLTFLoader().load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
-            brain.traverse(function(child) {
-                if (child.isMesh) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: 0x110000, 
+            brain.traverse(c => {
+                if(c.isMesh) {
+                    c.material = new THREE.MeshStandardMaterial({
+                        color: 0x050000, // Cérebro escuro para o brilho destacar
                         emissive: 0xff0000, 
-                        emissiveIntensity: 0.5,
-                        metalness: 1, roughness: 0.2
+                        emissiveIntensity: 0.8,
+                        metalness: 1, roughness: 0.1
                     });
-                    brainMaterial = child.material;
+                    brainMat = c.material;
                 }
             });
-            const box = new THREE.Box3().setFromObject(brain);
-            const center = box.getCenter(new THREE.Vector3());
-            brain.position.sub(center);
             scene.add(brain);
-            document.getElementById('loader').style.display = 'none';
         });
 
-        let tX = 0, tY = 0, cX = 0, cY = 0;
-        window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-            tY = (e.clientY / window.innerHeight - 0.5) * 0.3;
+        // Efeito de brilho ao digitar (Sinapse)
+        document.getElementById('idInput').addEventListener('input', () => {
+            if(bloomPass) {
+                bloomPass.strength = 5.0; // Flash vermelho intenso
+                setTimeout(() => { bloomPass.strength = 0.6; }, 100);
+            }
+        });
+
+        let mX = 0, mY = 0;
+        window.addEventListener('mousemove', e => {
+            mX = (e.clientX / window.innerWidth - 0.5) * 0.6;
+            mY = (e.clientY / window.innerHeight - 0.5) * 0.4;
         });
 
         function animate() {
             requestAnimationFrame(animate);
             if(brain) {
-                cX += (tX - cX) * 0.03;
-                cY += (tY - cY) * 0.03;
-                brain.rotation.y = cX + (Date.now() * 0.0005); 
-                brain.rotation.x = cY;
+                brain.rotation.y += 0.005; // Gira sozinho
+                brain.rotation.y += (mX - brain.rotation.y) * 0.05; // Segue mouse
+                brain.rotation.x += (mY - brain.rotation.x) * 0.05; // Segue mouse
             }
-            composer.render(); // Renderiza com o efeito de brilho
+            composer.render();
         }
         animate();
-
-        // PULSAÇÃO AO DIGITAR
-        document.getElementById('idInput').addEventListener('input', () => {
-            if(brainMaterial) {
-                bloomPass.strength = 4.0; // Aumenta a aura do cérebro
-                brainMaterial.emissiveIntensity = 5.0; // Aumenta o brilho interno
-                
-                setTimeout(() => {
-                    const fade = setInterval(() => {
-                        if(bloomPass.strength > 0.5) {
-                            bloomPass.strength -= 0.2;
-                            brainMaterial.emissiveIntensity -= 0.3;
-                        } else {
-                            bloomPass.strength = 0.5;
-                            brainMaterial.emissiveIntensity = 0.5;
-                            clearInterval(fade);
-                        }
-                    }, 20);
-                }, 50);
-            }
-        });
-
+        
         function validarAcesso() {
             const val = document.getElementById('idInput').value.toUpperCase();
-            if(val === "MATH001" || val.startsWith("PAC")) alert("Acesso Autorizado");
+            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
             else alert("ID INVÁLIDO");
         }
     </script>
