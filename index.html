@@ -34,7 +34,7 @@
         .btn-aluno-fixo { position: fixed; top: 20px; right: 20px; width: auto; padding: 12px 25px; font-size: 12px; z-index: 100; }
         .qr-section { margin-top: 25px; }
         .qr-section img { width: 90px; border-radius: 5px; }
-        #brain-viewport { flex: 1; height: 600px; min-width: 400px; }
+       #brain-viewport { flex: 1; height: 600px; filter: contrast(1.1) brightness(1.1); }
     </style>
 </head>
 <body>
@@ -83,12 +83,15 @@
             brain = gltf.scene;
             brain.scale.set(1.5, 1.5, 1.5); // Garante que ele não apareça minúsculo
             brain.traverse(c => {
-                if(c.isMesh) {
+              if(c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x110000,
-                        emissive: 0xe30613,
-                        emissiveIntensity: 0.4,
-                        roughness: 0.7
+                        color: 0x050000,        // Base quase preta para dar contraste
+                        emissive: 0x880000,     // Vermelho escuro de "repouso"
+                        emissiveIntensity: 0.5, 
+                        roughness: 0.9,         // Tira o reflexo branco de "lamparina"
+                        metalness: 0.0
+                    });
+                }
                     });
                 }
             });
@@ -96,17 +99,18 @@
         }, undefined, (error) => {
             console.error("Erro ao carregar o cérebro. Verifique se o arquivo human-brain.glb está na pasta.", error);
         });
-
-        document.getElementById('idInput').addEventListener('input', () => {
+idInput.addEventListener('input', () => {
             if(brain) {
                 brain.traverse(c => {
                     if(c.isMesh) {
-                        c.material.emissive.setHex(0xffffff);
-                        c.material.emissiveIntensity = 8.0;
+                        // COR DE BRASA: Laranja Neon (0xff4500)
+                        c.material.emissive.setHex(0xff4500); 
+                        c.material.emissiveIntensity = 10.0; // Pulso bem forte
                     }
                 });
             }
         });
+        
 
         function animate() {
             requestAnimationFrame(animate);
