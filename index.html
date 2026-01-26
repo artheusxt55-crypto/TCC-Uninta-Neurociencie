@@ -30,4 +30,175 @@
             color: white; border: none; border-radius: 12px; font-weight: 800;
             text-transform: uppercase; text-decoration: none; cursor: pointer; transition: 0.3s;
         }
-        .btn-neuro:hover { transform
+        .btn-neuro:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--primary); }
+        .btn-aluno-fixo { position: fixed; top: 20px; right: 20px; width: auto; padding: 12px 25px; font-size: 12px; z-index: 100; }
+        
+        /* NOVO: Painel de Diagnóstico */
+        .diag-panel {
+            position: fixed; bottom: 20px; left: 20px; z-index: 100;
+            background: rgba(13, 17, 23, 0.7); backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            width: 200px;
+        }
+        .diag-btn {
+            width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
+            border: none; color: white; cursor: pointer; font-weight: bold; font-size: 10px;
+            transition: 0.3s; background: #333;
+        }
+        .diag-btn:hover { opacity: 0.8; transform: translateX(5px); }
+
+        #brain-viewport { flex: 1; height: 600px; min-width: 500px; }
+        .qr-section img { width: 90px; border-radius: 8px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+    <a href="aluno.html" class="btn-neuro btn-aluno-fixo">ÁREA DO ALUNO</a>
+
+    <div class="diag-panel">
+        <p style="font-size: 9px; color: var(--primary); font-weight: 800; letter-spacing: 1px;">MODO DE DIAGNÓSTICO</p>
+        <button class="diag-btn" onclick="simular('NORMAL')">PADRÃO NEUROTÍPICO</button>
+        <button class="diag-btn" style="border-left: 4px solid #ffaa00;" onclick="simular('TDAH')">SIMULAR TDAH</button>
+        <button class="diag-btn" style="border-left: 4px solid #0088ff;" onclick="simular('TEA')">SIMULAR TEA</button>
+        <p id="status-label" style="font-size: 8px; margin-top: 10px; color: #666;">STATUS: MONITORAMENTO ATIVO</p>
+    </div>
+
+    <div class="main-container">
+        <div class="card">
+            <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
+            <h2>Olá, Mestre Matheus!</h2>
+            <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
+            <button class="btn-neuro" onclick="validarAcesso()">ACESSAR LABORATÓRIO</button>
+            <div class="qr-section">
+                <img src="qr-code.png" alt="QR Code">
+                <p style="font-size: 10px; color: #666; margin-top: 8px;">bit.ly/tcc-uninta</p>
+            </div>
+        </div>
+        <div id="brain-viewport"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        const container = document.getElementById('brain-viewport');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a192f, 0.12);
+
+        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 8;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        const pLight = new THREE.PointLight(0xffffff, 1);
+        pLight.position.set(5, 5, 10);
+        scene.add(pLight);
+
+        // --- SISTEMA DE PARTÍCULAS ---
+        const partGeo = new THREE.BufferGeometry();
+        const partCount = 1000;
+        const posArr = new Float32Array(partCount * 3);
+        for(let i=0; i < partCount * 3; i++) {
+            posArr[i] = (Math.random() - 0.5) * 15;
+        }
+        partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        const partMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+        const particles = new THREE.Points(partGeo, partMat);
+        scene.add(particles);
+
+        let brain = null;
+        let tX = 0, tY = 0;
+        let modoAtual = 'NORMAL';
+        let pulseSpeed = 0.002;
+
+        const loader = new THREE.GLTFLoader();
+        loader.load('human-brain.glb', (gltf) => {
+            brain = gltf.scene;
+            brain.traverse(c => {
+                if (c.isMesh) {
+                    c.material = new THREE.MeshStandardMaterial({
+                        color: 0x110000, emissive: 0xe30613, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.5
+                    });
+                }
+            });
+            scene.add(brain);
+        });
+
+        // FUNÇÃO DE SIMULAÇÃO
+        function simular(modo) {
+            modoAtual = modo;
+            const label = document.getElementById('status-label');
+            if(modo === 'TDAH') {
+                pulseSpeed = 0.008; // Rápido/Hiperativo
+                particles.material.color.setHex(0xffaa00);
+                label.innerText = "STATUS: INSTABILIDADE DOPAMINÉRGICA";
+            } else if (modo === 'TEA') {
+                pulseSpeed = 0.0008; // Lento/Focado
+                particles.material.color.setHex(0x0088ff);
+                label.innerText = "STATUS: HIPERCONECTIVIDADE LOCAL";
+            } else {
+                pulseSpeed = 0.002;
+                particles.material.color.setHex(0xffffff);
+                label.innerText = "STATUS: PADRÃO ESTÁVEL";
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.2;
+            tY = (e.clientY / window.innerHeight - 0.5) * 0.2;
+        });
+
+        document.getElementById('idInput').addEventListener('input', () => {
+            if (brain) {
+                brain.traverse(c => { if (c.isMesh) { c.material.emissive.setHex(0x00ffff); c.material.emissiveIntensity = 8; } });
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.y += (modoAtual === 'TDAH' ? 0.004 : 0.0007);
+            
+            if (brain) {
+                brain.rotation.y += 0.004;
+                brain.rotation.x += 0.05 * (tY - brain.rotation.x);
+                brain.rotation.z += 0.05 * (tX - brain.rotation.z);
+
+                let p = 0.7 + Math.sin(Date.now() * pulseSpeed) * 0.3;
+                
+                // Efeito de "jitter" (tremor) se for TDAH
+                if(modoAtual === 'TDAH') p += (Math.random() - 0.5) * 0.15;
+
+                brain.traverse(c => {
+                    if (c.isMesh) {
+                        if (c.material.emissiveIntensity < 1.5) {
+                            c.material.emissiveIntensity = p;
+                            if(modoAtual !== 'TDAH' && modoAtual !== 'TEA') c.material.emissive.setHex(0xe30613);
+                        } else {
+                            c.material.emissiveIntensity *= 0.95;
+                        }
+                    }
+                });
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function validarAcesso() {
+            const val = document.getElementById('idInput').value.toUpperCase();
+            if (val === "MATH001" || val.startsWith("PAC")) { window.location.href = "unt.html"; }
+            else { alert("ID INVÁLIDO"); }
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>
