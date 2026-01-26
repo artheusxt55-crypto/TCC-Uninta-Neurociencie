@@ -1,139 +1,49 @@
-const container = document.getElementById('brain-viewport');
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0a192f, 0.12);
-
-const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-camera.position.z = 8;
-
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(container.clientWidth, container.clientHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-container.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-const pLight = new THREE.PointLight(0xffffff, 1);
-pLight.position.set(5, 5, 10);
-scene.add(pLight);
-
-// --- SISTEMA DE PARTÍCULAS ---
-const partGeo = new THREE.BufferGeometry();
-const partCount = 1000;
-const posArr = new Float32Array(partCount * 3);
-for(let i=0; i < partCount * 3; i++) posArr[i] = (Math.random() - 0.5) * 15;
-partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-const partMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
-const particles = new THREE.Points(partGeo, partMat);
-scene.add(particles);
-
-let brain = null;
-let tX = 0, tY = 0;
-let modoAtual = 'NORMAL';
-let pulseSpeed = 0.002;
-let erroAtivo = false; // Variável para o ruído de erro
-
-const loader = new THREE.GLTFLoader();
-loader.load('human-brain.glb', (gltf) => {
-    brain = gltf.scene;
-    brain.traverse(c => {
-        if (c.isMesh) {
-            c.material = new THREE.MeshStandardMaterial({
-                color: 0x110000, emissive: 0xe30613, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.5
-            });
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Neuro-UNINTA</title>
+    <style>
+        :root { --primary: #e30613; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle at center, #0a192f 0%, #000000 100%);
+            color: #e6edf3; font-family: 'Inter', sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-    });
-    scene.add(brain);
-});
-
-// FUNÇÃO DE SIMULAÇÃO CLÍNICA
-function simular(modo) {
-    modoAtual = modo;
-    const label = document.getElementById('status-label');
-    if(modo === 'TDAH') {
-        pulseSpeed = 0.008;
-        particles.material.color.setHex(0xffaa00);
-        label.innerText = "STATUS: INSTABILIDADE DOPAMINÉRGICA";
-    } else if (modo === 'TEA') {
-        pulseSpeed = 0.0008;
-        particles.material.color.setHex(0x0088ff);
-        label.innerText = "STATUS: HIPERCONECTIVIDADE LOCAL";
-    } else {
-        pulseSpeed = 0.002;
-        particles.material.color.setHex(0xffffff);
-        label.innerText = "STATUS: PADRÃO ESTÁVEL";
-    }
-}
-
-// VALIDAÇÃO COM RUÍDO DE ERRO
-function validarAcesso() {
-    const val = document.getElementById('idInput').value.toUpperCase();
-    if (val === "MATH001" || val.startsWith("PAC")) { 
-        window.location.href = "unt.html"; 
-    } else { 
-        // Dispara o Ruído
-        erroAtivo = true;
-        if(brain) {
-            brain.traverse(c => { if (c.isMesh) { c.material.emissive.setHex(0xff0000); c.material.emissiveIntensity = 10; } });
+        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; z-index: 10; }
+        .card {
+            background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px; border-radius: 28px; text-align: center; width: 380px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
-        setTimeout(() => { 
-            erroAtivo = false; 
-            if(brain) brain.traverse(c => { if (c.isMesh) c.material.emissive.setHex(0xe30613); });
-        }, 400); 
-    }
-}
-
-window.addEventListener('mousemove', (e) => {
-    tX = (e.clientX / window.innerWidth - 0.5) * 0.2;
-    tY = (e.clientY / window.innerHeight - 0.5) * 0.2;
-});
-
-function animate() {
-    requestAnimationFrame(animate);
-    particles.rotation.y += (modoAtual === 'TDAH' ? 0.005 : 0.0007);
-    
-    if (brain) {
-        brain.rotation.y += 0.004;
-        brain.rotation.x += 0.05 * (tY - brain.rotation.x);
-        brain.rotation.z += 0.05 * (tX - brain.rotation.z);
-
-        // --- LÓGICA DE RUÍDO E CHACOALHO ---
-        if (erroAtivo) {
-            // Chacoalho violento de erro (Ruído de Sistema)
-            brain.position.x = (Math.random() - 0.5) * 0.4;
-            brain.position.y = (Math.random() - 0.5) * 0.4;
-            particles.scale.set(1.5, 1.5, 1.5);
-        } else if (modoAtual === 'TDAH') {
-            // Jitter sutil do TDAH (Ruído Neural)
-            brain.position.x = (Math.random() - 0.5) * 0.05;
-            brain.position.y = (Math.random() - 0.5) * 0.05;
-            particles.scale.set(1, 1, 1);
-        } else {
-            brain.position.set(0, 0, 0);
-            particles.scale.set(1, 1, 1);
+        .avatar img { width: 110px; filter: drop-shadow(0 0 10px var(--primary)); border-radius: 50%; margin-bottom: 20px; }
+        input {
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            color: white; margin-bottom: 15px; text-align: center; outline: none; font-size: 16px;
         }
+        .btn-neuro {
+            display: block; width: 100%; padding: 18px; background: var(--primary);
+            color: white; border: none; border-radius: 12px; font-weight: 800;
+            text-transform: uppercase; text-decoration: none; cursor: pointer; transition: 0.3s;
+        }
+        .btn-neuro:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--primary); }
+        .btn-aluno-fixo { position: fixed; top: 20px; right: 20px; width: auto; padding: 12px 25px; font-size: 12px; z-index: 100; }
+        
+        .diag-panel {
+            position: fixed; bottom: 20px; left: 20px; z-index: 100;
+            background: rgba(13, 17, 23, 0.7); backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            width: 200px;
+        }
+        .diag-btn {
+            width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
+            border: none; color: white; cursor: pointer; font-weight: bold; font-size: 10px;
+            transition: 0.3s; background: #333;
+        }
+        .diag-btn:hover { opacity: 0.8; transform: translateX(5px); }
 
-        // Pulsação
-        let p = 0.7 + Math.sin(Date.now() * pulseSpeed) * 0.3;
-        if(modoAtual === 'TDAH') p += (Math.random() - 0.5) * 0.15;
-
-        brain.traverse(c => {
-            if (c.isMesh && !erroAtivo) {
-                if (c.material.emissiveIntensity < 1.5) {
-                    c.material.emissiveIntensity = p;
-                    if(modoAtual === 'TDAH') c.material.emissive.setHex(0xffaa00);
-                    else if(modoAtual === 'TEA') c.material.emissive.setHex(0x0088ff);
-                    else c.material.emissive.setHex(0xe30613);
-                } else {
-                    c.material.emissiveIntensity *= 0.95;
-                }
-            }
-        });
-    }
-    renderer.render(scene, camera);
-}
-animate();
-
-window.addEventListener('resize', () => {
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-});
+        #brain-viewport { flex:
