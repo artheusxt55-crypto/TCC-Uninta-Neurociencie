@@ -59,6 +59,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+
     <script>
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
@@ -69,11 +72,11 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // LUZES PARA O CÉREBRO APARECER
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // Luz base forte
-        const frontLight = new THREE.PointLight(0xffffff, 1.5);
-        frontLight.position.set(0, 5, 10);
-        scene.add(frontLight);
+        // AJUSTE DE LUZ: Menos luz branca para o vermelho não virar rosa
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3)); 
+        const light = new THREE.PointLight(0xffffff, 0.8);
+        light.position.set(5, 5, 10);
+        scene.add(light);
 
         let brain;
         let tX = 0, tY = 0;
@@ -81,30 +84,30 @@
 
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
-            brain.scale.set(1.2, 1.2, 1.2); 
+            brain.scale.set(1.1, 1.1, 1.1); // Cérebro menor e elegante
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x222222,
-                        emissive: 0xe30613, // Vermelho UNINTA base
-                        emissiveIntensity: 0.6,
+                        color: 0x1a0000,       // Base bem escura (vinho)
+                        emissive: 0xe30613,    // Vermelho UNINTA Puro
+                        emissiveIntensity: 0.8, // Brilho intenso
                         roughness: 0.5
                     });
                 }
             });
             scene.add(brain);
-        }, undefined, (e) => console.error("Arquivo não encontrado!", e));
+        }, undefined, (e) => console.error("Erro no arquivo:", e));
 
         window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.4;
-            tY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.3; // Seguir mouse de leve
+            tY = (e.clientY / window.innerHeight - 0.5) * 0.3;
         });
 
         document.getElementById('idInput').addEventListener('input', () => {
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); // AZUL ELÉTRICO
+                        c.material.emissive.setHex(0x00ffff); // AZUL NEON
                         c.material.emissiveIntensity = 12;
                     }
                 });
@@ -119,9 +122,11 @@
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
                 brain.traverse(c => {
-                    if (c.isMesh && c.material.emissiveIntensity > 0.6) {
-                        c.material.emissiveIntensity *= 0.92;
-                        if(c.material.emissiveIntensity < 3) c.material.emissive.setHex(0xe30613);
+                    if (c.isMesh && c.material.emissiveIntensity > 0.8) {
+                        c.material.emissiveIntensity *= 0.93; // Suaviza o pulso
+                        if(c.material.emissiveIntensity < 3) {
+                            c.material.emissive.setHex(0xe30613); // Volta pro vermelho
+                        }
                     }
                 });
             }
