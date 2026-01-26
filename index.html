@@ -69,7 +69,6 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // Iluminação balanceada para sombras
         scene.add(new THREE.AmbientLight(0xffffff, 0.2)); 
         const pointLight = new THREE.PointLight(0xffffff, 1);
         pointLight.position.set(5, 5, 10);
@@ -79,17 +78,18 @@
         let tX = 0, tY = 0;
         const loader = new THREE.GLTFLoader();
 
+        // CARREGAMENTO CORRETO DO MODELO
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
             brain.scale.set(1.1, 1.1, 1.1); 
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x330000,       // Vinho escuro para sombras
-                        emissive: 0xe30613,    // Vermelho UNINTA para brilho
-                        emissiveIntensity: 0.8,
-                        roughness: 0.4,
-                        metalness: 0.2
+                        color: 0x110000,       // Base escura para profundidade
+                        emissive: 0xe30613,    // Vermelho UNINTA
+                        emissiveIntensity: 0.9, 
+                        roughness: 0.3,        
+                        metalness: 0.5         
                     });
                 }
             });
@@ -105,7 +105,7 @@
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); // Pulso Azul
+                        c.material.emissive.setHex(0x00ffff); 
                         c.material.emissiveIntensity = 12;
                     }
                 });
@@ -115,14 +115,12 @@
         function animate() {
             requestAnimationFrame(animate);
             if (brain) {
-                // Auto-rotação lenta
                 brain.rotation.y += 0.005; 
-                // Seguimento suave do mouse
                 brain.rotation.x += 0.05 * (tY - brain.rotation.x);
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
                 brain.traverse(c => {
-                    if (c.isMesh && c.material.emissiveIntensity > 0.8) {
+                    if (c.isMesh && c.material.emissiveIntensity > 0.9) {
                         c.material.emissiveIntensity *= 0.93; 
                         if(c.material.emissiveIntensity < 3) {
                             c.material.emissive.setHex(0xe30613);
