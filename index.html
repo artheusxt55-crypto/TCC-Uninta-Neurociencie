@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso | Neuro-UNINTA</title>
+    <title>Laboratório Neuro-UNINTA</title>
     <style>
-        :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
+        :root { --primary: #e30613; --bg: #05050a; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
             color: #e6edf3;
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             height: 100vh;
             display: flex;
             align-items: center;
@@ -19,120 +19,65 @@
             overflow: hidden;
         }
 
-        body::before {
-            content: "";
-            position: absolute;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(rgba(240, 246, 252, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-        }
-
-        .main-container {
-            display: flex;
-            width: 90%;
-            max-width: 1200px;
-            gap: 50px;
-            align-items: center;
-            justify-content: center;
-        }
+        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; }
 
         .card {
             background: rgba(13, 17, 23, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 28px;
-            text-align: center;
-            width: 400px;
+            padding: 40px; border-radius: 28px;
+            text-align: center; width: 400px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
             z-index: 20;
         }
 
-        .avatar img {
-            width: 110px;
-            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.5));
-            margin-bottom: 25px;
-            border-radius: 50%;
-        }
-
-        h2 { font-size: 26px; color: #fff; margin-bottom: 5px; }
-        .subtitle { color: #a0a0a0; font-size: 14px; margin-bottom: 35px; }
+        .avatar img { width: 110px; filter: drop-shadow(0 0 15px var(--primary)); border-radius: 50%; margin-bottom: 20px; }
 
         input {
-            width: 100%;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 15px;
-            text-align: center;
-            outline: none;
-            font-weight: bold;
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            color: white; margin-bottom: 15px; text-align: center; outline: none;
         }
 
-        input:focus { border-color: #e30613; background: rgba(227, 6, 19, 0.08); }
-
+        /* BOTÃO UNINTA COM EFEITO */
         .btn {
-            width: 100%;
-            padding: 18px;
-            background: #e30613;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4);
+            width: 100%; padding: 18px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 800; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 0 20px rgba(227, 6, 19, 0.3);
         }
 
-        .btn:hover { background: #ff1a1a; transform: scale(1.03); }
-
-        #brain-viewport {
-            flex: 1;
-            height: 600px;
-            position: relative;
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(227, 6, 19, 0.6);
+            background: #ff1a1a;
         }
 
+        #brain-viewport { flex: 1; height: 600px; position: relative; }
+
+        /* LINHA DE SCAN */
         #brain-viewport::after {
-            content: "";
-            position: absolute;
-            left: 10%; width: 80%; height: 2px;
-            background: linear-gradient(90deg, transparent, #e30613, transparent);
-            box-shadow: 0 0 15px #e30613;
-            z-index: 10;
-            animation: scanning 4s ease-in-out infinite;
+            content: ""; position: absolute; left: 10%; width: 80%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            box-shadow: 0 0 15px var(--primary);
+            animation: scanning 3s ease-in-out infinite;
         }
 
         @keyframes scanning {
             0% { top: 20%; opacity: 0; }
-            50% { opacity: 0.8; }
+            50% { opacity: 1; }
             100% { top: 80%; opacity: 0; }
         }
 
         .btn-aluno {
             position: fixed; top: 20px; right: 20px;
-            padding: 12px 24px;
-            border: 1px solid #e30613;
-            color: #e30613 !important;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            backdrop-filter: blur(10px);
-            z-index: 9999;
+            padding: 10px 20px; border: 1px solid var(--primary);
+            color: var(--primary) !important; border-radius: 8px;
+            text-decoration: none; font-size: 12px; font-weight: bold;
         }
 
-        #loader { 
-            position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); 
-            color: #e30613; font-weight: bold; 
-        }
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); }
     </style>
 </head>
 <body>
@@ -141,29 +86,22 @@
         <div class="card">
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
-            <p class="subtitle">Laboratório Digital de Neurociência - UNINTA</p>
-            
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
+            <p style="color:#888; margin-bottom:25px;">Laboratório de Neurociência</p>
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
-
-            <div style="margin-top: 25px; opacity: 0.6;">
-                <img src="qr-code.png" alt="QR Code" style="width: 80px;">
-                <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
-            </div>
         </div>
 
         <div id="brain-viewport">
-            <div id="loader">Sincronizando Atividade Neural...</div>
+            <div id="loader">CARREGANDO NEURÔNIOS...</div>
         </div>
     </div>
 
-    <a href="aluno.html" class="btn-aluno">Área do Aluno</a>
+    <a href="aluno.html" class="btn-aluno">ÁREA DO ALUNO</a>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
-        // Configuração básica
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -171,83 +109,70 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Luzes (Aumentadas para o cérebro não ficar preto)
-        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        directionalLight.position.set(5, 5, 5);
-        scene.add(directionalLight);
+        // Luzes para dar "vida" e textura
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const pointLight = new THREE.PointLight(0xffffff, 2);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
 
         let brain;
         const loader = new THREE.GLTFLoader();
 
-        // Carregamento do modelo
         loader.load('human-brain.glb', function(gltf) {
             brain = gltf.scene;
-            
             brain.traverse(function(child) {
                 if (child.isMesh) {
+                    // TEXTURA "FEIA" NUNCA MAIS:
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0x440000,
-                        emissive: 0xff0000,
-                        emissiveIntensity: 0.2,
+                        color: 0xe30613, // Vermelho UNINTA
+                        metalness: 0.7,
                         roughness: 0.2,
-                        metalness: 0.5
+                        emissive: 0x440000,
+                        emissiveIntensity: 0.5
                     });
                 }
             });
-
-            // Centralizar
+            
+            // Centralizar automaticamente
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
             
             scene.add(brain);
             document.getElementById('loader').style.display = 'none';
-            animate();
-        }, undefined, function(error) {
-            console.error("Erro ao carregar o modelo:", error);
-            document.getElementById('loader').innerText = "Erro ao carregar cérebro 3D";
         });
 
-        // Mouse move
-        let mX = 0, mY = 0;
-        window.addEventListener('mousemove', function(e) {
-            mX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-            mY = (e.clientY / window.innerHeight - 0.5) * 0.3;
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 1.5;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 1.5;
         });
 
         function animate() {
             requestAnimationFrame(animate);
             if(brain) {
-                brain.rotation.y += (mX - brain.rotation.y) * 0.05;
-                brain.rotation.x += (mY - brain.rotation.x) * 0.05;
+                // Rotação suave baseada no mouse
+                brain.rotation.y += (mouseX - brain.rotation.y) * 0.05;
+                brain.rotation.x += (mouseY - brain.rotation.x) * 0.05;
+                // Rotação contínua automática
+                brain.rotation.y += 0.005; 
             }
             renderer.render(scene, camera);
         }
+        animate();
 
-        // BRILHO AO DIGITAR (A cereja do bolo)
+        // BRILHO REATIVO
         const idInput = document.getElementById('idInput');
-        idInput.onfocus = function() {
-            if(brain) brain.traverse(function(c) { if(c.isMesh) c.material.emissiveIntensity = 2.0; });
-        };
-        idInput.onblur = function() {
-            if(brain) brain.traverse(function(c) { if(c.isMesh) c.material.emissiveIntensity = 0.2; });
-        };
+        idInput.onfocus = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 3; })}
+        idInput.onblur = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.5; })}
 
-        // Login
-        window.validarAcesso = function() {
-            const val = document.getElementById('idInput').value;
-            const validos = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
-            if (validos.includes(val)) {
-                localStorage.setItem("usuarioLogado", val);
-                window.location.href = "unt.html";
-            } else {
-                alert("ID INVÁLIDO!");
-            }
-        };
+        function validarAcesso() {
+            const val = idInput.value.toUpperCase();
+            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
+            else alert("ID INVÁLIDO");
+        }
     </script>
 </body>
 </html>
