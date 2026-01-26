@@ -62,53 +62,50 @@
     <script>
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.z = 8;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // Aumentei a luz para o cérebro não ficar invisível no escuro
-        scene.add(new THREE.AmbientLight(0xffffff, 1)); 
-        const light = new THREE.PointLight(0xffffff, 2);
-        light.position.set(5, 5, 5);
-        scene.add(light);
+        // LUZES PARA O CÉREBRO APARECER
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // Luz base forte
+        const frontLight = new THREE.PointLight(0xffffff, 1.5);
+        frontLight.position.set(0, 5, 10);
+        scene.add(frontLight);
 
         let brain;
         let tX = 0, tY = 0;
         const loader = new THREE.GLTFLoader();
 
-        // Verifique se o nome do arquivo abaixo está IDÊNTICO ao da sua pasta
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
             brain.scale.set(1.2, 1.2, 1.2); 
-            
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x111111,
-                        emissive: 0xe30613,
-                        emissiveIntensity: 0.5,
-                        roughness: 0.7
+                        color: 0x222222,
+                        emissive: 0xe30613, // Vermelho UNINTA base
+                        emissiveIntensity: 0.6,
+                        roughness: 0.5
                     });
                 }
             });
             scene.add(brain);
-            console.log("Cérebro carregado!");
-        }, undefined, (e) => console.error("Erro ao carregar:", e));
+        }, undefined, (e) => console.error("Arquivo não encontrado!", e));
 
         window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-            tY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.4;
+            tY = (e.clientY / window.innerHeight - 0.5) * 0.4;
         });
 
         document.getElementById('idInput').addEventListener('input', () => {
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); // Pulso Azul
-                        c.material.emissiveIntensity = 10;
+                        c.material.emissive.setHex(0x00ffff); // AZUL ELÉTRICO
+                        c.material.emissiveIntensity = 12;
                     }
                 });
             }
@@ -122,9 +119,9 @@
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
                 brain.traverse(c => {
-                    if (c.isMesh && c.material.emissiveIntensity > 0.5) {
+                    if (c.isMesh && c.material.emissiveIntensity > 0.6) {
                         c.material.emissiveIntensity *= 0.92;
-                        if(c.material.emissiveIntensity < 2) c.material.emissive.setHex(0xe30613);
+                        if(c.material.emissiveIntensity < 3) c.material.emissive.setHex(0xe30613);
                     }
                 });
             }
@@ -133,4 +130,10 @@
         animate();
 
         function validarAcesso() {
-            const val = document.getElementById
+            const val = document.getElementById('idInput').value.toUpperCase();
+            if (val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
+            else alert("ID INVÁLIDO");
+        }
+    </script>
+</body>
+</html>
