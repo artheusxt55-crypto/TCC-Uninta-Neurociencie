@@ -7,16 +7,18 @@
     <style>
         :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
             color: #e6edf3;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
+
         body::before {
             content: "";
             position: absolute;
@@ -25,14 +27,16 @@
             background-size: 40px 40px;
             z-index: -1;
         }
+
         .main-container {
             display: flex;
-            width: 95%;
+            width: 90%;
             max-width: 1200px;
             gap: 50px;
             align-items: center;
             justify-content: center;
         }
+
         .card {
             background: rgba(13, 17, 23, 0.85);
             backdrop-filter: blur(20px);
@@ -44,14 +48,17 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
             z-index: 20;
         }
+
         .avatar img {
             width: 110px;
             filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.5));
             margin-bottom: 25px;
             border-radius: 50%;
         }
+
         h2 { font-size: 26px; color: #fff; margin-bottom: 5px; }
         .subtitle { color: #a0a0a0; font-size: 14px; margin-bottom: 35px; }
+
         input {
             width: 100%;
             padding: 15px;
@@ -64,7 +71,9 @@
             outline: none;
             font-weight: bold;
         }
+
         input:focus { border-color: #e30613; background: rgba(227, 6, 19, 0.08); }
+
         .btn {
             width: 100%;
             padding: 18px;
@@ -80,26 +89,31 @@
             transition: 0.3s;
             box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4);
         }
-        .btn:hover { background: #ff1a1a; transform: scale(1.02); }
+
+        .btn:hover { background: #ff1a1a; transform: scale(1.03); }
+
         #brain-viewport {
             flex: 1;
             height: 600px;
             position: relative;
         }
+
         #brain-viewport::after {
             content: "";
             position: absolute;
             left: 10%; width: 80%; height: 2px;
             background: linear-gradient(90deg, transparent, #e30613, transparent);
             box-shadow: 0 0 15px #e30613;
+            z-index: 10;
             animation: scanning 4s ease-in-out infinite;
-            z-index: 5;
         }
+
         @keyframes scanning {
             0% { top: 20%; opacity: 0; }
             50% { opacity: 0.8; }
             100% { top: 80%; opacity: 0; }
         }
+
         .btn-aluno {
             position: fixed; top: 20px; right: 20px;
             padding: 12px 24px;
@@ -110,8 +124,10 @@
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
+            backdrop-filter: blur(10px);
             z-index: 9999;
         }
+
         #loader { 
             position: absolute; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
@@ -126,13 +142,16 @@
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
             <p class="subtitle">Laboratório Digital de Neurociência - UNINTA</p>
+            
             <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
+
             <div style="margin-top: 25px; opacity: 0.6;">
                 <img src="qr-code.png" alt="QR Code" style="width: 80px;">
-                <p style="font-size: 10px; color: #bdc3c7; margin: 0;">bit.ly/tcc-uninta</p>
+                <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
             </div>
         </div>
+
         <div id="brain-viewport">
             <div id="loader">Sincronizando Atividade Neural...</div>
         </div>
@@ -140,11 +159,11 @@
 
     <a href="aluno.html" class="btn-aluno">Área do Aluno</a>
 
-    <script type="module">
-        // Importações diretas para garantir compatibilidade total no GitHub Pages
-        import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-        import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
+    <script>
+        // Configuração básica
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -155,43 +174,47 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Luzes fortes para garantir que o cérebro apareça
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-        const pLight = new THREE.PointLight(0xffffff, 2);
-        pLight.position.set(5, 5, 5);
-        scene.add(pLight);
+        // Luzes (Aumentadas para o cérebro não ficar preto)
+        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
 
         let brain;
+        const loader = new THREE.GLTFLoader();
 
-        const loader = new GLTFLoader();
-        // O arquivo está na raiz do seu GitHub
-        loader.load('human-brain.glb', (gltf) => {
+        // Carregamento do modelo
+        loader.load('human-brain.glb', function(gltf) {
             brain = gltf.scene;
-            brain.traverse((child) => {
+            
+            brain.traverse(function(child) {
                 if (child.isMesh) {
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0x880000, 
-                        emissive: 0x440000,
+                        color: 0x440000,
+                        emissive: 0xff0000,
+                        emissiveIntensity: 0.2,
                         roughness: 0.2,
-                        metalness: 0.7
+                        metalness: 0.5
                     });
                 }
             });
 
-            // Centralização
+            // Centralizar
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
-            scene.add(brain);
             
+            scene.add(brain);
             document.getElementById('loader').style.display = 'none';
             animate();
-        }, undefined, (error) => {
-            console.error("Erro no carregamento:", error);
+        }, undefined, function(error) {
+            console.error("Erro ao carregar o modelo:", error);
+            document.getElementById('loader').innerText = "Erro ao carregar cérebro 3D";
         });
 
+        // Mouse move
         let mX = 0, mY = 0;
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener('mousemove', function(e) {
             mX = (e.clientX / window.innerWidth - 0.5) * 0.5;
             mY = (e.clientY / window.innerHeight - 0.5) * 0.3;
         });
@@ -205,22 +228,26 @@
             renderer.render(scene, camera);
         }
 
-        // Interação de brilho ao clicar no input
-        document.getElementById('idInput').addEventListener('focus', () => {
-            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 3; });
-        });
-        document.getElementById('idInput').addEventListener('blur', () => {
-            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 1; });
-        });
+        // BRILHO AO DIGITAR (A cereja do bolo)
+        const idInput = document.getElementById('idInput');
+        idInput.onfocus = function() {
+            if(brain) brain.traverse(function(c) { if(c.isMesh) c.material.emissiveIntensity = 2.0; });
+        };
+        idInput.onblur = function() {
+            if(brain) brain.traverse(function(c) { if(c.isMesh) c.material.emissiveIntensity = 0.2; });
+        };
 
+        // Login
         window.validarAcesso = function() {
-            const input = document.getElementById('idInput').value.trim();
-            if (["MATH001", "PAC01", "PAC02"].includes(input)) {
+            const val = document.getElementById('idInput').value;
+            const validos = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
+            if (validos.includes(val)) {
+                localStorage.setItem("usuarioLogado", val);
                 window.location.href = "unt.html";
             } else {
-                alert("ID INVÁLIDO");
+                alert("ID INVÁLIDO!");
             }
-        }
+        };
     </script>
 </body>
 </html>
