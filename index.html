@@ -6,12 +6,10 @@
     <title>Acesso | Neuro-UNINTA</title>
     <style>
         :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
         
-        .main-container { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; padding: 20px; width: 100%; }
-     * { margin: 0; padding: 0; box-box: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            /* Gradiente radial: Azul marinho profundo para o preto */
             background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
             color: #e6edf3;
             font-family: 'Inter', -apple-system, sans-serif;
@@ -22,7 +20,7 @@
             overflow: hidden;
         }
 
-        /* Grade de fundo estilo Neuroimagem funcional */
+        /* Grade de fundo estilo Neuroimagem */
         body::before {
             content: "";
             position: absolute;
@@ -39,23 +37,25 @@
             max-width: 1200px;
             gap: 50px;
             align-items: center;
+            justify-content: center;
         }
-       /* --- CARD DE LOGIN ESTILO GLASSMORPHISM --- */
+
+        /* --- CARD DE LOGIN ESTILO GLASSMORPHISM --- */
         .card {
-            background: rgba(13, 17, 23, 0.85); /* Mais denso para ler melhor */
-            backdrop-filter: blur(20px);      /* Efeito de vidro reforçado */
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px;
-            border-radius: 28px;              /* Bordas mais suaves */
+            border-radius: 28px;
             text-align: center;
             width: 400px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-            transition: transform 0.3s ease;
+            z-index: 20;
         }
 
         .avatar img {
             width: 110px;
-            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.5)); /* Brilho no Robo-Freud */
+            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.5));
             margin-bottom: 25px;
             border-radius: 50%;
         }
@@ -63,14 +63,29 @@
         h2 { font-size: 26px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .subtitle { color: #a0a0a0; font-size: 14px; margin-bottom: 35px; }
 
-        /* --- O NOVO BOTÃO UNINTA (HIGH-TECH) --- */
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: #e30613; background: rgba(227, 6, 19, 0.05); }
+
+        /* --- BOTÃO UNINTA --- */
         .btn {
             width: 100%;
             padding: 18px;
-            background: #e30613; /* Vermelho Oficial */
+            background: #e30613;
             color: white;
             border: none;
-            border-radius: 12px; /* Curvatura moderna */
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 800;
             text-transform: uppercase;
@@ -78,37 +93,50 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4);
-            position: relative;
-            overflow: hidden;
         }
 
         .btn:hover {
             background: #ff1a1a;
             transform: scale(1.03) translateY(-2px);
-            box-shadow: 0 0 25px rgba(227, 6, 19, 0.7); /* Efeito Neon */
+            box-shadow: 0 0 25px rgba(227, 6, 19, 0.7);
         }
 
-        .btn:active {
-            transform: scale(0.97);
-        }
+        /* --- CONTAINER DO CÉREBRO + SCAN --- */
         #brain-viewport {
             flex: 1;
-            height: 500px;
-            /* Brilho suave atrás do cérebro para dar profundidade */
+            height: 600px;
+            position: relative;
             filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.1));
+            transition: filter 0.5s ease;
         }
 
-        .qr-section { margin-top: 30px; opacity: 0.7; }
-        .qr-section img { width: 100px; }
-       /* --- BOTÃO ÁREA DO ALUNO (ESTILO UNINTA) --- */
+        /* Efeito de Scan (Ressonância) */
+        #brain-viewport::after {
+            content: "";
+            position: absolute;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e30613, transparent);
+            box-shadow: 0 0 15px #e30613;
+            z-index: 10;
+            pointer-events: none;
+            animation: scanning 4s ease-in-out infinite;
+        }
+
+        @keyframes scanning {
+            0% { top: 20%; opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { top: 80%; opacity: 0; }
+        }
+
+        /* --- BOTÃO ÁREA DO ALUNO --- */
         .btn-aluno {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            position: fixed; top: 20px; right: 20px;
             padding: 12px 24px;
-            background: rgba(227, 6, 19, 0.05); /* Fundo vermelho bem suave */
-            border: 1px solid #e30613;           /* Borda Vermelha Oficial */
-            color: #e30613 !important;            /* Texto Vermelho (Mata o Azul) */
+            background: rgba(227, 6, 19, 0.05);
+            border: 1px solid #e30613;
+            color: #e30613 !important;
             border-radius: 10px;
             text-decoration: none;
             font-size: 12px;
@@ -116,16 +144,13 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: 0.3s;
             z-index: 9999;
         }
 
-        .btn-aluno:hover {
-            background: #e30613;
-            color: #ffffff !important;            /* Texto fica branco no destaque */
-            box-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
-            transform: translateY(-2px);
-        }
+        .btn-aluno:hover { background: #e30613; color: #fff !important; }
+
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e30613; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -139,29 +164,20 @@
             <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
 
-            <div class="qr-section">
-                <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #bdc3c7; margin: 0;">bit.ly/tcc-uninta</p>
+            <div class="qr-section" style="margin-top: 20px; opacity: 0.5;">
+                <img src="qr-code.png" alt="QR Code" style="width: 80px;">
+                <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
             </div>
         </div>
 
         <div id="brain-viewport">
-            <div id="loader">Sincronizando...</div>
+            <div id="loader">Sincronizando Atividade Neural...</div>
         </div>
     </div>
 
     <a href="aluno.html" class="btn-aluno">Área do Aluno</a>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
-            }
-        }
-    </script>
-
-<script type="module">
+    <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
         import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
         import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
@@ -174,52 +190,41 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.3;
         container.appendChild(renderer.domElement);
 
-        // --- ILUMINAÇÃO PARA DESTACAR O CÉREBRO ---
-        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
-
-        // 1. LUZ DE FUNDO (Cria a silhueta branca que você queria)
-        const backLight = new THREE.PointLight(0xffffff, 10);
-        backLight.position.set(0, 5, -5);
-        scene.add(backLight);
-
-        // 2. LUZ VERMELHA (Reflexo na esquerda)
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
         const redLight = new THREE.PointLight(0xff0000, 15);
         redLight.position.set(5, 3, 5);
         scene.add(redLight);
 
-        // 3. LUZ CIANO (Reflexo na direita)
-        const blueLight = new THREE.PointLight(0x00ffff, 10);
+        const blueLight = new THREE.PointLight(0x00ffff, 5);
         blueLight.position.set(-5, -3, 5);
         scene.add(blueLight);
 
+        let brainModel; // Global para o brilho funcionar
+
         const loader = new GLTFLoader();
         loader.load('human-brain.glb', (gltf) => {
-            const brain = gltf.scene;
+            brainModel = gltf.scene;
 
-            brain.traverse((child) => {
+            brainModel.traverse((child) => {
                 if (child.isMesh) {
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0x440000,
-                        roughness: 0.05, // Efeito "molhado" e reflexivo
-                        metalness: 0.8,  // Brilho metálico
-                        emissive: 0x220000,
-                        emissiveIntensity: 0.5
+                        roughness: 0.1,
+                        metalness: 0.7,
+                        emissive: 0xff0000,
+                        emissiveIntensity: 0.2
                     });
                 }
             });
 
-            const box = new THREE.Box3().setFromObject(brain);
+            const box = new THREE.Box3().setFromObject(brainModel);
             const center = box.getCenter(new THREE.Vector3());
-            brain.position.sub(center);
-            scene.add(brain);
-            
+            brainModel.position.sub(center);
+            scene.add(brainModel);
             document.getElementById('loader').style.display = 'none';
 
-            // --- SEGUIR O CURSOR ---
             let mX = 0, mY = 0;
             window.addEventListener('mousemove', (e) => {
                 mX = (e.clientX / window.innerWidth - 0.5) * 0.6;
@@ -228,19 +233,31 @@
 
             function animate() {
                 requestAnimationFrame(animate);
-                // Gira e inclina seguindo o mouse
-                brain.rotation.y += 0.005 + (mX - brain.rotation.y) * 0.08;
-                brain.rotation.x += (mY - brain.rotation.x) * 0.08;
+                if(brainModel) {
+                    brainModel.rotation.y += 0.005 + (mX - brainModel.rotation.y) * 0.08;
+                    brainModel.rotation.x += (mY - brainModel.rotation.x) * 0.08;
+                }
                 renderer.render(scene, camera);
             }
             animate();
         });
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.enableZoom = false;
+        // --- INTERATIVIDADE: BRILHO AO DIGITAR ---
+        const idInput = document.getElementById('idInput');
+        idInput.addEventListener('focus', () => {
+            container.style.filter = "drop-shadow(0 0 50px rgba(227, 6, 19, 0.6))";
+            if(brainModel) {
+                brainModel.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 1.5; });
+            }
+        });
 
-        // VALIDAÇÃO DE ACESSO (MANTIDA)
+        idInput.addEventListener('blur', () => {
+            container.style.filter = "drop-shadow(0 0 30px rgba(0, 217, 255, 0.1))";
+            if(brainModel) {
+                brainModel.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.2; });
+            }
+        });
+
         window.validarAcesso = function() {
             const input = document.getElementById('idInput').value.trim();
             const ids = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
@@ -252,3 +269,5 @@
             }
         }
     </script>
+</body>
+</html>
