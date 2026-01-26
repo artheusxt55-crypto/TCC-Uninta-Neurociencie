@@ -19,7 +19,7 @@
             overflow: hidden;
         }
 
-        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; }
+        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; }
 
         .card {
             background: rgba(13, 17, 23, 0.85);
@@ -41,7 +41,6 @@
         }
         input:focus { border-color: var(--primary); background: rgba(227, 6, 19, 0.1); }
 
-        /* PADRONIZAÇÃO DOS BOTÕES COM INTERAÇÃO */
         .btn-neuro {
             display: inline-block;
             width: 100%; padding: 18px; 
@@ -81,6 +80,10 @@
         }
 
         #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: 800; }
+        
+        .qr-section { margin-top: 25px; opacity: 0.7; transition: 0.3s; }
+        .qr-section:hover { opacity: 1; }
+        .qr-section img { width: 90px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -92,8 +95,14 @@
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
             <p style="color:#888; margin-bottom:25px; font-size: 13px;">Laboratório Digital de Neurociência - UNINTA</p>
+            
             <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
+
+            <div class="qr-section">
+                <img src="qr-code.png" alt="QR Code">
+                <p style="font-size: 10px; color: #bdc3c7; margin-top: 5px;">bit.ly/tcc-uninta</p>
+            </div>
         </div>
 
         <div id="brain-viewport">
@@ -129,4 +138,4 @@
                 if (child.isMesh) {
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0xe30613,
-                        metalness: 0.
+                        metalness
