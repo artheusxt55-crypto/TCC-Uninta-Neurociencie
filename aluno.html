@@ -59,24 +59,22 @@
         scene.add(brain);
     });
 
-    // FUNÇÃO DE VOZ MASCULINA FORÇADA (ANTI-FEMININA)
     function falar(texto) {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(texto);
         const vozes = window.speechSynthesis.getVoices();
 
-        // LÓGICA MESTRE: Ignora vozes femininas, foca no masculino imponente
         let vozIdeal = 
-            vozes.find(v => v.name.includes('Antonio') && v.name.includes('Online')) || // Edge
-            vozes.find(v => v.name.includes('Google') && v.name.includes('Brasil') && !v.name.includes('female')) || // Chrome Masculino
+            vozes.find(v => v.name.includes('Antonio') && v.name.includes('Online')) || 
+            vozes.find(v => v.name.includes('Google') && v.name.includes('Brasil') && !v.name.includes('female')) || 
             vozes.find(v => v.lang === 'pt-BR' && v.name.includes('Male')) || 
             vozes.find(v => v.lang === 'pt-BR' && v.name.includes('Daniel'));
 
         if (vozIdeal) msg.voice = vozIdeal;
         msg.lang = 'pt-BR';
         msg.rate = 0.95; 
-        msg.pitch = 0.9; // Deixa a voz levemente mais grave
+        msg.pitch = 0.9; 
 
         document.getElementById('chat-display').innerText = "UnintaBot: " + texto;
         
@@ -89,7 +87,7 @@
         window.speechSynthesis.speak(msg);
     }
 
-    // MICROFONE (RECONHECIMENTO DE VOZ)
+    // MICROFONE
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = Recognition ? new Recognition() : null;
     if (recognition) {
@@ -99,21 +97,59 @@
             if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0xff0000); });
         };
         recognition.onresult = (e) => {
-            document.getElementById('userInput').value = e.results[0][0].transcript;
+            const result = e.results[0][0].transcript;
+            document.getElementById('userInput').value = result;
             if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0x00f2ff); });
             enviar();
+        };
+        recognition.onerror = () => {
+            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0x00f2ff); });
         };
     }
     function ouvir() { if(recognition) recognition.start(); }
 
+    // FUNÇÃO ENVIAR CORRIGIDA
     async function enviar() {
         const input = document.getElementById('userInput');
         const pergunta = input.value.trim();
         if (!pergunta) return;
-        document.getElementById('chat-display').innerText = "Processando análise...";
+
+        document.getElementById('chat-display').innerText = "UnintaBot: Processando análise...";
+        
         try {
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                headers: { 
+                    "Authorization": `Bearer ${API_KEY}`, 
+                    "Content-Type": "application/json" 
+                },
                 body: JSON.stringify({
-                    model: "llama
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neuroimagem e TDAH. Use um tom masculino, sério e técnico. Sempre se refira a ele como Mestre Matheus." },
+                        { role: "user", content: pergunta }
+                    ]
+                })
+            });
+            const data = await response.json();
+            if (data.choices && data.choices[0]) {
+                falar(data.choices[0].message.content);
+            } else {
+                falar("Mestre Matheus, a rede neural falhou em responder.");
+            }
+        } catch (e) {
+            falar("Mestre Matheus, houve um erro na sinapse de rede.");
+            console.error(e);
+        } finally {
+            input.value = "";
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (brain) brain.rotation.y += 0.005;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.speechSynthesis.onvoiceschanged
