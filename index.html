@@ -76,7 +76,7 @@
         pLight.position.set(5, 5, 10);
         scene.add(pLight);
 
-        // --- SISTEMA DE PARTÍCULAS ---
+        // --- SISTEMA DE PARTÍCULAS (VOXELS DE DADOS) ---
         const partGeo = new THREE.BufferGeometry();
         const partCount = 1000;
         const posArr = new Float32Array(partCount * 3);
@@ -84,7 +84,15 @@
             posArr[i] = (Math.random() - 0.5) * 15;
         }
         partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-        const partMat = new THREE.PointsMaterial({ size: 0.015, color: 0xffffff, transparent: true, opacity: 0.3 });
+        
+        const partMat = new THREE.PointsMaterial({ 
+            size: 0.05, 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending 
+        });
+        
         const particles = new THREE.Points(partGeo, partMat);
         scene.add(particles);
 
@@ -106,7 +114,7 @@
                 }
             });
             scene.add(brain);
-        }, undefined, (error) => { console.error("Erro no GLB:", error); });
+        });
 
         window.addEventListener('mousemove', (e) => {
             tX = (e.clientX / window.innerWidth - 0.5) * 0.2;
@@ -122,15 +130,17 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Giro lento das partículas
-            particles.rotation.y += 0.0005;
+            // Giro e pulsação das partículas
+            particles.rotation.y += 0.0007;
+            let partPulse = 0.4 + Math.sin(Date.now() * 0.001) * 0.2;
+            particles.material.opacity = partPulse;
 
             if (brain) {
                 brain.rotation.y += 0.004;
                 brain.rotation.x += 0.05 * (tY - brain.rotation.x);
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
-                // Pulsação
+                // Pulsação do Cérebro
                 let p = 0.7 + Math.sin(Date.now() * 0.002) * 0.3;
                 brain.traverse(c => {
                     if (c.isMesh) {
