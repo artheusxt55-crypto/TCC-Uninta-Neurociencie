@@ -68,9 +68,9 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // LUZES PARA O CÉREBRO APARECER (Sem elas fica tudo preto)
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const light = new THREE.PointLight(0xff0000, 2);
+        // LUZES BALANCEADAS (Para não chapar a cor)
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const light = new THREE.PointLight(0xff0000, 1.5);
         light.position.set(5, 5, 5);
         scene.add(light);
 
@@ -80,25 +80,23 @@
             brain = gltf.scene;
             brain.traverse(c => {
                 if(c.isMesh) {
-                    // EFEITO DE BRILHO SEM PRECISAR DE POST-PROCESSING COMPLEXO
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x220000, 
-                        emissive: 0xff0000, 
-                        emissiveIntensity: 1, 
-                        metalness: 0.5, roughness: 0.1
+                        color: 0x050000,        // Base escura para dar profundidade
+                        emissive: 0xff0000,     
+                        emissiveIntensity: 0.2, // Brilho suave inicial
+                        metalness: 0.5, roughness: 0.2
                     });
                 }
             });
             scene.add(brain);
         }, undefined, (e) => console.error("Erro no arquivo:", e));
 
-        // INTERAÇÃO AO DIGITAR
+        // INTERAÇÃO AO DIGITAR (DISPARO DE BRILHO)
         document.getElementById('idInput').addEventListener('input', () => {
             if(brain) {
                 brain.traverse(c => {
                     if(c.isMesh) {
-                        c.material.emissiveIntensity = 5; // Brilha forte ao digitar
-                        setTimeout(() => { c.material.emissiveIntensity = 1; }, 100);
+                        c.material.emissiveIntensity = 4.0; // Pico de brilho ao digitar
                     }
                 });
             }
@@ -106,7 +104,16 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            if(brain) brain.rotation.y += 0.005;
+            if(brain) {
+                brain.rotation.y += 0.005;
+
+                // MUDANÇA: O brilho "esfria" suavemente a cada frame até voltar ao normal
+                brain.traverse(c => {
+                    if(c.isMesh && c.material.emissiveIntensity > 0.2) {
+                        c.material.emissiveIntensity -= 0.1; 
+                    }
+                });
+            }
             renderer.render(scene, camera);
         }
         animate();
@@ -116,6 +123,13 @@
             if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
             else alert("ID INVÁLIDO");
         }
+
+        // Mantém o cérebro centralizado se redimensionar a tela
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
     </script>
 </body>
 </html>
