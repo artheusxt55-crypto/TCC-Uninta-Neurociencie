@@ -59,9 +59,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
-
     <script>
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
@@ -72,7 +69,7 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // AJUSTE DE LUZ: Menos luz branca para o vermelho não virar rosa
+        // ILUMINAÇÃO DE PROFUNDIDADE
         scene.add(new THREE.AmbientLight(0xffffff, 0.3)); 
         const light = new THREE.PointLight(0xffffff, 0.8);
         light.position.set(5, 5, 10);
@@ -84,14 +81,15 @@
 
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
-            brain.scale.set(1.1, 1.1, 1.1); // Cérebro menor e elegante
+            brain.scale.set(1.1, 1.1, 1.1); 
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x1a0000,       // Base bem escura (vinho)
-                        emissive: 0xe30613,    // Vermelho UNINTA Puro
-                        emissiveIntensity: 0.8, // Brilho intenso
-                        roughness: 0.5
+                        color: 0x330000,       // Vermelho bem escuro para sombras
+                        emissive: 0xe30613,    // Vermelho UNINTA para as partes iluminadas
+                        emissiveIntensity: 0.8,
+                        roughness: 0.4,
+                        metalness: 0.3
                     });
                 }
             });
@@ -99,7 +97,7 @@
         }, undefined, (e) => console.error("Erro no arquivo:", e));
 
         window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.3; // Seguir mouse de leve
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.3;
             tY = (e.clientY / window.innerHeight - 0.5) * 0.3;
         });
 
@@ -123,9 +121,9 @@
 
                 brain.traverse(c => {
                     if (c.isMesh && c.material.emissiveIntensity > 0.8) {
-                        c.material.emissiveIntensity *= 0.93; // Suaviza o pulso
+                        c.material.emissiveIntensity *= 0.93; 
                         if(c.material.emissiveIntensity < 3) {
-                            c.material.emissive.setHex(0xe30613); // Volta pro vermelho
+                            c.material.emissive.setHex(0xe30613); // Volta para o vermelho UNINTA
                         }
                     }
                 });
@@ -136,8 +134,11 @@
 
         function validarAcesso() {
             const val = document.getElementById('idInput').value.toUpperCase();
-            if (val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
-            else alert("ID INVÁLIDO");
+            if (val === "MATH001" || val.startsWith("PAC")) {
+                window.location.href = "unt.html";
+            } else {
+                alert("ID INVÁLIDO");
+            }
         }
     </script>
 </body>
