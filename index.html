@@ -112,34 +112,21 @@ idInput.addEventListener('input', () => {
         });
         
 
-        function animate() {
+   function animate() {
             requestAnimationFrame(animate);
             if(brain) {
                 brain.rotation.y += 0.005;
                 brain.traverse(c => {
-                    if(c.isMesh && c.material.emissiveIntensity > 0.4) {
-                        c.material.emissiveIntensity *= 0.9;
-                        if(c.material.emissiveIntensity < 1.5) {
-                            c.material.emissive.setHex(0xe30613);
+                    if(c.isMesh && c.material.emissiveIntensity > 0.6) {
+                        // Esfria a energia gradualmente
+                        c.material.emissiveIntensity *= 0.92; 
+                        
+                        // Quando baixar a temperatura, volta pro vermelho da marca
+                        if(c.material.emissiveIntensity < 2.0) {
+                            c.material.emissive.setHex(0xe30613); 
                         }
                     }
                 });
             }
             renderer.render(scene, camera);
         }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-
-        function validarAcesso() {
-            const val = document.getElementById('idInput').value.toUpperCase();
-            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
-            else alert("ID INVÁLIDO");
-        }
-    </script>
-</body>
-</html>
