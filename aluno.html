@@ -9,14 +9,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 2px; }
-        #brain-container { flex: 1; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+        
+        #brain-container { flex: 1; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); }
+        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
         #chat-display { padding: 20px; background: rgba(0, 0, 0, 0.8); color: var(--ia-cyan); font-size: 16px; line-height: 1.6; max-height: 200px; overflow-y: auto; border-left: 5px solid var(--ia-cyan); margin: 0 30px 20px 30px; border-radius: 8px; backdrop-filter: blur(15px); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
+        
         .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 2px solid var(--ia-cyan); position: relative; z-index: 20; }
         .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
         input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: 0.4s; box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.1); }
         input:focus { box-shadow: 0 0 25px var(--ia-cyan); border-color: white; }
+        
         button { background: var(--primary-red); color: white; border: none; padding: 0 35px; border-radius: 35px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         button:hover { background: #ff0000; transform: scale(1.05); box-shadow: 0 0 25px var(--primary-red); }
+        
         #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; padding: 0 25px; }
         #btnMicrofone.ativo { background: var(--primary-red); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
@@ -25,15 +31,17 @@
 <body>
 
 <header>SISTEMA DE ANÁLISE NEURAL - UNINTA</header>
+
 <div id="brain-container">
-    <div id="status-3d" style="color: var(--ia-cyan); opacity: 0.5;">[ NÚCLEO CORTICAL ONLINE ]</div>
+    <div id="status-3d">[ NÚCLEO CORTICAL OPERACIONAL ]</div>
 </div>
-<div id="chat-display">UnintaBot: Mestre Matheus, sistema reconfigurado. Aguardando entrada técnica.</div>
+
+<div id="chat-display">UnintaBot: Mestre Matheus, sistema reconfigurado com filtro de áudio. Aguardando comando técnico.</div>
 
 <div class="control-panel">
     <div class="input-box">
         <button id="btnMicrofone" onclick="ouvir()">🎤</button>
-        <input type="text" id="userInput" placeholder="Comando de voz ou texto para análise...">
+        <input type="text" id="userInput" placeholder="Digite sobre TDAH, TEA ou Neuroimagem...">
         <button id="btnEnviar" onclick="enviar()">Executar</button>
     </div>
 </div>
@@ -41,22 +49,27 @@
 <script>
     const API_KEY = "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";
 
-    // GARANTE QUE AS VOZES CARREGUEM
+    // CARREGAMENTO DE VOZES LOCAL
     let vozesDisponiveis = [];
-    const carregarVozes = () => {
+    function carregarVozes() {
         vozesDisponiveis = window.speechSynthesis.getVoices();
-    };
+    }
     window.speechSynthesis.onvoiceschanged = carregarVozes;
     carregarVozes();
 
+    // FUNÇÃO DE VOZ COM LIMPEZA DE CARACTERES ESPECIAIS
     function falar(texto) {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
+
+        // Remove asteriscos e símbolos de Markdown para a IA não ler "asterisco"
+        let textoPuro = texto.replace(/[\*\#_]/g, ""); 
         
-        const msg = new SpeechSynthesisUtterance(texto);
-        // Tenta achar especificamente vozes masculinas no Chrome/Opera/Edge
-        let vozIdeal = vozesDisponiveis.find(v => v.name.includes('Antonio')) || 
-                       vozesDisponiveis.find(v => v.name.includes('Daniel')) ||
+        const msg = new SpeechSynthesisUtterance(textoPuro);
+        
+        // Prioridade: Daniel (Chrome), Antonio (Edge) ou vozes masculinas
+        let vozIdeal = vozesDisponiveis.find(v => v.name.includes('Daniel')) || 
+                       vozesDisponiveis.find(v => v.name.includes('Antonio')) ||
                        vozesDisponiveis.find(v => v.name.toLowerCase().includes('male')) ||
                        vozesDisponiveis.find(v => v.lang === 'pt-BR' && !v.name.includes('Google'));
 
@@ -64,14 +77,15 @@
             msg.voice = vozIdeal;
             msg.pitch = vozIdeal.name.includes('Antonio') ? 1.0 : 0.85;
         } else {
-            msg.pitch = 0.45; // Engrossa a voz feminina se não houver outra
+            msg.pitch = 0.45; // Engrossa a voz caso seja feminina no navegador
         }
 
         msg.lang = 'pt-BR';
-        msg.rate = 0.95;
+        msg.rate = 1.0; 
         window.speechSynthesis.speak(msg);
     }
 
+    // FUNÇÃO DE ENVIO PRINCIPAL
     async function enviar() {
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
@@ -79,7 +93,7 @@
 
         if (!pergunta) return;
 
-        display.innerText = "Processando dados corticais...";
+        display.innerText = "Processando análise sináptica...";
         input.value = ""; 
 
         try {
@@ -92,7 +106,7 @@
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
-                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neurociência (USP/CBI). Seja técnico, direto e use tom masculino." },
+                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neurociência, TDAH, TEA e Neuroimagem. Responda de forma técnica, curta e em tom masculino." },
                         { role: "user", content: pergunta }
                     ]
                 })
@@ -100,16 +114,17 @@
 
             const data = await response.json();
             if (data.choices && data.choices[0]) {
-                const resposta = data.choices[0].message.content;
-                display.innerText = "UnintaBot: " + resposta;
-                falar(resposta);
+                const respostaIA = data.choices[0].message.content;
+                display.innerText = "UnintaBot: " + respostaIA;
+                falar(respostaIA);
             }
         } catch (err) {
-            display.innerText = "ERRO NA SINAPSE: Verifique a conexão.";
+            display.innerText = "ERRO DE SINAPSE: Verifique sua conexão com a rede.";
+            console.error(err);
         }
     }
 
-    // MICROFONE COM FEEDBACK VISUAL
+    // RECONHECIMENTO DE VOZ
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (Recognition) {
         const recognition = new Recognition();
@@ -125,7 +140,10 @@
         window.ouvir = () => recognition.start();
     }
 
-    document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') enviar(); });
+    // ENTER NO TECLADO
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') enviar();
+    });
 </script>
 </body>
 </html>
