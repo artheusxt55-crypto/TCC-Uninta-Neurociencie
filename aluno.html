@@ -1,88 +1,88 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal IA | Mestre Matheus</title>
-    <style>
-        :root { --neuro-red: #e30613; --ia-cyan: #00f2ff; --bg-dark: #050a14; }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: radial-gradient(circle at top, #0d1b2a 0%, var(--bg-dark) 100%); 
-            color: #e6edf3; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-        }
+// --- CONFIGURAÇÃO DA CENA ---
+const container = document.getElementById('brain-viewport');
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a192f, 0.12);
 
-        header { 
-            background: var(--neuro-red); 
-            padding: 15px; 
-            text-align: center; 
-            font-weight: 800; 
-            letter-spacing: 1px;
-            box-shadow: 0 4px 20px rgba(227, 6, 19, 0.4);
-            z-index: 10;
-        }
+const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+camera.position.z = 8;
 
-        #chat-container { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 25px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-            scrollbar-width: thin;
-            scrollbar-color: var(--neuro-red) transparent;
-        }
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
 
-        /* Estilo das Mensagens */
-        .msg { 
-            max-width: 80%; 
-            padding: 15px 20px; 
-            border-radius: 20px; 
-            font-size: 14px; 
-            line-height: 1.6; 
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
+// --- ILUMINAÇÃO ---
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+const pLight = new THREE.PointLight(0xffffff, 1);
+pLight.position.set(5, 5, 10);
+scene.add(pLight);
 
-        .ia { 
-            align-self: flex-start; 
-            background: rgba(255, 255, 255, 0.05); 
-            border-left: 4px solid var(--ia-cyan);
-            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
-        }
+// --- SISTEMA DE PARTÍCULAS (O "RUÍDO" VISUAL) ---
+const partGeo = new THREE.BufferGeometry();
+const partCount = 1000;
+const posArr = new Float32Array(partCount * 3);
+for(let i=0; i < partCount * 3; i++) posArr[i] = (Math.random() - 0.5) * 15;
+partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+const partMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5 });
+const particles = new THREE.Points(partGeo, partMat);
+scene.add(particles);
 
-        .user { 
-            align-self: flex-end; 
-            background: var(--neuro-red); 
-            color: white; 
-            border-right: 4px solid white;
-            box-shadow: 0 5px 15px rgba(227, 6, 19, 0.2);
-        }
+// --- CARREGAMENTO DO CÉREBRO ---
+let brain = null;
+let modoAtual = 'NORMAL';
+let pulseSpeed = 0.002;
+let erroAtivo = false;
 
-        /* Área de Entrada */
-        #input-area { 
-            background: rgba(13, 17, 23, 0.95); 
-            padding: 25px; 
-            display: flex; 
-            gap: 12px; 
-            border-top: 1px solid rgba(255,255,255,0.1);
+const loader = new THREE.GLTFLoader();
+loader.load('./human-brain.glb', (gltf) => {
+    brain = gltf.scene;
+    brain.traverse(c => {
+        if (c.isMesh) {
+            c.material = new THREE.MeshStandardMaterial({
+                color: 0x110000, emissive: 0xe30613, emissiveIntensity: 0.8
+            });
         }
+    });
+    scene.add(brain);
+}, undefined, (error) => {
+    console.error("Mestre, o arquivo .glb não foi encontrado na pasta!", error);
+});
 
-        input { 
-            flex: 1; 
-            padding: 15px 20px; 
-            background: #161b22; 
-            border: 1px solid rgba(0, 242, 255, 0.2); 
-            border-radius: 30px; 
-            color: white; 
-            outline: none; 
-            transition: 0.3s;
+// --- FUNÇÃO DE VOZ DO ANTÔNIO ---
+function falar(texto) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(texto);
+        const vozes = window.speechSynthesis.getVoices();
+        // Força a voz do Antônio
+        const antonio = vozes.find(v => v.name.includes('Antonio')) || vozes.find(v => v.lang.includes('pt-BR'));
+        if (antonio) msg.voice = antonio;
+        window.speechSynthesis.speak(msg);
+    }
+}
+
+// --- ANIMAÇÃO (O CORAÇÃO DO SITE) ---
+function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.001;
+    
+    if (brain) {
+        brain.rotation.y += 0.004;
+
+        // Efeito de Chacoalho (Ruído Neural)
+        if (erroAtivo || modoAtual === 'TDAH') {
+            brain.position.x = (Math.random() - 0.5) * 0.05;
+            brain.position.y = (Math.random() - 0.5) * 0.05;
+        } else {
+            brain.position.set(0, 0, 0);
         }
+    }
+    renderer.render(scene, camera);
+}
+animate();
 
-        input:focus
+// Ajuste de redimensionamento
+window.addEventListener('resize', () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
