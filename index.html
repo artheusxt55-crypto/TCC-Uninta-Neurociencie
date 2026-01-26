@@ -81,54 +81,64 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// --- 1. ILUMINAÇÃO DE ALTO CONTRASTE ---
+scene.add(new THREE.AmbientLight(0xffffff, 0.2)); // Luz ambiente baixa para dar drama
 
-        const container = document.getElementById('brain-viewport');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.z = 4.2;
+// LUZ DE FUNDO (O segredo para destacar o cérebro do fundo preto)
+const backLight = new THREE.PointLight(0xffffff, 5);
+backLight.position.set(0, 0, -5); // Fica atrás do cérebro
+scene.add(backLight);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        // Melhora a exposição das cores neon
-        renderer.toneMapping = THREE.LinearToneMapping;
-        renderer.toneMappingExposure = 1.2;
-        container.appendChild(renderer.domElement);
+// LUZES LATERAIS COM CORES (Para os reflexos neon)
+const redLight = new THREE.PointLight(0xe30613, 8); 
+redLight.position.set(5, 3, 5);
+scene.add(redLight);
 
-        // --- ILUMINAÇÃO ESTILO NEON/FILME ---
-        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+const blueLight = new THREE.PointLight(0x00d9ff, 6);
+blueLight.position.set(-5, -3, 5);
+scene.add(blueLight);
 
-        // Luz Vermelha (Esquerda - Quente)
-        const redLight = new THREE.PointLight(0xff0000, 15, 10);
-        redLight.position.set(-5, 2, 3);
-        scene.add(redLight);
+// --- 2. CARREGAMENTO E MATERIAL COM REFLEXO ---
+const loader = new GLTFLoader();
+loader.load('human-brain.glb', (gltf) => {
+    const brain = gltf.scene;
 
-        // Luz Azul Ciano (Direita - Fria/Tecnológica)
-        const blueLight = new THREE.PointLight(0x00ffff, 12, 10);
-        blueLight.position.set(5, -2, 3);
-        scene.add(blueLight);
-
-        // Luz de Brilho Superior (Highlight)
-        const topLight = new THREE.SpotLight(0xffffff, 5);
-        topLight.position.set(0, 10, 2);
-        scene.add(topLight);
-
-        const loader = new GLTFLoader();
-        loader.load('human-brain.glb', (gltf) => {
-            const brain = gltf.scene;
-
-            brain.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: 0x660000,         // Base escura para destacar a luz
-                        roughness: 0.1,          // Superfície "molhada" (mais realista)
-                        metalness: 0.5,          // Reflexo de laboratório
-                        emissive: 0xff0000,      // Brilho interno pulsante
-                        emissiveIntensity: 0.2
-                    });
-                }
+    brain.traverse((child) => {
+        if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+                color: 0x440000,          // Cor base mais escura para o reflexo aparecer
+                roughness: 0.05,          // QUASE ZERO: Faz ele brilhar como vidro/órgão molhado
+                metalness: 0.8,           // ALTO: Cria o reflexo espelhado das luzes
+                emissive: 0xe30613,       // Brilho interno da UNINTA
+                emissiveIntensity: 0.2
             });
+        }
+    });
 
+    // Centralização
+    const box = new THREE.Box3().setFromObject(brain);
+    const center = box.getCenter(new THREE.Vector3());
+    brain.position.sub(center);
+    scene.add(brain);
+    
+    document.getElementById('loader').style.display = 'none';
+
+    // ANIMAÇÃO COM INTERAÇÃO
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        // Gira e reage ao mouse
+        brain.rotation.y += 0.005 + (mouseX - brain.rotation.y) * 0.1;
+        brain.rotation.x += (mouseY - brain.rotation.x) * 0.1;
+        renderer.render(scene, camera);
+    }
+    animate();
+});
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
