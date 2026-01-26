@@ -68,45 +68,50 @@
         }
     </script>
 
-  <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-        import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
-        import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
+<script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
-        
-        // Câmera com campo de visão mais cinematográfico
-        const camera = new THREE.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 0, 5);
+        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 4.2;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        
-        // Melhora o contraste das cores (Fundamental para o efeito da foto)
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // Melhora a exposição das cores neon
+        renderer.toneMapping = THREE.LinearToneMapping;
         renderer.toneMappingExposure = 1.2;
         container.appendChild(renderer.domElement);
 
-        // --- ILUMINAÇÃO "CINEMA NEON" (O SEGREDO DO SEU PRINT) ---
+        // --- ILUMINAÇÃO ESTILO NEON/FILME ---
         scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-        // Luz de Contorno Azul Ciano (Lado Direito/Trás)
-        const blueRim = new THREE.SpotLight(0x00ffff, 15);
-        blueRim.position.set(5, 2, -2);
-        scene.add(blueRim);
+        // Luz Vermelha (Esquerda - Quente)
+        const redLight = new THREE.PointLight(0xff0000, 15, 10);
+        redLight.position.set(-5, 2, 3);
+        scene.add(redLight);
 
-        // Luz de Contorno Vermelha (Lado Esquerdo/Trás)
-        const redRim = new THREE.SpotLight(0xff0000, 12);
-        redRim.position.set(-5, 2, -2);
-        scene.add(redRim);
+        // Luz Azul Ciano (Direita - Fria/Tecnológica)
+        const blueLight = new THREE.PointLight(0x00ffff, 12, 10);
+        blueLight.position.set(5, -2, 3);
+        scene.add(blueLight);
 
-        // Luz Frontal Branca Suave
-        const frontLight = new THREE.PointLight(0xffffff, 1.5);
-        frontLight.position.set(0, 2, 4);
-        scene.add(frontLight);
+        // Luz de Brilho Superior (Highlight)
+        const topLight = new THREE.SpotLight(0xffffff, 5);
+        topLight.position.set(0, 10, 2);
+        scene.add(topLight);
 
         const loader = new GLTFLoader();
         loader.load('human-brain.glb', (gltf) => {
@@ -115,16 +120,15 @@
             brain.traverse((child) => {
                 if (child.isMesh) {
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0x660000,        // Base escura para destacar o brilho
-                        roughness: 0.1,         // Superfície polida (molhada)
-                        metalness: 0.6,         // Reflete as luzes neon
-                        emissive: 0xff0000,     // Leve brilho interno vermelho
+                        color: 0x660000,         // Base escura para destacar a luz
+                        roughness: 0.1,          // Superfície "molhada" (mais realista)
+                        metalness: 0.5,          // Reflexo de laboratório
+                        emissive: 0xff0000,      // Brilho interno pulsante
                         emissiveIntensity: 0.2
                     });
                 }
             });
 
-            // Centralização Perfeita
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
@@ -132,42 +136,26 @@
             
             document.getElementById('loader').style.display = 'none';
 
-            // --- INTERAÇÃO "SMOOTH" (Suave) ---
-            let targetRotationX = 0;
-            let targetRotationY = 0;
-
-            window.addEventListener('mousemove', (event) => {
-                // Faz o cérebro "olhar" levemente para o mouse
-                targetRotationY = (event.clientX / window.innerWidth - 0.5) * 0.4;
-                targetRotationX = (event.clientY / window.innerHeight - 0.5) * 0.4;
+            // INTERAÇÃO: Seguir o mouse levemente
+            let targetX = 0, targetY = 0;
+            window.addEventListener('mousemove', (e) => {
+                targetX = (e.clientX / window.innerWidth - 0.5) * 0.4;
+                targetY = (e.clientY / window.innerHeight - 0.5) * 0.4;
             });
 
             function animate() {
                 requestAnimationFrame(animate);
                 
-                // Rotação contínua + Interação do Mouse com amortecimento
-                brain.rotation.y += 0.005 + (targetRotationY - brain.rotation.y) * 0.05;
-                brain.rotation.x += (targetRotationX - brain.rotation.x) * 0.05;
+                // Rotação suave base + inclinação pelo mouse
+                brain.rotation.y += 0.005 + (targetX - brain.rotation.y) * 0.05;
+                brain.rotation.x += (targetY - brain.rotation.x) * 0.05;
                 
                 renderer.render(scene, camera);
             }
             animate();
-        }, undefined, (error) => {
-            console.error(error);
-            document.getElementById('loader').innerText = "Erro no Arquivo 3D";
         });
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
         controls.enableZoom = false;
     </script>
-
-    <script>
-        function validarAcesso() {
-            const input = document.getElementById('idInput').value.trim();
-            const ids = ["MATH001", "PAC01", "PAC02", "PAC03"];
-            if (ids.includes(input)) {
-                window.location.href = "unt.html";
-            } else {
-                alert("ID PREMIADO INVÁ
