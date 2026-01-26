@@ -38,9 +38,10 @@
             gap: 50px;
             align-items: center;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
-        /* --- CARD DE LOGIN ESTILO GLASSMORPHISM --- */
+        /* --- CARD DE LOGIN --- */
         .card {
             background: rgba(13, 17, 23, 0.85);
             backdrop-filter: blur(20px);
@@ -74,9 +75,10 @@
             text-align: center;
             outline: none;
             transition: 0.3s;
+            font-weight: bold;
         }
 
-        input:focus { border-color: #e30613; background: rgba(227, 6, 19, 0.05); }
+        input:focus { border-color: #e30613; background: rgba(227, 6, 19, 0.08); }
 
         /* --- BOTÃO UNINTA --- */
         .btn {
@@ -101,16 +103,15 @@
             box-shadow: 0 0 25px rgba(227, 6, 19, 0.7);
         }
 
-        /* --- CONTAINER DO CÉREBRO + SCAN --- */
+        /* --- VIEWPORT DO CÉREBRO --- */
         #brain-viewport {
             flex: 1;
-            height: 600px;
+            height: 550px;
             position: relative;
-            filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.1));
-            transition: filter 0.5s ease;
+            min-width: 300px;
         }
 
-        /* Efeito de Scan (Ressonância) */
+        /* Linha de Scan (Ressonância) */
         #brain-viewport::after {
             content: "";
             position: absolute;
@@ -164,8 +165,8 @@
             <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
 
-            <div class="qr-section" style="margin-top: 20px; opacity: 0.5;">
-                <img src="qr-code.png" alt="QR Code" style="width: 80px;">
+            <div class="qr-section" style="margin-top: 25px; opacity: 0.6;">
+                <img src="qr-code.png" alt="QR Code" style="width: 80px; margin-bottom: 5px;">
                 <p style="font-size: 10px; color: #bdc3c7;">bit.ly/tcc-uninta</p>
             </div>
         </div>
@@ -185,23 +186,20 @@
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.z = 4.5;
+        camera.position.z = 5;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const redLight = new THREE.PointLight(0xff0000, 15);
-        redLight.position.set(5, 3, 5);
-        scene.add(redLight);
+        // Iluminação para o modelo 3D
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const pLight = new THREE.PointLight(0xffffff, 2);
+        pLight.position.set(5, 5, 5);
+        scene.add(pLight);
 
-        const blueLight = new THREE.PointLight(0x00ffff, 5);
-        blueLight.position.set(-5, -3, 5);
-        scene.add(blueLight);
-
-        let brainModel; // Global para o brilho funcionar
+        let brainModel; 
 
         const loader = new GLTFLoader();
         loader.load('human-brain.glb', (gltf) => {
@@ -212,60 +210,63 @@
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0x440000,
                         roughness: 0.1,
-                        metalness: 0.7,
+                        metalness: 0.8,
                         emissive: 0xff0000,
                         emissiveIntensity: 0.2
                     });
                 }
             });
 
+            // Centralizar modelo
             const box = new THREE.Box3().setFromObject(brainModel);
             const center = box.getCenter(new THREE.Vector3());
             brainModel.position.sub(center);
+            
             scene.add(brainModel);
             document.getElementById('loader').style.display = 'none';
-
-            let mX = 0, mY = 0;
-            window.addEventListener('mousemove', (e) => {
-                mX = (e.clientX / window.innerWidth - 0.5) * 0.6;
-                mY = (e.clientY / window.innerHeight - 0.5) * 0.4;
-            });
-
-            function animate() {
-                requestAnimationFrame(animate);
-                if(brainModel) {
-                    brainModel.rotation.y += 0.005 + (mX - brainModel.rotation.y) * 0.08;
-                    brainModel.rotation.x += (mY - brainModel.rotation.x) * 0.08;
-                }
-                renderer.render(scene, camera);
-            }
-            animate();
+            
+            animate(); 
         });
 
-        // --- INTERATIVIDADE: BRILHO AO DIGITAR ---
-        const idInput = document.getElementById('idInput');
-        idInput.addEventListener('focus', () => {
-            container.style.filter = "drop-shadow(0 0 50px rgba(227, 6, 19, 0.6))";
+        // Movimento do Mouse
+        let mX = 0, mY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mX = (e.clientX / window.innerWidth - 0.5) * 0.6;
+            mY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
             if(brainModel) {
-                brainModel.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 1.5; });
+                brainModel.rotation.y += (mX - brainModel.rotation.y) * 0.08;
+                brainModel.rotation.x += (mY - brainModel.rotation.x) * 0.08;
+            }
+            renderer.render(scene, camera);
+        }
+
+        // --- INTERAÇÃO DE BRILHO ---
+        const inputEl = document.getElementById('idInput');
+        inputEl.addEventListener('focus', () => {
+            if(brainModel) {
+                brainModel.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 1.8; });
             }
         });
 
-        idInput.addEventListener('blur', () => {
-            container.style.filter = "drop-shadow(0 0 30px rgba(0, 217, 255, 0.1))";
+        inputEl.addEventListener('blur', () => {
             if(brainModel) {
                 brainModel.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.2; });
             }
         });
 
+        // Validação
         window.validarAcesso = function() {
-            const input = document.getElementById('idInput').value.trim();
-            const ids = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
-            if (ids.includes(input)) {
-                localStorage.setItem("usuarioLogado", input);
+            const val = document.getElementById('idInput').value.trim();
+            const validIds = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
+            if (validIds.includes(val)) {
+                localStorage.setItem("usuarioLogado", val);
                 window.location.href = "unt.html";
             } else {
-                alert("ID PREMIADO INVÁLIDO!");
+                alert("ACESSO NEGADO: ID INVÁLIDO");
             }
         }
     </script>
