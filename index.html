@@ -32,9 +32,7 @@
         }
         .btn-neuro:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--primary); }
         .btn-aluno-fixo { position: fixed; top: 20px; right: 20px; width: auto; padding: 12px 25px; font-size: 12px; z-index: 100; }
-        .qr-section { margin-top: 25px; }
-        .qr-section img { width: 90px; border-radius: 5px; }
-        #brain-viewport { flex: 1; height: 600px; filter: contrast(1.1) brightness(1.1); }
+        #brain-viewport { flex: 1; height: 600px; filter: contrast(1.1) brightness(1.2); }
     </style>
 </head>
 <body>
@@ -48,10 +46,6 @@
             <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
             <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             <button class="btn-neuro" onclick="validarAcesso()">ACESSAR LABORATÓRIO</button>
-            <div class="qr-section">
-                <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
-            </div>
         </div>
         <div id="brain-viewport"></div>
     </div>
@@ -71,9 +65,9 @@
         container.appendChild(renderer.domElement);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const pLight = new THREE.PointLight(0xe30613, 2);
-        pLight.position.set(10, 10, 10);
-        scene.add(pLight);
+        const pointLight = new THREE.PointLight(0xe30613, 2);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
 
         let brain;
         const loader = new THREE.GLTFLoader();
@@ -84,5 +78,50 @@
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x050000, 
+                        color: 0x050000,
                         emissive: 0x880000,
+                        emissiveIntensity: 0.5,
+                        roughness: 0.9,
+                        metalness: 0.0
+                    });
+                }
+            });
+            scene.add(brain);
+        });
+
+        document.getElementById('idInput').addEventListener('input', () => {
+            if (brain) {
+                brain.traverse(c => {
+                    if (c.isMesh) {
+                        c.material.emissive.setHex(0xff4500); // Laranja Brasa
+                        c.material.emissiveIntensity = 10.0;
+                    }
+                });
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (brain) {
+                brain.rotation.y += 0.005;
+                brain.traverse(c => {
+                    if (c.isMesh && c.material.emissiveIntensity > 0.5) {
+                        c.material.emissiveIntensity *= 0.93;
+                        if (c.material.emissiveIntensity < 3.0) {
+                            c.material.emissive.setHex(0xe30613);
+                        }
+                    }
+                });
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function validarAcesso() {
+            const val = document.getElementById('idInput').value.toUpperCase();
+            if (val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
+            else alert("ID INVÁLIDO");
+        }
+    </script>
+</body>
+</html>
