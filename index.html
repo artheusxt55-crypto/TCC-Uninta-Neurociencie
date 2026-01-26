@@ -37,8 +37,10 @@
             width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
             color: white; margin-bottom: 15px; text-align: center; outline: none;
-            font-weight: bold;
+            font-weight: bold; transition: border 0.3s;
         }
+        
+        input:focus { border-color: var(--primary); }
 
         .btn-neuro {
             display: block; width: 100%; padding: 18px; 
@@ -91,7 +93,7 @@
             <h2>Olá, Mestre Matheus!</h2>
             <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
             
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID">
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
 
             <div class="qr-section">
@@ -119,48 +121,56 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const pLight = new THREE.PointLight(0xffffff, 1.5);
+        // Luzes
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const pLight = new THREE.PointLight(0xff0000, 1.5);
         pLight.position.set(5, 5, 5);
         scene.add(pLight);
 
         let brain;
+        let brainMaterial;
         const loader = new THREE.GLTFLoader();
 
         loader.load('human-brain.glb', function(gltf) {
             brain = gltf.scene;
+            
             brain.traverse(function(child) {
                 if (child.isMesh) {
+                    // Material ajustado para o efeito realista de vermelho
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0xaa0000,
-                        emissive: 0xe30613,
-                        emissiveIntensity: 0.3,
-                        metalness: 0.8,
+                        color: 0x1a0000,          // Base escura
+                        emissive: 0xff0000,       // Brilho Vermelho
+                        emissiveIntensity: 0.2,   // Intensidade inicial
+                        metalness: 0.9,
                         roughness: 0.2
                     });
+                    brainMaterial = child.material;
                 }
             });
+
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
             scene.add(brain);
             document.getElementById('loader').style.display = 'none';
-        }, undefined, function(e) { console.error(e); });
+        }, undefined, function(e) { 
+            console.error("Erro ao carregar o modelo:", e);
+            document.getElementById('loader').innerText = "ERRO AO CARREGAR MODELO";
+        });
 
-        // SISTEMA DE MOVIMENTO LENTO (LERP)
+        // Movimentação Mouse (LERP)
         let tX = 0, tY = 0, cX = 0, cY = 0;
         window.addEventListener('mousemove', (e) => {
             tX = (e.clientX / window.innerWidth - 0.5) * 0.6;
             tY = (e.clientY / window.innerHeight - 0.5) * 0.4;
         });
 
+        // Loop de Animação
         function animate() {
             requestAnimationFrame(animate);
             if(brain) {
-                // Suavização (0.03 = mais lento e elegante)
                 cX += (tX - cX) * 0.03;
                 cY += (tY - cY) * 0.03;
-                
                 brain.rotation.y = cX + (Date.now() * 0.0004); 
                 brain.rotation.x = cY;
             }
@@ -168,15 +178,42 @@
         }
         animate();
 
+        // LÓGICA DE PULSAÇÃO AO DIGITAR
         const idInput = document.getElementById('idInput');
-        idInput.onfocus = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 2.5; })}
-        idInput.onblur = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.3; })}
+        
+        idInput.addEventListener('input', () => {
+            if(brain) {
+                brain.traverse(child => {
+                    if(child.isMesh) {
+                        // Disparo de brilho (Sinapse)
+                        child.material.emissiveIntensity = 4.0;
+                        
+                        // Função para esfriar o brilho
+                        const fade = setInterval(() => {
+                            if(child.material.emissiveIntensity > 0.2) {
+                                child.material.emissiveIntensity -= 0.3;
+                            } else {
+                                child.material.emissiveIntensity = 0.2;
+                                clearInterval(fade);
+                            }
+                        }, 30);
+                    }
+                });
+            }
+        });
 
         function validarAcesso() {
             const val = idInput.value.toUpperCase();
             if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
             else alert("ID INVÁLIDO");
         }
+
+        // Responsividade do Canvas
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
     </script>
 </body>
 </html>
