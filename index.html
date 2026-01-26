@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acesso | Neuro-UNINTA</title>
     <style>
-        :root { --primary: #2c3e50; --secondary: #e30613; --bg: #0f0f1b; } /* Fundo escuro para destacar o 3D */
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
         
         .main-container { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; padding: 20px; width: 100%; }
         
@@ -17,12 +17,13 @@
         p { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1rem; box-sizing: border-box; }
         .btn { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
-        .btn:hover { background: #b3050f ; transform: translateY(-2px); }
+        .btn:hover { background: #b3050f; transform: translateY(-2px); }
         .error-msg { color: #e30613; font-size: 13px; display: none; margin-bottom: 15px; font-weight: bold; }
-        .qr-code { width: 140px; margin-top: 25px; border-top: 1px dashed #ccc; padding-top: 15px; }
 
-        /* Estilo para o cérebro */
-        #brain-viewport { width: 500px; height: 500px; position: relative; }
+        /* Container do Cérebro */
+        #brain-viewport { width: 500px; height: 500px; position: relative; cursor: grab; }
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e30613; font-weight: bold; z-index: 5; }
+        
         @media (max-width: 800px) { #brain-viewport { width: 300px; height: 300px; } }
     </style>
 </head>
@@ -30,111 +31,36 @@
 
     <div class="main-container">
         <div class="card">
-            <div class="avatar">
-                <img src="robo-freud.png" alt="Avatar">
-            </div>
+            <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
             <p>Laboratório Digital de Neurociência - UNINTA</p>
             <div id="error" class="error-msg">ID PREMIADO INVÁLIDO!</div>
             <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
-            <div class="qr-code" style="margin: 20px auto 0; display: flex; flex-direction: column; align-items: center;">
-                <img src="qr-code.png" style="width: 100px; height: 100px;">
-                <p style="font-size: 10px; color: #bdc3c7; margin: 0;">bit.ly/tcc-uninta</p>
-            </div>
+            <div style="margin-top:20px;"><img src="qr-code.png" style="width:80px;"></div>
         </div>
 
         <div id="brain-viewport">
-            <div id="loader" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e30613; font-weight: bold;">Sincronizando...</div>
+            <div id="loader">Sincronizando...</div>
         </div>
-    </div>
-
-    <div style="position: absolute; bottom: 20px; right: 20px;">
-        <a href="aluno.html" style="text-decoration: none; background-color: #e30613; color: white; padding: 10px 25px; border-radius: 50px; font-weight: bold; display: inline-block;">Área do Aluno</a>
     </div>
 
     <script>
         function validarAcesso() {
             const input = document.getElementById('idInput').value.trim();
-            const idsPermitidos = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
-            if (idsPermitidos.includes(input)) {
+            const ids = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
+            if (ids.includes(input)) {
                 localStorage.setItem("usuarioLogado", input);
                 window.location.href = "unt.html";
             } else {
                 document.getElementById('error').style.display = "block";
-                document.getElementById('idInput').style.borderColor = "#e74c3c";
             }
         }
     </script>
 
     <script type="module">
-        import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
-        import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
+        import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'https://unpkg.com/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
 
-        const container = document.getElementById('brain-viewport');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.z = 4.5;
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-        // --- SUBSTITUIR DA LINHA 83 ATÉ A 88 POR ESTE BLOCO ---
-
-// 1. LUZ DE TOPO (Branca) - Dá brilho nos relevos superiores do cérebro
-const topLight = new THREE.DirectionalLight(0xffffff, 1.2);
-topLight.position.set(0, 10, 10);
-scene.add(topLight);
-
-// 2. LUZ LATERAL (Vermelha UNINTA) - Cria o brilho da sua marca
-const redLight = new THREE.PointLight(0xe30613, 2.5);
-redLight.position.set(5, 2, 5);
-scene.add(redLight);
-
-// 3. LUZ DE CONTRASTE (Azul Ciano) - O segredo para ver os detalhes da anatomia
-const blueLight = new THREE.PointLight(0x00d9ff, 1.8);
-blueLight.position.set(-5, -2, 2);
-scene.add(blueLight);
-
-// 4. LUZ AMBIENTE (Suave) - Garante que o cérebro não tenha "pontos cegos" pretos
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-// --- FIM DO BLOCO DE ILUMINAÇÃO ---
-        const loader = new GLTFLoader();
-        loader.load('human-brain.glb', (gltf) => {
-         const brain = gltf.scene;
-
-    // --- AQUI ENTRA O DETALHAMENTO (MAQUIAGEM) ---
-    brain.traverse((child) => {
-        if (child.isMesh) {
-            child.material = new THREE.MeshStandardMaterial({
-                color: 0xe30613,      // Vermelho UNINTA
-                roughness: 0.1,       // Deixa o cérebro com brilho realista (molhado)
-                metalness: 0.3,       // Dá um toque tecnológico
-                emissive: 0x220000,   // Um brilho interno profundo
-                emissiveIntensity: 1
-            });
-        }
-    });
-
-    // Centralizar o modelo no palco
-    const box = new THREE.Box3().setFromObject(brain);
-    const center = box.getCenter(new THREE.Vector3());
-    brain.position.sub(center);
-    
-    scene.add(brain);
-    document.getElementById('loader').style.display = 'none';
-
-    function animate() {
-        requestAnimationFrame(animate);
-        brain.rotation.y += 0.005; // O GIRO CONTINUA AQUI
-        renderer.render(scene, camera);
-    }
-    animate();
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = false; // Evita que o zoom estrague o layout da página
-    </script>
-</body>
-</html>
+        const container = document.getElementById('brain-
