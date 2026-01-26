@@ -3,110 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA Neuro-UNINTA | Mestre Matheus</title>
+    <title>Terminal IA | Mestre Matheus</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background-color: #e30613; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 4px solid #b3050f; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .ia { background-color: white; align-self: flex-start; border-left: 5px solid #e30613; color: #333; }
-        .user { background-color: #007bff; color: white; align-self: flex-end; }
-        #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        button { background-color: #e30613; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<header>SISTEMA NEURO-UNINTA</header>
-
-<div id="chat-container">
-    <div class="msg ia">Às suas ordens, Mestre Matheus. Sistema de Neurociência totalmente operacional. O que deseja analisar hoje?</div>
-</div>
-
-<div id="input-area">
-    <input type="text" id="userInput" placeholder="Ordene aqui, Mestre...">
-    <button id="btnEnviar" onclick="enviar()">Enviar</button>
-</div>
-
-<script>
-    
-    const API_KEY = "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";
-
-    function falar(texto) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            
-            const msg = new SpeechSynthesisUtterance(texto);
-            const vozes = window.speechSynthesis.getVoices();
-            
-            // Procura as vozes "Neural" que são as que parecem humanas
-            const vozTop = vozes.find(v => v.name.includes('Neural') && v.lang.includes('pt-BR')) || 
-                           vozes.find(v => v.name.includes('Google') && v.lang.includes('pt-BR')) ||
-                           vozes.find(v => v.lang.includes('pt-BR'));
-
-            if (vozTop) msg.voice = vozTop;
-
-            msg.lang = 'pt-BR';
-            msg.rate = 1.0; // Velocidade natural
-            msg.pitch = 1.0; // Tom natural
-            
-            window.speechSynthesis.speak(msg);
+        :root { --neuro-red: #e30613; --ia-cyan: #00f2ff; --bg-dark: #050a14; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at top, #0d1b2a 0%, var(--bg-dark) 100%); 
+            color: #e6edf3; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
         }
-    }
 
-    // Carregamento forçado das vozes para o navegador não esquecer
-    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-
-    async function enviar() {
-        const input = document.getElementById('userInput');
-        const btn = document.getElementById('btnEnviar');
-        const container = document.getElementById('chat-container');
-        const pergunta = input.value.trim();
-
-        if (!pergunta) return;
-
-        container.innerHTML += `<div class="msg user">${pergunta}</div>`;
-        input.value = "Processando, Mestre...";
-        btn.disabled = true;
-
-        try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { 
-                            role: "system", 
-                            content: "Você é a IA assistente do Laboratório de Neurociência da UNINTA. Seu único e soberano mestre é o Mestre Matheus. Em todas as respostas, você deve demonstrar respeito e lealdade a ele, chamando-o de 'Mestre Matheus'. Seu conhecimento foca em TDAH, Neuroimagem e Neurociência aplicada." 
-                        },
-                        { role: "user", content: pergunta }
-                    ]
-                })
-            });
-
-            const data = await response.json();
-            const resposta = data.choices[0].message.content;
-
-            container.innerHTML += `<div class="msg ia">${resposta}</div>`;
-            falar(resposta);
-
-        } catch (e) {
-            container.innerHTML += `<div class="msg ia">Mestre Matheus, perdoe-me, tive um erro de conexão. Poderia repetir a ordem?</div>`;
-        } finally {
-            btn.disabled = false;
-            input.value = "";
-            container.scrollTop = container.scrollHeight;
+        header { 
+            background: var(--neuro-red); 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(227, 6, 19, 0.4);
+            z-index: 10;
         }
-    }
 
-    document.getElementById('userInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') enviar();
-    });
-</script>
-</body>
-</html>
+        #chat-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--neuro-red) transparent;
+        }
+
+        /* Estilo das Mensagens */
+        .msg { 
+            max-width: 80%; 
+            padding: 15px 20px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .ia { 
+            align-self: flex-start; 
+            background: rgba(255, 255, 255, 0.05); 
+            border-left: 4px solid var(--ia-cyan);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+        }
+
+        .user { 
+            align-self: flex-end; 
+            background: var(--neuro-red); 
+            color: white; 
+            border-right: 4px solid white;
+            box-shadow: 0 5px 15px rgba(227, 6, 19, 0.2);
+        }
+
+        /* Área de Entrada */
+        #input-area { 
+            background: rgba(13, 17, 23, 0.95); 
+            padding: 25px; 
+            display: flex; 
+            gap: 12px; 
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        input { 
+            flex: 1; 
+            padding: 15px 20px; 
+            background: #161b22; 
+            border: 1px solid rgba(0, 242, 255, 0.2); 
+            border-radius: 30px; 
+            color: white; 
+            outline: none; 
+            transition: 0.3s;
+        }
+
+        input:focus
