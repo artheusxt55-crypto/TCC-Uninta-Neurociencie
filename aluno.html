@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -83,23 +84,34 @@
         scene.add(brain);
     }, undefined, (e) => console.log("Aguardando arquivo transparente.glb..."));
 
-    // FUNÇÃO DE VOZ MASCULINA DA HORA
+    // FUNÇÃO DE VOZ MELHORADA (ANTI-ROBÔ)
     function falar(texto) {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
 
         const msg = new SpeechSynthesisUtterance(texto);
+        
+        // PEGAR TODAS AS VOZES DISPONÍVEIS NO NAVEGADOR
         const vozes = window.speechSynthesis.getVoices();
 
-        // Busca as vozes masculinas imponentes (Antônio ou Daniel do Edge/Google)
+        // LÓGICA DE PRIORIDADE PARA FUGIR DA VOZ ROBÓTICA:
+        // 1. Tenta o Antônio (Edge)
+        // 2. Tenta a voz do Google (Opera GX / Chrome) - Essa é a BOA que você quer!
+        // 3. Tenta qualquer uma "Online" ou "Natural"
         let vozIdeal = vozes.find(v => v.name.includes('Antonio') && v.name.includes('Online')) || 
-                       vozes.find(v => v.name.includes('Antonio')) ||
-                       vozes.find(v => v.name.includes('Daniel') && v.name.includes('Online')) ||
-                       vozes.find(v => v.lang === 'pt-BR' && (v.name.includes('Male') || v.name.includes('Microsoft')));
+                       vozes.find(v => v.name.includes('Google') && v.lang.startsWith('pt')) ||
+                       vozes.find(v => v.name.includes('Online') && v.lang.startsWith('pt')) ||
+                       vozes.find(v => v.name.includes('Natural') && v.lang.startsWith('pt')) ||
+                       vozes.find(v => v.lang === 'pt-BR' && v.name.includes('Daniel'));
 
-        if (vozIdeal) msg.voice = vozIdeal;
+        if (vozIdeal) {
+            msg.voice = vozIdeal;
+            console.log("Voz selecionada: " + vozIdeal.name);
+        }
+
         msg.lang = 'pt-BR';
-        msg.rate = 0.95; 
+        msg.rate = 0.92; // Velocidade mais imponente
+        msg.pitch = 1.0;
 
         document.getElementById('chat-display').innerText = "UnintaBot: " + texto;
 
@@ -117,7 +129,6 @@
         window.speechSynthesis.speak(msg);
     }
 
-    // ENVIO PARA GROQ
     async function enviar() {
         const input = document.getElementById('userInput');
         const pergunta = input.value.trim();
@@ -132,7 +143,7 @@
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
-                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neuroimagem e TDAH. Responda com voz masculina e termos técnicos." },
+                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neuroimagem e TDAH. Responda de forma curta e técnica." },
                         { role: "user", content: pergunta }
                     ]
                 })
@@ -146,7 +157,6 @@
         }
     }
 
-    // ANIMAÇÃO
     function animate() {
         requestAnimationFrame(animate);
         if (brain) brain.rotation.y += 0.005;
@@ -154,10 +164,11 @@
     }
     animate();
 
-    // Carregar vozes do sistema
-    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    // ISSO É O QUE SALVA O OPERA GX: Garante o carregamento das vozes
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
 
-    // ENTER NO TECLADO
     document.getElementById('userInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') enviar();
     });
