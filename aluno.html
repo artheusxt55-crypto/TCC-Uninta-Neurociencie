@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnintaBot - Terminal Neural</title>
+    <title>UnintaBot - Terminal Neural Multi-Voz</title>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 2px; }
         
-        #brain-container { flex: 1; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); }
-        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+        #brain-container { flex: 1; width: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); }
+        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 20px; }
 
-        #chat-display { padding: 20px; background: rgba(0, 0, 0, 0.8); color: var(--ia-cyan); font-size: 16px; line-height: 1.6; max-height: 200px; overflow-y: auto; border-left: 5px solid var(--ia-cyan); margin: 0 30px 20px 30px; border-radius: 8px; backdrop-filter: blur(15px); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
+        .voice-hub { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; }
+
+        #chat-display { padding: 20px; background: rgba(0, 0, 0, 0.8); color: var(--ia-cyan); font-size: 16px; line-height: 1.6; max-height: 200px; min-height: 100px; overflow-y: auto; border-left: 5px solid var(--ia-cyan); margin: 0 30px 20px 30px; border-radius: 8px; backdrop-filter: blur(15px); }
         
         .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 2px solid var(--ia-cyan); position: relative; z-index: 20; }
         .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
-        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: 0.4s; box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.1); }
-        input:focus { box-shadow: 0 0 25px var(--ia-cyan); border-color: white; }
+        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; }
         
-        button { background: var(--primary-red); color: white; border: none; padding: 0 35px; border-radius: 35px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        button { background: var(--primary-red); color: white; border: none; padding: 0 35px; border-radius: 35px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         button:hover { background: #ff0000; transform: scale(1.05); box-shadow: 0 0 25px var(--primary-red); }
         
         #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; padding: 0 25px; }
@@ -30,120 +33,104 @@
 </head>
 <body>
 
-<header>SISTEMA DE ANÁLISE NEURAL - UNINTA</header>
+<header>SISTEMA MULTI-NEURAL - UNINTA</header>
 
 <div id="brain-container">
-    <div id="status-3d">[ NÚCLEO CORTICAL OPERACIONAL ]</div>
+    <div id="status-3d">[ SELECIONE O PERFIL DE VOZ ]</div>
+    <div class="voice-hub" id="voiceHub">
+        <div class="voice-card active" onclick="setVoice('minimax', this)">1. MiniMax (Elite)</div>
+        <div class="voice-card" onclick="setVoice('antonio', this)">2. MS Antonio (Neural)</div>
+        <div class="voice-card" onclick="setVoice('daniel', this)">3. Daniel (Windows)</div>
+        <div class="voice-card" onclick="setVoice('google', this)">4. Google (Nativo)</div>
+        <div class="voice-card" onclick="setVoice('baritono', this)">5. Grave (Cyber)</div>
+        <div class="voice-card" onclick="setVoice('emergencia', this)">6. Emergência</div>
+    </div>
 </div>
 
-<div id="chat-display">UnintaBot: Mestre Matheus, sistema reconfigurado com filtro de áudio. Aguardando comando técnico.</div>
+<div id="chat-display">UnintaBot: Mestre Matheus, selecione um motor de voz para iniciar a análise técnica.</div>
 
 <div class="control-panel">
     <div class="input-box">
         <button id="btnMicrofone" onclick="ouvir()">🎤</button>
-        <input type="text" id="userInput" placeholder="Digite sobre TDAH, TEA ou Neuroimagem...">
+        <input type="text" id="userInput" placeholder="Ordem para análise de Neuroimagem/TDAH...">
         <button id="btnEnviar" onclick="enviar()">Executar</button>
     </div>
 </div>
 
 <script>
-    const API_KEY = "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";
+    const GROQ_API = "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";
+    const MINIMAX_API = "sk-api-5_sfQGRLElkdNCUN5Eqq-Go6twW4QLXbVcNz3DOXrs6mPum_peuPra_v5JreJCd80mwLWeYT-71Gtpvc-qkAEoWmEKoSjvRj8wOIbisWIEEN1mYlW353_80";
 
-    // CARREGAMENTO DE VOZES LOCAL
-    let vozesDisponiveis = [];
-    function carregarVozes() {
-        vozesDisponiveis = window.speechSynthesis.getVoices();
+    let currentVoiceMode = 'minimax';
+    let localVoices = [];
+
+    // Carregar vozes do navegador
+    function loadLocalVoices() {
+        localVoices = window.speechSynthesis.getVoices();
     }
-    window.speechSynthesis.onvoiceschanged = carregarVozes;
-    carregarVozes();
+    window.speechSynthesis.onvoiceschanged = loadLocalVoices;
+    loadLocalVoices();
 
-    // FUNÇÃO DE VOZ COM LIMPEZA DE CARACTERES ESPECIAIS
-    function falar(texto) {
-        if (!window.speechSynthesis) return;
+    // Trocar modo de voz visualmente
+    function setVoice(mode, element) {
+        currentVoiceMode = mode;
+        document.querySelectorAll('.voice-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('status-3d').innerText = `[ MODO: ${mode.toUpperCase()} ATIVO ]`;
+    }
+
+    // Função de áudio MiniMax (Base64)
+    async function speakMiniMax(texto) {
+        try {
+            const response = await fetch("https://api.minimax.chat/v1/text_to_speech", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${MINIMAX_API}`, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "speech-01", text: texto, stream: false,
+                    voice_setting: { voice_id: "male-qn-011", speed: 1.0, vol: 1.0, pitch: 0 },
+                    audio_setting: { audio_sample_rate: 32000, bitrate: 128000, format: "mp3" }
+                })
+            });
+            const data = await response.json();
+            if (data.data && data.data.audio_content) {
+                const blob = new Blob([new Uint8Array(atob(data.data.audio_content).split("").map(c => c.charCodeAt(0)))], {type: "audio/mp3"});
+                new Audio(URL.createObjectURL(blob)).play();
+            }
+        } catch (e) { speakLocal(texto, 'emergencia'); }
+    }
+
+    // Função de áudio Local (Vozes do Sistema)
+    function speakLocal(texto, mode) {
         window.speechSynthesis.cancel();
-
-        // Remove asteriscos e símbolos de Markdown para a IA não ler "asterisco"
-        let textoPuro = texto.replace(/[\*\#_]/g, ""); 
-        
-        const msg = new SpeechSynthesisUtterance(textoPuro);
-        
-        // Prioridade: Daniel (Chrome), Antonio (Edge) ou vozes masculinas
-        let vozIdeal = vozesDisponiveis.find(v => v.name.includes('Daniel')) || 
-                       vozesDisponiveis.find(v => v.name.includes('Antonio')) ||
-                       vozesDisponiveis.find(v => v.name.toLowerCase().includes('male')) ||
-                       vozesDisponiveis.find(v => v.lang === 'pt-BR' && !v.name.includes('Google'));
-
-        if (vozIdeal) {
-            msg.voice = vozIdeal;
-            msg.pitch = vozIdeal.name.includes('Antonio') ? 1.0 : 0.85;
-        } else {
-            msg.pitch = 0.45; // Engrossa a voz caso seja feminina no navegador
-        }
-
+        const msg = new SpeechSynthesisUtterance(texto);
         msg.lang = 'pt-BR';
-        msg.rate = 1.0; 
+
+        if (mode === 'antonio') msg.voice = localVoices.find(v => v.name.includes('Antonio')) || localVoices[0];
+        if (mode === 'daniel') msg.voice = localVoices.find(v => v.name.includes('Daniel')) || localVoices[0];
+        if (mode === 'google') msg.voice = localVoices.find(v => v.name.includes('Google') && v.lang === 'pt-BR');
+        if (mode === 'baritono') { msg.pitch = 0.3; msg.rate = 0.8; }
+        if (mode === 'emergencia') { msg.pitch = 1.5; msg.rate = 1.2; }
+
         window.speechSynthesis.speak(msg);
     }
 
-    // FUNÇÃO DE ENVIO PRINCIPAL
+    // Gerenciar qual voz usar
+    function falar(texto) {
+        let limpo = texto.replace(/[\*\#_]/g, "").trim();
+        if (currentVoiceMode === 'minimax') speakMiniMax(limpo);
+        else speakLocal(limpo, currentVoiceMode);
+    }
+
     async function enviar() {
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
-        const pergunta = input.value.trim();
+        const msg = input.value.trim();
+        if (!msg) return;
 
-        if (!pergunta) return;
-
-        display.innerText = "Processando análise sináptica...";
-        input.value = ""; 
+        display.innerText = "Processando sinapse neural...";
+        input.value = "";
 
         try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Expert em Neurociência, TDAH, TEA e Neuroimagem. Responda de forma técnica, curta e em tom masculino." },
-                        { role: "user", content: pergunta }
-                    ]
-                })
-            });
-
-            const data = await response.json();
-            if (data.choices && data.choices[0]) {
-                const respostaIA = data.choices[0].message.content;
-                display.innerText = "UnintaBot: " + respostaIA;
-                falar(respostaIA);
-            }
-        } catch (err) {
-            display.innerText = "ERRO DE SINAPSE: Verifique sua conexão com a rede.";
-            console.error(err);
-        }
-    }
-
-    // RECONHECIMENTO DE VOZ
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (Recognition) {
-        const recognition = new Recognition();
-        recognition.lang = 'pt-BR';
-        
-        recognition.onstart = () => document.getElementById('btnMicrofone').classList.add('ativo');
-        recognition.onend = () => document.getElementById('btnMicrofone').classList.remove('ativo');
-        
-        recognition.onresult = (e) => {
-            document.getElementById('userInput').value = e.results[0][0].transcript;
-            enviar();
-        };
-        window.ouvir = () => recognition.start();
-    }
-
-    // ENTER NO TECLADO
-    document.getElementById('userInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') enviar();
-    });
-</script>
-</body>
-</html>
+                headers: { "Authorization": `Bearer ${GRO
