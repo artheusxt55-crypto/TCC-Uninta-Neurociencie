@@ -6,24 +6,15 @@
     <title>Acesso | Neuro-UNINTA</title>
     <style>
         :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
-        
-        .main-container { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; padding: 20px; width: 100%; }
-        
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; text-align: center; z-index: 10; }
-        .avatar { width: 110px; height: 110px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--secondary); overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .main-container { display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap; width: 100%; padding: 20px; }
+        .card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 380px; width: 90%; text-align: center; z-index: 10; }
+        .avatar { width: 100px; height: 100px; background: #eee; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--secondary); overflow: hidden; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        h2 { color: var(--primary); margin-bottom: 5px; }
-        p { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1rem; box-sizing: border-box; }
-        .btn { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
-        .btn:hover { background: #b3050f; transform: translateY(-2px); }
-        .error-msg { color: #e30613; font-size: 13px; display: none; margin-bottom: 15px; font-weight: bold; }
-
-        /* Container do Cérebro */
-        #brain-viewport { width: 500px; height: 500px; position: relative; cursor: grab; }
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e30613; font-weight: bold; z-index: 5; }
-        
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; }
+        #brain-viewport { width: 500px; height: 500px; position: relative; }
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--secondary); font-weight: bold; }
         @media (max-width: 800px) { #brain-viewport { width: 300px; height: 300px; } }
     </style>
 </head>
@@ -33,11 +24,9 @@
         <div class="card">
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
-            <p>Laboratório Digital de Neurociência - UNINTA</p>
-            <div id="error" class="error-msg">ID PREMIADO INVÁLIDO!</div>
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
+            <p>Laboratório de Neurociência - UNINTA</p>
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
-            <div style="margin-top:20px;"><img src="qr-code.png" style="width:80px;"></div>
         </div>
 
         <div id="brain-viewport">
@@ -45,22 +34,87 @@
         </div>
     </div>
 
-    <script>
-        function validarAcesso() {
-            const input = document.getElementById('idInput').value.trim();
-            const ids = ["MATH001", "PAC01", "PAC02", "PAC03", "PAC04", "PAC05", "PAC06", "PAC07", "PAC08", "PAC09", "PAC10"];
-            if (ids.includes(input)) {
-                localStorage.setItem("usuarioLogado", input);
-                window.location.href = "unt.html";
-            } else {
-                document.getElementById('error').style.display = "block";
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
             }
         }
     </script>
 
     <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
-        import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
-        import { GLTFLoader } from 'https://unpkg.com/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-        const container = document.getElementById('brain-
+        const container = document.getElementById('brain-viewport');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 4.5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // ILUMINAÇÃO REFEITA (Simples e Eficaz)
+        const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+        light1.position.set(2, 2, 5);
+        scene.add(light1);
+        
+        const light2 = new THREE.PointLight(0xe30613, 1.5); // Brilho Vermelho UNINTA
+        light2.position.set(-5, 0, 2);
+        scene.add(light2);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+        const loader = new GLTFLoader();
+        // Usamos apenas o nome do arquivo. Certifique-se que ele está na pasta!
+        loader.load('human-brain.glb', (gltf) => {
+            const brain = gltf.scene;
+
+            brain.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 0xe30613,
+                        roughness: 0.2,
+                        metalness: 0.3,
+                        emissive: 0x330000
+                    });
+                }
+            });
+
+            // Centralização automática
+            const box = new THREE.Box3().setFromObject(brain);
+            const center = box.getCenter(new THREE.Vector3());
+            brain.position.sub(center);
+
+            scene.add(brain);
+            document.getElementById('loader').style.display = 'none';
+
+            function animate() {
+                requestAnimationFrame(animate);
+                brain.rotation.y += 0.005;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }, undefined, (error) => {
+            console.error(error);
+            document.getElementById('loader').innerHTML = "Erro ao carregar arquivo 3D";
+        });
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+    </script>
+
+    <script>
+        function validarAcesso() {
+            const ids = ["MATH001", "PAC01", "PAC02"];
+            const input = document.getElementById('idInput').value.trim();
+            if (ids.includes(input)) window.location.href = "unt.html";
+            else alert("ID Inválido");
+        }
+    </script>
+</body>
+</html>
