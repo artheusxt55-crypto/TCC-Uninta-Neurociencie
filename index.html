@@ -16,7 +16,6 @@
 
         .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; }
 
-        /* CARD EXATAMENTE COMO O SEU */
         .card {
             background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -40,17 +39,15 @@
             box-shadow: 0 8px 20px rgba(227, 6, 19, 0.3);
         }
 
-        /* O BOTÃO QUE VOCÊ DISSE QUE SUMIU - ESTÁ AQUI */
         .btn-aluno-fixo {
             position: fixed; top: 20px; right: 20px;
             width: auto; padding: 12px 25px; font-size: 12px; z-index: 9999;
         }
 
-        /* O QR CODE QUE VOCÊ DISSE QUE SUMIU - ESTÁ AQUI */
         .qr-section { margin-top: 25px; }
         .qr-section img { width: 90px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
 
-        #brain-viewport { flex: 1; height: 600px; position: relative; }
+        #brain-viewport { flex: 1; height: 600px; position: relative; min-width: 500px; }
     </style>
 </head>
 <body>
@@ -62,7 +59,6 @@
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
             <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
-            
             <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
             
@@ -71,7 +67,6 @@
                 <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
             </div>
         </div>
-        
         <div id="brain-viewport"></div>
     </div>
 
@@ -79,7 +74,10 @@
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 
     <script>
         const container = document.getElementById('brain-viewport');
@@ -89,63 +87,21 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // CONFIGURAÇÃO DO BRILHO (BLOOM)
+        // CONFIGURAÇÃO DO COMPOSER (O motor que faz o "bicho" aparecer com brilho)
         const composer = new THREE.EffectComposer(renderer);
-        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        const renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);
+
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(container.clientWidth, container.clientHeight), 
+            1.5, 0.4, 0.85
+        );
         bloomPass.threshold = 0.1;
-        bloomPass.strength = 0.6; // Brilho constante suave
-        composer.addPass(new THREE.RenderPass(scene, camera));
+        bloomPass.strength = 0.8; 
+        bloomPass.radius = 1.0;
         composer.addPass(bloomPass);
 
-        let brain, brainMat;
-        new THREE.GLTFLoader().load('human-brain.glb', (gltf) => {
-            brain = gltf.scene;
-            brain.traverse(c => {
-                if(c.isMesh) {
-                    c.material = new THREE.MeshStandardMaterial({
-                        color: 0x050000, // Cérebro escuro para o brilho destacar
-                        emissive: 0xff0000, 
-                        emissiveIntensity: 0.8,
-                        metalness: 1, roughness: 0.1
-                    });
-                    brainMat = c.material;
-                }
-            });
-            scene.add(brain);
-        });
-
-        // Efeito de brilho ao digitar (Sinapse)
-        document.getElementById('idInput').addEventListener('input', () => {
-            if(bloomPass) {
-                bloomPass.strength = 5.0; // Flash vermelho intenso
-                setTimeout(() => { bloomPass.strength = 0.6; }, 100);
-            }
-        });
-
-        let mX = 0, mY = 0;
-        window.addEventListener('mousemove', e => {
-            mX = (e.clientX / window.innerWidth - 0.5) * 0.6;
-            mY = (e.clientY / window.innerHeight - 0.5) * 0.4;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if(brain) {
-                brain.rotation.y += 0.005; // Gira sozinho
-                brain.rotation.y += (mX - brain.rotation.y) * 0.05; // Segue mouse
-                brain.rotation.x += (mY - brain.rotation.x) * 0.05; // Segue mouse
-            }
-            composer.render();
-        }
-        animate();
-        
-        function validarAcesso() {
-            const val = document.getElementById('idInput').value.toUpperCase();
-            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
-            else alert("ID INVÁLIDO");
-        }
-    </script>
-</body>
-</html>
+        scene.add(new THREE.AmbientLight(0xffffff
