@@ -69,11 +69,11 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // ILUMINAÇÃO DE PROFUNDIDADE
-        scene.add(new THREE.AmbientLight(0xffffff, 0.3)); 
-        const light = new THREE.PointLight(0xffffff, 0.8);
-        light.position.set(5, 5, 10);
-        scene.add(light);
+        // Iluminação balanceada para sombras
+        scene.add(new THREE.AmbientLight(0xffffff, 0.2)); 
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 5, 10);
+        scene.add(pointLight);
 
         let brain;
         let tX = 0, tY = 0;
@@ -85,16 +85,16 @@
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
-                        color: 0x330000,       // Vermelho bem escuro para sombras
-                        emissive: 0xe30613,    // Vermelho UNINTA para as partes iluminadas
+                        color: 0x330000,       // Vinho escuro para sombras
+                        emissive: 0xe30613,    // Vermelho UNINTA para brilho
                         emissiveIntensity: 0.8,
                         roughness: 0.4,
-                        metalness: 0.3
+                        metalness: 0.2
                     });
                 }
             });
             scene.add(brain);
-        }, undefined, (e) => console.error("Erro no arquivo:", e));
+        });
 
         window.addEventListener('mousemove', (e) => {
             tX = (e.clientX / window.innerWidth - 0.5) * 0.3;
@@ -105,7 +105,7 @@
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); // AZUL NEON
+                        c.material.emissive.setHex(0x00ffff); // Pulso Azul
                         c.material.emissiveIntensity = 12;
                     }
                 });
@@ -115,7 +115,9 @@
         function animate() {
             requestAnimationFrame(animate);
             if (brain) {
-                brain.rotation.y += 0.005; // Giro constante
+                // Auto-rotação lenta
+                brain.rotation.y += 0.005; 
+                // Seguimento suave do mouse
                 brain.rotation.x += 0.05 * (tY - brain.rotation.x);
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
@@ -123,7 +125,7 @@
                     if (c.isMesh && c.material.emissiveIntensity > 0.8) {
                         c.material.emissiveIntensity *= 0.93; 
                         if(c.material.emissiveIntensity < 3) {
-                            c.material.emissive.setHex(0xe30613); // Volta para o vermelho UNINTA
+                            c.material.emissive.setHex(0xe30613);
                         }
                     }
                 });
