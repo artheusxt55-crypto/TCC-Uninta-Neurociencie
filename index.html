@@ -62,6 +62,10 @@
     <script>
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
+
+        // EFEITO NÉVOA: Adiciona profundidade ao cenário
+        scene.fog = new THREE.FogExp2(0x0a192f, 0.15); 
+
         const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.z = 8;
 
@@ -69,6 +73,7 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
+        // ILUMINAÇÃO: Balanceada para sombras e brilhos
         scene.add(new THREE.AmbientLight(0xffffff, 0.2)); 
         const pointLight = new THREE.PointLight(0xffffff, 1);
         pointLight.position.set(5, 5, 10);
@@ -78,7 +83,6 @@
         let tX = 0, tY = 0;
         const loader = new THREE.GLTFLoader();
 
-        // CARREGAMENTO CORRETO DO MODELO
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
             brain.scale.set(1.1, 1.1, 1.1); 
@@ -86,7 +90,7 @@
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
                         color: 0x110000,       // Base escura para profundidade
-                        emissive: 0xe30613,    // Vermelho UNINTA
+                        emissive: 0xe30613,    // Vermelho UNINTA para brilho e pulsação
                         emissiveIntensity: 0.9, 
                         roughness: 0.3,        
                         metalness: 0.5         
@@ -105,7 +109,7 @@
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); 
+                        c.material.emissive.setHex(0x00ffff); // AZUL NEON ao digitar
                         c.material.emissiveIntensity = 12;
                     }
                 });
@@ -115,15 +119,28 @@
         function animate() {
             requestAnimationFrame(animate);
             if (brain) {
+                // Rotação automática suave + influência do mouse
                 brain.rotation.y += 0.005; 
                 brain.rotation.x += 0.05 * (tY - brain.rotation.x);
                 brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
+                // --- EFEITO PULSAÇÃO DE ATIVIDADE CEREBRAL ---
+                let time = Date.now() * 0.002; // Velocidade da pulsação
+                let pulse = 0.7 + Math.sin(time) * 0.3; // Oscila entre 0.4 e 1.0 (intensidade)
+
                 brain.traverse(c => {
-                    if (c.isMesh && c.material.emissiveIntensity > 0.9) {
-                        c.material.emissiveIntensity *= 0.93; 
-                        if(c.material.emissiveIntensity < 3) {
-                            c.material.emissive.setHex(0xe30613);
+                    if (c.isMesh) {
+                        // Se a intensidade emissiva não estiver muito alta (pulso azul)
+                        if (c.material.emissiveIntensity < 2) { 
+                            c.material.emissiveIntensity = pulse; // Aplica a pulsação normal
+                            c.material.emissive.setHex(0xe30613); // Garante que a cor seja a UNINTA
+                        } 
+                        // Caso esteja no pulso azul, diminui até voltar à pulsação normal
+                        else {
+                            c.material.emissiveIntensity *= 0.93; // Diminui o brilho do azul
+                            if(c.material.emissiveIntensity < 2) {
+                                c.material.emissive.setHex(0xe30613); // Volta para o vermelho UNINTA
+                            }
                         }
                     }
                 });
