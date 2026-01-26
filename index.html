@@ -35,7 +35,7 @@
         .qr-section { margin-top: 25px; }
         .qr-section img { width: 90px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
         .qr-section p { font-size: 10px; color: #666; margin-top: 8px; }
-        #brain-viewport { flex: 1; height: 600px; filter: brightness(1.2); }
+        #brain-viewport { flex: 1; height: 600px; filter: brightness(1.2); cursor: move; }
     </style>
 </head>
 <body>
@@ -77,16 +77,17 @@
         scene.add(pointLight);
 
         let brain;
+        let mouseX = 0, mouseY = 0;
         const loader = new THREE.GLTFLoader();
 
         loader.load('human-brain.glb', (gltf) => {
             brain = gltf.scene;
-            brain.scale.set(1.1, 1.1, 1.1); // Cérebro menor e elegante
+            brain.scale.set(1.1, 1.1, 1.1);
             brain.traverse(c => {
                 if (c.isMesh) {
                     c.material = new THREE.MeshStandardMaterial({
                         color: 0x000510,
-                        emissive: 0xe30613, // Base vermelha Uninta
+                        emissive: 0xe30613,
                         emissiveIntensity: 0.4,
                         roughness: 0.8,
                         metalness: 0.1
@@ -94,13 +95,19 @@
                 }
             });
             scene.add(brain);
-        }, undefined, (err) => console.error("Erro no arquivo:", err));
+        });
+
+        // Rastreamento do Mouse
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
 
         document.getElementById('idInput').addEventListener('input', () => {
             if (brain) {
                 brain.traverse(c => {
                     if (c.isMesh) {
-                        c.material.emissive.setHex(0x00ffff); // Azul Elétrico ao digitar
+                        c.material.emissive.setHex(0x00ffff);
                         c.material.emissiveIntensity = 10.0;
                     }
                 });
@@ -110,12 +117,15 @@
         function animate() {
             requestAnimationFrame(animate);
             if (brain) {
-                brain.rotation.y += 0.005;
+                // Rotação suave baseada no mouse
+                brain.rotation.y += 0.05 * (mouseX - brain.rotation.y + 0.5);
+                brain.rotation.x += 0.05 * (mouseY - brain.rotation.x);
+
                 brain.traverse(c => {
                     if (c.isMesh && c.material.emissiveIntensity > 0.4) {
-                        c.material.emissiveIntensity *= 0.91; 
+                        c.material.emissiveIntensity *= 0.91;
                         if (c.material.emissiveIntensity < 2.5) {
-                            c.material.emissive.setHex(0xe30613); 
+                            c.material.emissive.setHex(0xe30613);
                         }
                     }
                 });
