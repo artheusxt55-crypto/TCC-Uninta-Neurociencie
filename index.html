@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratório Neuro-UNINTA</title>
     <style>
-        :root { --primary: #e30613; --bg: #05050a; }
+        :root { --primary: #e30613; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -26,7 +26,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px; border-radius: 28px;
-            text-align: center; width: 400px;
+            text-align: center; width: 380px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
             z-index: 20;
         }
@@ -37,31 +37,26 @@
             width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
             color: white; margin-bottom: 15px; text-align: center; outline: none;
-            transition: 0.3s;
+            font-weight: bold;
         }
-        input:focus { border-color: var(--primary); background: rgba(227, 6, 19, 0.1); }
 
         .btn-neuro {
-            display: inline-block;
-            width: 100%; padding: 18px; 
-            background: var(--primary);
-            color: white; border: none; border-radius: 12px;
+            display: block; width: 100%; padding: 18px; 
+            background: var(--primary); color: white; border: none; border-radius: 12px;
             font-size: 16px; font-weight: 800; text-transform: uppercase;
-            text-decoration: none; text-align: center;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 15px rgba(227, 6, 19, 0.3);
+            text-decoration: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 20px rgba(227, 6, 19, 0.3);
         }
 
         .btn-neuro:hover {
             transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 10px 25px rgba(227, 6, 19, 0.6);
+            box-shadow: 0 12px 30px rgba(227, 6, 19, 0.5);
             background: #ff1a1a;
         }
 
         .btn-aluno-fixo {
             position: fixed; top: 20px; right: 20px;
-            width: auto; padding: 12px 25px;
-            font-size: 12px; z-index: 9999;
+            width: auto; padding: 12px 25px; font-size: 12px; z-index: 9999;
         }
 
         #brain-viewport { flex: 1; height: 600px; position: relative; }
@@ -71,6 +66,7 @@
             background: linear-gradient(90deg, transparent, var(--primary), transparent);
             box-shadow: 0 0 15px var(--primary);
             animation: scanning 4s ease-in-out infinite;
+            z-index: 5;
         }
 
         @keyframes scanning {
@@ -79,11 +75,10 @@
             100% { top: 80%; opacity: 0; }
         }
 
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: 800; }
-        
-        .qr-section { margin-top: 25px; opacity: 0.7; transition: 0.3s; }
-        .qr-section:hover { opacity: 1; }
-        .qr-section img { width: 90px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .qr-section { margin-top: 25px; }
+        .qr-section img { width: 90px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
+
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -94,14 +89,14 @@
         <div class="card">
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
-            <p style="color:#888; margin-bottom:25px; font-size: 13px;">Laboratório Digital de Neurociência - UNINTA</p>
+            <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
             
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)">
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
 
             <div class="qr-section">
                 <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #bdc3c7; margin-top: 5px;">bit.ly/tcc-uninta</p>
+                <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
             </div>
         </div>
 
@@ -125,9 +120,9 @@
         container.appendChild(renderer.domElement);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const light = new THREE.PointLight(0xffffff, 1.5);
-        light.position.set(5, 5, 5);
-        scene.add(light);
+        const pLight = new THREE.PointLight(0xffffff, 1.5);
+        pLight.position.set(5, 5, 5);
+        scene.add(pLight);
 
         let brain;
         const loader = new THREE.GLTFLoader();
@@ -137,5 +132,51 @@
             brain.traverse(function(child) {
                 if (child.isMesh) {
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0xe30613,
-                        metalness
+                        color: 0xaa0000,
+                        emissive: 0xe30613,
+                        emissiveIntensity: 0.3,
+                        metalness: 0.8,
+                        roughness: 0.2
+                    });
+                }
+            });
+            const box = new THREE.Box3().setFromObject(brain);
+            const center = box.getCenter(new THREE.Vector3());
+            brain.position.sub(center);
+            scene.add(brain);
+            document.getElementById('loader').style.display = 'none';
+        }, undefined, function(e) { console.error(e); });
+
+        // SISTEMA DE MOVIMENTO LENTO (LERP)
+        let tX = 0, tY = 0, cX = 0, cY = 0;
+        window.addEventListener('mousemove', (e) => {
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.6;
+            tY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(brain) {
+                // Suavização (0.03 = mais lento e elegante)
+                cX += (tX - cX) * 0.03;
+                cY += (tY - cY) * 0.03;
+                
+                brain.rotation.y = cX + (Date.now() * 0.0004); 
+                brain.rotation.x = cY;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        const idInput = document.getElementById('idInput');
+        idInput.onfocus = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 2.5; })}
+        idInput.onblur = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.3; })}
+
+        function validarAcesso() {
+            const val = idInput.value.toUpperCase();
+            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
+            else alert("ID INVÁLIDO");
+        }
+    </script>
+</body>
+</html>
