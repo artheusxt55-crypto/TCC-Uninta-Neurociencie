@@ -40,57 +40,57 @@
             gap: 50px;
             align-items: center;
         }
-
+       /* --- CARD DE LOGIN ESTILO GLASSMORPHISM --- */
         .card {
-            background: rgba(13, 17, 23, 0.7); /* Transparência */
-            backdrop-filter: blur(12px);      /* Efeito de vidro */
-            border: 1px solid rgba(240, 246, 252, 0.1);
+            background: rgba(13, 17, 23, 0.85); /* Mais denso para ler melhor */
+            backdrop-filter: blur(20px);      /* Efeito de vidro reforçado */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px;
-            border-radius: 24px;
+            border-radius: 28px;              /* Bordas mais suaves */
             text-align: center;
             width: 400px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            transition: transform 0.3s ease;
         }
 
         .avatar img {
-            width: 100px;
-            filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.4));
-            margin-bottom: 20px;
+            width: 110px;
+            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.5)); /* Brilho no Robo-Freud */
+            margin-bottom: 25px;
+            border-radius: 50%;
         }
 
-        h2 { font-size: 24px; margin-bottom: 8px; color: #fff; }
-        .subtitle { color: #8b949e; font-size: 14px; margin-bottom: 30px; }
+        h2 { font-size: 26px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .subtitle { color: #a0a0a0; font-size: 14px; margin-bottom: 35px; }
 
-        input {
-            width: 100%;
-            padding: 15px;
-            background: #010409 !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px;
-            color: #00d9ff !important; /* Texto estilo monitor médico */
-            text-align: center;
-            font-family: monospace;
-            font-size: 16px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: #e30613 !important; outline: none; box-shadow: 0 0 10px rgba(227, 6, 19, 0.2); }
-
+        /* --- O NOVO BOTÃO UNINTA (HIGH-TECH) --- */
         .btn {
             width: 100%;
-            padding: 15px;
-            background: #e30613;
+            padding: 18px;
+            background: #e30613; /* Vermelho Oficial */
             color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 12px; /* Curvatura moderna */
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn:hover { background: #ff1a1a; transform: translateY(-2px); }
+        .btn:hover {
+            background: #ff1a1a;
+            transform: scale(1.03) translateY(-2px);
+            box-shadow: 0 0 25px rgba(227, 6, 19, 0.7); /* Efeito Neon */
+        }
 
+        .btn:active {
+            transform: scale(0.97);
+        }
         #brain-viewport {
             flex: 1;
             height: 500px;
