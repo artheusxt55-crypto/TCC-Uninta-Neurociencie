@@ -6,16 +6,33 @@
     <title>Acesso | Neuro-UNINTA</title>
     <style>
         :root { --primary: #2c3e50; --secondary: #e30613; --bg: #05050a; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .main-container { display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap; width: 100%; padding: 20px; }
-        .card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 380px; width: 90%; text-align: center; z-index: 10; }
-        .avatar { width: 100px; height: 100px; background: #eee; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--secondary); overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+        
+        .main-container { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; padding: 20px; width: 100%; }
+        
+        /* CARD ORIGINAL */
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; text-align: center; z-index: 10; position: relative; }
+        .avatar { width: 110px; height: 110px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--secondary); overflow: hidden; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; }
-        .btn { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; }
-        #brain-viewport { width: 500px; height: 500px; position: relative; }
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--secondary); font-weight: bold; }
-        @media (max-width: 800px) { #brain-viewport { width: 300px; height: 300px; } }
+        
+        h2 { color: var(--primary); margin-bottom: 5px; font-size: 24px; }
+        p.subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
+        
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1rem; box-sizing: border-box; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; font-size: 16px; }
+        .btn:hover { background: #b3050f; transform: translateY(-2px); }
+
+        /* QR CODE E BOTÃO ALUNO */
+        .qr-section { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px; }
+        .qr-section img { width: 100px; height: 100px; margin-bottom: 5px; }
+        
+        .btn-aluno { position: absolute; bottom: 20px; right: 20px; background: var(--secondary); color: white; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; z-index: 100; }
+
+        /* CONTAINER 3D */
+        #brain-viewport { width: 550px; height: 550px; position: relative; cursor: grab; }
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--secondary); font-weight: bold; z-index: 5; font-family: sans-serif; }
+
+        @media (max-width: 800px) { #brain-viewport { width: 300px; height: 300px; } .btn-aluno { bottom: 10px; right: 10px; } }
     </style>
 </head>
 <body>
@@ -24,15 +41,23 @@
         <div class="card">
             <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
             <h2>Olá, Mestre Matheus!</h2>
-            <p>Laboratório de Neurociência - UNINTA</p>
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID" oninput="this.value = this.value.toUpperCase()">
+            <p class="subtitle">Laboratório Digital de Neurociência - UNINTA</p>
+            
+            <input type="text" id="idInput" placeholder="DIGITE SEU ID (EX: PAC01)" oninput="this.value = this.value.toUpperCase()">
             <button class="btn" onclick="validarAcesso()">Acessar Laboratório</button>
+
+            <div class="qr-section">
+                <img src="qr-code.png" alt="QR Code">
+                <p style="font-size: 10px; color: #bdc3c7; margin: 0;">bit.ly/tcc-uninta</p>
+            </div>
         </div>
 
         <div id="brain-viewport">
             <div id="loader">Sincronizando...</div>
         </div>
     </div>
+
+    <a href="aluno.html" class="btn-aluno">Área do Aluno</a>
 
     <script type="importmap">
         {
@@ -51,26 +76,25 @@
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.z = 4.5;
+        camera.position.z = 5;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // ILUMINAÇÃO REFEITA (Simples e Eficaz)
-        const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
-        light1.position.set(2, 2, 5);
+        // ILUMINAÇÃO DETALHADA (USP/UNINTA Style)
+        const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+        light1.position.set(5, 5, 5);
         scene.add(light1);
-        
-        const light2 = new THREE.PointLight(0xe30613, 1.5); // Brilho Vermelho UNINTA
-        light2.position.set(-5, 0, 2);
+
+        const light2 = new THREE.PointLight(0xe30613, 2);
+        light2.position.set(-5, 3, 5);
         scene.add(light2);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
         const loader = new GLTFLoader();
-        // Usamos apenas o nome do arquivo. Certifique-se que ele está na pasta!
         loader.load('human-brain.glb', (gltf) => {
             const brain = gltf.scene;
 
@@ -79,18 +103,18 @@
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0xe30613,
                         roughness: 0.2,
-                        metalness: 0.3,
-                        emissive: 0x330000
+                        metalness: 0.4,
+                        emissive: 0x220000,
+                        emissiveIntensity: 0.5
                     });
                 }
             });
 
-            // Centralização automática
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
-
             scene.add(brain);
+            
             document.getElementById('loader').style.display = 'none';
 
             function animate() {
@@ -101,7 +125,7 @@
             animate();
         }, undefined, (error) => {
             console.error(error);
-            document.getElementById('loader').innerHTML = "Erro ao carregar arquivo 3D";
+            document.getElementById('loader').innerText = "Erro no Arquivo 3D";
         });
 
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -110,11 +134,9 @@
 
     <script>
         function validarAcesso() {
-            const ids = ["MATH001", "PAC01", "PAC02"];
             const input = document.getElementById('idInput').value.trim();
-            if (ids.includes(input)) window.location.href = "unt.html";
-            else alert("ID Inválido");
-        }
-    </script>
-</body>
-</html>
+            const ids = ["MATH001", "PAC01", "PAC02", "PAC03"];
+            if (ids.includes(input)) {
+                window.location.href = "unt.html";
+            } else {
+                alert("ID PREMIADO INVÁ
