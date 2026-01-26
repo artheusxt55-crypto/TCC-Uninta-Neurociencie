@@ -1,107 +1,102 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratório Neuro-UNINTA</title>
-    <style>
-        :root { --primary: #e30613; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
-            color: #e6edf3; font-family: 'Inter', sans-serif;
-            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-
-        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; }
-
-        .card {
-            background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px; border-radius: 28px; text-align: center; width: 380px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7); z-index: 20;
-        }
-
-        .avatar img { width: 110px; filter: drop-shadow(0 0 15px var(--primary)); border-radius: 50%; margin-bottom: 20px; }
-
-        input {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: white; margin-bottom: 15px; text-align: center; outline: none; font-weight: bold;
-        }
-
-        .btn-neuro {
-            display: block; width: 100%; padding: 18px; 
-            background: var(--primary); color: white; border: none; border-radius: 12px;
-            font-size: 16px; font-weight: 800; text-transform: uppercase;
-            text-decoration: none; cursor: pointer; transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(227, 6, 19, 0.3);
-        }
-
-        .btn-aluno-fixo {
-            position: fixed; top: 20px; right: 20px;
-            width: auto; padding: 12px 25px; font-size: 12px; z-index: 9999;
-        }
-
-        .qr-section { margin-top: 25px; }
-        .qr-section img { width: 90px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
-
-        #brain-viewport { flex: 1; height: 600px; position: relative; min-width: 500px; }
-    </style>
-</head>
-<body>
-
-    <a href="aluno.html" class="btn-neuro btn-aluno-fixo">Área do Aluno</a>
-
-    <div class="main-container">
-        <div class="card">
-            <div class="avatar"><img src="robo-freud.png" alt="Avatar"></div>
-            <h2>Olá, Mestre Matheus!</h2>
-            <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
-            <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
-            
-            <div class="qr-section">
-                <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
-            </div>
+<div class="main-container">
+    <div class="card">
         </div>
-        <div id="brain-viewport"></div>
-    </div>
+    <div id="brain-viewport" style="flex: 1; height: 600px; min-width: 400px;"></div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
-    <script>
-        const container = document.getElementById('brain-viewport');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.z = 5;
+<script>
+    const container = document.getElementById('brain-viewport');
+    
+    // 1. Cena e Câmera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
+    // 2. Renderizador (com Alpha para não ficar preto)
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
 
-        // CONFIGURAÇÃO DO COMPOSER (O motor que faz o "bicho" aparecer com brilho)
-        const composer = new THREE.EffectComposer(renderer);
-        const renderPass = new THREE.RenderPass(scene, camera);
-        composer.addPass(renderPass);
+    // 3. O "Motor de Brilho" (Composer)
+    const composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
 
-        const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(container.clientWidth, container.clientHeight), 
-            1.5, 0.4, 0.85
-        );
-        bloomPass.threshold = 0.1;
-        bloomPass.strength = 0.8; 
-        bloomPass.radius = 1.0;
-        composer.addPass(bloomPass);
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(container.clientWidth, container.clientHeight), 
+        1.5, 0.4, 0.85
+    );
+    bloomPass.threshold = 0.1;
+    bloomPass.strength = 1.2; // Brilho inicial
+    composer.addPass(bloomPass);
 
-        scene.add(new THREE.AmbientLight(0xffffff
+    // 4. Luzes (Importante para o material brilhar)
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const pointLight = new THREE.PointLight(0xff0000, 2);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
+
+    // 5. Carregar o Cérebro
+    let brain, brainMat;
+    const loader = new THREE.GLTFLoader();
+    
+    // TENTATIVA DE CARREGAMENTO
+    loader.load('human-brain.glb', (gltf) => {
+        brain = gltf.scene;
+        brain.traverse(c => {
+            if(c.isMesh) {
+                c.material = new THREE.MeshStandardMaterial({
+                    color: 0x050000, // Base escura para destacar a aura
+                    emissive: 0xff0000, 
+                    emissiveIntensity: 0.8,
+                    metalness: 1, roughness: 0.2
+                });
+                brainMat = c.material;
+            }
+        });
+        
+        // Centraliza automaticamente
+        const box = new THREE.Box3().setFromObject(brain);
+        const center = box.getCenter(new THREE.Vector3());
+        brain.position.sub(center);
+        
+        scene.add(brain);
+        console.log("Cérebro carregado com sucesso!");
+    }, undefined, (err) => {
+        console.error("ERRO NO ARQUIVO GLB: Verifique se o nome 'human-brain.glb' está correto na pasta.", err);
+    });
+
+    // 6. Animação e Brilho ao digitar
+    document.getElementById('idInput').addEventListener('input', () => {
+        if(bloomPass) {
+            bloomPass.strength = 7.0; // Flash ultra forte
+            setTimeout(() => { bloomPass.strength = 1.2; }, 150);
+        }
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if(brain) {
+            brain.rotation.y += 0.003; // Rotação suave
+        }
+        composer.render(); // SEMPRE RENDERIZAR PELO COMPOSER
+    }
+    animate();
+
+    // Ajuste de tela
+    window.addEventListener('resize', () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        composer.setSize(w, h);
+    });
+</script>
