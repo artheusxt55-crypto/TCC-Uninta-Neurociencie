@@ -46,46 +46,16 @@
             display: block; width: 100%; padding: 18px; 
             background: var(--primary); color: white; border: none; border-radius: 12px;
             font-size: 16px; font-weight: 800; text-transform: uppercase;
-            text-decoration: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none; cursor: pointer; transition: all 0.3s;
             box-shadow: 0 8px 20px rgba(227, 6, 19, 0.3);
         }
 
-        .btn-neuro:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 12px 30px rgba(227, 6, 19, 0.5);
-            background: #ff1a1a;
-        }
-
-        .btn-aluno-fixo {
-            position: fixed; top: 20px; right: 20px;
-            width: auto; padding: 12px 25px; font-size: 12px; z-index: 9999;
-        }
-
         #brain-viewport { flex: 1; height: 600px; position: relative; }
-
-        #brain-viewport::after {
-            content: ""; position: absolute; left: 10%; width: 80%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            box-shadow: 0 0 15px var(--primary);
-            animation: scanning 4s ease-in-out infinite;
-            z-index: 5;
-        }
-
-        @keyframes scanning {
-            0% { top: 20%; opacity: 0; }
-            50% { opacity: 0.8; }
-            100% { top: 80%; opacity: 0; }
-        }
-
-        .qr-section { margin-top: 25px; }
-        .qr-section img { width: 90px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
 
         #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <a href="aluno.html" class="btn-neuro btn-aluno-fixo">Área do Aluno</a>
 
     <div class="main-container">
         <div class="card">
@@ -95,11 +65,6 @@
             
             <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             <button class="btn-neuro" onclick="validarAcesso()">Acessar Laboratório</button>
-
-            <div class="qr-section">
-                <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #666; margin-top: 5px;">bit.ly/tcc-uninta</p>
-            </div>
         </div>
 
         <div id="brain-viewport">
@@ -109,6 +74,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 
     <script>
         const container = document.getElementById('brain-viewport');
@@ -121,99 +92,89 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Luzes
-        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-        const pLight = new THREE.PointLight(0xff0000, 1.5);
+        // CONFIGURAÇÃO DO COMPOSER PARA O BRILHO (BLOOM)
+        const renderScene = new THREE.RenderPass(scene, camera);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 0.5; // Brilho constante
+        bloomPass.radius = 1.0;
+
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        const pLight = new THREE.PointLight(0xff0000, 2);
         pLight.position.set(5, 5, 5);
         scene.add(pLight);
 
-        let brain;
-        let brainMaterial;
+        let brain, brainMaterial;
         const loader = new THREE.GLTFLoader();
 
         loader.load('human-brain.glb', function(gltf) {
             brain = gltf.scene;
-            
             brain.traverse(function(child) {
                 if (child.isMesh) {
-                    // Material ajustado para o efeito realista de vermelho
                     child.material = new THREE.MeshStandardMaterial({
-                        color: 0x1a0000,          // Base escura
-                        emissive: 0xff0000,       // Brilho Vermelho
-                        emissiveIntensity: 0.2,   // Intensidade inicial
-                        metalness: 0.9,
-                        roughness: 0.2
+                        color: 0x110000, 
+                        emissive: 0xff0000, 
+                        emissiveIntensity: 0.5,
+                        metalness: 1, roughness: 0.2
                     });
                     brainMaterial = child.material;
                 }
             });
-
             const box = new THREE.Box3().setFromObject(brain);
             const center = box.getCenter(new THREE.Vector3());
             brain.position.sub(center);
             scene.add(brain);
             document.getElementById('loader').style.display = 'none';
-        }, undefined, function(e) { 
-            console.error("Erro ao carregar o modelo:", e);
-            document.getElementById('loader').innerText = "ERRO AO CARREGAR MODELO";
         });
 
-        // Movimentação Mouse (LERP)
         let tX = 0, tY = 0, cX = 0, cY = 0;
         window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.6;
-            tY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+            tX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+            tY = (e.clientY / window.innerHeight - 0.5) * 0.3;
         });
 
-        // Loop de Animação
         function animate() {
             requestAnimationFrame(animate);
             if(brain) {
                 cX += (tX - cX) * 0.03;
                 cY += (tY - cY) * 0.03;
-                brain.rotation.y = cX + (Date.now() * 0.0004); 
+                brain.rotation.y = cX + (Date.now() * 0.0005); 
                 brain.rotation.x = cY;
             }
-            renderer.render(scene, camera);
+            composer.render(); // Renderiza com o efeito de brilho
         }
         animate();
 
-        // LÓGICA DE PULSAÇÃO AO DIGITAR
-        const idInput = document.getElementById('idInput');
-        
-        idInput.addEventListener('input', () => {
-            if(brain) {
-                brain.traverse(child => {
-                    if(child.isMesh) {
-                        // Disparo de brilho (Sinapse)
-                        child.material.emissiveIntensity = 4.0;
-                        
-                        // Função para esfriar o brilho
-                        const fade = setInterval(() => {
-                            if(child.material.emissiveIntensity > 0.2) {
-                                child.material.emissiveIntensity -= 0.3;
-                            } else {
-                                child.material.emissiveIntensity = 0.2;
-                                clearInterval(fade);
-                            }
-                        }, 30);
-                    }
-                });
+        // PULSAÇÃO AO DIGITAR
+        document.getElementById('idInput').addEventListener('input', () => {
+            if(brainMaterial) {
+                bloomPass.strength = 4.0; // Aumenta a aura do cérebro
+                brainMaterial.emissiveIntensity = 5.0; // Aumenta o brilho interno
+                
+                setTimeout(() => {
+                    const fade = setInterval(() => {
+                        if(bloomPass.strength > 0.5) {
+                            bloomPass.strength -= 0.2;
+                            brainMaterial.emissiveIntensity -= 0.3;
+                        } else {
+                            bloomPass.strength = 0.5;
+                            brainMaterial.emissiveIntensity = 0.5;
+                            clearInterval(fade);
+                        }
+                    }, 20);
+                }, 50);
             }
         });
 
         function validarAcesso() {
-            const val = idInput.value.toUpperCase();
-            if(val === "MATH001" || val.startsWith("PAC")) window.location.href = "unt.html";
+            const val = document.getElementById('idInput').value.toUpperCase();
+            if(val === "MATH001" || val.startsWith("PAC")) alert("Acesso Autorizado");
             else alert("ID INVÁLIDO");
         }
-
-        // Responsividade do Canvas
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
     </script>
 </body>
 </html>
