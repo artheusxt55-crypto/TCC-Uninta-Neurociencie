@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal IA - Mestre Matheus</title>
+    <title>UnintaBot - Mestre Matheus</title>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,19 +23,34 @@
             font-weight: 800; 
             box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); 
         }
-        #brain-container { flex: 1; width: 100%; position: relative; min-height: 300px; }
+        #brain-container { flex: 1; width: 100%; position: relative; min-height: 250px; }
+        
+        /* Área onde o texto da IA aparece */
+        #chat-display {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--ia-cyan);
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            border-left: 3px solid var(--ia-cyan);
+            margin: 0 20px;
+            border-radius: 5px;
+        }
+
         .control-panel { 
             background: rgba(13, 17, 23, 0.95); 
-            padding: 25px; 
+            padding: 20px; 
             border-top: 2px solid var(--ia-cyan); 
             z-index: 100;
         }
         #ia-status { 
             text-align: center; 
-            color: var(--ia-cyan); 
-            font-size: 13px; 
-            margin-bottom: 15px; 
-            min-height: 20px;
+            color: white; 
+            font-size: 12px; 
+            margin-bottom: 10px; 
+            opacity: 0.7;
         }
         .input-box { 
             display: flex; 
@@ -45,7 +60,7 @@
         }
         input { 
             flex: 1; 
-            padding: 15px 20px; 
+            padding: 12px 20px; 
             border-radius: 30px; 
             border: 1px solid var(--ia-cyan); 
             background: rgba(0,0,0,0.5); 
@@ -57,7 +72,7 @@
             background: var(--primary-red); 
             color: white; 
             border: none; 
-            padding: 0 30px; 
+            padding: 0 25px; 
             border-radius: 30px; 
             font-weight: bold; 
             cursor: pointer; 
@@ -66,12 +81,14 @@
 </head>
 <body>
 
-<header>SISTEMA DE ANÁLISE NEURAL PREVENTIVA</header>
+<header>SISTEMA DE ANÁLISE NEURAL - UNINTA</header>
 
 <div id="brain-container"></div>
 
+<div id="chat-display">UnintaBot: Pronto para análise, Mestre Matheus.</div>
+
 <div class="control-panel">
-    <div id="ia-status">Pronto para análise, Mestre Matheus.</div>
+    <div id="ia-status">STATUS: Conectado ao Llama-3.3</div>
     <div class="input-box">
         <input type="text" id="userInput" placeholder="Solicite uma análise técnica...">
         <button id="btnEnviar" onclick="enviar()">Executar</button>
@@ -82,10 +99,9 @@
 <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
-    // --- SUA CHAVE GROQ ---
     const API_KEY = "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";
     
-    // --- SETUP DO CENÁRIO 3D ---
+    // SETUP 3D
     const container = document.getElementById('brain-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -103,7 +119,6 @@
     let brain = null;
     const loader = new THREE.GLTFLoader();
     
-    // Carregando o modelo transparente
     loader.load('./transparente.glb', (gltf) => {
         brain = gltf.scene;
         brain.traverse(c => {
@@ -117,16 +132,20 @@
         scene.add(brain);
     }, undefined, (e) => console.log("Aguardando arquivo transparente.glb..."));
 
-    // --- FUNÇÃO DE VOZ + PULSAÇÃO ---
+    // FUNÇÃO DE VOZ + EXIBIÇÃO DE TEXTO
     function falar(texto) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             const vozes = window.speechSynthesis.getVoices();
-            const antonio = vozes.find(v => v.name.includes('Antonio')) || vozes.find(v => v.lang.includes('pt-BR'));
             
-            if (antonio) msg.voice = antonio;
+            // Procura a voz do Antônio para o UnintaBot
+            const vozAntonio = vozes.find(v => v.name.includes('Antonio')) || vozes.find(v => v.lang.includes('pt-BR'));
+            if (vozAntonio) msg.voice = vozAntonio;
             
+            // Exibe o texto na tela
+            document.getElementById('chat-display').innerText = "UnintaBot: " + texto;
+
             msg.onboundary = () => {
                 if (brain) {
                     brain.scale.set(1.1, 1.1, 1.1);
@@ -137,19 +156,17 @@
                     }, 100);
                 }
             };
-
-            document.getElementById('ia-status').innerText = "Antônio analisando...";
             window.speechSynthesis.speak(msg);
         }
     }
 
-    // --- CONEXÃO COM A IA ---
+    // CONEXÃO COM A IA
     async function enviar() {
         const input = document.getElementById('userInput');
         const pergunta = input.value.trim();
         if (!pergunta) return;
 
-        document.getElementById('ia-status').innerText = "Processando ordem do Mestre Matheus...";
+        document.getElementById('chat-display').innerText = "Mestre Matheus: " + pergunta + "\n\nProcessando...";
         
         try {
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -158,23 +175,21 @@
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
-                        { role: "system", content: "Você é o Antônio, a IA assistente do Mestre Matheus. Responda sobre TDAH, Neuroimagem e Neurociência com lealdade e precisão técnica." },
+                        { role: "system", content: "Você é o UnintaBot, assistente do Mestre Matheus. Responda sobre TDAH, Neuroimagem e Neurociência com lealdade absoluta." },
                         { role: "user", content: pergunta }
                     ]
                 })
             });
 
             const data = await response.json();
-            const resposta = data.choices[0].message.content;
-            falar(resposta);
+            falar(data.choices[0].message.content);
         } catch (e) {
-            falar("Mestre Matheus, detectei uma falha na rede de dados.");
+            falar("Mestre Matheus, tive uma falha na conexão neural.");
         } finally {
             input.value = "";
         }
     }
 
-    // --- LOOP DE ANIMAÇÃO ---
     function animate() {
         requestAnimationFrame(animate);
         if (brain) brain.rotation.y += 0.005;
@@ -182,13 +197,8 @@
     }
     animate();
 
-    // Evento para carregar vozes
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-
-    // Permitir "Enter" no teclado
-    document.getElementById('userInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') enviar();
-    });
+    document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') enviar(); });
 </script>
 </body>
 </html>
