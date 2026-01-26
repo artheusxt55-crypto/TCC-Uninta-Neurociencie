@@ -80,28 +80,58 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
+        // --- SUBSTITUIR DA LINHA 83 ATÉ A 88 POR ESTE BLOCO ---
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        const light = new THREE.PointLight(0xe30613, 2); // Luz Vermelha UNINTA
-        light.position.set(5, 5, 5);
-        scene.add(light);
+// 1. LUZ DE TOPO (Branca) - Dá brilho nos relevos superiores do cérebro
+const topLight = new THREE.DirectionalLight(0xffffff, 1.2);
+topLight.position.set(0, 10, 10);
+scene.add(topLight);
 
+// 2. LUZ LATERAL (Vermelha UNINTA) - Cria o brilho da sua marca
+const redLight = new THREE.PointLight(0xe30613, 2.5);
+redLight.position.set(5, 2, 5);
+scene.add(redLight);
+
+// 3. LUZ DE CONTRASTE (Azul Ciano) - O segredo para ver os detalhes da anatomia
+const blueLight = new THREE.PointLight(0x00d9ff, 1.8);
+blueLight.position.set(-5, -2, 2);
+scene.add(blueLight);
+
+// 4. LUZ AMBIENTE (Suave) - Garante que o cérebro não tenha "pontos cegos" pretos
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+// --- FIM DO BLOCO DE ILUMINAÇÃO ---
         const loader = new GLTFLoader();
         loader.load('human-brain.glb', (gltf) => {
-            const brain = gltf.scene;
-            const box = new THREE.Box3().setFromObject(brain);
-            const center = box.getCenter(new THREE.Vector3());
-            brain.position.sub(center);
-            scene.add(brain);
-            document.getElementById('loader').style.display = 'none';
+         const brain = gltf.scene;
 
-            function animate() {
-                requestAnimationFrame(animate);
-                brain.rotation.y += 0.005; // O GIRO ACONTECE AQUI
-                renderer.render(scene, camera);
-            }
-            animate();
-        });
+    // --- AQUI ENTRA O DETALHAMENTO (MAQUIAGEM) ---
+    brain.traverse((child) => {
+        if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+                color: 0xe30613,      // Vermelho UNINTA
+                roughness: 0.1,       // Deixa o cérebro com brilho realista (molhado)
+                metalness: 0.3,       // Dá um toque tecnológico
+                emissive: 0x220000,   // Um brilho interno profundo
+                emissiveIntensity: 1
+            });
+        }
+    });
+
+    // Centralizar o modelo no palco
+    const box = new THREE.Box3().setFromObject(brain);
+    const center = box.getCenter(new THREE.Vector3());
+    brain.position.sub(center);
+    
+    scene.add(brain);
+    document.getElementById('loader').style.display = 'none';
+
+    function animate() {
+        requestAnimationFrame(animate);
+        brain.rotation.y += 0.005; // O GIRO CONTINUA AQUI
+        renderer.render(scene, camera);
+    }
+    animate();
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableZoom = false; // Evita que o zoom estrague o layout da página
