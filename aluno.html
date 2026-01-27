@@ -30,7 +30,7 @@
         .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-main:hover { background: #ff1a1a; transform: scale(1.05); box-shadow: 0 0 15px var(--primary-red); }
         
-        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); }
+        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); outline: none; }
         #btnMicrofone.ativo { background: var(--primary-red); color: white; animation: pulse 1.5s infinite; border: none; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
     </style>
@@ -100,7 +100,7 @@
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: "Você é o UnintaBot. Foco em Neurociência. Sem markdown."}, {role: "user", content: txt}]})
+                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: "Você é o UnintaBot. Foco em Neuroimagem, TEA, TDAH e Neurociência. Sem markdown."}, {role: "user", content: txt}]})
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
@@ -110,11 +110,10 @@
         } catch (e) { display.innerText = "Erro na conexão neural."; }
     }
 
-    // --- CONSERTO FINAL DO MICROFONE ---
-    document.getElementById('btnMicrofone').addEventListener('click', function() {
-        const btn = this;
+    // --- RECALIBRAÇÃO DO MICROFONE ---
+    const btnMic = document.getElementById('btnMicrofone');
+    btnMic.onclick = function() {
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
         if (!Speech) {
             alert("Navegador incompatível.");
             return;
@@ -122,23 +121,29 @@
 
         const rec = new Speech();
         rec.lang = 'pt-BR';
-        rec.continuous = false;
+        rec.interimResults = false;
 
-        rec.onstart = () => btn.classList.add('ativo');
-        rec.onend = () => btn.classList.remove('ativo');
-        rec.onerror = () => btn.classList.remove('ativo');
+        rec.onstart = () => {
+            btnMic.classList.add('ativo');
+            console.log("Captando áudio...");
+        };
+
+        rec.onend = () => btnMic.classList.remove('ativo');
         
+        rec.onerror = (event) => {
+            btnMic.classList.remove('ativo');
+            console.error("Erro no reconhecimento: ", event.error);
+            if(event.error === 'not-allowed') alert("Permita o uso do microfone no navegador (clique no cadeado ao lado da URL).");
+        };
+
         rec.onresult = (event) => {
-            document.getElementById('userInput').value = event.results[0][0].transcript;
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('userInput').value = transcript;
             enviar();
         };
 
-        try {
-            rec.start();
-        } catch (e) {
-            console.error("Falha ao iniciar reconhecimento.");
-        }
-    });
+        rec.start();
+    };
 
     document.getElementById('btnEnviar').onclick = enviar;
     document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
