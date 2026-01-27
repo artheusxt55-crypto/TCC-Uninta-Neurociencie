@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnintaBot - Neural Analytics</title>
+    <title>UnintaBot - Neural Analytics Pro</title>
     <style>
-        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.85); }
+        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.9); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
         
         body { 
@@ -18,70 +18,108 @@
         header { 
             padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--primary-red); background: rgba(0,0,0,0.9); z-index: 100;
+            box-shadow: 0 0 20px rgba(227, 6, 19, 0.2);
         }
         .logo-text { font-size: 14px; font-weight: 900; color: white; letter-spacing: 4px; }
         .logo-text span { color: var(--primary-red); }
 
-        #main-viewport { flex: 1; position: relative; overflow: hidden; }
+        #main-viewport { flex: 1; position: relative; display: flex; overflow: hidden; }
 
-        /* HUD SUPERIOR */
+        /* PAINEL LATERAL DE HISTÓRICO */
+        #history-panel {
+            width: 200px; border-right: 1px solid rgba(0, 242, 255, 0.1);
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+            padding: 20px; z-index: 10; display: flex; flex-direction: column; gap: 10px;
+        }
+        .history-item { font-size: 10px; padding: 8px; border-bottom: 1px solid #222; color: #666; }
+        .history-item.new { color: var(--ia-cyan); border-color: var(--ia-cyan); animation: flash 1s; }
+
+        /* HUD */
         #neural-status { 
-            position: absolute; left: 25px; top: 25px; z-index: 10; padding: 15px;
+            position: absolute; left: 225px; top: 25px; z-index: 10; padding: 15px;
             border-left: 2px solid var(--ia-cyan); background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
         }
-        .stat-row { margin-bottom: 10px; }
-        .stat-label { font-size: 9px; color: var(--ia-cyan); opacity: 0.8; }
-        .stat-value { font-size: 11px; font-weight: bold; }
+        .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+        .voice-card { 
+            padding: 8px 15px; font-size: 10px; border: 1px solid rgba(0, 242, 255, 0.2); 
+            background: rgba(0,0,0,0.6); cursor: pointer; color: var(--ia-cyan); transition: 0.3s;
+            border-radius: 4px; text-align: center;
+        }
+        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 15px var(--ia-cyan); }
 
-        #brain-container { width: 100%; height: 100%; position: absolute; z-index: 1; cursor: crosshair; }
+        #brain-container { flex: 1; position: relative; z-index: 1; }
 
-        /* TERMINAL DE DÚVIDAS */
+        /* TERMINAL */
         #chat-display { 
             position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 850px; padding: 25px; background: var(--panel-bg); 
-            border: 1px solid rgba(0, 242, 255, 0.1); border-top: 3px solid var(--ia-cyan);
+            width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); 
+            border: 1px solid rgba(0, 242, 255, 0.1); border-left: 4px solid var(--ia-cyan);
             color: #ccc; font-size: 14px; line-height: 1.5;
             max-height: 180px; overflow-y: auto; z-index: 10; backdrop-filter: blur(15px);
+            scroll-behavior: smooth;
         }
 
-        .control-panel { padding: 30px; background: #000; border-top: 1px solid #222; z-index: 20; }
-        .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; }
+        .control-panel { padding: 25px; background: #000; border-top: 1px solid #222; z-index: 20; }
+        .input-box { display: flex; gap: 12px; max-width: 950px; margin: 0 auto; align-items: center; }
         
         input { 
-            flex: 1; padding: 18px; border-radius: 4px; border: 1px solid #333; 
-            background: #050505; color: var(--ia-cyan); outline: none; font-size: 15px;
+            flex: 1; padding: 15px 20px; border-radius: 6px; border: 1px solid #333; 
+            background: #080808; color: var(--ia-cyan); outline: none; font-size: 15px;
         }
 
-        .btn-analyze { background: var(--primary-red); color: white; border: none; padding: 0 30px; border-radius: 4px; cursor: pointer; font-weight: 900; font-size: 11px; text-transform: uppercase; }
+        .btn-main { 
+            height: 50px; padding: 0 25px; border-radius: 6px; border: none;
+            cursor: pointer; font-weight: 800; font-size: 11px; transition: 0.3s;
+        }
+        .btn-analyze { background: var(--primary-red); color: white; }
+        .btn-mic { background: transparent; border: 1px solid var(--ia-cyan); color: var(--ia-cyan); width: 50px; }
+        .btn-mic.active { background: var(--ia-cyan); color: black; animation: mic-pulse 1.5s infinite; }
+
+        @keyframes mic-pulse { 0% { box-shadow: 0 0 0 0px rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0px rgba(0, 242, 255, 0); } }
+        @keyframes flash { from { background: var(--ia-cyan); color: black; } to { background: transparent; } }
+
+        #loading-wrap { display: none; margin-top: 10px; width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+        #loading-bar { height: 100%; background: var(--ia-cyan); width: 0%; transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-text">UNINTA <span>NEURAL_ACADEMY</span></div>
-    <div id="status-text" style="font-size: 10px; color: var(--ia-cyan)">UNINTA_CORE: ACTIVE</div>
+    <div style="font-size: 10px; color: var(--ia-cyan)">ANALYSIS_ENGINE_V3.0</div>
 </header>
 
 <div id="main-viewport">
+    <aside id="history-panel">
+        <div style="font-size: 9px; color: #555; margin-bottom: 10px;">RECENT_LOGS</div>
+        <div id="logs"></div>
+    </aside>
+
     <div id="neural-status">
-        <div class="stat-row">
-            <div class="stat-label">AREA_ANALYSIS</div>
-            <div id="current-area" class="stat-value">WHOLE_BRAIN</div>
-        </div>
-        <div class="stat-row">
-            <div class="stat-label">SYNAPTIC_STATE</div>
-            <div id="synaptic-state" class="stat-value">STABLE</div>
-        </div>
+        <div style="font-size: 9px; color: var(--ia-cyan); opacity: 0.8;">AREA_ANALYSIS</div>
+        <div id="current-area" style="font-size: 11px; font-weight: bold; margin-bottom: 10px;">STANDBY</div>
+        <div style="font-size: 9px; color: var(--ia-cyan); opacity: 0.8;">SYNAPTIC_STATE</div>
+        <div id="synaptic-state" style="font-size: 11px; font-weight: bold;">IDLE</div>
+    </div>
+
+    <div class="voice-hub">
+        <div class="voice-card active" onclick="setVoice('eleven', this)">VOICE: ELEVEN_V2</div>
+        <div class="voice-card" onclick="setVoice('google', this)">VOICE: NATIVE_SYS</div>
     </div>
 
     <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: UNINTA NEURAL INTERFACE ONLINE. ENVIE SUA DÚVIDA TÉCNICA...</div>
+    
+    <div id="chat-display">
+        >> [SISTEMA]: INTERFACE CONECTADA. AGUARDANDO INPUT...
+        <div id="loading-wrap"><div id="loading-bar"></div></div>
+    </div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="Ex: Protocolos neurobiológicos do TEA e conectividade...">
-        <button id="btnEnviar" class="btn-analyze">Analisar</button>
+        <button id="btnMic" class="btn-main btn-mic">🎤</button>
+        <input type="text" id="userInput" placeholder="Descreva a sintomatologia ou patologia...">
+        <button id="btnEnviar" class="btn-main btn-analyze">EXECUTAR SCANNER</button>
     </div>
 </div>
 
@@ -93,11 +131,11 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+    // 3D CORE
     const container = document.getElementById('brain-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-    let targetZ = 4.5; 
-    camera.position.z = 12; // Efeito de entrada
+    let targetZ = 4.5; camera.position.z = 10;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -107,74 +145,69 @@
     const l2 = new THREE.PointLight(0xe30613, 10); l2.position.set(-5, -5, 5); scene.add(l2);
     scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-    let brain, particles;
+    let brain, particles, isAnalyzing = false;
     let pSpeed = 0.002;
     const loader = new GLTFLoader();
 
-    // SISTEMA DE PARTÍCULAS (Neurotransmissores)
-    const pCount = 1500;
+    // PARTICLES (Neurotransmissores)
     const pGeom = new THREE.BufferGeometry();
-    const pPos = new Float32Array(pCount * 3);
-    for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * 10;
+    const pPos = new Float32Array(1500 * 3);
+    for(let i=0; i<4500; i++) pPos[i] = (Math.random() - 0.5) * 10;
     pGeom.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    particles = new THREE.Points(pGeom, new THREE.PointsMaterial({color: 0x00f2ff, size: 0.012, transparent: true, opacity: 0.4}));
+    particles = new THREE.Points(pGeom, new THREE.PointsMaterial({color: 0x00f2ff, size: 0.015, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending}));
     scene.add(particles);
 
     loader.load('brainunt.glb', (gltf) => {
-        brain = gltf.scene;
-        brain.scale.set(1.9, 1.9, 1.9);
-        brain.traverse(c => { if(c.isMesh) { 
-            c.material.emissive = new THREE.Color(0x00f2ff); 
-            c.material.emissiveIntensity = 0.3; 
-            c.material.transparent = true;
-            c.material.opacity = 0.9;
-        }});
+        brain = gltf.scene; brain.scale.set(1.9, 1.9, 1.9);
+        brain.traverse(c => { if(c.isMesh) { c.material.emissive = new THREE.Color(0x00f2ff); c.material.emissiveIntensity = 0.3; c.material.transparent = true; }});
         scene.add(brain);
     });
 
     function animate() {
         requestAnimationFrame(animate);
         const time = Date.now() * 0.001;
-
-        // ZOOM SUAVE (LERP)
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.04);
-
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
         if(brain) {
             brain.rotation.y += 0.003;
-            // Pulsação de base
-            const pulse = 0.3 + Math.sin(time * 2) * 0.1;
-            brain.traverse(c => { if(c.isMesh && !c.customEffect) c.material.emissiveIntensity = pulse; });
+            const pulse = isAnalyzing ? (1.2 + Math.sin(time * 18) * 0.8) : (0.2 + Math.sin(time * 1.5) * 0.1);
+            brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = pulse; });
         }
-        
         particles.rotation.y += pSpeed;
         renderer.render(scene, camera);
     }
     animate();
 
+    // IA & VOICE LOGIC
     const GROQ_API = "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";
+    const EL_KEY = "sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8";
+    let currentVoiceMode = 'eleven';
+    let currentAudio = null;
+
+    window.setVoice = (mode, el) => {
+        currentVoiceMode = mode;
+        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    };
 
     async function enviar() {
         const input = document.getElementById('userInput');
-        const txt = input.value.trim().toLowerCase();
         const display = document.getElementById('chat-display');
+        const txt = input.value.trim().toLowerCase();
         if(!txt) return;
 
-        input.value = "";
-        display.innerHTML = "<em>[UNINTA_NEURAL]: ESCANEANDO BANCO DE DADOS...</em>";
-        
-        // Efeito visual de foco
-        targetZ = 3.0; 
-        pSpeed = 0.03;
+        if(currentAudio) currentAudio.pause();
+        input.value = ""; isAnalyzing = true;
+        display.innerHTML = ">> [UNINTA_SCAN]: MAPEANDO CONECTOMA...<div id='loading-wrap' style='display:block'><div id='loading-bar' style='width:40%'></div></div>";
+        targetZ = 2.8; pSpeed = 0.09;
 
-        // Gatilhos Visuais por Doença/Dúvida
+        // Visual Mappings
         if(txt.includes("tdah")) applyEffect(0xe30613, "HYPER_DOPAMINE", "PREFRONTAL_CORTEX");
-        else if(txt.includes("tea") || txt.includes("autismo")) applyEffect(0xffaa00, "HIGH_CONNECTIVITY", "LIMBIC_SYSTEM");
-        else if(txt.includes("memória") || txt.includes("alzheimer")) {
-            applyEffect(0x00ff00, "SYNAPTIC_LOSS", "HIPPOCAMPUS");
-            if(brain) brain.traverse(c => { if(c.isMesh) c.material.opacity = 0.4; });
-        } else if(txt.includes("ansiedade") || txt.includes("pânico")) {
-            applyEffect(0xff00ff, "ALARM_RESPONSE", "AMYGDALA");
-        }
+        else if(txt.includes("tea") || txt.includes("autismo")) applyEffect(0xffaa00, "CONNECTIVITY_SCAN", "LIMBIC_SYSTEM");
+        else if(txt.includes("memória") || txt.includes("alzheimer")) applyEffect(0x00ff00, "DATA_RETRIEVAL", "HIPPOCAMPUS");
+        else if(txt.includes("ansiedade") || txt.includes("pânico")) applyEffect(0xff00ff, "ALARM_RESPONSE", "AMYGDALA");
+        else applyEffect(0x00f2ff, "GENERAL_SCAN", "WHOLE_BRAIN");
+
+        updateLogs(txt);
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -184,43 +217,67 @@
                     model: "llama-3.3-70b-versatile", 
                     messages: [{
                         role: "system", 
-                        content: `Você é o UnintaBot, uma interface de suporte acadêmico da UNINTA.
-                        DIRETRIZES:
-                        1. Foco total em neurociência acadêmica para alunos da Uninta.
-                        2. Use protocolos técnicos (baseados em referências como USP/CBI) para explicar a neurobiologia, sem ser propagandista.
-                        3. Responda dúvidas técnicas, não faça diagnósticos.
-                        4. OBRIGATÓRIO: Termine toda resposta com um aviso padrão: "Esta é uma análise técnica para fins de estudo. Qualquer sintoma ou suspeita clínica deve ser avaliado por um profissional de saúde qualificado."`
+                        content: "Você é o UnintaBot. Explique neurobiologia clínica. Foco em USP/CBI Miami. Termine com: 'Análise acadêmica. Procure um médico para diagnóstico.'"
                     }, {role: "user", content: txt}]
                 })
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             
-            display.innerHTML = `<span style="color:var(--ia-cyan)">[UNINTA_RESPONSE]:</span> ${resp}`;
-            
-            // Reset suave após 10 segundos
+            document.getElementById('loading-bar').style.width = "100%";
             setTimeout(() => {
-                targetZ = 4.5;
-                pSpeed = 0.002;
-                if(brain) brain.traverse(c => { if(c.isMesh) { c.material.opacity = 0.9; c.customEffect = false; }});
-                document.getElementById('synaptic-state').innerText = "STABLE";
-                document.getElementById('current-area').innerText = "WHOLE_BRAIN";
-            }, 10000);
-
-        } catch(e) { display.innerHTML = "[ERRO: SINAPSE INTERROMPIDA]"; }
+                isAnalyzing = false;
+                display.innerHTML = `<span style="color:var(--ia-cyan)">[RESPOSTA]:</span> ${resp}`;
+                display.scrollTop = display.scrollHeight;
+                speak(resp);
+                targetZ = 4.5; pSpeed = 0.002;
+            }, 500);
+        } catch(e) { isAnalyzing = false; display.innerHTML = "[FALHA NO LINK NEURAL]"; }
     }
 
     function applyEffect(color, state, area) {
         document.getElementById('synaptic-state').innerText = state;
         document.getElementById('current-area').innerText = area;
-        if(brain) {
-            brain.traverse(c => { if(c.isMesh) { 
-                c.material.emissive.setHex(color); 
-                c.material.emissiveIntensity = 2.5;
-                c.customEffect = true;
-            }});
+        if(brain) brain.traverse(c => { if(c.isMesh) { c.material.emissive.setHex(color); c.material.emissiveIntensity = 2.5; }});
+    }
+
+    function updateLogs(txt) {
+        const log = document.createElement('div');
+        log.className = 'history-item new';
+        log.innerText = `> ${txt.substring(0, 20)}...`;
+        document.getElementById('logs').prepend(log);
+    }
+
+    async function speak(t) {
+        if(currentVoiceMode === 'google') {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t); u.lang = 'pt-BR';
+            window.speechSynthesis.speak(u);
+        } else {
+            try {
+                const res = await fetch("https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB", {
+                    method: "POST",
+                    headers: { "xi-api-key": EL_KEY, "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: t, model_id: "eleven_multilingual_v2" })
+                });
+                const blob = await res.blob();
+                currentAudio = new Audio(URL.createObjectURL(blob));
+                currentAudio.play();
+            } catch(e) { console.error("ElevenLabs offline."); }
         }
     }
+
+    // INTERFACE EVENTS
+    const btnMic = document.getElementById('btnMic');
+    btnMic.onclick = () => {
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(!Speech) return;
+        const rec = new Speech(); rec.lang = 'pt-BR';
+        rec.onstart = () => btnMic.classList.add('active');
+        rec.onend = () => btnMic.classList.remove('active');
+        rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; enviar(); };
+        rec.start();
+    };
 
     document.getElementById('btnEnviar').onclick = enviar;
     document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
