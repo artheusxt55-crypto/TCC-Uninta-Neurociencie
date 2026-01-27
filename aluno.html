@@ -8,18 +8,31 @@
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        
+        header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
+        
         #brain-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); padding: 20px; }
-        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; margin-bottom: 20px; }
-        .voice-hub { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 10px; transition: 0.3s; color: var(--ia-cyan); }
-        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 15px var(--ia-cyan); }
-        #chat-display { width: 95%; max-width: 900px; padding: 20px; background: rgba(0, 0, 0, 0.8); color: var(--ia-cyan); font-size: 16px; min-height: 100px; border-left: 5px solid var(--ia-cyan); border-radius: 8px; margin-bottom: 20px; overflow-y: auto; }
-        .control-panel { background: rgba(13, 17, 23, 0.98); padding: 25px; border-top: 2px solid var(--ia-cyan); }
-        .input-box { display: flex; gap: 10px; max-width: 900px; margin: 0 auto; }
-        input { flex: 1; padding: 15px 20px; border-radius: 30px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; }
-        button { background: var(--primary-red); color: white; border: none; padding: 0 25px; border-radius: 30px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 20px; }
+        
+        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; margin-bottom: 20px; box-shadow: inset 0 0 10px var(--ia-cyan); }
+
+        .voice-hub { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+        .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; color: var(--ia-cyan); text-transform: uppercase; }
+        .voice-card:hover { background: rgba(0, 242, 255, 0.2); }
+        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 20px var(--ia-cyan); }
+
+        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 120px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; }
+        
+        .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 2px solid var(--ia-cyan); }
+        .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
+        
+        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; }
+        
+        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 30px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        #btnMicrofone.ativo { background: var(--primary-red); animation: pulse 1.5s infinite; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
     </style>
 </head>
 <body>
@@ -27,20 +40,19 @@
 <header>SISTEMA MULTI-NEURAL - UNINTA</header>
 
 <div id="brain-container">
-    <div id="status-3d">[ SELECIONE O MOTOR DE VOZ ]</div>
+    <div id="status-3d">[ AGUARDANDO SINAPSE ]</div>
     <div class="voice-hub">
-        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Premium)</div>
-        <div class="voice-card" onclick="setVoice('minimax', this)">2. MiniMax (Elite)</div>
-        <div class="voice-card" onclick="setVoice('google', this)">3. Google (Nativo)</div>
+        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
+        <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
     </div>
-    <div id="chat-display">UnintaBot: Mestre Matheus, chaves ElevenLabs integradas. Sistema pronto para Neurociência.</div>
+    <div id="chat-display">UnintaBot: Mestre Matheus, sistema operacional. Pronto para análise em Neurociência e Psicopatologia.</div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
         <button id="btnMicrofone">🎤</button>
-        <input type="text" id="userInput" placeholder="Digite sobre TDAH ou Neuroimagem...">
-        <button id="btnEnviar">Executar</button>
+        <input type="text" id="userInput" placeholder="Comande a análise técnica...">
+        <button id="btnEnviar" class="btn-main">Executar</button>
     </div>
 </div>
 
@@ -61,7 +73,7 @@
         currentVoiceMode = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
-        document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ATIVO ]`;
+        document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ]`;
     }
 
     async function speakEleven(texto) {
@@ -69,15 +81,19 @@
             const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB`, {
                 method: "POST",
                 headers: { "xi-api-key": ELEVEN_KEYS[currentKeyIndex], "Content-Type": "application/json" },
-                body: JSON.stringify({ text: texto, model_id: "eleven_multilingual_v2" })
+                body: JSON.stringify({ 
+                    text: texto, 
+                    model_id: "eleven_multilingual_v2",
+                    voice_settings: { stability: 0.65, similarity_boost: 0.8, style: 0.0, use_speaker_boost: true }
+                })
             });
             if (res.status === 401 || res.status === 429) {
                 currentKeyIndex++;
-                return speakEleven(texto);
+                if(currentKeyIndex < ELEVEN_KEYS.length) return speakEleven(texto);
             }
             const blob = await res.blob();
             new Audio(URL.createObjectURL(blob)).play();
-        } catch (e) { console.error("Erro ElevenLabs"); }
+        } catch (e) { console.error("Falha ElevenLabs"); }
     }
 
     async function enviar() {
@@ -87,7 +103,7 @@
 
         const prompt = input.value;
         input.value = "";
-        display.innerText = "Pensando...";
+        display.innerHTML = "<em>Processando...</em>";
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -95,27 +111,30 @@
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "system", content: "Você é um expert em Neuroimagem e TDAH. Responda em português, sem markdown."}, {role: "user", content: prompt}]
+                    messages: [{
+                        role: "system", 
+                        content: "Você é o UnintaBot, um consultor científico de alto nível. Seu tom é sério, eficiente e técnico. Trate o usuário como Mestre Matheus. Não seja bajulador. Responda sobre Neuroimagem, TDAH e Neurociência com precisão acadêmica (USP/Uninta). Sem markdown, sem asteriscos."
+                    }, {role: "user", content: prompt}]
                 })
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             display.innerText = "UnintaBot: " + resp;
             if (currentVoiceMode === 'eleven') speakEleven(resp);
-        } catch (e) { display.innerText = "Erro na rede."; }
+        } catch (e) { display.innerText = "Erro no link neural."; }
     }
 
-    // Corrigindo o erro de 'null' do console
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btnEnviar').addEventListener('click', enviar);
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') enviar(); });
         
-        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        rec.lang = 'pt-BR';
-        rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; enviar(); };
-        document.getElementById('btnMicrofone').addEventListener('click', () => rec.start());
-    });
-</script>
-
-</body>
-</html>
+        const btnMic = document.getElementById('btnMicrofone');
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (Recognition) {
+            const rec = new Recognition();
+            rec.lang = 'pt-BR';
+            rec.onstart = () => btnMic.classList.add('ativo');
+            rec.onend = () => btnMic.classList.remove('ativo');
+            rec.onresult = (e) => { 
+                document.getElementById('userInput').value = e.results[0]
