@@ -72,6 +72,7 @@
 
     let currentKeyIndex = 0;
     let currentVoiceMode = 'eleven';
+    let recognition;
 
     function updateKeyMonitor() {
         document.getElementById('key-monitor').innerText = `Chave ${currentKeyIndex + 1}/${ELEVEN_KEYS.length}`;
@@ -153,7 +154,6 @@
         }
     }
 
-    // Inicialização Blindada
     window.onload = () => {
         const btnEnviar = document.getElementById('btnEnviar');
         const btnMic = document.getElementById('btnMicrofone');
@@ -162,17 +162,39 @@
         btnEnviar.onclick = enviar;
         inputField.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (Recognition) {
-            const rec = new Recognition();
-            rec.lang = 'pt-BR';
-            rec.onstart = () => btnMic.classList.add('ativo');
-            rec.onend = () => btnMic.classList.remove('ativo');
-            rec.onresult = (e) => { 
-                inputField.value = e.results[0][0].transcript; 
-                enviar(); 
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => btnMic.classList.add('ativo');
+            recognition.onend = () => btnMic.classList.remove('ativo');
+            
+            recognition.onresult = (e) => {
+                inputField.value = e.results[0][0].transcript;
+                enviar();
             };
-            btnMic.onclick = () => rec.start();
+
+            recognition.onerror = (e) => {
+                btnMic.classList.remove('ativo');
+                if(e.error === 'not-allowed') {
+                    document.getElementById('chat-display').innerText = "UnintaBot: Acesso ao microfone negado. Ative no cadeado da barra de endereço.";
+                }
+            };
+
+            btnMic.onclick = () => {
+                try {
+                    recognition.start();
+                } catch (ex) {
+                    // Se o microfone já estiver ativo ou em estado de erro, reinicia o hardware
+                    recognition.stop();
+                    setTimeout(() => { recognition.start(); }, 200);
+                }
+            };
+        } else {
+            btnMic.onclick = () => alert("Mestre, este navegador não suporta reconhecimento neural de voz.");
         }
     };
 </script>
