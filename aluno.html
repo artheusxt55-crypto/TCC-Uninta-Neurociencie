@@ -154,48 +154,52 @@
         }
     }
 
-    window.onload = () => {
-        const btnEnviar = document.getElementById('btnEnviar');
-        const btnMic = document.getElementById('btnMicrofone');
-        const inputField = document.getElementById('userInput');
-
-        btnEnviar.onclick = enviar;
-        inputField.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-
+    // --- FUNÇÃO DE ESCUTA CONSERTADA ---
+    function iniciarEscuta() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.lang = 'pt-BR';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onstart = () => btnMic.classList.add('ativo');
-            recognition.onend = () => btnMic.classList.remove('ativo');
-            
-            recognition.onresult = (e) => {
-                inputField.value = e.results[0][0].transcript;
-                enviar();
-            };
-
-            recognition.onerror = (e) => {
-                btnMic.classList.remove('ativo');
-                if(e.error === 'not-allowed') {
-                    document.getElementById('chat-display').innerText = "UnintaBot: Acesso ao microfone negado. Ative no cadeado da barra de endereço.";
-                }
-            };
-
-            btnMic.onclick = () => {
-                try {
-                    recognition.start();
-                } catch (ex) {
-                    // Se o microfone já estiver ativo ou em estado de erro, reinicia o hardware
-                    recognition.stop();
-                    setTimeout(() => { recognition.start(); }, 200);
-                }
-            };
-        } else {
-            btnMic.onclick = () => alert("Mestre, este navegador não suporta reconhecimento neural de voz.");
+        if (!SpeechRecognition) {
+            alert("Mestre, este navegador não suporta reconhecimento de voz.");
+            return;
         }
+
+        // Destrói instância anterior se existir para evitar travamentos
+        if (recognition) {
+            recognition.abort();
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            document.getElementById('btnMicrofone').classList.add('ativo');
+        };
+
+        recognition.onend = () => {
+            document.getElementById('btnMicrofone').classList.remove('ativo');
+        };
+
+        recognition.onresult = (e) => {
+            const transcript = e.results[0][0].transcript;
+            document.getElementById('userInput').value = transcript;
+            enviar();
+        };
+
+        recognition.onerror = (e) => {
+            document.getElementById('btnMicrofone').classList.remove('ativo');
+            if(e.error === 'not-allowed') {
+                alert("Mestre, o acesso ao microfone foi negado. Ative no cadeado da barra de endereços.");
+            }
+        };
+
+        recognition.start();
+    }
+
+    window.onload = () => {
+        document.getElementById('btnEnviar').onclick = enviar;
+        document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+        document.getElementById('btnMicrofone').onclick = iniciarEscuta;
     };
 </script>
 </body>
