@@ -63,12 +63,9 @@
 
         .btn-main { height: 55px; border-radius: 8px; border: none; cursor: pointer; font-weight: 800; transition: 0.4s; display: flex; align-items: center; justify-content: center; }
         
-        /* BOTÃO SCANNER CORRIGIDO */
         .btn-analyze { background: var(--primary-red); color: white; padding: 0 30px; font-size: 12px; letter-spacing: 1px; }
         .btn-analyze:hover { background: #ff0011; box-shadow: 0 0 25px rgba(227, 6, 19, 0.5); transform: translateY(-2px); }
-        .btn-analyze:active { transform: translateY(0); }
-
-        /* MICROFONE COM PULSO */
+        
         .btn-mic { background: transparent; border: 2px solid var(--ia-cyan); color: var(--ia-cyan); width: 60px; font-size: 20px; }
         .btn-mic.active { 
             background: var(--ia-cyan) !important; color: black !important;
@@ -133,11 +130,13 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // CONFIGURAÇÕES E CHAVES (ADICIONE SUAS CHAVES AQUI)
+    // CONFIGURAÇÕES E AS 5 CHAVES RECUPERADAS
     const EL_KEYS = [
-        "sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8", 
-        "CHAVE_RESERVA_02",
-        "CHAVE_RESERVA_03"
+        "sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8",
+        "sk_07f339f4f72879555138129f122557608b8b0e599b19e979",
+        "sk_995c065f606992d9d16a567676646702e70390a37e58a368",
+        "sk_71f49622d1645e546f5c5031b250552b04753086395349e5",
+        "sk_677d23d8c47f766327e57929496057925e03290940348704"
     ];
     let currentKeyIndex = 0;
     const GROQ_API = "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";
@@ -159,7 +158,11 @@
 
     new GLTFLoader().load('brainunt.glb', (gltf) => {
         brain = gltf.scene; brain.scale.set(1.9, 1.9, 1.9);
-        brain.traverse(c => { if(c.isMesh) { c.material.emissive = new THREE.Color(0x00f2ff); c.material.transparent = true; c.material.opacity = 0.9; }});
+        brain.traverse(c => { if(c.isMesh) { 
+            c.material.emissive = new THREE.Color(0x00f2ff); 
+            c.material.transparent = true; 
+            c.material.opacity = 0.9; 
+        }});
         scene.add(brain);
     });
 
@@ -175,7 +178,7 @@
     }
     animate();
 
-    // LOGICA DE VOZ E CHAVES
+    // LÓGICA DE VOZ E CORES
     let currentVoiceMode = 'eleven', currentAudio = null;
 
     window.setVoice = (mode, el) => {
@@ -193,7 +196,16 @@
 
         if(currentAudio) { currentAudio.pause(); currentAudio = null; }
         window.speechSynthesis.cancel();
+        
+        const query = txt.toLowerCase();
         input.value = ""; isAnalyzing = true; targetZ = 2.7; bar.style.width = "40%";
+
+        // IMPLEMENTAÇÃO DAS CORES CONFORME PATOLOGIAS
+        let color = 0x00f2ff; // Padrão Cyan
+        if(query.includes("tdah")) color = 0xe30613; // Vermelho
+        else if(query.includes("tea") || query.includes("autismo")) color = 0xffaa00; // Laranja
+        
+        if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(color); });
 
         chatHistory.push({role: "user", content: txt});
         if(chatHistory.length > 10) chatHistory.shift();
@@ -222,11 +234,14 @@
     async function speak(text) {
         let cleanText = text.replace(/[*#_~-]/g, '').replace(/TDAH/gi, 'T. D. A. H.').trim();
         if(currentVoiceMode === 'eleven') {
-            let success = await tryElevenLabs(cleanText);
-            while(!success && currentKeyIndex < EL_KEYS.length - 1) {
-                currentKeyIndex++;
-                updateKeyUI();
+            let success = false;
+            // Tenta as chaves disponíveis
+            while(!success && currentKeyIndex < EL_KEYS.length) {
                 success = await tryElevenLabs(cleanText);
+                if(!success) {
+                    currentKeyIndex++;
+                    updateKeyUI();
+                }
             }
             if(!success) {
                 document.getElementById('key-indicator').innerHTML = '<div class="dot error"></div> FALLBACK_NATIVE';
@@ -253,7 +268,11 @@
 
     function updateKeyUI() {
         const indicator = document.getElementById('key-indicator');
-        indicator.innerHTML = `<div class="dot active"></div> KEY_0${currentKeyIndex + 1} ACTIVE`;
+        if (currentKeyIndex < EL_KEYS.length) {
+            indicator.innerHTML = `<div class="dot active"></div> KEY_0${currentKeyIndex + 1} ACTIVE`;
+        } else {
+            indicator.innerHTML = `<div class="dot error"></div> KEYS EXHAUSTED`;
+        }
     }
 
     function nativeSpeak(t) {
