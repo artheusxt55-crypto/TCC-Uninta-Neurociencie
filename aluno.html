@@ -5,72 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UnintaBot - Terminal Neural</title>
     <style>
-        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
+        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #02050a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
         
-        #brain-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); position: relative; }
-        
-        /* HUD DO ALUNO */
-        #student-hud { position: absolute; left: 20px; top: 20px; color: var(--ia-cyan); font-family: monospace; font-size: 11px; z-index: 10; border-left: 1px solid var(--ia-cyan); padding-left: 10px; pointer-events: none; }
-        .stat-bar { width: 100px; height: 4px; background: #000; border: 1px solid var(--ia-cyan); margin: 5px 0 10px 0; }
-        .stat-fill { height: 100%; background: var(--ia-cyan); width: 70%; transition: 0.5s; }
+        body { background: var(--bg-dark); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        .status-box { text-align: center; margin-bottom: 20px; z-index: 10; }
-        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 8px 15px; text-transform: uppercase; box-shadow: inset 0 0 10px var(--ia-cyan); border-radius: 4px; display: inline-block; background: rgba(0,0,0,0.6); }
+        /* HEADER LIMPO E MINIMALISTA */
+        header { 
+            padding: 12px 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+            z-index: 30;
+        }
+        .logo-text { font-size: 12px; font-weight: 800; color: var(--primary-red); letter-spacing: 3px; }
+        .system-status { font-size: 9px; color: var(--ia-cyan); letter-spacing: 1px; }
 
-        .voice-hub { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; z-index: 10; }
-        .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; color: var(--ia-cyan); text-transform: uppercase; }
-        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 20px var(--ia-cyan); }
+        /* VIEWPORT PRINCIPAL */
+        #main-viewport { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; }
+
+        /* HUD DISCRETO */
+        #student-hud { 
+            position: absolute; left: 20px; top: 20px; 
+            color: var(--ia-cyan); font-size: 9px; z-index: 10; 
+            pointer-events: none; opacity: 0.8;
+        }
+        .stat-bar { width: 90px; height: 2px; background: rgba(0, 242, 255, 0.1); margin: 5px 0 10px 0; }
+        .stat-fill { height: 100%; background: var(--ia-cyan); width: 60%; transition: 1.5s ease; }
+
+        /* CONTAINER 3D */
+        #brain-container { width: 100%; height: 100%; position: absolute; top: 0; z-index: 1; }
+
+        /* CHAT COMPACTO E FLUTUANTE - ÁREA DE TEXTO REDUZIDA */
+        #chat-display { 
+            position: absolute; bottom: 110px; width: 90%; max-width: 650px;
+            padding: 18px; background: rgba(5, 10, 20, 0.85); 
+            color: var(--ia-cyan); font-size: 14px; max-height: 100px; /* Reduzido */
+            border-left: 2px solid var(--ia-cyan); border-radius: 2px;
+            overflow-y: auto; z-index: 10; backdrop-filter: blur(12px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            line-height: 1.4;
+        }
+
+        /* PAINEL DE CONTROLE - BOTÕES CONSERTADOS */
+        .control-panel { 
+            padding: 25px; background: #050a14; 
+            border-top: 1px solid rgba(0, 242, 255, 0.1); z-index: 20;
+        }
+        .input-box { display: flex; gap: 12px; max-width: 850px; margin: 0 auto; align-items: center; }
         
-        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 140px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; z-index: 10; backdrop-filter: blur(5px); }
+        input { 
+            flex: 1; padding: 14px 22px; border-radius: 4px; 
+            border: 1px solid rgba(0, 242, 255, 0.2); background: rgba(0,0,0,0.6); 
+            color: white; outline: none; font-size: 14px; transition: 0.3s;
+        }
+        input:focus { border-color: var(--ia-cyan); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
         
-        .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 1px solid rgba(0, 242, 255, 0.3); z-index: 20; }
-        .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
-        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: 0.3s; }
-        input:focus { box-shadow: 0 0 15px var(--ia-cyan); }
-        
-        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        
-        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); }
-        #btnMicrofone.ativo { background: var(--primary-red); color: white; animation: pulse 1.5s infinite; border: none; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
-        
-        canvas { position: absolute !important; top: 0; left: 0; z-index: 1; }
+        /* BOTÃO EXECUTAR CONSERTADO */
+        .btn-action { 
+            background: none; border: 1px solid var(--ia-cyan); color: var(--ia-cyan);
+            padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 11px;
+            text-transform: uppercase; font-weight: bold; transition: 0.3s;
+        }
+        .btn-action:hover { background: var(--ia-cyan); color: black; }
+
+        /* BOTÃO MICROFONE CONSERTADO */
+        #btnMicrofone { 
+            width: 50px; height: 50px; border-radius: 4px; 
+            border: 1px solid var(--primary-red); background: none; color: var(--primary-red);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; transition: 0.3s;
+        }
+        #btnMicrofone.ativo { background: var(--primary-red); color: white; box-shadow: 0 0 20px var(--primary-red); }
+
+        canvas { outline: none; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--ia-cyan); }
     </style>
 </head>
 <body>
 
-<header>SISTEMA MULTI-NEURAL - UNINTA</header>
+<header>
+    <div class="logo-text">UNINTA // NEURAL_TERMINAL</div>
+    <div class="system-status" id="status-3d">MODE: WAITING_INPUT</div>
+</header>
 
-<div id="brain-container">
+<div id="main-viewport">
     <div id="student-hud">
-        <div>> ANALISADOR NEURAL: ONLINE</div>
-        <div>> FOCO: <span style="color:white">NEUROIMAGEM / TDAH</span></div>
-        <div style="margin-top:10px">DOPAMINA</div>
-        <div class="stat-bar"><div id="bar-dopa" class="stat-fill" style="width: 40%"></div></div>
-        <div>SINAPSES</div>
-        <div class="stat-bar"><div id="bar-syn" class="stat-fill" style="width: 85%"></div></div>
+        <div>DOPAMINE_LEVEL</div>
+        <div class="stat-bar"><div id="bar-dopa" class="stat-fill"></div></div>
+        <div>SYNAPTIC_SYNC</div>
+        <div class="stat-bar"><div id="bar-syn" class="stat-fill" style="width: 88%"></div></div>
     </div>
 
-    <div class="status-box">
-        <div id="status-3d">[ CARREGANDO NÚCLEO ]</div>
-        <div id="key-monitor">Conexão Estável</div>
-    </div>
-
-    <div class="voice-hub">
-        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
-        <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
-    </div>
-    <div id="chat-display">UnintaBot: Mestre Matheus, sistema pronto. Use o microfone ou digite o comando.</div>
+    <div id="brain-container"></div>
+    
+    <div id="chat-display">UnintaBot: Mestre Matheus, núcleo pronto para análise.</div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <button id="btnMicrofone" type="button">🎤</button>
-        <input type="text" id="userInput" placeholder="Mestre, qual o próximo comando?">
-        <button id="btnEnviar" class="btn-main">Executar</button>
+        <button id="btnMicrofone">🎤</button>
+        <input type="text" id="userInput" placeholder="Insira comando ou use o microfone...">
+        <button id="btnEnviar" class="btn-action">Executar</button>
     </div>
 </div>
 
@@ -82,126 +121,100 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // --- CONFIGURAÇÃO DO CENÁRIO 3D ---
     const container = document.getElementById('brain-container');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.z = 2;
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 2.8;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const light = new THREE.DirectionalLight(0x00f2ff, 2);
-    light.position.set(1, 1, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    // ILUMINAÇÃO REFORMULADA (Mais detalhes no modelo)
+    const sun = new THREE.DirectionalLight(0x00f2ff, 3);
+    sun.position.set(1, 1, 2);
+    scene.add(sun);
+    
+    const backLight = new THREE.PointLight(0xe30613, 2);
+    backLight.position.set(-2, -1, -2);
+    scene.add(backLight);
 
     let brain;
     const loader = new GLTFLoader();
 
-    // Carregando seu arquivo específico
     loader.load('brainunt.glb', (gltf) => {
         brain = gltf.scene;
-        brain.scale.set(1.6, 1.6, 1.6);
-        brain.position.y = 0.3;
+        brain.scale.set(1.5, 1.5, 1.5);
+        brain.position.y = 0.15;
         
         brain.traverse((child) => {
             if (child.isMesh) {
-                child.material.transparent = true;
-                child.material.opacity = 0.9;
                 child.material.emissive = new THREE.Color(0x00f2ff);
-                child.material.emissiveIntensity = 0.4;
+                child.material.emissiveIntensity = 0.5;
+                child.material.metalness = 1;
+                child.material.roughness = 0.1;
             }
         });
         scene.add(brain);
-        document.getElementById('status-3d').innerText = "[ NÚCLEO BRAINUNT ATIVO ]";
+        document.getElementById('status-3d').innerText = "MODE: BRAINUNT_ACTIVE";
     });
 
     function animate() {
         requestAnimationFrame(animate);
         if (brain) {
-            brain.rotation.y += 0.005;
-            // Efeito de pulsação leve
-            const s = 1.6 + Math.sin(Date.now() * 0.002) * 0.03;
+            brain.rotation.y += 0.004;
+            // Pulsação sutil para parecer vivo
+            const s = 1.5 + Math.sin(Date.now() * 0.001) * 0.02;
             brain.scale.set(s, s, s);
         }
         renderer.render(scene, camera);
     }
     animate();
 
-    // --- LÓGICA DO CHAT ---
+    // LÓGICA DE API (Mantida conforme solicitado)
     const GROQ_API = "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";
-    const ELEVEN_KEYS = ["sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8"];
-    let currentVoiceMode = 'eleven';
-
-    window.setVoice = function(mode, el) {
-        currentVoiceMode = mode;
-        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ]`;
-    };
-
-    async function speak(texto) {
-        if (currentVoiceMode === 'google') {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(texto); u.lang = 'pt-BR'; window.speechSynthesis.speak(u);
-        } else {
-            try {
-                const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB`, {
-                    method: "POST",
-                    headers: { "xi-api-key": ELEVEN_KEYS[0], "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: texto, model_id: "eleven_multilingual_v2" })
-                });
-                const blob = await res.blob();
-                new Audio(URL.createObjectURL(blob)).play();
-            } catch(e) { /* fallback para google se a key falhar */ }
-        }
-    }
-
+    
     async function enviar() {
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
         const txt = input.value.trim();
         if (!txt) return;
+
         input.value = "";
         display.innerHTML = "<em>Sincronizando sinapses...</em>";
-
-        // Simula alteração nas barras do HUD ao enviar
         document.getElementById('bar-dopa').style.width = Math.random() * 100 + "%";
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: "Você é o UnintaBot. Foco em Neuroimagem, TEA e TDAH. Responda como um especialista de instituições como USP e CBI of Miami. Sem markdown."}, {role: "user", content: txt}]})
+                body: JSON.stringify({ 
+                    model: "llama-3.3-70b-versatile", 
+                    messages: [{role: "system", content: "Você é o UnintaBot. Especialista em Neurociência (USP/UFRGS). Respostas diretas, sem markdown."}, {role: "user", content: txt}]
+                })
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             display.innerText = "UnintaBot: " + resp;
-            speak(resp);
-        } catch (e) { display.innerText = "Erro na conexão."; }
+            
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(resp); u.lang = 'pt-BR'; window.speechSynthesis.speak(u);
+            
+        } catch (e) { display.innerText = "Erro na conexão neural."; }
     }
 
-    // MICROFONE COM REAÇÃO VISUAL
     const btnMic = document.getElementById('btnMicrofone');
-    btnMic.onclick = function() {
+    btnMic.onclick = () => {
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return;
         const rec = new Speech();
         rec.lang = 'pt-BR';
-
         rec.onstart = () => {
             btnMic.classList.add('ativo');
-            if (brain) {
-                brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0xe30613); }); // Vermelho ao ouvir
-            }
+            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0xe30613); });
         };
         rec.onend = () => {
             btnMic.classList.remove('ativo');
-            if (brain) {
-                brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0x00f2ff); }); // Volta ao Ciano
-            }
+            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0x00f2ff); });
         };
         rec.onresult = (e) => {
             document.getElementById('userInput').value = e.results[0][0].transcript;
