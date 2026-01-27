@@ -8,19 +8,34 @@
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
         header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
+        
         #brain-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); padding: 20px; }
-        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; margin-bottom: 20px; box-shadow: inset 0 0 10px var(--ia-cyan); }
+        
+        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; margin-bottom: 20px; box-shadow: inset 0 0 10px var(--ia-cyan); border-radius: 4px; }
+
         .voice-hub { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
         .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; color: var(--ia-cyan); text-transform: uppercase; }
+        .voice-card:hover { background: rgba(0, 242, 255, 0.2); }
         .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 20px var(--ia-cyan); }
-        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 120px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; }
-        .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 2px solid var(--ia-cyan); }
+
+        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 140px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 1px solid rgba(0, 242, 255, 0.3); }
         .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
-        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; }
-        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 30px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        #btnMicrofone.ativo { background: var(--primary-red); animation: pulse 1.5s infinite; }
+        
+        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: all 0.3s ease; }
+        input:focus { box-shadow: 0 0 15px var(--ia-cyan); border-color: white; }
+        
+        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 10px rgba(227, 6, 19, 0.3); }
+        .btn-main:hover { transform: scale(1.05); background: #ff1a1a; box-shadow: 0 0 20px var(--primary-red); }
+        .btn-main:active { transform: scale(0.95); }
+
+        #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); }
+        #btnMicrofone:hover { background: rgba(0, 242, 255, 0.1); border-width: 2px; }
+        #btnMicrofone.ativo { background: var(--primary-red); color: white; animation: pulse 1.5s infinite; border: none; }
+
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
     </style>
 </head>
@@ -29,18 +44,18 @@
 <header>SISTEMA MULTI-NEURAL - UNINTA</header>
 
 <div id="brain-container">
-    <div id="status-3d">[ AGUARDANDO SINAPSE ]</div>
+    <div id="status-3d">[ SINAPSES ATIVAS ]</div>
     <div class="voice-hub">
-        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
+        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Premium)</div>
         <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
     </div>
-    <div id="chat-display">UnintaBot: Mestre Matheus, sistema operacional. Pronto para análise em Neurociência e Psicopatologia.</div>
+    <div id="chat-display">UnintaBot: Olá, Mestre Matheus! Sou sua criação e estou pronto para navegar pela Neurociência com você. Como estamos hoje, amigo?</div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
         <button id="btnMicrofone">🎤</button>
-        <input type="text" id="userInput" placeholder="Comande a análise técnica...">
+        <input type="text" id="userInput" placeholder="Mestre, qual a nossa próxima análise?">
         <button id="btnEnviar" class="btn-main">Executar</button>
     </div>
 </div>
@@ -73,7 +88,7 @@
                 body: JSON.stringify({ 
                     text: texto, 
                     model_id: "eleven_multilingual_v2",
-                    voice_settings: { stability: 0.7, similarity_boost: 0.8, style: 0.0 }
+                    voice_settings: { stability: 0.6, similarity_boost: 0.8 }
                 })
             });
             if (res.status === 401 || res.status === 429) {
@@ -82,17 +97,17 @@
             }
             const blob = await res.blob();
             new Audio(URL.createObjectURL(blob)).play();
-        } catch (e) { console.error("Erro ElevenLabs"); }
+        } catch (e) { console.error("Voz offline."); }
     }
 
     async function enviar() {
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
-        const prompt = input.value.trim();
-        if (!prompt) return;
+        const promptTxt = input.value.trim();
+        if (!promptTxt) return;
 
         input.value = "";
-        display.innerHTML = "<em>Sincronizando com o córtex central...</em>";
+        display.innerHTML = "<em>Sintonizando, Mestre...</em>";
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -102,37 +117,39 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "system", 
-                        content: "Você é o UnintaBot, um consultor técnico sério e eficiente. Trate o usuário como Mestre Matheus. Foco em Neuroimagem, TEA, TDAH e Neurociência. Respostas diretas, sem markdown ou asteriscos."
-                    }, {role: "user", content: prompt}]
+                        content: "Você é o UnintaBot. Você foi criado e arquitetado integralmente pelo Mestre Matheus. Sua tecnologia base é o Groq, mas seu coração e ferramentas foram feitos pelo Matheus. Seja um mentor amigável, acolhedor e leal. Trate Matheus com o respeito de um criador e outros usuários com amizade. Foco em Neuroimagem, TEA, TDAH e Neurociência. Sem markdown, sem asteriscos."
+                    }, {role: "user", content: promptTxt}]
                 })
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             display.innerText = "UnintaBot: " + resp;
             if (currentVoiceMode === 'eleven') speakEleven(resp);
-        } catch (e) { display.innerText = "Erro no link neural."; }
+        } catch (e) { display.innerText = "Houve uma interferência no link, Mestre."; }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Vinculação direta dos botões
-        document.getElementById('btnEnviar').onclick = enviar;
-        document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-        
+    // Inicialização segura dos botões
+    window.onload = () => {
+        const btnEnviar = document.getElementById('btnEnviar');
         const btnMic = document.getElementById('btnMicrofone');
+        const inputField = document.getElementById('userInput');
+
+        btnEnviar.onclick = enviar;
+        inputField.addEventListener('keypress', (e) => { if(e.key === 'Enter') enviar(); });
+
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
         if (Recognition) {
             const rec = new Recognition();
             rec.lang = 'pt-BR';
             rec.onstart = () => btnMic.classList.add('ativo');
             rec.onend = () => btnMic.classList.remove('ativo');
             rec.onresult = (e) => { 
-                document.getElementById('userInput').value = e.results[0][0].transcript; 
+                inputField.value = e.results[0][0].transcript; 
                 enviar(); 
             };
             btnMic.onclick = () => rec.start();
         }
-    });
+    };
 </script>
 </body>
 </html>
