@@ -12,10 +12,9 @@
         
         #brain-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); padding: 20px; }
         
-        /* Container de Status Ajustado */
         .status-box { text-align: center; margin-bottom: 20px; }
         #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 8px 15px; text-transform: uppercase; box-shadow: inset 0 0 10px var(--ia-cyan); border-radius: 4px; display: inline-block; }
-        #key-monitor { color: rgba(0, 242, 255, 0.4); font-size: 9px; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
+        #key-monitor { color: rgba(0, 242, 255, 0.5); font-size: 10px; text-transform: uppercase; margin-top: 8px; letter-spacing: 1px; font-weight: bold; }
 
         .voice-hub { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
         .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; color: var(--ia-cyan); text-transform: uppercase; }
@@ -25,10 +24,11 @@
         
         .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 1px solid rgba(0, 242, 255, 0.3); }
         .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
-        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; }
+        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: 0.3s; }
+        input:focus { box-shadow: 0 0 15px var(--ia-cyan); }
         
         .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-main:hover { background: #ff1a1a; transform: scale(1.03); }
+        .btn-main:hover { background: #ff1a1a; transform: scale(1.05); box-shadow: 0 0 15px var(--primary-red); }
         
         #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); }
         #btnMicrofone.ativo { background: var(--primary-red); color: white; animation: pulse 1.5s infinite; border: none; }
@@ -42,14 +42,14 @@
 <div id="brain-container">
     <div class="status-box">
         <div id="status-3d">[ SISTEMA OPERACIONAL ]</div>
-        <div id="key-monitor">Link Eleven: Ativo (Slot 1/5)</div>
+        <div id="key-monitor">Chave 1/5</div>
     </div>
 
     <div class="voice-hub">
         <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
         <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
     </div>
-    <div id="chat-display">UnintaBot: Mestre Matheus, monitor de carga neural ativado. Estou pronto para iniciar a análise em Neurociência.</div>
+    <div id="chat-display">UnintaBot: Mestre Matheus, todos os sistemas estão em 100%. Como posso auxiliar em seus estudos de Neurociência hoje?</div>
 </div>
 
 <div class="control-panel">
@@ -74,10 +74,7 @@
     let currentVoiceMode = 'eleven';
 
     function updateKeyMonitor() {
-        const monitor = document.getElementById('key-monitor');
-        if (monitor) {
-            monitor.innerText = `Link Eleven: Ativo (Slot ${currentKeyIndex + 1}/5)`;
-        }
+        document.getElementById('key-monitor').innerText = `Chave ${currentKeyIndex + 1}/${ELEVEN_KEYS.length}`;
     }
 
     function setVoice(mode, el) {
@@ -85,12 +82,11 @@
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ]`;
-        
-        const monitor = document.getElementById('key-monitor');
-        monitor.style.display = (mode === 'eleven') ? 'block' : 'none';
+        document.getElementById('key-monitor').style.visibility = (mode === 'eleven') ? 'visible' : 'hidden';
     }
 
     function speakGoogle(texto) {
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(texto);
         utterance.lang = 'pt-BR';
         window.speechSynthesis.speak(utterance);
@@ -114,12 +110,14 @@
                 if(currentKeyIndex < ELEVEN_KEYS.length) {
                     return speakEleven(texto); 
                 } else {
-                    document.getElementById('key-monitor').innerText = "Links Eleven Esgotados - Modo Backup";
+                    document.getElementById('key-monitor').innerText = "Modo Backup Ativo";
                     speakGoogle(texto);
                 }
+            } else {
+                const blob = await res.blob();
+                const audio = new Audio(URL.createObjectURL(blob));
+                audio.play();
             }
-            const blob = await res.blob();
-            new Audio(URL.createObjectURL(blob)).play();
         } catch (e) { speakGoogle(texto); }
     }
 
@@ -130,7 +128,7 @@
         if (!promptTxt) return;
 
         input.value = "";
-        display.innerHTML = "<em>Sincronizando com o córtex, Mestre...</em>";
+        display.innerHTML = "<em>Sincronizando sinapses...</em>";
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -138,6 +136,45 @@
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{
-                        role: "system", 
-                        content: "Você é o UnintaBot, criado pelo Mestre Matheus. Matheus é seu criador. Foco em Neuroimagem
+                    messages: [
+                        {role: "system", content: "Você é o UnintaBot, criado pelo Mestre Matheus. Foco em Neuroimagem, TEA, TDAH e Neurociência. Seja técnico e leal. Sem markdown."},
+                        {role: "user", content: promptTxt}
+                    ]
+                })
+            });
+            const data = await res.json();
+            const resp = data.choices[0].message.content;
+            display.innerText = "UnintaBot: " + resp;
+            
+            if (currentVoiceMode === 'eleven') speakEleven(resp);
+            else speakGoogle(resp);
+        } catch (e) { 
+            display.innerText = "Interferência no sinal neural, Mestre."; 
+        }
+    }
+
+    // Inicialização Blindada
+    window.onload = () => {
+        const btnEnviar = document.getElementById('btnEnviar');
+        const btnMic = document.getElementById('btnMicrofone');
+        const inputField = document.getElementById('userInput');
+
+        btnEnviar.onclick = enviar;
+        inputField.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (Recognition) {
+            const rec = new Recognition();
+            rec.lang = 'pt-BR';
+            rec.onstart = () => btnMic.classList.add('ativo');
+            rec.onend = () => btnMic.classList.remove('ativo');
+            rec.onresult = (e) => { 
+                inputField.value = e.results[0][0].transcript; 
+                enviar(); 
+            };
+            btnMic.onclick = () => rec.start();
+        }
+    };
+</script>
+</body>
+</html>
