@@ -3,101 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnintaBot - Bio-Terminal</title>
+    <title>UnintaBot - Neural Console</title>
     <style>
-        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.8); }
+        :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.85); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
         
         body { 
             background: var(--bg-dark); 
-            background-image: radial-gradient(circle at 2px 2px, rgba(0, 242, 255, 0.05) 1px, transparent 0);
-            background-size: 40px 40px;
+            background-image: radial-gradient(circle at 2px 2px, rgba(0, 242, 255, 0.03) 1px, transparent 0);
+            background-size: 50px 50px;
             color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
         }
 
         header { 
             padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--primary-red); background: rgba(0,0,0,0.9); z-index: 100;
+            box-shadow: 0 5px 20px rgba(227, 6, 19, 0.2);
         }
         .logo-text { font-size: 14px; font-weight: 900; color: white; letter-spacing: 4px; }
         .logo-text span { color: var(--primary-red); }
 
         #main-viewport { flex: 1; position: relative; overflow: hidden; display: flex; justify-content: center; }
 
-        /* HUD TÉCNICO */
+        /* HUD */
         #student-hud { 
-            position: absolute; left: 25px; top: 25px; z-index: 10; padding: 15px;
-            border-left: 2px solid var(--ia-cyan); background: rgba(0,0,0,0.4);
+            position: absolute; left: 25px; top: 25px; z-index: 10; padding: 20px;
+            border-left: 2px solid var(--ia-cyan); background: linear-gradient(90deg, rgba(0,242,255,0.1), transparent);
         }
-        .hud-label { font-size: 10px; color: var(--ia-cyan); margin-bottom: 5px; opacity: 0.7; }
-        .stat-bar { width: 120px; height: 3px; background: rgba(255,255,255,0.1); margin-bottom: 15px; position: relative; }
-        .stat-fill { position: absolute; height: 100%; background: var(--ia-cyan); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .hud-label { font-size: 9px; color: var(--ia-cyan); margin-bottom: 5px; letter-spacing: 1px; }
+        .stat-bar { width: 150px; height: 4px; background: rgba(255,255,255,0.05); margin-bottom: 20px; position: relative; }
+        .stat-fill { position: absolute; height: 100%; background: var(--ia-cyan); transition: width 0.5s; box-shadow: 0 0 10px var(--ia-cyan); }
 
-        /* SELETOR DE VOZ */
-        .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 10; display: flex; flex-direction: column; gap: 10px; }
+        .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
         .voice-card { 
-            padding: 8px 15px; font-size: 10px; border: 1px solid rgba(0, 242, 255, 0.3); 
+            padding: 10px 20px; font-size: 9px; border: 1px solid rgba(0, 242, 255, 0.2); 
             background: var(--panel-bg); cursor: pointer; color: var(--ia-cyan); transition: 0.3s;
-            text-align: right; border-radius: 2px;
+            border-radius: 4px; backdrop-filter: blur(5px);
         }
-        .voice-card.active { background: var(--ia-cyan); color: black; border-color: var(--ia-cyan); box-shadow: -5px 0 15px rgba(0, 242, 255, 0.4); }
+        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
 
-        /* CONTAINER 3D */
-        #brain-container { width: 100%; height: 100%; position: absolute; z-index: 1; }
+        #brain-container { width: 100%; height: 100%; position: absolute; z-index: 1; cursor: grab; }
 
-        /* CHAT E RELATÓRIO */
+        /* CHAT TERMINAL */
         #chat-display { 
-            position: absolute; bottom: 120px; width: 85%; max-width: 750px;
-            padding: 20px; background: var(--panel-bg); 
-            border: 1px solid rgba(0, 242, 255, 0.1); border-left: 4px solid var(--ia-cyan);
-            color: #d1d1d1; font-size: 15px; max-height: 180px;
-            overflow-y: auto; z-index: 10; backdrop-filter: blur(8px);
+            position: absolute; bottom: 130px; width: 90%; max-width: 800px;
+            padding: 25px; background: var(--panel-bg); 
+            border: 1px solid rgba(0, 242, 255, 0.15); border-left: 5px solid var(--ia-cyan);
+            color: #e0e0e0; font-size: 14px; line-height: 1.6;
+            max-height: 200px; overflow-y: auto; z-index: 10; backdrop-filter: blur(12px);
         }
 
-        .medical-report {
-            background: white; color: black; padding: 15px; border-radius: 4px;
-            border-top: 5px solid var(--primary-red); font-family: sans-serif;
+        .control-panel { padding: 30px; background: #050505; border-top: 1px solid rgba(227, 6, 19, 0.3); z-index: 20; }
+        .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
+        
+        input { 
+            flex: 1; padding: 18px; border-radius: 4px; border: 1px solid #222; 
+            background: #000; color: var(--ia-cyan); outline: none; font-size: 16px;
+            transition: 0.3s;
         }
+        input:focus { border-color: var(--ia-cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
 
-        /* PAINEL DE CONTROLE */
-        .control-panel { padding: 30px; background: rgba(5, 10, 20, 0.95); border-top: 1px solid rgba(227, 6, 19, 0.3); z-index: 20; }
-        .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
-        input { flex: 1; padding: 15px 25px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: var(--ia-cyan); outline: none; font-size: 15px; }
-        .btn-exe { background: var(--primary-red); color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: 900; }
-        #btnMicrofone { width: 55px; height: 55px; border-radius: 5px; border: 2px solid var(--ia-cyan); background: none; color: var(--ia-cyan); cursor: pointer; font-size: 22px; }
+        .btn-exe { background: var(--primary-red); color: white; border: none; padding: 0 35px; border-radius: 4px; cursor: pointer; font-weight: 900; letter-spacing: 1px; transition: 0.3s; }
+        .btn-exe:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(227, 6, 19, 0.4); }
+
+        #btnMicrofone { width: 60px; height: 60px; border-radius: 4px; border: 2px solid var(--ia-cyan); background: none; color: var(--ia-cyan); cursor: pointer; font-size: 24px; transition: 0.3s; }
         #btnMicrofone.ativo { background: var(--primary-red); border-color: var(--primary-red); color: white; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-text">UNINTA <span>NEURAL_LAB</span></div>
-    <div id="status-3d" style="font-size: 10px; color: var(--ia-cyan)">SYSTEM_IDLE...</div>
+    <div id="status-3d" style="font-size: 10px; color: var(--ia-cyan)">CORE_STATUS: STABLE</div>
 </header>
 
 <div id="main-viewport">
     <div id="student-hud">
-        <div class="hud-label">COGNITIVE_LOAD</div>
-        <div class="stat-bar"><div id="bar-dopa" class="stat-fill" style="width: 45%"></div></div>
-        <div class="hud-label">NEURAL_SYNC</div>
-        <div class="stat-bar"><div id="bar-syn" class="stat-fill" style="width: 72%"></div></div>
+        <div class="hud-label">SYNAPTIC_VELOCITY</div>
+        <div class="stat-bar"><div id="bar-vel" class="stat-fill" style="width: 20%"></div></div>
+        <div class="hud-label">NEURO_MAPPING</div>
+        <div class="stat-bar"><div id="bar-map" class="stat-fill" style="width: 10%"></div></div>
     </div>
 
     <div class="voice-hub">
-        <div class="voice-card active" onclick="setVoice('eleven', this)">MÓDULO: ELEVEN_LABS</div>
-        <div class="voice-card" onclick="setVoice('google', this)">MÓDULO: NATIVO_OS</div>
+        <div class="voice-card active" onclick="setVoice('eleven', this)">OS_VOICE: ELEVEN_V2</div>
+        <div class="voice-card" onclick="setVoice('google', this)">OS_VOICE: NATIVE_SYS</div>
     </div>
 
     <div id="brain-container"></div>
-    <div id="chat-display">Aguardando comando neural...</div>
+    <div id="chat-display">>> INITIALIZING NEURAL INTERFACE... PRONTA PARA ANÁLISE.</div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
         <button id="btnMicrofone">🎤</button>
-        <input type="text" id="userInput" placeholder="Digite uma patologia ou peça um relatório...">
-        <button id="btnEnviar" class="btn-exe">PROCESSAR</button>
+        <input type="text" id="userInput" placeholder="Descreva sintomas ou peça análise técnica...">
+        <button id="btnEnviar" class="btn-exe">ANALYZE</button>
     </div>
 </div>
 
@@ -109,40 +111,49 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // --- CONFIGURAÇÃO THREE.JS ---
     const container = document.getElementById('brain-container');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.z = 3.5;
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 4;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const l1 = new THREE.PointLight(0x00f2ff, 15, 10); l1.position.set(2, 2, 2); scene.add(l1);
-    const l2 = new THREE.PointLight(0xe30613, 10, 10); l2.position.set(-2, -2, 2); scene.add(l2);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+    const l1 = new THREE.PointLight(0x00f2ff, 20, 10); l1.position.set(5, 5, 5); scene.add(l1);
+    const l2 = new THREE.PointLight(0xe30613, 15, 10); l2.position.set(-5, -5, 5); scene.add(l2);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-    let brain, particles;
+    let brain, pSystem;
+    let particleSpeed = 0.001;
     const loader = new GLTFLoader();
 
-    const pCount = 500;
-    const pGeometry = new THREE.BufferGeometry();
-    const pPos = new Float32Array(pCount * 3);
-    for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * 5;
-    pGeometry.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    particles = new THREE.Points(pGeometry, new THREE.PointsMaterial({color: 0x00f2ff, size: 0.01}));
-    scene.add(particles);
+    // --- SISTEMA DE PARTÍCULAS AVANÇADO ---
+    const pCount = 1200;
+    const pGeom = new THREE.BufferGeometry();
+    const positions = new Float32Array(pCount * 3);
+    const pSpeeds = new Float32Array(pCount);
+
+    for(let i=0; i<pCount; i++) {
+        positions[i*3] = (Math.random() - 0.5) * 6;
+        positions[i*3+1] = (Math.random() - 0.5) * 6;
+        positions[i*3+2] = (Math.random() - 0.5) * 6;
+        pSpeeds[i] = Math.random() * 0.02;
+    }
+    pGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const pMat = new THREE.PointsMaterial({ color: 0x00f2ff, size: 0.015, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+    pSystem = new THREE.Points(pGeom, pMat);
+    scene.add(pSystem);
 
     loader.load('brainunt.glb', (gltf) => {
         brain = gltf.scene;
-        brain.scale.set(1.8, 1.8, 1.8);
+        brain.scale.set(2, 2, 2);
         brain.traverse(c => {
             if(c.isMesh) {
                 c.material.emissive = new THREE.Color(0x00f2ff);
                 c.material.emissiveIntensity = 0.3;
                 c.material.transparent = true;
-                c.material.opacity = 0.95;
+                c.material.opacity = 0.8;
             }
         });
         scene.add(brain);
@@ -150,52 +161,46 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        if(brain) brain.rotation.y += 0.005;
-        particles.rotation.y += 0.001;
+        const time = Date.now() * 0.001;
+        
+        if(brain) {
+            brain.rotation.y += 0.004;
+            brain.position.y = Math.sin(time) * 0.03;
+        }
+
+        // Animação das partículas em órbita
+        const posAttr = pSystem.geometry.attributes.position;
+        for(let i=0; i<pCount; i++) {
+            let x = posAttr.getX(i);
+            let z = posAttr.getZ(i);
+            let angle = particleSpeed + pSpeeds[i];
+            let newX = x * Math.cos(angle) - z * Math.sin(angle);
+            let newZ = x * Math.sin(angle) + z * Math.cos(angle);
+            posAttr.setX(i, newX);
+            posAttr.setZ(i, newZ);
+        }
+        posAttr.needsUpdate = true;
         renderer.render(scene, camera);
     }
     animate();
 
-    // --- MAPEAMENTO NEURAL ---
-    const NEURAL_MAP = {
-        "tdah": { area: "Córtex Pré-Frontal", color: 0xe30613, label: "Disfunção Dopaminérgica" },
-        "tea": { area: "Sistema Límbico", color: 0xffaa00, label: "Hipersensibilidade" },
-        "memória": { area: "Hipocampo", color: 0x00ff00, label: "Consolidação de Memória" },
-        "foco": { area: "Rede de Atenção", color: 0x00f2ff, label: "Atividade Executiva" },
-        "relatório": { area: "Módulo de Dados", color: 0xffffff, label: "Exportando Análise" }
-    };
-
-    // --- LÓGICA DE API E VOZ ---
+    // --- LOGICA DE IA E MAPEAMENTO ---
     const GROQ_API = "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";
     const EL_KEY = "sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8";
     let currentVoiceMode = 'eleven';
+
+    const NEURAL_MAP = {
+        "tdah": { color: 0xe30613, area: "PRÉ-FRONTAL", intensity: 3 },
+        "tea": { color: 0xffaa00, area: "SISTEMA LÍMBICO", intensity: 2.5 },
+        "memória": { color: 0x00ff00, area: "HIPOCAMPO", intensity: 2.5 },
+        "foco": { color: 0x00f2ff, area: "LOBO PARIETAL", intensity: 3 }
+    };
 
     window.setVoice = (mode, el) => {
         currentVoiceMode = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
     };
-
-    async function speak(texto) {
-        if(currentVoiceMode === 'google') {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(texto); u.lang = 'pt-BR';
-            window.speechSynthesis.speak(u);
-        } else {
-            try {
-                const res = await fetch("https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB", {
-                    method: "POST",
-                    headers: { "xi-api-key": EL_KEY, "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: texto, model_id: "eleven_multilingual_v2" })
-                });
-                const blob = await res.blob();
-                const audio = new Audio(URL.createObjectURL(blob));
-                audio.play();
-                audio.onplay = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 2; })}
-                audio.onended = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.3; })}
-            } catch(e) { console.error("Erro ElevenLabs"); }
-        }
-    }
 
     async function enviar() {
         const input = document.getElementById('userInput');
@@ -204,19 +209,27 @@
         if(!txt) return;
 
         input.value = "";
-        display.innerHTML = "<em>Sincronizando sinapses...</em>";
+        display.innerHTML = "<em>[SYSTEM]: ANALYZING NEURAL DATA...</em>";
+        
+        // Efeito de Overclock
+        particleSpeed = 0.05;
+        document.getElementById('bar-vel').style.width = "100%";
+        document.getElementById('bar-map').style.width = "80%";
 
-        // Reação Visual Baseada em Mapeamento
-        let area = null;
-        for (let key in NEURAL_MAP) if (txt.includes(key)) area = NEURAL_MAP[key];
+        let mapMatch = null;
+        for (let k in NEURAL_MAP) if(txt.includes(k)) mapMatch = NEURAL_MAP[k];
 
-        if (area && brain) {
-            brain.traverse(c => { if(c.isMesh) { c.material.emissive.setHex(area.color); c.material.emissiveIntensity = 2.5; }});
-            document.getElementById('status-3d').innerText = `MAP: ${area.area} [${area.label}]`;
+        if(mapMatch && brain) {
+            camera.position.z = 3.2; // Zoom in
+            brain.traverse(c => { if(c.isMesh) { c.material.emissive.setHex(mapMatch.color); c.material.emissiveIntensity = mapMatch.intensity; }});
+            document.getElementById('status-3d').innerText = `CORE_ACTIVE: ${mapMatch.area}`;
             setTimeout(() => {
+                camera.position.z = 4; // Zoom out
                 if(brain) brain.traverse(c => { if(c.isMesh) { c.material.emissive.setHex(0x00f2ff); c.material.emissiveIntensity = 0.3; }});
-                document.getElementById('status-3d').innerText = "MODE: BRAINUNT_ACTIVE";
-            }, 4000);
+                document.getElementById('status-3d').innerText = "CORE_STATUS: STABLE";
+                particleSpeed = 0.001;
+                document.getElementById('bar-vel').style.width = "20%";
+            }, 5000);
         }
 
         try {
@@ -225,35 +238,42 @@
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     model: "llama-3.3-70b-versatile", 
-                    messages: [{role: "system", content: "Você é o UnintaBot (USP/CBI). Curto e técnico. Se pedirem relatório, forneça dados de Dopamina e Foco."}, {role: "user", content: txt}]
+                    messages: [{role: "system", content: "Você é o UnintaBot, neurocientista de elite. Responda em estilo terminal, sem formatação de texto rica, foque em fatos técnicos da USP/CBI Miami."}, {role: "user", content: txt}]
                 })
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
-
-            if (txt.includes("relatório")) {
-                display.innerHTML = `<div class="medical-report"><strong>UNINTA NEURAL DIAGNOSIS</strong><br><p style="font-size:12px; margin-top:5px;">${resp}</p></div>`;
-            } else {
-                display.innerText = "UnintaBot: " + resp;
-            }
+            display.innerHTML = `<span style="color:var(--ia-cyan)">[NEURAL_OUTPUT]:</span> ${resp}`;
             speak(resp);
-        } catch(e) { display.innerText = "Falha na conexão neural."; }
+        } catch(e) { display.innerHTML = "[ERROR]: CONNECTION_LOST"; }
     }
 
-    // MICROFONE
+    async function speak(t) {
+        if(currentVoiceMode === 'google') {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t); u.lang = 'pt-BR';
+            window.speechSynthesis.speak(u);
+        } else {
+            const res = await fetch("https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB", {
+                method: "POST",
+                headers: { "xi-api-key": EL_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({ text: t, model_id: "eleven_multilingual_v2" })
+            });
+            const blob = await res.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.play();
+            audio.onplay = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 2.0; })}
+            audio.onended = () => { if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissiveIntensity = 0.3; })}
+        }
+    }
+
     const btnMic = document.getElementById('btnMicrofone');
     btnMic.onclick = () => {
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
         const rec = new Speech();
         rec.lang = 'pt-BR';
-        rec.onstart = () => { 
-            btnMic.classList.add('ativo'); 
-            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0xe30613); });
-        };
-        rec.onend = () => { 
-            btnMic.classList.remove('ativo');
-            if(brain) brain.traverse(c => { if(c.isMesh) c.material.emissive.setHex(0x00f2ff); });
-        };
+        rec.onstart = () => btnMic.classList.add('ativo');
+        rec.onend = () => btnMic.classList.remove('ativo');
         rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; enviar(); };
         rec.start();
     };
