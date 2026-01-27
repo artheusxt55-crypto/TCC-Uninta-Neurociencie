@@ -49,7 +49,7 @@
         <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
         <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
     </div>
-    <div id="chat-display">UnintaBot: Mestre Matheus, todos os sistemas estão em 100%. Como posso auxiliar em seus estudos de Neurociência hoje?</div>
+    <div id="chat-display">UnintaBot: Mestre Matheus, sistema pronto. Use o microfone ou digite o comando.</div>
 </div>
 
 <div class="control-panel">
@@ -62,145 +62,86 @@
 
 <script>
     const GROQ_API = "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";
-    const ELEVEN_KEYS = [
-        "sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8",
-        "sk_594271fe1a01322e80b2a55bfbdeb7d5df83848d89925cc1",
-        "sk_0bce0f9d5161c04c57987dc2da0a1f7f8a1b25a769d624ed",
-        "sk_02d74209b2459c2625ef02d648c939e4a23e13ab43230c4a",
-        "sk_21e683319463f5b8435c1243886cc9d6a5bd0c549c45620a"
-    ];
-
+    const ELEVEN_KEYS = ["sk_d0b906958918700618586bcf7cafebd289f1c5294ee5d4d8", "sk_594271fe1a01322e80b2a55bfbdeb7d5df83848d89925cc1", "sk_0bce0f9d5161c04c57987dc2da0a1f7f8a1b25a769d624ed", "sk_02d74209b2459c2625ef02d648c939e4a23e13ab43230c4a", "sk_21e683319463f5b8435c1243886cc9d6a5bd0c549c45620a"];
     let currentKeyIndex = 0;
     let currentVoiceMode = 'eleven';
-    let recognition;
-
-    function updateKeyMonitor() {
-        document.getElementById('key-monitor').innerText = `Chave ${currentKeyIndex + 1}/${ELEVEN_KEYS.length}`;
-    }
 
     function setVoice(mode, el) {
         currentVoiceMode = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ]`;
-        document.getElementById('key-monitor').style.visibility = (mode === 'eleven') ? 'visible' : 'hidden';
-    }
-
-    function speakGoogle(texto) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(texto);
-        utterance.lang = 'pt-BR';
-        window.speechSynthesis.speak(utterance);
     }
 
     async function speakEleven(texto) {
         try {
-            updateKeyMonitor();
             const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB`, {
                 method: "POST",
                 headers: { "xi-api-key": ELEVEN_KEYS[currentKeyIndex], "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    text: texto, 
-                    model_id: "eleven_multilingual_v2",
-                    voice_settings: { stability: 0.6, similarity_boost: 0.8 }
-                })
+                body: JSON.stringify({ text: texto, model_id: "eleven_multilingual_v2", voice_settings: { stability: 0.6, similarity_boost: 0.8 }})
             });
-
-            if (res.status === 401 || res.status === 429) {
-                currentKeyIndex++;
-                if(currentKeyIndex < ELEVEN_KEYS.length) {
-                    return speakEleven(texto); 
-                } else {
-                    document.getElementById('key-monitor').innerText = "Modo Backup Ativo";
-                    speakGoogle(texto);
-                }
-            } else {
-                const blob = await res.blob();
-                const audio = new Audio(URL.createObjectURL(blob));
-                audio.play();
-            }
-        } catch (e) { speakGoogle(texto); }
+            if (!res.ok) throw new Error();
+            const blob = await res.blob();
+            new Audio(URL.createObjectURL(blob)).play();
+        } catch (e) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(texto); u.lang = 'pt-BR'; window.speechSynthesis.speak(u);
+        }
     }
 
     async function enviar() {
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
-        const promptTxt = input.value.trim();
-        if (!promptTxt) return;
-
+        const txt = input.value.trim();
+        if (!txt) return;
         input.value = "";
-        display.innerHTML = "<em>Sincronizando sinapses...</em>";
-
+        display.innerHTML = "<em>Sincronizando...</em>";
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        {role: "system", content: "Você é o UnintaBot, criado pelo Mestre Matheus. Foco em Neuroimagem, TEA, TDAH e Neurociência. Seja técnico e leal. Sem markdown."},
-                        {role: "user", content: promptTxt}
-                    ]
-                })
+                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: "Você é o UnintaBot. Foco em Neurociência. Sem markdown."}, {role: "user", content: txt}]})
             });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             display.innerText = "UnintaBot: " + resp;
-            
-            if (currentVoiceMode === 'eleven') speakEleven(resp);
-            else speakGoogle(resp);
-        } catch (e) { 
-            display.innerText = "Interferência no sinal neural, Mestre."; 
-        }
+            if (currentVoiceMode === 'eleven') await speakEleven(resp);
+            else { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(resp); u.lang = 'pt-BR'; window.speechSynthesis.speak(u); }
+        } catch (e) { display.innerText = "Erro na conexão neural."; }
     }
 
-    // --- FUNÇÃO DE ESCUTA CONSERTADA ---
-    function iniciarEscuta() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Mestre, este navegador não suporta reconhecimento de voz.");
+    // --- CONSERTO FINAL DO MICROFONE ---
+    document.getElementById('btnMicrofone').addEventListener('click', function() {
+        const btn = this;
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!Speech) {
+            alert("Navegador incompatível.");
             return;
         }
 
-        // Destrói instância anterior se existir para evitar travamentos
-        if (recognition) {
-            recognition.abort();
-        }
+        const rec = new Speech();
+        rec.lang = 'pt-BR';
+        rec.continuous = false;
 
-        recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => {
-            document.getElementById('btnMicrofone').classList.add('ativo');
-        };
-
-        recognition.onend = () => {
-            document.getElementById('btnMicrofone').classList.remove('ativo');
-        };
-
-        recognition.onresult = (e) => {
-            const transcript = e.results[0][0].transcript;
-            document.getElementById('userInput').value = transcript;
+        rec.onstart = () => btn.classList.add('ativo');
+        rec.onend = () => btn.classList.remove('ativo');
+        rec.onerror = () => btn.classList.remove('ativo');
+        
+        rec.onresult = (event) => {
+            document.getElementById('userInput').value = event.results[0][0].transcript;
             enviar();
         };
 
-        recognition.onerror = (e) => {
-            document.getElementById('btnMicrofone').classList.remove('ativo');
-            if(e.error === 'not-allowed') {
-                alert("Mestre, o acesso ao microfone foi negado. Ative no cadeado da barra de endereços.");
-            }
-        };
+        try {
+            rec.start();
+        } catch (e) {
+            console.error("Falha ao iniciar reconhecimento.");
+        }
+    });
 
-        recognition.start();
-    }
-
-    window.onload = () => {
-        document.getElementById('btnEnviar').onclick = enviar;
-        document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-        document.getElementById('btnMicrofone').onclick = iniciarEscuta;
-    };
+    document.getElementById('btnEnviar').onclick = enviar;
+    document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 </script>
 </body>
 </html>
