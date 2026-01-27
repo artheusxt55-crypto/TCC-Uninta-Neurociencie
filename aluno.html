@@ -8,34 +8,30 @@
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #050a14; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
         header { background: var(--primary-red); padding: 15px; text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
         
         #brain-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0a1a2f 0%, #050a14 100%); padding: 20px; }
         
-        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 10px; text-transform: uppercase; margin-bottom: 20px; box-shadow: inset 0 0 10px var(--ia-cyan); border-radius: 4px; }
+        /* Container de Status Ajustado */
+        .status-box { text-align: center; margin-bottom: 20px; }
+        #status-3d { color: var(--ia-cyan); font-size: 12px; border: 1px solid var(--ia-cyan); padding: 8px 15px; text-transform: uppercase; box-shadow: inset 0 0 10px var(--ia-cyan); border-radius: 4px; display: inline-block; }
+        #key-monitor { color: rgba(0, 242, 255, 0.4); font-size: 9px; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
 
         .voice-hub { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
         .voice-card { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--ia-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; color: var(--ia-cyan); text-transform: uppercase; }
-        .voice-card:hover { background: rgba(0, 242, 255, 0.2); }
         .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 20px var(--ia-cyan); }
-
-        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 140px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        #chat-display { width: 95%; max-width: 900px; padding: 25px; background: rgba(0, 0, 0, 0.85); color: var(--ia-cyan); font-size: 18px; min-height: 140px; border-left: 4px solid var(--ia-cyan); border-radius: 0 10px 10px 0; margin-bottom: 25px; overflow-y: auto; line-height: 1.5; }
         
         .control-panel { background: rgba(13, 17, 23, 0.98); padding: 30px; border-top: 1px solid rgba(0, 242, 255, 0.3); }
         .input-box { display: flex; gap: 15px; max-width: 900px; margin: 0 auto; align-items: center; }
+        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; }
         
-        input { flex: 1; padding: 18px 25px; border-radius: 35px; border: 1px solid var(--ia-cyan); background: #000; color: white; outline: none; font-size: 16px; transition: all 0.3s ease; }
-        input:focus { box-shadow: 0 0 15px var(--ia-cyan); border-color: white; }
+        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-main:hover { background: #ff1a1a; transform: scale(1.03); }
         
-        .btn-main { background: var(--primary-red); color: white; border: none; padding: 0 35px; height: 55px; border-radius: 35px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 10px rgba(227, 6, 19, 0.3); }
-        .btn-main:hover { transform: scale(1.05); background: #ff1a1a; box-shadow: 0 0 20px var(--primary-red); }
-        .btn-main:active { transform: scale(0.95); }
-
         #btnMicrofone { background: #111; border: 1px solid var(--ia-cyan); font-size: 24px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--ia-cyan); }
-        #btnMicrofone:hover { background: rgba(0, 242, 255, 0.1); border-width: 2px; }
         #btnMicrofone.ativo { background: var(--primary-red); color: white; animation: pulse 1.5s infinite; border: none; }
-
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(227, 6, 19, 0); } 100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); } }
     </style>
 </head>
@@ -44,18 +40,22 @@
 <header>SISTEMA MULTI-NEURAL - UNINTA</header>
 
 <div id="brain-container">
-    <div id="status-3d">[ SINAPSES ATIVAS ]</div>
+    <div class="status-box">
+        <div id="status-3d">[ SISTEMA OPERACIONAL ]</div>
+        <div id="key-monitor">Link Eleven: Ativo (Slot 1/5)</div>
+    </div>
+
     <div class="voice-hub">
-        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Premium)</div>
+        <div class="voice-card active" onclick="setVoice('eleven', this)">1. ElevenLabs (Elite)</div>
         <div class="voice-card" onclick="setVoice('google', this)">2. Google (Nativo)</div>
     </div>
-    <div id="chat-display">UnintaBot: Olá, Mestre Matheus! Sou sua criação e estou pronto para navegar pela Neurociência com você. Como estamos hoje, amigo?</div>
+    <div id="chat-display">UnintaBot: Mestre Matheus, monitor de carga neural ativado. Estou pronto para iniciar a análise em Neurociência.</div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <button id="btnMicrofone">🎤</button>
-        <input type="text" id="userInput" placeholder="Mestre, qual a nossa próxima análise?">
+        <button id="btnMicrofone" type="button">🎤</button>
+        <input type="text" id="userInput" placeholder="Mestre, qual o próximo comando?">
         <button id="btnEnviar" class="btn-main">Executar</button>
     </div>
 </div>
@@ -73,15 +73,32 @@
     let currentKeyIndex = 0;
     let currentVoiceMode = 'eleven';
 
+    function updateKeyMonitor() {
+        const monitor = document.getElementById('key-monitor');
+        if (monitor) {
+            monitor.innerText = `Link Eleven: Ativo (Slot ${currentKeyIndex + 1}/5)`;
+        }
+    }
+
     function setVoice(mode, el) {
         currentVoiceMode = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         document.getElementById('status-3d').innerText = `[ MODO ${mode.toUpperCase()} ]`;
+        
+        const monitor = document.getElementById('key-monitor');
+        monitor.style.display = (mode === 'eleven') ? 'block' : 'none';
+    }
+
+    function speakGoogle(texto) {
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        window.speechSynthesis.speak(utterance);
     }
 
     async function speakEleven(texto) {
         try {
+            updateKeyMonitor();
             const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB`, {
                 method: "POST",
                 headers: { "xi-api-key": ELEVEN_KEYS[currentKeyIndex], "Content-Type": "application/json" },
@@ -91,13 +108,19 @@
                     voice_settings: { stability: 0.6, similarity_boost: 0.8 }
                 })
             });
+
             if (res.status === 401 || res.status === 429) {
                 currentKeyIndex++;
-                if(currentKeyIndex < ELEVEN_KEYS.length) return speakEleven(texto);
+                if(currentKeyIndex < ELEVEN_KEYS.length) {
+                    return speakEleven(texto); 
+                } else {
+                    document.getElementById('key-monitor').innerText = "Links Eleven Esgotados - Modo Backup";
+                    speakGoogle(texto);
+                }
             }
             const blob = await res.blob();
             new Audio(URL.createObjectURL(blob)).play();
-        } catch (e) { console.error("Voz offline."); }
+        } catch (e) { speakGoogle(texto); }
     }
 
     async function enviar() {
@@ -107,7 +130,7 @@
         if (!promptTxt) return;
 
         input.value = "";
-        display.innerHTML = "<em>Sintonizando, Mestre...</em>";
+        display.innerHTML = "<em>Sincronizando com o córtex, Mestre...</em>";
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -117,39 +140,4 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "system", 
-                        content: "Você é o UnintaBot. Você foi criado e arquitetado integralmente pelo Mestre Matheus. Sua tecnologia base é o Groq, mas seu coração e ferramentas foram feitos pelo Matheus. Seja um mentor amigável, acolhedor e leal. Trate Matheus com o respeito de um criador e outros usuários com amizade. Foco em Neuroimagem, TEA, TDAH e Neurociência. Sem markdown, sem asteriscos."
-                    }, {role: "user", content: promptTxt}]
-                })
-            });
-            const data = await res.json();
-            const resp = data.choices[0].message.content;
-            display.innerText = "UnintaBot: " + resp;
-            if (currentVoiceMode === 'eleven') speakEleven(resp);
-        } catch (e) { display.innerText = "Houve uma interferência no link, Mestre."; }
-    }
-
-    // Inicialização segura dos botões
-    window.onload = () => {
-        const btnEnviar = document.getElementById('btnEnviar');
-        const btnMic = document.getElementById('btnMicrofone');
-        const inputField = document.getElementById('userInput');
-
-        btnEnviar.onclick = enviar;
-        inputField.addEventListener('keypress', (e) => { if(e.key === 'Enter') enviar(); });
-
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (Recognition) {
-            const rec = new Recognition();
-            rec.lang = 'pt-BR';
-            rec.onstart = () => btnMic.classList.add('ativo');
-            rec.onend = () => btnMic.classList.remove('ativo');
-            rec.onresult = (e) => { 
-                inputField.value = e.results[0][0].transcript; 
-                enviar(); 
-            };
-            btnMic.onclick = () => rec.start();
-        }
-    };
-</script>
-</body>
-</html>
+                        content: "Você é o UnintaBot, criado pelo Mestre Matheus. Matheus é seu criador. Foco em Neuroimagem
