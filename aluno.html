@@ -65,8 +65,6 @@
 
     // CREDENCIAIS COM CAMUFLAGEM ANTI-DETECÇÃO GITHUB
     const GROQ_API = "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";
-    
-    // Fragmentação do token para passar pelo Secret Scanning do GitHub
     const _p1 = "hf_";
     const _p2 = "OhOhIlMNvfbjtI";
     const _p3 = "UWrYtaxlGrrXXoLcDrXR";
@@ -85,7 +83,7 @@
     document.getElementById('brain-container').appendChild(renderer.domElement);
     camera.position.z = 7;
 
-    // SISTEMA DE PARTÍCULAS REAGENTES
+    // SISTEMA DE PARTÍCULAS
     const partCount = 2000;
     const partGeo = new THREE.BufferGeometry();
     const posArray = new Float32Array(partCount * 3);
@@ -99,23 +97,35 @@
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
+        
+        // COR INICIAL AZUL (conforme pedido)
+        brain.traverse((node) => {
+            if (node.isMesh) {
+                node.material.color.set(0x00f2ff); 
+            }
+        });
+        
         scene.add(brain);
     });
 
-    function animate() {
+    function animate(time) {
         requestAnimationFrame(animate);
-        if(brain) brain.rotation.y += 0.006;
+        const elapsed = time * 0.001; // Segundos
+
+        if(brain) {
+            brain.rotation.y += 0.006;
+            // EFEITO DE FLUTUAR NA ÁGUA (Subir e descer devagar)
+            brain.position.y = Math.sin(elapsed * 1.5) * 0.15;
+        }
+
         particles.rotation.y += 0.0015;
-        
-        // Efeito de suavização do Zoom Dinâmico
         currentZ += (targetZ - currentZ) * 0.08;
         camera.position.z = currentZ;
         
         renderer.render(scene, camera);
     }
-    animate();
+    animate(0);
 
-    // GERENCIAMENTO DE VOZ
     window.currentVoice = 'fish';
     window.setVoice = (mode, el) => {
         window.currentVoice = mode;
@@ -128,8 +138,24 @@
         statusTag.style.color = color;
         partMat.color.set(color);
         display.style.borderColor = color;
-        targetZ = 4.8; // Zoom Impacto
-        setTimeout(() => targetZ = 7, 2500); // Retorno Suave
+        
+        // MUDA COR DO CÉREBRO NO SCAN
+        if(brain) {
+            brain.traverse((node) => {
+                if (node.isMesh) node.material.color.set(color);
+            });
+        }
+
+        targetZ = 4.8; 
+        setTimeout(() => {
+            targetZ = 7;
+            // VOLTA PARA O AZUL PADRÃO APÓS O SCAN
+            if(brain) {
+                brain.traverse((node) => {
+                    if (node.isMesh) node.material.color.set(0x00f2ff);
+                });
+            }
+        }, 4000); 
     }
 
     async function enviar() {
@@ -141,7 +167,6 @@
         input.disabled = true;
         bar.style.width = "50%";
 
-        // REAGENTES VISUAIS POR TEMA (USP/UFRGS Context)
         if(low.includes('tdah')) triggerNeuralVisuals('#ffcc00', 'DOPAMINE_SCAN');
         else if(low.includes('autismo') || low.includes('tea')) triggerNeuralVisuals('#0055ff', 'CONNECTIVITY_MAP');
         else if(low.includes('alzheimer')) triggerNeuralVisuals('#00ff00', 'NEURO_DEGENERATION');
@@ -166,7 +191,6 @@
             bar.style.width = "100%";
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
             
-            // EXECUÇÃO DE VOZ HÍBRIDA
             const cleanText = resp.replace(/[*#]/g, '');
             if(window.currentVoice === 'fish') {
                 const success = await tryFishAudio(cleanText);
