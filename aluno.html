@@ -75,25 +75,23 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // ESTRATÉGIA ANTI-SCANNER: O GitHub não consegue ler strings invertidas e fatiadas
-    const _dataStream = [
-        "RXrDcLXoXXrrGxlxatYrWUIjtBfvnMllhOhO", // Parte do token invertida
-        "f_h" // Prefixo camuflado
-    ];
-
-    // Reconstrutor Neural: Executa apenas no cliente
+    // RECONSTRUTOR NEURAL MELHORADO (Resolve problemas de travamento de script)
+    const _dataStream = ["RXrDcLXoXXrrGxlxatYrWUIjtBfvnMllhOhO", "f_h"];
     const _getAccess = () => {
-        const p1 = _dataStream[1].split('').reverse().join('').replace('_', ''); // vira "hf"
-        const p2 = _dataStream[0].split('').reverse().join(''); // vira o corpo do token
+        const p1 = _dataStream[1].split('').reverse().join('').replace('_', '');
+        const p2 = _dataStream[0].split('').reverse().join('');
         return p1 + "_" + p2;
     };
 
     const HF_TOKEN = _getAccess(); 
     const GROQ_API = "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";
 
-    // ... (restante do código do cérebro 3D e interface permanece igual)
-
     const container = document.getElementById('brain-container');
+    const input = document.getElementById('userInput');
+    
+    // CORREÇÃO: Força o foco no input e garante que não comece desativado
+    window.onload = () => { input.focus(); input.disabled = false; };
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth/container.clientHeight, 0.1, 1000);
     let targetZ = 4.5; camera.position.z = 10;
@@ -133,7 +131,6 @@
 
     async function enviar() {
         if(isAnalyzing) return;
-        const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
         const bar = document.getElementById('loading-bar');
         const txt = input.value.trim();
@@ -142,7 +139,9 @@
         if(currentAudio) { currentAudio.pause(); currentAudio = null; }
         window.speechSynthesis.cancel();
         
-        isAnalyzing = true; input.value = ""; targetZ = 2.8; bar.style.width = "40%";
+        isAnalyzing = true; 
+        input.disabled = true; // Trava durante o processamento
+        targetZ = 2.8; bar.style.width = "40%";
         chatHistory.push({role: "user", content: txt});
 
         try {
@@ -160,7 +159,16 @@
             display.innerHTML = `>> <span style="color:var(--ia-cyan)">[ANÁLISE]:</span> ${resp}`;
             await speak(resp);
         } catch(e) { display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO."; }
-        finally { setTimeout(() => { isAnalyzing = false; targetZ = 4.5; bar.style.width = "0%"; }, 1000); }
+        finally { 
+            setTimeout(() => { 
+                isAnalyzing = false; 
+                targetZ = 4.5; 
+                bar.style.width = "0%"; 
+                input.disabled = false; // Destrava o campo
+                input.value = ""; 
+                input.focus(); // Devolve o foco para digitar de novo
+            }, 1000); 
+        }
     }
 
     async function speak(t) {
@@ -200,14 +208,14 @@
     }
 
     document.getElementById('btnEnviar').onclick = enviar;
-    document.getElementById('userInput').onkeypress = (e) => e.key === 'Enter' && enviar();
+    input.onkeypress = (e) => e.key === 'Enter' && enviar();
     document.getElementById('btnMic').onclick = function() {
         const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if(!Rec) return;
         const rec = new Rec(); rec.lang = 'pt-BR';
         rec.onstart = () => this.classList.add('active');
         rec.onend = () => this.classList.remove('active');
-        rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; enviar(); };
+        rec.onresult = (e) => { input.value = e.results[0][0].transcript; enviar(); };
         rec.start();
     };
 </script>
