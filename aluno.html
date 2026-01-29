@@ -14,10 +14,10 @@
         #history-panel { width: 220px; border-right: 1px solid rgba(0, 242, 255, 0.1); background: rgba(0,0,0,0.8); padding: 20px; z-index: 10; }
         #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         
-        /* ESTILO DO ROBOZINHO (Ajustado para Vídeo) */
+        /* ESTILO DO ROBOZINHO (Ajustado para o seu vídeo MP4) */
         #robot-standby {
             position: absolute;
-            top: 12%;
+            top: 10%; /* Posicionado acima do cérebro */
             left: 50%;
             transform: translateX(-50%);
             z-index: 5;
@@ -25,9 +25,11 @@
             transition: opacity 0.8s ease-in-out;
             opacity: 1;
         }
-        #robot-standby video {
-            width: 160px;
-            filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.4));
+        #robot-vid {
+            width: 150px;
+            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4));
+            /* Se o seu vídeo tiver fundo branco, descomente a linha abaixo: */
+            /* mix-blend-mode: multiply; */
         }
 
         #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: 0.5s; }
@@ -56,7 +58,7 @@
     </aside>
 
     <div id="robot-standby">
-        <video autoplay loop muted playsinline>
+        <video id="robot-vid" autoplay loop muted playsinline>
             <source src="robo-dormindo.mp4" type="video/mp4">
         </video>
     </div>
@@ -107,7 +109,7 @@
     const partMat = new THREE.PointsMaterial({ size: 0.025, color: 0x00f2ff, transparent: true, opacity: 0.7 });
     let brain, targetZ = 7, currentZ = 7, isAnalyzing = false;
 
-    // SISTEMA DE PARTÍCULAS (ESTRELAS)
+    // ESTRELAS DE FUNDO
     const partCount = 2000;
     const partGeo = new THREE.BufferGeometry();
     const posArray = new Float32Array(partCount * 3);
@@ -116,7 +118,7 @@
     const particles = new THREE.Points(partGeo, partMat);
     scene.add(particles);
 
-    // CARREGAR CÉREBRO UNINTA
+    // MODELO 3D DO CÉREBRO
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
@@ -131,7 +133,7 @@
             }
         });
         scene.add(brain);
-    });
+    }, undefined, (error) => console.error("Erro ao carregar o cérebro:", error));
 
     function animate(time) {
         requestAnimationFrame(animate);
@@ -190,9 +192,10 @@
 
         isAnalyzing = true;
         input.disabled = true;
-        robot.style.opacity = "0"; // Robo some durante o scan
+        robot.style.opacity = "0"; // Esconde o robô durante a análise clínica
         bar.style.width = "50%";
 
+        // Visualização por Patologia (USP/UFRGS Standard)
         if(low.includes('tdah')) triggerNeuralVisuals('#ffcc00', 'DOPAMINE_SCAN');
         else if(low.includes('autismo') || low.includes('tea')) triggerNeuralVisuals('#0055ff', 'CONNECTIVITY_MAP');
         else if(low.includes('alzheimer')) triggerNeuralVisuals('#00ff00', 'NEURO_DEGENERATION');
@@ -234,7 +237,7 @@
                 input.value = ""; 
                 input.focus(); 
                 bar.style.width = "0%"; 
-                robot.style.opacity = "1"; // Robo volta no standby
+                robot.style.opacity = "1"; // Robô volta ao modo standby
             }, 1000);
         }
     }
@@ -244,4 +247,30 @@
             const response = await fetch("https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${HF_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ data: [t, "default", null, "", 1
+                body: JSON.stringify({ data: [t, "default", null, "", 1024, 0, 0.9, 1.1, 0.9, 0, "on"] })
+            });
+            const { event_id } = await response.json();
+            const pollRes = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${event_id}`);
+            const resultText = await pollRes.text();
+            const audioMatch = resultText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
+            if(audioMatch) {
+                const audio = new Audio(audioMatch[0]);
+                await audio.play();
+                return true;
+            }
+            return false;
+        } catch (e) { return false; }
+    }
+
+    function nativeSpeak(t) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'pt-BR';
+        window.speechSynthesis.speak(msg);
+    }
+
+    document.getElementById('btnEnviar').onclick = enviar;
+    input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+</script>
+</body>
+</html>
