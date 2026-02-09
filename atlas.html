@@ -40,21 +40,21 @@
             overflow: hidden;
         }
 
-        /* --- TÉCNICA DE CLIPPING PARA OCULTAR A LOGO E SIGN-UP --- */
+        /* --- TÉCNICA DE CLIPPING AVANÇADA PARA OCULTAR LOGOS, SIGN-UP E RODAPÉ --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
-            overflow: hidden; /* Corta o que estiver fora dos limites desta div */
+            overflow: hidden; /* Corta o que sobrar do wrapper */
         }
 
         .atlas-wrapper {
             position: absolute;
-            /* Empurra o topo do iframe para cima em 60px para esconder o menu da BioDigital */
-            top: -60px; 
-            left: 0;
-            width: 100%;
-            height: calc(100% + 60px); /* Compensa o corte no tamanho total */
+            /* OS CORTES: */
+            top: -65px;      /* Esconde o menu superior/Sign Up */
+            left: -45px;     /* Esconde menu lateral esquerdo */
+            width: calc(100% + 90px);   /* Compensa a largura escondida */
+            height: calc(100% + 115px); /* Empurra a marca d'água e logo do rodapé para fora */
         }
 
         iframe {
@@ -62,7 +62,7 @@
             height: 100%;
             border: none;
         }
-        /* -------------------------------------------------------- */
+        /* ------------------------------------------------------------------------ */
 
         .info-sidebar {
             flex: 0 0 350px;
@@ -135,12 +135,8 @@
 
 <div class="main-container">
     <section class="atlas-section">
-        <div class="atlas-wrapper">
-            <iframe 
-                src="https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=pt&ui-all=false&ui-gui=false&ui-panel=false&ui-info=false&ui-search=false" 
-                allowfullscreen>
-            </iframe>
-        </div>
+        <div id="atlas-anchor" class="atlas-wrapper">
+            </div>
     </section>
 
     <aside class="info-sidebar">
@@ -171,8 +167,26 @@
 </div>
 
 <footer>
-    Tecnologia de Mapeamento BioDigital Human | Processamento de Dados via IA Experimental
+    Tecnologia de Mapeamento Independente | Processamento de Dados via IA Experimental
 </footer>
+
+<script>
+    // Injeção dinâmica do Atlas para ocultar o link direto e remover controles indesejados
+    window.onload = function() {
+        const anchor = document.getElementById('atlas-anchor');
+        
+        // Link configurado para ocultar interface (ui-all=false)
+        const atlasUrl = "https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=pt&ui-all=false&ui-gui=false&ui-panel=false&ui-info=false&ui-search=false&ui-fullscreen=false";
+        
+        const frame = document.createElement("iframe");
+        frame.setAttribute("src", atlasUrl);
+        frame.setAttribute("allowfullscreen", "true");
+        // Impede que menus de contexto do navegador facilitem a inspeção direta no iframe
+        frame.setAttribute("oncontextmenu", "return false;"); 
+        
+        anchor.appendChild(frame);
+    };
+</script>
 
 </body>
 </html>
