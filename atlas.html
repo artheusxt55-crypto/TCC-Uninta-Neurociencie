@@ -23,7 +23,6 @@
             overflow: hidden;
         }
 
-        /* --- CABEÇALHO --- */
         header {
             background-color: var(--cinza-escuro);
             border-bottom: 2px solid var(--vermelho-medico);
@@ -42,21 +41,20 @@
             position: relative;
         }
 
-        /* --- ÁREA DO ATLAS (CENSURADA PARA PARECER NATIVA) --- */
+        /* --- ÁREA DO ATLAS (CENSURADA) --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
-            overflow: hidden; /* Corta o que sobrar do iframe */
+            overflow: hidden; 
         }
 
         .atlas-wrapper {
             position: absolute;
-            /* CENSURA: Move o topo do iframe para fora da visão para esconder logo/autor */
-            top: -55px; 
+            top: -48px; /* Ajuste preciso para esconder a barra do Sketchfab */
             left: 0;
             width: 100%;
-            height: calc(100% + 55px);
+            height: calc(100% + 48px);
             z-index: 10;
         }
 
@@ -68,7 +66,7 @@
             pointer-events: all; 
         }
 
-        /* --- BARRA LATERAL --- */
+        /* --- BARRA LATERAL (DICIONÁRIO BILÍNGUE) --- */
         .info-sidebar {
             flex: 0 0 350px;
             background-color: var(--cinza-escuro);
@@ -82,17 +80,16 @@
         .card {
             background-color: #1a1a1a;
             border-left: 4px solid var(--vermelho-medico);
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 12px;
             border-radius: 4px;
         }
 
-        /* Estilos para o Dicionário de Tradução */
-        .termo-en { font-size: 0.7rem; color: #666; font-style: italic; display: block; }
-        .termo-pt { font-size: 0.95rem; color: #fff; font-weight: bold; }
+        .termo-en { font-size: 0.65rem; color: #666; font-style: italic; display: block; }
+        .termo-pt { font-size: 0.9rem; color: #fff; font-weight: bold; }
+        .desc-pt { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
 
-        h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.2rem; }
-        h3 { font-size: 1rem; margin-bottom: 8px; color: #fff; }
+        h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; }
         
         .btn-ia {
             background-color: var(--vermelho-medico);
@@ -105,6 +102,7 @@
             font-weight: bold;
             transition: 0.3s;
             text-transform: uppercase;
+            margin: 15px 0;
         }
 
         .btn-ia:hover { background-color: #ff1a1a; transform: translateY(-2px); }
@@ -120,12 +118,11 @@
 
         footer {
             background: var(--cinza-escuro);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-align: center;
             padding: 8px;
             border-top: 1px solid #222;
-            opacity: 0.6;
-            z-index: 1000;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -134,67 +131,85 @@
 <header>
     <div style="display: flex; align-items: center; gap: 20px;">
         <h1 style="margin:0; font-size: 1.3rem; color: var(--vermelho-medico); letter-spacing: 1px;">NEURO-MAPPER 3D</h1>
-        <span style="font-size: 0.8rem; opacity: 0.5; border-left: 1px solid #444; padding-left: 15px;">Mapeamento Cortical</span>
+        <span style="font-size: 0.75rem; opacity: 0.6; border-left: 1px solid #444; padding-left: 15px;">Interface Bilíngue Integrada</span>
     </div>
     <a href="index.html" class="btn-voltar">← VOLTAR AO PAINEL</a>
 </header>
 
 <div class="main-container">
     <section class="atlas-section">
-        <div id="atlas-anchor" class="atlas-wrapper">
-            </div>
+        <div id="atlas-anchor" class="atlas-wrapper"></div>
     </section>
 
     <aside class="info-sidebar">
-        <h2>Dicionário de Estruturas</h2>
+        <h2>Terminologia Clínica</h2>
         
         <div class="card">
-            <span class="termo-en">Frontal Lobe</span>
+            <span class="termo-en">#1 Frontal Lobe</span>
             <span class="termo-pt">Lobo Frontal</span>
-            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Funções executivas e foco (TDAH).</p>
+            <p class="desc-pt">Foco, planejamento e TDAH.</p>
         </div>
 
         <div class="card">
-            <span class="termo-en">Temporal Lobe</span>
+            <span class="termo-en">#2 Parietal Lobe</span>
+            <span class="termo-pt">Lobo Parietal</span>
+            <p class="desc-pt">Sensações e percepção espacial.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">#3 Temporal Lobe</span>
             <span class="termo-pt">Lobo Temporal</span>
-            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Memória e processamento auditivo (TEA).</p>
+            <p class="desc-pt">Memória e linguagem (Foco TEA).</p>
         </div>
 
         <div class="card">
-            <span class="termo-en">Spinal Cord</span>
+            <span class="termo-en">#4 Occipital Lobe</span>
+            <span class="termo-pt">Lobo Occipital</span>
+            <p class="desc-pt">Processamento visual primário.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">#5 Cerebellum</span>
+            <span class="termo-pt">Cerebelo</span>
+            <p class="desc-pt">Coordenação e equilíbrio motor.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">#6-8 Brainstem/Bulb</span>
+            <span class="termo-pt">Tronco Encefálico</span>
+            <p class="desc-pt">Controle de funções vitais.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">#9 Pituitary Gland</span>
+            <span class="termo-pt">Glândula Hipófise</span>
+            <p class="desc-pt">Regulação hormonal central.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">#11 Spinal Cord</span>
             <span class="termo-pt">Medula Espinhal</span>
-            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Via de transmissão nervosa.</p>
+            <p class="desc-pt">Via de transmissão nervosa.</p>
         </div>
 
-        <div class="card">
-            <h3>Análise Acadêmica</h3>
-            <p style="font-size: 0.85rem; line-height: 1.4; color: #bbb;">
-                Estruturas mapeadas com protocolos da USP e CBI of Miami.
-            </p>
-        </div>
+        <button class="btn-ia">SOLICITAR ANÁLISE IA</button>
 
-        <button class="btn-ia">SOLICITAR ANÁLISE DA IA</button>
-        
-        <div style="margin-top: 25px; text-align: center;">
-             <p style="font-style: italic; font-size: 0.8rem; color: #666;">
-                *Integração Acadêmica UNINTA 2026.
-            </p>
+        <div style="border-top: 1px solid #333; padding-top: 15px; font-size: 0.75rem; color: #666;">
+            <p>*Utilizando Terminologia Anatômica Internacional conforme padrões USP e CBI of Miami.</p>
         </div>
     </aside>
 </div>
 
 <footer>
-    Tecnologia de Mapeamento Independente | Termos técnicos traduzidos para Português-BR
+    UNINTA 2026 | Atlas Interativo Independente
 </footer>
 
 <script>
     window.onload = function() {
         const anchor = document.getElementById('atlas-anchor');
         
-        /* Parâmetros para ocultar UI e marcas d'água.
-           Ocultamos o cabeçalho original via CSS (top: -55px).
-        */
-        const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0";
+        // URL configurada para esconder o máximo de interface e carregar no modo escuro
+        const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark&ui_help=0&ui_settings=0&ui_vr=0";
         
         const frame = document.createElement("iframe");
         frame.setAttribute("src", atlasUrl);
