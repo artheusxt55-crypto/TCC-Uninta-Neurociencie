@@ -38,31 +38,45 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
-        /* --- TÉCNICA DE CLIPPING AVANÇADA PARA OCULTAR LOGOS, SIGN-UP E RODAPÉ --- */
+        /* --- BLINDAGEM DE INTERAÇÃO (PARA MATAR O POP-UP) --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
-            overflow: hidden; /* Corta o que sobrar do wrapper */
+            overflow: hidden;
+        }
+
+        /* Camada invisível que bloqueia o disparo do script de pop-up */
+        .interaction-shield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            background: transparent;
         }
 
         .atlas-wrapper {
             position: absolute;
-            /* OS CORTES: */
-            top: -65px;      /* Esconde o menu superior/Sign Up */
-            left: -45px;     /* Esconde menu lateral esquerdo */
-            width: calc(100% + 90px);   /* Compensa a largura escondida */
-            height: calc(100% + 115px); /* Empurra a marca d'água e logo do rodapé para fora */
+            top: -70px;      /* Esconde Sign-up e barra superior */
+            left: -45px;     /* Esconde controles laterais */
+            width: calc(100% + 90px);
+            height: calc(100% + 140px); /* Esconde marca d'água inferior */
+            pointer-events: none; /* Desativa a detecção de cliques no iframe */
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            opacity: 0; /* Começa oculto para esconder o carregamento da logo */
+            transition: opacity 1s ease-in;
         }
-        /* ------------------------------------------------------------------------ */
+        /* ---------------------------------------------------- */
 
         .info-sidebar {
             flex: 0 0 350px;
@@ -96,7 +110,6 @@
             font-weight: bold;
             transition: 0.3s;
             text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(179, 0, 0, 0.3);
         }
 
         .btn-ia:hover { background-color: #ff1a1a; transform: translateY(-2px); }
@@ -108,10 +121,7 @@
             border: 1px solid #444;
             padding: 6px 12px;
             border-radius: 4px;
-            transition: 0.3s;
         }
-
-        .btn-voltar:hover { background: #333; border-color: var(--vermelho-medico); }
 
         footer {
             background: var(--cinza-escuro);
@@ -135,58 +145,10 @@
 
 <div class="main-container">
     <section class="atlas-section">
+        <div class="interaction-shield"></div>
+        
         <div id="atlas-anchor" class="atlas-wrapper">
             </div>
     </section>
 
-    <aside class="info-sidebar">
-        <h2>Análise Patológica</h2>
-        
-        <div class="card">
-            <h3>Foco: TDAH e TEA</h3>
-            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
-                Exploração avançada do <strong>Córtex Pré-Frontal</strong> e <strong>Sistema Límbico</strong>. Análise estrutural baseada em protocolos da USP.
-            </p>
-        </div>
-
-        <div class="card">
-            <h3>Neurovisualização</h3>
-            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
-                Correlação de anatomia funcional 3D com diretrizes de Neuroimagem do CBI of Miami.
-            </p>
-        </div>
-
-        <button class="btn-ia">SOLICITAR ANÁLISE DA IA</button>
-        
-        <div style="margin-top: 25px; text-align: center;">
-             <p style="font-style: italic; font-size: 0.8rem; color: #666;">
-                *Integração Acadêmica UNINTA 2026.
-            </p>
-        </div>
-    </aside>
-</div>
-
-<footer>
-    Tecnologia de Mapeamento Independente | Processamento de Dados via IA Experimental
-</footer>
-
-<script>
-    // Injeção dinâmica do Atlas para ocultar o link direto e remover controles indesejados
-    window.onload = function() {
-        const anchor = document.getElementById('atlas-anchor');
-        
-        // Link configurado para ocultar interface (ui-all=false)
-        const atlasUrl = "https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=pt&ui-all=false&ui-gui=false&ui-panel=false&ui-info=false&ui-search=false&ui-fullscreen=false";
-        
-        const frame = document.createElement("iframe");
-        frame.setAttribute("src", atlasUrl);
-        frame.setAttribute("allowfullscreen", "true");
-        // Impede que menus de contexto do navegador facilitem a inspeção direta no iframe
-        frame.setAttribute("oncontextmenu", "return false;"); 
-        
-        anchor.appendChild(frame);
-    };
-</script>
-
-</body>
-</html>
+    <aside class="info-
