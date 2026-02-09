@@ -42,20 +42,21 @@
             position: relative;
         }
 
-        /* --- ÁREA DO ATLAS (LIMPA E INTERATIVA) --- */
+        /* --- ÁREA DO ATLAS (CENSURADA PARA PARECER NATIVA) --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* Corta o que sobrar do iframe */
         }
 
         .atlas-wrapper {
             position: absolute;
-            top: 0;
+            /* CENSURA: Move o topo do iframe para fora da visão para esconder logo/autor */
+            top: -55px; 
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% + 55px);
             z-index: 10;
         }
 
@@ -64,7 +65,6 @@
             height: 100%;
             border: none;
             display: block;
-            /* Permite clicar nas anotações do modelo */
             pointer-events: all; 
         }
 
@@ -83,9 +83,13 @@
             background-color: #1a1a1a;
             border-left: 4px solid var(--vermelho-medico);
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-radius: 4px;
         }
+
+        /* Estilos para o Dicionário de Tradução */
+        .termo-en { font-size: 0.7rem; color: #666; font-style: italic; display: block; }
+        .termo-pt { font-size: 0.95rem; color: #fff; font-weight: bold; }
 
         h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.2rem; }
         h3 { font-size: 1rem; margin-bottom: 8px; color: #fff; }
@@ -142,19 +146,30 @@
     </section>
 
     <aside class="info-sidebar">
-        <h2>Análise Patológica</h2>
+        <h2>Dicionário de Estruturas</h2>
         
         <div class="card">
-            <h3>Foco: TDAH e TEA</h3>
-            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
-                Exploração do <strong>Córtex Pré-Frontal</strong> e <strong>Sistema Límbico</strong>. Protocolos baseados na USP e CBI of Miami.
-            </p>
+            <span class="termo-en">Frontal Lobe</span>
+            <span class="termo-pt">Lobo Frontal</span>
+            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Funções executivas e foco (TDAH).</p>
         </div>
 
         <div class="card">
-            <h3>Legendas Ativas</h3>
-            <p style="font-size: 0.85rem; color: #888;">
-                Clique nos números no modelo 3D para identificar as estruturas neuroanatômicas.
+            <span class="termo-en">Temporal Lobe</span>
+            <span class="termo-pt">Lobo Temporal</span>
+            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Memória e processamento auditivo (TEA).</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">Spinal Cord</span>
+            <span class="termo-pt">Medula Espinhal</span>
+            <p style="font-size: 0.8rem; color: #888; margin: 5px 0 0 0;">Via de transmissão nervosa.</p>
+        </div>
+
+        <div class="card">
+            <h3>Análise Acadêmica</h3>
+            <p style="font-size: 0.85rem; line-height: 1.4; color: #bbb;">
+                Estruturas mapeadas com protocolos da USP e CBI of Miami.
             </p>
         </div>
 
@@ -169,19 +184,17 @@
 </div>
 
 <footer>
-    Tecnologia de Mapeamento Independente | Visualização via Sketchfab Engine
+    Tecnologia de Mapeamento Independente | Termos técnicos traduzidos para Português-BR
 </footer>
 
 <script>
     window.onload = function() {
         const anchor = document.getElementById('atlas-anchor');
         
-        /* CONFIGURAÇÃO DO MODELO:
-           - autostart=1: Carrega sozinho para evitar tela preta
-           - ui_infos=0: Esconde título e autor
-           - ui_annotations=1: Mantém os nomes das partes do cérebro visíveis
+        /* Parâmetros para ocultar UI e marcas d'água.
+           Ocultamos o cabeçalho original via CSS (top: -55px).
         */
-        const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark";
+        const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0";
         
         const frame = document.createElement("iframe");
         frame.setAttribute("src", atlasUrl);
