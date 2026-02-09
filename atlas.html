@@ -7,8 +7,8 @@
     <style>
         :root {
             --vermelho-medico: #b30000;
-            --preto-profundo: #121212;
-            --cinza-escuro: #1e1e1e;
+            --preto-profundo: #050505;
+            --cinza-escuro: #121212;
             --texto-claro: #e0e0e0;
         }
 
@@ -25,30 +25,36 @@
 
         header {
             background-color: var(--cinza-escuro);
-            border-bottom: 3px solid var(--vermelho-medico);
-            padding: 15px 30px;
+            border-bottom: 2px solid var(--vermelho-medico);
+            padding: 12px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: var(--vermelho-medico);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
         }
 
         .main-container {
             display: flex;
             flex: 1;
+            overflow: hidden;
         }
 
+        /* --- TÉCNICA DE CLIPPING PARA OCULTAR A LOGO E SIGN-UP --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
+            overflow: hidden; /* Corta o que estiver fora dos limites desta div */
+        }
+
+        .atlas-wrapper {
+            position: absolute;
+            /* Empurra o topo do iframe para cima em 60px para esconder o menu da BioDigital */
+            top: -60px; 
+            left: 0;
+            width: 100%;
+            height: calc(100% + 60px); /* Compensa o corte no tamanho total */
         }
 
         iframe {
@@ -56,63 +62,85 @@
             height: 100%;
             border: none;
         }
+        /* -------------------------------------------------------- */
 
         .info-sidebar {
-            flex: 1;
+            flex: 0 0 350px;
             background-color: var(--cinza-escuro);
             padding: 25px;
             overflow-y: auto;
-            border-left: 1px solid #333;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            border-left: 1px solid #222;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            z-index: 90;
         }
 
         .card {
-            background-color: #2a2a2a;
+            background-color: #1a1a1a;
             border-left: 4px solid var(--vermelho-medico);
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 4px;
         }
 
-        h2 { color: var(--vermelho-medico); margin-top: 0; }
+        h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.2rem; }
+        h3 { font-size: 1rem; margin-bottom: 8px; color: #fff; }
         
         .btn-ia {
             background-color: var(--vermelho-medico);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 15px;
             width: 100%;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
             text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(179, 0, 0, 0.3);
         }
 
         .btn-ia:hover { background-color: #ff1a1a; transform: translateY(-2px); }
 
+        .btn-voltar {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid #444;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover { background: #333; border-color: var(--vermelho-medico); }
+
         footer {
             background: var(--cinza-escuro);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-align: center;
-            padding: 10px;
-            border-top: 1px solid #333;
+            padding: 8px;
+            border-top: 1px solid #222;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>NeuroAtlas Interativo</h1>
-    <span>TCC Uninta | Neurociência Aplicada</span>
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <h1 style="margin:0; font-size: 1.3rem; color: var(--vermelho-medico); letter-spacing: 1px;">NEURO-MAPPER 3D</h1>
+        <span style="font-size: 0.8rem; opacity: 0.5; border-left: 1px solid #444; padding-left: 15px;">Mapeamento Cortical</span>
+    </div>
+    <a href="index.html" class="btn-voltar">← VOLTAR AO PAINEL</a>
 </header>
 
 <div class="main-container">
     <section class="atlas-section">
-        <iframe 
-            src="https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=en" 
-            allowfullscreen>
-        </iframe>
+        <div class="atlas-wrapper">
+            <iframe 
+                src="https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=pt&ui-all=false&ui-gui=false&ui-panel=false&ui-info=false&ui-search=false" 
+                allowfullscreen>
+            </iframe>
+        </div>
     </section>
 
     <aside class="info-sidebar">
@@ -120,24 +148,30 @@
         
         <div class="card">
             <h3>Foco: TDAH e TEA</h3>
-            <p>Utilize o modelo ao lado para explorar o <strong>Córtex Pré-Frontal</strong> e o <strong>Sistema Límbico</strong>. Estruturas fundamentais para entender a regulação dopaminérgica.</p>
+            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
+                Exploração avançada do <strong>Córtex Pré-Frontal</strong> e <strong>Sistema Límbico</strong>. Análise estrutural baseada em protocolos da USP.
+            </p>
         </div>
 
         <div class="card">
-            <h3>Neurovisual / Neuroimagem</h3>
-            <p>Este atlas permite a visualização tridimensional que auxilia na correlação de exames de imagem reais com a anatomia funcional.</p>
+            <h3>Neurovisualização</h3>
+            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
+                Correlação de anatomia funcional 3D com diretrizes de Neuroimagem do CBI of Miami.
+            </p>
         </div>
 
-        <button class="btn-ia">Solicitar Análise da IA</button>
+        <button class="btn-ia">SOLICITAR ANÁLISE DA IA</button>
         
-        <p style="margin-top: 20px; font-style: italic; font-size: 0.9rem; color: #888;">
-            *Integração acadêmica baseada em diretrizes da USP e CBI of Miami.
-        </p>
+        <div style="margin-top: 25px; text-align: center;">
+             <p style="font-style: italic; font-size: 0.8rem; color: #666;">
+                *Integração Acadêmica UNINTA 2026.
+            </p>
+        </div>
     </aside>
 </div>
 
 <footer>
-    &copy; 2026 Desenvolvido para o currículo de Neurociências | Tecnologia BioDigital Human.
+    Tecnologia de Mapeamento BioDigital Human | Processamento de Dados via IA Experimental
 </footer>
 
 </body>
