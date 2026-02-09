@@ -31,7 +31,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000; /* Garante que fique acima de tudo */
+            z-index: 1000;
             box-shadow: 0 4px 20px rgba(0,0,0,0.8);
         }
 
@@ -42,32 +42,20 @@
             position: relative;
         }
 
-        /* --- ÁREA DO ATLAS (O CORAÇÃO DO TRUQUE) --- */
+        /* --- ÁREA DO ATLAS (LIMPA E INTERATIVA) --- */
         .atlas-section {
             flex: 2;
             background-color: #000;
             position: relative;
-            overflow: hidden; /* Corta o excesso do iframe */
+            overflow: hidden;
         }
 
-        /* Esta camada transparente mata o clique que gera o pop-up de cadastro */
-        .interaction-shield {
+        .atlas-wrapper {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 500; /* Fica entre o iframe e a sidebar */
-            background: transparent;
-        }
-
-        .atlas-wrapper {
-            position: absolute;
-            /* Ajustes finos para esconder Sign-Up e Marcas d'água */
-            top: -65px;      
-            left: -45px;     
-            width: calc(100% + 90px);
-            height: calc(100% + 130px);
             z-index: 10;
         }
 
@@ -76,9 +64,11 @@
             height: 100%;
             border: none;
             display: block;
+            /* Permite clicar nas anotações do modelo */
+            pointer-events: all; 
         }
 
-        /* --- BARRA LATERAL INFORMATIVA --- */
+        /* --- BARRA LATERAL --- */
         .info-sidebar {
             flex: 0 0 350px;
             background-color: var(--cinza-escuro);
@@ -122,10 +112,7 @@
             border: 1px solid #444;
             padding: 6px 12px;
             border-radius: 4px;
-            transition: 0.3s;
         }
-
-        .btn-voltar:hover { background: #333; border-color: var(--vermelho-medico); }
 
         footer {
             background: var(--cinza-escuro);
@@ -150,8 +137,6 @@
 
 <div class="main-container">
     <section class="atlas-section">
-        <div class="interaction-shield"></div>
-        
         <div id="atlas-anchor" class="atlas-wrapper">
             </div>
     </section>
@@ -162,14 +147,14 @@
         <div class="card">
             <h3>Foco: TDAH e TEA</h3>
             <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
-                Exploração avançada do <strong>Córtex Pré-Frontal</strong> e <strong>Sistema Límbico</strong>. Análise baseada em protocolos da USP.
+                Exploração do <strong>Córtex Pré-Frontal</strong> e <strong>Sistema Límbico</strong>. Protocolos baseados na USP e CBI of Miami.
             </p>
         </div>
 
         <div class="card">
-            <h3>Neurovisualização</h3>
-            <p style="font-size: 0.9rem; line-height: 1.5; color: #bbb;">
-                Correlação funcional 3D seguindo diretrizes de Neuroimagem do CBI of Miami.
+            <h3>Legendas Ativas</h3>
+            <p style="font-size: 0.85rem; color: #888;">
+                Clique nos números no modelo 3D para identificar as estruturas neuroanatômicas.
             </p>
         </div>
 
@@ -184,19 +169,24 @@
 </div>
 
 <footer>
-    Tecnologia de Mapeamento Independente | Processamento via IA Experimental
+    Tecnologia de Mapeamento Independente | Visualização via Sketchfab Engine
 </footer>
 
 <script>
     window.onload = function() {
         const anchor = document.getElementById('atlas-anchor');
-        // URL configurada para esconder o máximo de interface nativa
-        const atlasUrl = "https://human.biodigital.com/view?id=production/maleAdult/major_structures_of_the_cns_guided&lang=pt&ui-all=false&ui-gui=false&ui-panel=false&ui-info=false&ui-search=false&ui-fullscreen=false";
+        
+        /* CONFIGURAÇÃO DO MODELO:
+           - autostart=1: Carrega sozinho para evitar tela preta
+           - ui_infos=0: Esconde título e autor
+           - ui_annotations=1: Mantém os nomes das partes do cérebro visíveis
+        */
+        const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark";
         
         const frame = document.createElement("iframe");
         frame.setAttribute("src", atlasUrl);
         frame.setAttribute("allowfullscreen", "true");
-        frame.setAttribute("oncontextmenu", "return false;"); 
+        frame.setAttribute("allow", "autoplay; fullscreen; xr-spatial-tracking");
         
         anchor.appendChild(frame);
     };
