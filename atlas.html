@@ -23,6 +23,7 @@
             overflow: hidden;
         }
 
+        /* --- CABEÇALHO --- */
         header {
             background-color: var(--cinza-escuro);
             border-bottom: 2px solid var(--vermelho-medico);
@@ -51,7 +52,7 @@
 
         .atlas-wrapper {
             position: absolute;
-            top: -48px; /* Ajuste preciso para esconder a barra do Sketchfab */
+            top: -48px; /* Esconde a barra do autor */
             left: 0;
             width: 100%;
             height: calc(100% + 48px);
@@ -63,14 +64,13 @@
             height: 100%;
             border: none;
             display: block;
-            pointer-events: all; 
         }
 
-        /* --- BARRA LATERAL (DICIONÁRIO BILÍNGUE) --- */
+        /* --- BARRA LATERAL --- */
         .info-sidebar {
-            flex: 0 0 350px;
+            flex: 0 0 380px;
             background-color: var(--cinza-escuro);
-            padding: 25px;
+            padding: 20px;
             overflow-y: auto;
             border-left: 1px solid #222;
             z-index: 1000;
@@ -81,15 +81,15 @@
             background-color: #1a1a1a;
             border-left: 4px solid var(--vermelho-medico);
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             border-radius: 4px;
         }
 
-        .termo-en { font-size: 0.65rem; color: #666; font-style: italic; display: block; }
-        .termo-pt { font-size: 0.9rem; color: #fff; font-weight: bold; }
-        .desc-pt { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
+        .termo-en { font-size: 0.65rem; color: #666; font-style: italic; display: block; margin-bottom: 2px; }
+        .termo-pt { font-size: 0.95rem; color: #fff; font-weight: bold; }
+        .desc-pt { font-size: 0.8rem; color: #aaa; margin-top: 6px; line-height: 1.4; }
 
-        h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; }
+        h2 { color: var(--vermelho-medico); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
         
         .btn-ia {
             background-color: var(--vermelho-medico);
@@ -100,12 +100,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
             text-transform: uppercase;
-            margin: 15px 0;
+            margin: 10px 0;
+            transition: 0.3s;
         }
 
-        .btn-ia:hover { background-color: #ff1a1a; transform: translateY(-2px); }
+        .btn-ia:hover { background-color: #ff1a1a; transform: scale(1.02); }
 
         .btn-voltar {
             color: var(--texto-claro);
@@ -121,7 +121,6 @@
             font-size: 0.7rem;
             text-align: center;
             padding: 8px;
-            border-top: 1px solid #222;
             opacity: 0.5;
         }
     </style>
@@ -130,7 +129,7 @@
 
 <header>
     <div style="display: flex; align-items: center; gap: 20px;">
-        <h1 style="margin:0; font-size: 1.3rem; color: var(--vermelho-medico); letter-spacing: 1px;">NEURO-MAPPER 3D</h1>
+        <h1 style="margin:0; font-size: 1.3rem; color: var(--vermelho-medico);">NEURO-MAPPER 3D</h1>
         <span style="font-size: 0.75rem; opacity: 0.6; border-left: 1px solid #444; padding-left: 15px;">Interface Bilíngue Integrada</span>
     </div>
     <a href="index.html" class="btn-voltar">← VOLTAR AO PAINEL</a>
@@ -142,73 +141,72 @@
     </section>
 
     <aside class="info-sidebar">
-        <h2>Terminologia Clínica</h2>
+        <h2>Dicionário Neuroanatômico</h2>
         
         <div class="card">
             <span class="termo-en">#1 Frontal Lobe</span>
             <span class="termo-pt">Lobo Frontal</span>
-            <p class="desc-pt">Foco, planejamento e TDAH.</p>
+            <p class="desc-pt">O lobo situado imediatamente atrás da testa; inclui áreas envolvidas com comportamento, aprendizado, personalidade e movimento voluntário.</p>
+        </div>
+
+        <div class="card">
+            <span class="termo-en">Corpus Callosum</span>
+            <span class="termo-pt">Corpo Caloso</span>
+            <p class="desc-pt">Um feixe espesso de fibras que conecta os hemisférios direito e esquerdo do cérebro e permite que a informação seja transmitida de um lado para o outro.</p>
         </div>
 
         <div class="card">
             <span class="termo-en">#2 Parietal Lobe</span>
             <span class="termo-pt">Lobo Parietal</span>
-            <p class="desc-pt">Sensações e percepção espacial.</p>
+            <p class="desc-pt">O lobo no topo da cabeça; inclui áreas preocupadas com a recepção e correlação de informações sensoriais, como fala, leitura e sensações táteis.</p>
         </div>
 
         <div class="card">
             <span class="termo-en">#3 Temporal Lobe</span>
             <span class="termo-pt">Lobo Temporal</span>
-            <p class="desc-pt">Memória e linguagem (Foco TEA).</p>
+            <p class="desc-pt">O lobo situado abaixo das têmporas; está envolvido principalmente no processamento e interpretação de sons.</p>
         </div>
 
         <div class="card">
             <span class="termo-en">#4 Occipital Lobe</span>
             <span class="termo-pt">Lobo Occipital</span>
-            <p class="desc-pt">Processamento visual primário.</p>
+            <p class="desc-pt">O lobo mais posterior em cada hemisfério cerebral; envolvido principalmente na visão — ver, reconhecer e identificar o mundo visual.</p>
         </div>
 
         <div class="card">
             <span class="termo-en">#5 Cerebellum</span>
             <span class="termo-pt">Cerebelo</span>
-            <p class="desc-pt">Coordenação e equilíbrio motor.</p>
+            <p class="desc-pt">Essencial para a coordenação motora fina, equilíbrio e controle postural.</p>
         </div>
 
         <div class="card">
-            <span class="termo-en">#6-8 Brainstem/Bulb</span>
-            <span class="termo-pt">Tronco Encefálico</span>
-            <p class="desc-pt">Controle de funções vitais.</p>
-        </div>
-
-        <div class="card">
-            <span class="termo-en">#9 Pituitary Gland</span>
-            <span class="termo-pt">Glândula Hipófise</span>
-            <p class="desc-pt">Regulação hormonal central.</p>
+            <span class="termo-en">#7 Pons</span>
+            <span class="termo-pt">Ponte</span>
+            <p class="desc-pt">A parte do tronco encefálico que liga a medula oblonga (bulbo) e o tálamo.</p>
         </div>
 
         <div class="card">
             <span class="termo-en">#11 Spinal Cord</span>
             <span class="termo-pt">Medula Espinhal</span>
-            <p class="desc-pt">Via de transmissão nervosa.</p>
+            <p class="desc-pt">Via principal para informações que viajam entre o cérebro e o corpo.</p>
         </div>
 
         <button class="btn-ia">SOLICITAR ANÁLISE IA</button>
 
-        <div style="border-top: 1px solid #333; padding-top: 15px; font-size: 0.75rem; color: #666;">
-            <p>*Utilizando Terminologia Anatômica Internacional conforme padrões USP e CBI of Miami.</p>
+        <div style="border-top: 1px solid #333; padding-top: 15px; font-size: 0.7rem; color: #666; text-align: center;">
+            <p>*Conteúdo adaptado para Terminologia Anatômica Internacional (Padrões USP e CBI Miami).</p>
         </div>
     </aside>
 </div>
 
 <footer>
-    UNINTA 2026 | Atlas Interativo Independente
+    UNINTA 2026 | Atlas de Neurociência Interativo | Desenvolvido para Fins Acadêmicos
 </footer>
 
 <script>
     window.onload = function() {
         const anchor = document.getElementById('atlas-anchor');
-        
-        // URL configurada para esconder o máximo de interface e carregar no modo escuro
+        // Parametros para carregar o modelo sem marcas d'água extras e no tema escuro
         const atlasUrl = "https://sketchfab.com/models/49bcdf19c1904c76a456b31838b0d7ac/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_hint=0&ui_annotations=1&ui_theme=dark&ui_help=0&ui_settings=0&ui_vr=0";
         
         const frame = document.createElement("iframe");
