@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuro-Mapper 3D | UNINTA 2026</title>
+    <title>Neuro-Mapper 3D | UNINTA Tianguá</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,7 +21,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden; /* Impede a página toda de rolar */
+            overflow: hidden;
         }
 
         #particles-js {
@@ -44,29 +44,48 @@
             height: 60px;
         }
 
+        .uninta-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Representação da logo Uninta */
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--neon-red);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            color: white;
+            box-shadow: var(--neon-glow);
+        }
+
         .logo { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; letter-spacing: 3px; color: white; }
         .logo span { color: var(--neon-red); }
 
         .main-container {
             display: flex;
             flex: 1;
-            height: calc(100vh - 80px); /* Ajuste dinâmico para caber na tela */
+            height: calc(100vh - 80px);
             z-index: 10;
         }
 
-        /* --- SEÇÃO DO ATLAS --- */
         .atlas-section {
             flex: 2;
             position: relative;
             background: #000;
             overflow: hidden;
-            /* Filtro neon para o cérebro */
             filter: saturate(1.4) brightness(1.1) hue-rotate(5deg);
         }
 
         .atlas-wrapper {
             position: absolute;
-            top: -52px; /* Esconde a barra do autor */
+            top: -52px;
             left: 0;
             width: 100%;
             height: calc(100% + 52px);
@@ -74,7 +93,6 @@
 
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* --- BARRA LATERAL COM ROLAGEM INDEPENDENTE --- */
         .info-sidebar {
             flex: 0 0 380px;
             background: rgba(5, 5, 5, 0.95);
@@ -87,7 +105,7 @@
 
         .scroll-area {
             flex: 1;
-            overflow-y: auto; /* PERMITE ROLAR SÓ OS CARDS */
+            overflow-y: auto;
             padding: 20px;
         }
 
@@ -134,9 +152,8 @@
 
         .btn-ia:hover { filter: brightness(1.2); letter-spacing: 4px; }
 
-        footer { background: #000; padding: 5px; font-size: 0.65rem; text-align: center; opacity: 0.5; height: 20px; }
+        footer { background: #000; padding: 5px; font-size: 0.65rem; text-align: center; opacity: 0.7; height: 25px; color: #ff0000; font-weight: bold; }
 
-        /* Scrollbar Estilizada */
         .scroll-area::-webkit-scrollbar { width: 5px; }
         .scroll-area::-webkit-scrollbar-thumb { background: var(--neon-red); border-radius: 10px; }
     </style>
@@ -146,8 +163,13 @@
 <div id="particles-js"></div>
 
 <header>
-    <div class="logo">NEURO-MAPPER <span>3D</span></div>
-    <div style="font-size: 0.75rem; letter-spacing: 1px; opacity: 0.8;">USP & CBI MIAMI PROTOCOLS</div>
+    <div class="uninta-brand">
+        <div class="logo-box">U</div>
+        <div class="logo">NEURO-MAPPER <span>3D</span></div>
+    </div>
+    <div style="font-size: 1rem; letter-spacing: 1px; color: #ff0000; font-family: 'Orbitron', sans-serif; font-weight: bold;">
+        UNINTA TIANGUÁ
+    </div>
 </header>
 
 <div class="main-container">
@@ -206,7 +228,7 @@
     </aside>
 </div>
 
-<footer>UNINTA 2026 | BIOMEDICINA INTERATIVA</footer>
+<footer>UNINTA TIANGUÁ 2026 | BIOMEDICINA INTERATIVA</footer>
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
