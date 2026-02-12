@@ -31,7 +31,7 @@
 
 <header>
     <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
-    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V9_FINAL</div>
+    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V12_FINAL</div>
 </header>
 
 <div id="main-viewport">
@@ -66,9 +66,9 @@
     const display = document.getElementById('chat-display');
     const logsContainer = document.getElementById('logs-container');
     const bar = document.getElementById('loading-bar');
-    const statusTag = document.getElementById('status-tag');
     const robot = document.getElementById('robot-standby');
 
+    // Inicialização Three.js (Cérebro)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -76,8 +76,7 @@
     document.getElementById('brain-container').appendChild(renderer.domElement);
     camera.position.z = 7;
 
-    let brain, targetZ = 7, currentZ = 7, isAnalyzing = false;
-
+    let brain;
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
@@ -88,8 +87,6 @@
     function animate(time) {
         requestAnimationFrame(animate);
         if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
-        currentZ += (targetZ - currentZ) * 0.08;
-        camera.position.z = currentZ;
         renderer.render(scene, camera);
     }
     animate(0);
@@ -110,54 +107,54 @@
 
     async function enviar() {
         const txt = input.value.trim();
-        if(!txt || isAnalyzing) return;
-        isAnalyzing = true; input.disabled = true; robot.style.opacity = "0"; bar.style.width = "50%";
+        if(!txt || window.isAnalyzing) return;
+        window.isAnalyzing = true; input.disabled = true; robot.style.opacity = "0"; bar.style.width = "40%";
         addLog(txt);
         
         try {
+            // 1. ANÁLISE DE TEXTO
             const res = await fetch("/api/analisar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: txt }) });
             const data = await res.json();
             const resp = data.choices[0].message.content;
-            bar.style.width = "100%";
+            bar.style.width = "70%";
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
             const cleanText = resp.replace(/[*#]/g, '');
 
+            // 2. GERAÇÃO DE VOZ
             if(window.currentVoice === 'fish') {
                 const success = await tryFishAudio(cleanText);
                 if(!success) nativeSpeak(cleanText);
             } else { nativeSpeak(cleanText); }
-        } catch(e) { display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO."; }
-        finally { setTimeout(() => { isAnalyzing = false; input.disabled = false; input.value = ""; bar.style.width = "0%"; robot.style.opacity = "1"; }, 1000); }
+
+        } catch(e) { 
+            display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO NEURAL."; 
+        } finally { 
+            bar.style.width = "100%";
+            setTimeout(() => { 
+                window.isAnalyzing = false; 
+                input.disabled = false; 
+                input.value = ""; 
+                bar.style.width = "0%"; 
+                robot.style.opacity = "1"; 
+            }, 1500); 
+        }
     }
 
-    async function tryFishAudio(t) {
+    async function tryFishAudio(textToSpeak) {
         try {
-            const response = await fetch("/api/falar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: t }) });
+            // Chama sua API da Vercel que contém a chave HF_TOKEN
+            const response = await fetch("/api/falar", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ text: textToSpeak }) 
+            });
+            
             const data = await response.json();
             if(!data.eventId) return false;
 
             let audioUrl = null;
-            for(let i=0; i<25; i++) {
+            // Polling para aguardar a IA processar o áudio
+            for(let i=0; i<30; i++) {
                 const poll = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${data.eventId}`);
                 const resText = await poll.text();
-                const match = resText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
-                if(match) { audioUrl = match[0]; break; }
-                await new Promise(r => setTimeout(r, 1200));
-            }
-            if(audioUrl) { const a = new Audio(audioUrl); await a.play(); return true; }
-            return false;
-        } catch (e) { return false; }
-    }
-
-    function nativeSpeak(t) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'pt-BR';
-        window.speechSynthesis.speak(msg);
-    }
-
-    document.getElementById('btnEnviar').onclick = enviar;
-    input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-</script>
-</body>
-</html>
+                const match = resText.match(/https?:\/\/[^"']+\.(
