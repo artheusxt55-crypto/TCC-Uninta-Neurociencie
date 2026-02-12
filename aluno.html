@@ -9,51 +9,21 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
         body { background: var(--bg-dark); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-red); background: #000; z-index: 100; }
-        
         #main-viewport { flex: 1; position: relative; display: flex; overflow: hidden; }
-        
-        #history-panel { 
-            width: 220px; 
-            border-right: 1px solid rgba(0, 242, 255, 0.1); 
-            background: rgba(0,0,0,0.8); 
-            padding: 20px; 
-            z-index: 10; 
-            overflow-y: auto;
-        }
-        .log-item {
-            font-size: 10px;
-            color: var(--ia-cyan);
-            margin-bottom: 8px;
-            padding: 5px;
-            border-bottom: 1px solid #1a1a1a;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .log-item:hover { background: rgba(0, 242, 255, 0.1); }
-
+        #history-panel { width: 220px; border-right: 1px solid rgba(0, 242, 255, 0.1); background: rgba(0,0,0,0.8); padding: 20px; z-index: 10; overflow-y: auto; }
+        .log-item { font-size: 10px; color: var(--ia-cyan); margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #1a1a1a; }
         #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        
-        #robot-standby {
-            position: absolute;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5;
-            pointer-events: none;
-            transition: opacity 0.8s ease-in-out;
-            opacity: 1;
-        }
+        #robot-standby { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 5; transition: opacity 0.8s; }
         #robot-vid { width: 150px; filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4)); }
-
-        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: 0.5s; }
-        .control-panel { padding: 30px; background: #000; border-top: 1px solid #1a1a1a; z-index: 100; position: relative; }
-        .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; align-items: center; }
-        input { flex: 1; padding: 18px; border-radius: 8px; border: 1px solid #333; background: #050505; color: var(--ia-cyan); outline: none; font-size: 16px; z-index: 110; }
-        .btn-analyze { height: 58px; border-radius: 8px; border: none; background: var(--primary-red); color: white; padding: 0 30px; font-weight: 800; cursor: pointer; z-index: 110; transition: 0.3s; }
-        #loading-bar { height: 3px; background: var(--ia-cyan); width: 0%; transition: 0.4s; position: absolute; bottom: 0; left: 0; }
-        
+        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .control-panel { padding: 30px; background: #000; border-top: 1px solid #1a1a1a; z-index: 100; }
+        .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
+        input { flex: 1; padding: 18px; border-radius: 8px; border: 1px solid #333; background: #050505; color: var(--ia-cyan); outline: none; font-size: 16px; }
+        .btn-analyze { height: 58px; border-radius: 8px; border: none; background: var(--primary-red); color: white; padding: 0 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-analyze:hover { background: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        #loading-bar { height: 3px; background: var(--ia-cyan); width: 0%; position: absolute; bottom: 0; left: 0; transition: 0.4s; }
         .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
-        .voice-card { padding: 10px 18px; font-size: 10px; border: 1px solid var(--ia-cyan); background: rgba(0,0,0,0.8); cursor: pointer; color: var(--ia-cyan); border-radius: 4px; transition: 0.2s; }
+        .voice-card { padding: 10px 18px; font-size: 10px; border: 1px solid var(--ia-cyan); background: rgba(0,0,0,0.8); cursor: pointer; color: var(--ia-cyan); border-radius: 4px; }
         .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 15px var(--ia-cyan); }
     </style>
 </head>
@@ -61,30 +31,22 @@
 
 <header>
     <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
-    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V8</div>
+    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V9_FINAL</div>
 </header>
 
 <div id="main-viewport">
-    <aside id="history-panel">
-        <div style="font-size: 9px; color: #444; margin-bottom: 15px;">HISTÓRICO_DE_SCAN</div>
-        <div id="logs-container">
-            <div class="log-item">> SISTEMA: ONLINE</div>
-        </div>
-    </aside>
-
+    <aside id="history-panel"><div id="logs-container"><div class="log-item">> SISTEMA: ONLINE</div></div></aside>
     <div id="robot-standby">
         <video id="robot-vid" autoplay loop muted playsinline>
             <source src="robo-dormindo.mp4" type="video/mp4">
         </video>
     </div>
-
     <div class="voice-hub">
         <div id="v-fish" class="voice-card active" onclick="setVoice('fish', this)">FISH_S1_ULTRA</div>
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
-
     <div id="brain-container"></div>
-    <div id="chat-display">>> [ACADEMIA]: PRONTO PARA ANÁLISE CLÍNICA. AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [ACADEMIA]: PRONTO PARA ANÁLISE CLÍNICA...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
@@ -94,18 +56,12 @@
     </div>
 </div>
 
-<script type="importmap">
-    { "imports": { 
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", 
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" 
-    } }
-</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
 
 <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // Seletores de UI
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
     const logsContainer = document.getElementById('logs-container');
@@ -113,7 +69,6 @@
     const statusTag = document.getElementById('status-tag');
     const robot = document.getElementById('robot-standby');
 
-    // CONFIGURAÇÃO THREE.JS (O Cérebro)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -121,49 +76,30 @@
     document.getElementById('brain-container').appendChild(renderer.domElement);
     camera.position.z = 7;
 
-    const partMat = new THREE.PointsMaterial({ size: 0.025, color: 0x00f2ff, transparent: true, opacity: 0.7 });
     let brain, targetZ = 7, currentZ = 7, isAnalyzing = false;
-
-    const partCount = 2000;
-    const partGeo = new THREE.BufferGeometry();
-    const posArray = new Float32Array(partCount * 3);
-    for(let i=0; i<partCount*3; i++) posArray[i] = (Math.random() - 0.5) * 12;
-    partGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particles = new THREE.Points(partGeo, partMat);
-    scene.add(particles);
 
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, emissiveIntensity: 0.5, wireframe: true }); });
+        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, wireframe: true }); });
         scene.add(brain);
     });
 
     function animate(time) {
         requestAnimationFrame(animate);
         if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
-        particles.rotation.y += 0.0015;
         currentZ += (targetZ - currentZ) * 0.08;
         camera.position.z = currentZ;
         renderer.render(scene, camera);
     }
     animate(0);
 
-    // Sistema de Voz
     window.currentVoice = 'fish';
     window.setVoice = (mode, el) => {
         window.currentVoice = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
     };
-
-    function triggerNeuralVisuals(color, label) {
-        statusTag.innerText = label; statusTag.style.color = color;
-        partMat.color.set(color); display.style.borderColor = color;
-        if(brain) brain.traverse(n => { if(n.isMesh) { n.material.color.set(color); n.material.emissive.set(color); } });
-        targetZ = 4.8;
-        setTimeout(() => { targetZ = 7; if(brain) brain.traverse(n => { if(n.isMesh) { n.material.color.set(0x00f2ff); n.material.emissive.set(0x00f2ff); } }); }, 5000);
-    }
 
     function addLog(text) {
         const item = document.createElement('div');
@@ -175,75 +111,42 @@
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || isAnalyzing) return;
-
-        isAnalyzing = true;
-        input.disabled = true;
-        robot.style.opacity = "0"; 
-        bar.style.width = "50%";
+        isAnalyzing = true; input.disabled = true; robot.style.opacity = "0"; bar.style.width = "50%";
         addLog(txt);
-
-        // Feedback Visual Baseado no Texto
-        const low = txt.toLowerCase();
-        if(low.includes('tdah')) triggerNeuralVisuals('#ffcc00', 'DOPAMINE_SCAN');
-        else if(low.includes('autismo') || low.includes('tea')) triggerNeuralVisuals('#0055ff', 'CONNECTIVITY_MAP');
-        else if(low.includes('alzheimer')) triggerNeuralVisuals('#00ff00', 'NEURO_DEGENERATION');
-        else if(low.includes('depressao')) triggerNeuralVisuals('#8000ff', 'SEROTONIN_INDEX');
-        else triggerNeuralVisuals('#e30613', 'ALUNO_SCAN');
-
+        
         try {
-            // 1. Obter resposta de texto (Groq via Vercel)
-            const res = await fetch("/api/analisar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: txt })
-            });
-
+            const res = await fetch("/api/analisar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: txt }) });
             const data = await res.json();
             const resp = data.choices[0].message.content;
             bar.style.width = "100%";
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
-            
             const cleanText = resp.replace(/[*#]/g, '');
 
-            // 2. Disparar Voz (Sincronizado)
             if(window.currentVoice === 'fish') {
                 const success = await tryFishAudio(cleanText);
-                if(!success) nativeSpeak(cleanText); // Fallback se a API falhar
-            } else {
-                nativeSpeak(cleanText);
-            }
-
-        } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO COM O SISTEMA NEURAL."; 
-        } finally {
-            setTimeout(() => { 
-                isAnalyzing = false; input.disabled = false; input.value = ""; 
-                input.focus(); bar.style.width = "0%"; robot.style.opacity = "1";
-            }, 1000);
-        }
+                if(!success) nativeSpeak(cleanText);
+            } else { nativeSpeak(cleanText); }
+        } catch(e) { display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO."; }
+        finally { setTimeout(() => { isAnalyzing = false; input.disabled = false; input.value = ""; bar.style.width = "0%"; robot.style.opacity = "1"; }, 1000); }
     }
 
-    // INTEGRAÇÃO COM A SUA NOVA API DE VOZ NA VERCEL
     async function tryFishAudio(t) {
         try {
-            const response = await fetch("/api/falar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: t })
-            });
-
+            const response = await fetch("/api/falar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: t }) });
             const data = await response.json();
+            if(!data.eventId) return false;
 
-            if(data.url) {
-                const audio = new Audio(data.url);
-                await audio.play();
-                return true;
+            let audioUrl = null;
+            for(let i=0; i<25; i++) {
+                const poll = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${data.eventId}`);
+                const resText = await poll.text();
+                const match = resText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
+                if(match) { audioUrl = match[0]; break; }
+                await new Promise(r => setTimeout(r, 1200));
             }
+            if(audioUrl) { const a = new Audio(audioUrl); await a.play(); return true; }
             return false;
-        } catch (e) { 
-            console.error("Erro na API de voz:", e);
-            return false; 
-        }
+        } catch (e) { return false; }
     }
 
     function nativeSpeak(t) {
