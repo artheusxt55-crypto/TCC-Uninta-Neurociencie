@@ -2,14 +2,12 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
     const { text } = req.body;
+    // Aqui o sistema vai ler a chave que você salvou na Vercel (HF_TOKEN)
     const token = process.env.HF_TOKEN;
 
-    if (!token) {
-        return res.status(500).json({ error: "HF_TOKEN não configurado na Vercel" });
-    }
+    if (!token) return res.status(500).json({ error: "Token não configurado na Vercel" });
 
     try {
-        // Chamada para o motor S1-Mini da Fish Audio via Hugging Face
         const response = await fetch("https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict", {
             method: "POST",
             headers: {
@@ -21,18 +19,10 @@ export default async function handler(req, res) {
             })
         });
 
-        // Se a resposta não for OK, pegamos o texto para debugar
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Erro na Hugging Face:", errorText);
-            return res.status(500).json({ error: "Erro na Hugging Face" });
-        }
-
         const data = await response.json();
         return res.status(200).json({ eventId: data.event_id });
 
     } catch (error) {
-        console.error("Erro na API de Voz:", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Falha no servidor de voz" });
     }
 }
