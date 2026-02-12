@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnintaBot - Neural Analytics Ultra</title>
+    <title>UnintaBot - Neural Analytics Ultra (Aluno)</title>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
@@ -11,13 +11,32 @@
         header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-red); background: #000; z-index: 100; }
         
         #main-viewport { flex: 1; position: relative; display: flex; overflow: hidden; }
-        #history-panel { width: 220px; border-right: 1px solid rgba(0, 242, 255, 0.1); background: rgba(0,0,0,0.8); padding: 20px; z-index: 10; }
+        
+        /* Painel de Histórico lateral corrigido */
+        #history-panel { 
+            width: 220px; 
+            border-right: 1px solid rgba(0, 242, 255, 0.1); 
+            background: rgba(0,0,0,0.8); 
+            padding: 20px; 
+            z-index: 10; 
+            overflow-y: auto;
+        }
+        .log-item {
+            font-size: 10px;
+            color: var(--ia-cyan);
+            margin-bottom: 8px;
+            padding: 5px;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .log-item:hover { background: rgba(0, 242, 255, 0.1); }
+
         #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         
-        /* ESTILO DO ROBOZINHO (Ajustado para o seu vídeo MP4) */
         #robot-standby {
             position: absolute;
-            top: 10%; /* Posicionado acima do cérebro */
+            top: 10%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 5;
@@ -25,12 +44,7 @@
             transition: opacity 0.8s ease-in-out;
             opacity: 1;
         }
-        #robot-vid {
-            width: 150px;
-            filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4));
-            /* Se o seu vídeo tiver fundo branco, descomente a linha abaixo: */
-            /* mix-blend-mode: multiply; */
-        }
+        #robot-vid { width: 150px; filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4)); }
 
         #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: 0.5s; }
         .control-panel { padding: 30px; background: #000; border-top: 1px solid #1a1a1a; z-index: 100; position: relative; }
@@ -47,14 +61,16 @@
 <body>
 
 <header>
-    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">NEURAL_ACADEMY</span></div>
-    <div style="font-size: 10px; color: var(--ia-cyan)">CORE_V8_FINAL_BUILD</div>
+    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
+    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V8</div>
 </header>
 
 <div id="main-viewport">
     <aside id="history-panel">
-        <div style="font-size: 9px; color: #444; margin-bottom: 15px;">DATABASE_LOGS</div>
-        <div id="logs" style="font-size: 10px; color: var(--ia-cyan)">NEURO_LINK: ESTABLISHED</div>
+        <div style="font-size: 9px; color: #444; margin-bottom: 15px;">HISTÓRICO_DE_SCAN</div>
+        <div id="logs-container">
+            <div class="log-item">> SISTEMA: ONLINE</div>
+        </div>
     </aside>
 
     <div id="robot-standby">
@@ -69,12 +85,12 @@
     </div>
 
     <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: SINAPSES PRONTAS PARA SCANNER. AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [ACADEMIA]: PRONTO PARA ANÁLISE CLÍNICA. AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="TDAH, Autismo, Alzheimer, Depressão..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="TDAH, TEA, Neuroimagem, Alzheimer..." autocomplete="off">
         <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
     </div>
 </div>
@@ -90,15 +106,17 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    const GROQ_API = "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";
+    // Back-end centralizado na Vercel
     const HF_TOKEN = "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"; 
 
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
+    const logsContainer = document.getElementById('logs-container');
     const bar = document.getElementById('loading-bar');
     const statusTag = document.getElementById('status-tag');
     const robot = document.getElementById('robot-standby');
 
+    // CONFIGURAÇÃO THREE.JS
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -109,7 +127,6 @@
     const partMat = new THREE.PointsMaterial({ size: 0.025, color: 0x00f2ff, transparent: true, opacity: 0.7 });
     let brain, targetZ = 7, currentZ = 7, isAnalyzing = false;
 
-    // ESTRELAS DE FUNDO
     const partCount = 2000;
     const partGeo = new THREE.BufferGeometry();
     const posArray = new Float32Array(partCount * 3);
@@ -118,30 +135,16 @@
     const particles = new THREE.Points(partGeo, partMat);
     scene.add(particles);
 
-    // MODELO 3D DO CÉREBRO
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse((node) => {
-            if (node.isMesh) {
-                node.material = new THREE.MeshStandardMaterial({
-                    color: 0x00f2ff,
-                    emissive: 0x00f2ff,
-                    emissiveIntensity: 0.5,
-                    wireframe: true 
-                });
-            }
-        });
+        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, emissiveIntensity: 0.5, wireframe: true }); });
         scene.add(brain);
-    }, undefined, (error) => console.error("Erro ao carregar o cérebro:", error));
+    });
 
     function animate(time) {
         requestAnimationFrame(animate);
-        const elapsed = time * 0.001;
-        if(brain) {
-            brain.rotation.y += 0.006;
-            brain.position.y = Math.sin(elapsed * 1.5) * 0.15;
-        }
+        if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
         particles.rotation.y += 0.0015;
         currentZ += (targetZ - currentZ) * 0.08;
         camera.position.z = currentZ;
@@ -157,32 +160,19 @@
     };
 
     function triggerNeuralVisuals(color, label) {
-        statusTag.innerText = label;
-        statusTag.style.color = color;
-        partMat.color.set(color);
-        display.style.borderColor = color;
-        
-        if(brain) {
-            brain.traverse((node) => {
-                if (node.isMesh) {
-                    node.material.color.set(color);
-                    node.material.emissive.set(color);
-                }
-            });
-        }
-
+        statusTag.innerText = label; statusTag.style.color = color;
+        partMat.color.set(color); display.style.borderColor = color;
+        if(brain) brain.traverse(n => { if(n.isMesh) { n.material.color.set(color); n.material.emissive.set(color); } });
         targetZ = 4.8;
-        setTimeout(() => {
-            targetZ = 7;
-            if(brain) {
-                brain.traverse((node) => {
-                    if (node.isMesh) {
-                        node.material.color.set(0x00f2ff);
-                        node.material.emissive.set(0x00f2ff);
-                    }
-                });
-            }
-        }, 5000);
+        setTimeout(() => { targetZ = 7; if(brain) brain.traverse(n => { if(n.isMesh) { n.material.color.set(0x00f2ff); n.material.emissive.set(0x00f2ff); } }); }, 5000);
+    }
+
+    // ADICIONAR AO HISTÓRICO LATERAL
+    function addLog(text) {
+        const item = document.createElement('div');
+        item.className = 'log-item';
+        item.innerText = `> CONSULTA: ${text.toUpperCase()}`;
+        logsContainer.prepend(item);
     }
 
     async function enviar() {
@@ -192,27 +182,23 @@
 
         isAnalyzing = true;
         input.disabled = true;
-        robot.style.opacity = "0"; // Esconde o robô durante a análise clínica
+        robot.style.opacity = "0"; 
         bar.style.width = "50%";
+        addLog(txt); // Histórico
 
-        // Visualização por Patologia (USP/UFRGS Standard)
+        // Visualização por patologia
         if(low.includes('tdah')) triggerNeuralVisuals('#ffcc00', 'DOPAMINE_SCAN');
         else if(low.includes('autismo') || low.includes('tea')) triggerNeuralVisuals('#0055ff', 'CONNECTIVITY_MAP');
         else if(low.includes('alzheimer')) triggerNeuralVisuals('#00ff00', 'NEURO_DEGENERATION');
         else if(low.includes('depressao')) triggerNeuralVisuals('#8000ff', 'SEROTONIN_INDEX');
-        else triggerNeuralVisuals('#e30613', 'NEURAL_ACADEMY');
+        else triggerNeuralVisuals('#e30613', 'ALUNO_SCAN');
 
         try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            // CONECTANDO AO BACK-END SEGURO (/api/analisar.js)
+            const res = await fetch("/api/analisar", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${GROQ_API}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    model: "llama-3.3-70b-versatile", 
-                    messages: [
-                        {role: "system", content: "Você é o UnintaBot, ferramenta de pesquisa avançada em Neurociência da Uninta Tianguá. Sua personalidade é técnica (USP/UFRGS). Fale sobre Psicopatologia e Neuroimagem."}, 
-                        {role: "user", content: txt}
-                    ] 
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: txt })
             });
 
             const data = await res.json();
@@ -229,15 +215,11 @@
             }
 
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL."; 
+            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO COM O BACK-END SEGURO."; 
         } finally {
             setTimeout(() => { 
-                isAnalyzing = false; 
-                input.disabled = false; 
-                input.value = ""; 
-                input.focus(); 
-                bar.style.width = "0%"; 
-                robot.style.opacity = "1"; // Robô volta ao modo standby
+                isAnalyzing = false; input.disabled = false; input.value = ""; 
+                input.focus(); bar.style.width = "0%"; robot.style.opacity = "1";
             }, 1000);
         }
     }
@@ -253,11 +235,7 @@
             const pollRes = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${event_id}`);
             const resultText = await pollRes.text();
             const audioMatch = resultText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
-            if(audioMatch) {
-                const audio = new Audio(audioMatch[0]);
-                await audio.play();
-                return true;
-            }
+            if(audioMatch) { new Audio(audioMatch[0]).play(); return true; }
             return false;
         } catch (e) { return false; }
     }
