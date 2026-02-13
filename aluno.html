@@ -31,7 +31,7 @@
 
 <header>
     <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
-    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V12_FINAL</div>
+    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V15_FINAL</div>
 </header>
 
 <div id="main-viewport">
@@ -68,29 +68,49 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
-    // Inicialização Three.js (Cérebro)
+    // --- SETUP DO CÉREBRO 3D ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('brain-container').appendChild(renderer.domElement);
+    
+    // Luzes (Essenciais para o cérebro aparecer!)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0x00f2ff, 2);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
+
     camera.position.z = 7;
 
     let brain;
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, wireframe: true }); });
+        brain.traverse(n => { 
+            if(n.isMesh) {
+                n.material = new THREE.MeshStandardMaterial({ 
+                    color: 0x00f2ff, 
+                    emissive: 0x00f2ff, 
+                    wireframe: true 
+                }); 
+            }
+        });
         scene.add(brain);
     });
 
     function animate(time) {
         requestAnimationFrame(animate);
-        if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
+        if(brain) { 
+            brain.rotation.y += 0.006; 
+            brain.position.y = Math.sin(time * 0.0015) * 0.15; 
+        }
         renderer.render(scene, camera);
     }
     animate(0);
 
+    // --- LÓGICA DE VOZ E CHAT ---
     window.currentVoice = 'fish';
     window.setVoice = (mode, el) => {
         window.currentVoice = mode;
@@ -108,11 +128,15 @@
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
-        window.isAnalyzing = true; input.disabled = true; robot.style.opacity = "0"; bar.style.width = "40%";
+        
+        window.isAnalyzing = true; 
+        input.disabled = true; 
+        robot.style.opacity = "0"; 
+        bar.style.width = "40%";
         addLog(txt);
         
         try {
-            // 1. ANÁLISE DE TEXTO
+            // 1. ANÁLISE DE TEXTO (ChatGPT/Gemini)
             const res = await fetch("/api/analisar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: txt }) });
             const data = await res.json();
             const resp = data.choices[0].message.content;
@@ -120,11 +144,13 @@
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
             const cleanText = resp.replace(/[*#]/g, '');
 
-            // 2. GERAÇÃO DE VOZ
+            // 2. GERAÇÃO DE VOZ HUMANA
             if(window.currentVoice === 'fish') {
                 const success = await tryFishAudio(cleanText);
                 if(!success) nativeSpeak(cleanText);
-            } else { nativeSpeak(cleanText); }
+            } else { 
+                nativeSpeak(cleanText); 
+            }
 
         } catch(e) { 
             display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO NEURAL."; 
@@ -142,7 +168,6 @@
 
     async function tryFishAudio(textToSpeak) {
         try {
-            // Chama sua API da Vercel que contém a chave HF_TOKEN
             const response = await fetch("/api/falar", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
@@ -153,8 +178,37 @@
             if(!data.eventId) return false;
 
             let audioUrl = null;
-            // Polling para aguardar a IA processar o áudio
+            // Polling para buscar o link do áudio gerado
             for(let i=0; i<30; i++) {
                 const poll = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${data.eventId}`);
                 const resText = await poll.text();
-                const match = resText.match(/https?:\/\/[^"']+\.(
+                const match = resText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
+                
+                if(match) { 
+                    audioUrl = match[0]; 
+                    break; 
+                }
+                await new Promise(r => setTimeout(r, 1200));
+            }
+
+            if(audioUrl) { 
+                const a = new Audio(audioUrl); 
+                await a.play(); 
+                return true; 
+            }
+            return false;
+        } catch (e) { return false; }
+    }
+
+    function nativeSpeak(t) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'pt-BR';
+        window.speechSynthesis.speak(msg);
+    }
+
+    document.getElementById('btnEnviar').onclick = enviar;
+    input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+</script>
+</body>
+</html>
