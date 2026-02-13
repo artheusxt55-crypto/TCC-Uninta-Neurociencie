@@ -16,7 +16,19 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                data: [text, "default", null, "", 1024, 0, 0.9, 1.1, 0.9, 0, "on"]
+                data: [
+                    text,       // Texto para falar
+                    "default",  // Estilo
+                    null,       // Referência de áudio
+                    "",         // Referência de texto
+                    1024,       // Iteração
+                    0,          // Seed
+                    0.7,        // Top_P
+                    1.1,        // Temperature
+                    0.7,        // Repetition Penalty
+                    0,          // Speaker ID
+                    "on"        // Refine text
+                ]
             })
         });
 
@@ -25,6 +37,7 @@ export default async function handler(req, res) {
         if (data.event_id) {
             return res.status(200).json({ eventId: data.event_id });
         } else {
+            console.error("Erro HF:", data);
             return res.status(500).json({ error: "Erro ao gerar ID da voz" });
         }
     } catch (error) {
