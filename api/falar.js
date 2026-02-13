@@ -2,10 +2,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
     const { text } = req.body;
-    // Aqui o sistema vai ler a chave que você salvou na Vercel (HF_TOKEN)
-    const token = process.env.HF_TOKEN;
-
-    if (!token) return res.status(500).json({ error: "Token não configurado na Vercel" });
+    const token = process.env.HF_TOKEN; // Sua chave hf_rdoh... que está na Vercel
 
     try {
         const response = await fetch("https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict", {
@@ -20,9 +17,14 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
-        return res.status(200).json({ eventId: data.event_id });
-
+        
+        // Retorna o event_id para o seu HTML buscar o áudio depois
+        if (data.event_id) {
+            return res.status(200).json({ eventId: data.event_id });
+        } else {
+            return res.status(500).json({ error: "Erro ao gerar ID da voz" });
+        }
     } catch (error) {
-        return res.status(500).json({ error: "Falha no servidor de voz" });
+        return res.status(500).json({ error: "Falha na conexão com a IA" });
     }
 }
