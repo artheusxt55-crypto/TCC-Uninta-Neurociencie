@@ -18,18 +18,33 @@
         .card {
             background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px; border-radius: 28px; text-align: center; width: 380px;
+            padding: 30px; border-radius: 28px; text-align: center; width: 380px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
         
-        /* Estilização do Robô no Card */
         .avatar-3d { 
             width: 100%; 
-            height: 200px; 
+            height: 180px; 
             margin-bottom: 10px;
             border-radius: 20px;
             overflow: hidden;
         }
+
+        /* Novo estilo do painel de diagnóstico dentro do card */
+        .diag-mini-panel {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .diag-grid { display: flex; gap: 5px; margin-top: 8px; }
+        .diag-mini-btn {
+            flex: 1; padding: 8px 2px; font-size: 8px; border-radius: 6px;
+            border: none; color: white; cursor: pointer; font-weight: bold;
+            background: #222; transition: 0.3s;
+        }
+        .diag-mini-btn:hover { background: #333; }
 
         input {
             width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
@@ -51,54 +66,47 @@
             margin-top: 12px; font-size: 11px;
         }
         .btn-atlas:hover { background: rgba(227, 6, 19, 0.1); transform: scale(1.02); }
-        
-        .diag-panel {
-            position: fixed; bottom: 20px; left: 20px; z-index: 100;
-            background: rgba(13, 17, 23, 0.7); backdrop-filter: blur(10px);
-            padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            width: 200px;
-        }
-        .diag-btn {
-            width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
-            border: none; color: white; cursor: pointer; font-weight: bold; font-size: 10px;
-            transition: 0.3s; background: #333;
-        }
-        .diag-btn:hover { opacity: 0.8; transform: translateX(5px); }
 
         #brain-viewport { flex: 1; height: 600px; min-width: 500px; }
-        .qr-section img { width: 90px; border-radius: 8px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .qr-section img { width: 70px; border-radius: 8px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
     <a href="aluno.html" class="btn-neuro btn-aluno-fixo">ÁREA DO ALUNO</a>
 
-    <div class="diag-panel">
-        <p style="font-size: 9px; color: var(--primary); font-weight: 800; letter-spacing: 1px;">MODO DE DIAGNÓSTICO</p>
-        <button class="diag-btn" onclick="simular('NORMAL')">PADRÃO NEUROTÍPICO</button>
-        <button class="diag-btn" style="border-left: 4px solid #ffaa00;" onclick="simular('TDAH')">SIMULAR TDAH</button>
-        <button class="diag-btn" style="border-left: 4px solid #0088ff;" onclick="simular('TEA')">SIMULAR TEA</button>
-        <p id="status-label" style="font-size: 8px; margin-top: 10px; color: #666;">STATUS: MONITORAMENTO ATIVO</p>
-    </div>
-
     <div class="main-container">
         <div class="card">
+            <div class="diag-mini-panel">
+                <p style="font-size: 8px; color: var(--primary); font-weight: 800; letter-spacing: 1px;">MODO DE DIAGNÓSTICO</p>
+                <div class="diag-grid">
+                    <button class="diag-mini-btn" onclick="simular('NORMAL')">PADRÃO</button>
+                    <button class="diag-mini-btn" style="border-bottom: 2px solid #ffaa00;" onclick="simular('TDAH')">TDAH</button>
+                    <button class="diag-mini-btn" style="border-bottom: 2px solid #0088ff;" onclick="simular('TEA')">TEA</button>
+                </div>
+                <p id="status-label" style="font-size: 7px; margin-top: 8px; color: #666; text-transform: uppercase;">MONITORAMENTO ATIVO</p>
+            </div>
+
             <div class="avatar-3d">
                 <spline-viewer url="genkub_greeting_robot.spline"></spline-viewer>
             </div>
 
-            <h2>Olá, Mestre Matheus!</h2>
-            <p style="color:#888; margin-bottom:25px; font-size: 12px;">Laboratório Digital de Neurociência - UNINTA</p>
+            <h2 style="font-size: 22px; margin-bottom: 5px;">Olá, Mestre Matheus!</h2>
+            <p style="color:#888; margin-bottom:20px; font-size: 11px;">Laboratório Digital de Neurociência - UNINTA</p>
             
             <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
             
             <button class="btn-neuro" onclick="validarAcesso()">ACESSAR LABORATÓRIO</button>
+
+            <a href="biblioteca.html" class="btn-neuro" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; font-size: 13px; padding: 14px;">
+                📚 BIBLIOTECA DIGITAL
+            </a>
             
             <a href="atlas.html" class="btn-atlas">EXPLORAR NEURO-MAPPER 3D</a>
 
             <div class="qr-section">
                 <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 10px; color: #666; margin-top: 8px;">bit.ly/tcc-uninta</p>
+                <p style="font-size: 9px; color: #444; margin-top: 5px;">bit.ly/tcc-uninta</p>
             </div>
         </div>
         <div id="brain-viewport"></div>
@@ -108,7 +116,6 @@
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
-        // ... (Toda a sua lógica original do cérebro continua aqui embaixo)
         const container = document.getElementById('brain-viewport');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x0a192f, 0.12);
