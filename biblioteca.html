@@ -7,75 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        :root {
-            --primary: #e30613;
-            --background: #030303;
-            --sidebar: #0a0a0a;
-            --card-bg: #0d0d0d;
-        }
-
-        body { 
-            background-color: var(--background); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-        }
-
-        /* Sidebar estilo Lovable */
-        .sidebar {
-            background-color: var(--sidebar);
-            border-right: 1px solid #1a1a1a;
-        }
-
-        .nav-button {
-            transition: all 0.2s;
-            color: #71717a;
-        }
-
-        .nav-button:hover {
-            color: white;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .nav-button.active {
-            background: rgba(227, 6, 19, 0.1);
-            color: var(--primary);
-            border-right: 3px solid var(--primary);
-            border-radius: 0;
-        }
-
-        /* Header com blur */
-        .header-glass {
-            background: rgba(3, 3, 3, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid #1a1a1a;
-        }
-
-        /* Cards de livros */
-        .card-book {
-            background: var(--card-bg);
-            border: 1px solid #1a1a1a;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-book:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px -10px rgba(227, 6, 19, 0.2);
-        }
-
-        /* Robô Lottie */
-        lottie-player { 
-            filter: hue-rotate(160deg) saturate(3) drop-shadow(0 0 5px var(--primary)); 
-        }
-
-        /* Scrollbar */
+        :root { --primary: #e30613; --background: #030303; --sidebar: #0a0a0a; --card-bg: #0d0d0d; }
+        body { background-color: var(--background); color: white; font-family: 'Inter', sans-serif; }
+        .sidebar { background-color: var(--sidebar); border-right: 1px solid #1a1a1a; }
+        .nav-button { transition: all 0.2s; color: #71717a; text-align: left; }
+        .nav-button:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-button.active { background: rgba(227, 6, 19, 0.1); color: var(--primary); border-right: 3px solid var(--primary); border-radius: 0; }
+        .header-glass { background: rgba(3, 3, 3, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #1a1a1a; }
+        .card-book { background: var(--card-bg); border: 1px solid #1a1a1a; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-book:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(227, 6, 19, 0.2); }
+        lottie-player { filter: hue-rotate(160deg) saturate(3) drop-shadow(0 0 5px var(--primary)); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -107,15 +54,15 @@
             </button>
         </nav>
 
-        <div class="p-6 border-t border-zinc-900">
-            <a href="index.html" class="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition">
+        <div class="p-6 border-t border-zinc-900 text-center">
+             <p class="text-[10px] text-zinc-600 mb-4 font-bold">PARCEIROS: USP | AVASUS | UFRGS</p>
+            <a href="index.html" class="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition justify-center">
                 <i data-lucide="arrow-left" class="w-3 h-3"></i> Voltar ao Lab
             </a>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-        
         <header class="header-glass px-8 py-4 flex items-center justify-between z-30">
             <div class="flex-1 max-w-xl relative">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"></i>
@@ -135,7 +82,7 @@
         <div class="flex-1 overflow-y-auto p-8">
             <div class="mb-10">
                 <h1 class="text-3xl font-bold tracking-tight">Acervo Digital</h1>
-                <p class="text-zinc-500 text-sm mt-1" id="bookCount">Carregando acervo...</p>
+                <p class="text-zinc-500 text-sm mt-1" id="bookCount">Conectando ao banco de dados...</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" id="bookGrid">
@@ -144,60 +91,64 @@
     </main>
 
     <script>
-        const books = [
-            {
-                title: "Tratado de Psicopatologia",
-                author: "Dalgalarrondo",
-                category: "Psicofarmacologia",
-                cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
-                link: "#"
-            },
-            {
-                title: "Manejo de TDAH",
-                author: "CBI of Miami",
-                category: "TDAH",
-                cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400",
-                link: "#"
-            },
-            {
-                title: "Neuroimagem Funcional",
-                author: "USP",
-                category: "Neuroimagem",
-                cover: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400",
-                link: "#"
-            }
-        ];
+        // CONFIGURAÇÕES DO SEU SUPABASE (CONFORME SEU PRINT)
+        const SUPABASE_URL = 'https://kczzuvkuubeqdokjihrm.supabase.co';
+        const SUPABASE_KEY = 'SUA_KEY_ANON_DO_PRINT_AQUI'; // <--- COLOQUE SUA CHAVE AQUI!
+        
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        let allBooks = []; 
         let currentCategory = "Todos";
         let searchTerm = "";
 
+        // BUSCAR LIVROS NO SUPABASE
+        async function fetchBooks() {
+            try {
+                const { data, error } = await _supabase
+                    .from('livros')
+                    .select('*');
+
+                if (error) throw error;
+                
+                allBooks = data;
+                renderBooks();
+            } catch (err) {
+                console.error("Erro ao carregar livros:", err.message);
+                document.getElementById('bookCount').innerText = "Erro na conexão com o banco.";
+            }
+        }
+
         function renderBooks() {
             const grid = document.getElementById('bookGrid');
-            const filtered = books.filter(b => {
-                const matchesCat = currentCategory === "Todos" || b.category === currentCategory;
-                const matchesSearch = b.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                    b.author.toLowerCase().includes(searchTerm.toLowerCase());
+            const filtered = allBooks.filter(b => {
+                const matchesCat = currentCategory === "Todos" || b.categoria === currentCategory;
+                const matchesSearch = b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                    b.autor.toLowerCase().includes(searchTerm.toLowerCase());
                 return matchesCat && matchesSearch;
             });
 
             grid.innerHTML = filtered.map(book => `
                 <div class="card-book rounded-2xl overflow-hidden flex flex-col h-full">
                     <div class="relative h-40">
-                        <img src="${book.cover}" class="w-full h-full object-cover opacity-60">
+                        <img src="${book.capa_url || 'https://via.placeholder.com/400x200?text=NeuroLib'}" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     </div>
                     <div class="p-5 flex flex-col flex-1">
-                        <span class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1">${book.category}</span>
-                        <h3 class="font-bold text-zinc-100 text-base leading-tight mb-1 line-clamp-1">${book.title}</h3>
-                        <p class="text-zinc-500 text-xs">${book.author}</p>
+                        <span class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1">${book.categoria}</span>
+                        <h3 class="font-bold text-zinc-100 text-base leading-tight mb-1 line-clamp-1">${book.titulo}</h3>
+                        <p class="text-zinc-500 text-xs">${book.autor}</p>
                         
-                        <a href="${book.link}" target="_blank" class="mt-6 flex items-center justify-center gap-2 w-full bg-white text-black hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-xs font-bold transition-all">
+                        <a href="${book.pdf_url}" target="_blank" class="mt-6 flex items-center justify-center gap-2 w-full bg-white text-black hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-xs font-bold transition-all">
                             <i data-lucide="file-text" class="w-3.5 h-3.5"></i> ACESSAR PDF
                         </a>
                     </div>
                 </div>
             `).join('');
             
+            if(filtered.length === 0 && allBooks.length > 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-600">Nenhum resultado para essa busca.</div>`;
+            }
+
             document.getElementById('bookCount').innerText = `${filtered.length} Materiais Disponíveis`;
             lucide.createIcons();
         }
@@ -216,9 +167,9 @@
             renderBooks();
         }
 
-        // Init
+        // INICIAR
+        fetchBooks();
         lucide.createIcons();
-        renderBooks();
     </script>
 </body>
 </html>
