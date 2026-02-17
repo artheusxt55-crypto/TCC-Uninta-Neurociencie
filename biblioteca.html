@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLib - Biblioteca Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <style>
+        :root {
+            --primary: #e30613;
+            --background: #09090b;
+            --sidebar: #121214;
+        }
+        body { background-color: var(--background); color: white; font-family: sans-serif; }
+        .card-book:hover { transform: translateY(-5px); border-color: var(--primary); shadow: 0 0 20px rgba(227, 6, 19, 0.2); }
+        /* Filtro vermelho para o robô */
+        lottie-player { filter: hue-rotate(160deg) saturate(3) drop-shadow(0 0 8px var(--primary)); }
+    </style>
+</head>
+<body>
+
+    <div class="flex min-h-screen">
+        <aside class="hidden lg:flex w-64 flex-col bg-[#121214] border-r border-zinc-800 p-6 fixed h-full">
+            <div class="flex items-center gap-2 mb-8">
+                <i data-lucide="brain" class="text-red-600"></i>
+                <span class="font-bold text-xl tracking-tight">NeuroLib</span>
+            </div>
+            <nav class="space-y-2" id="categories">
+                <button onclick="filterCategory('Todos')" class="w-full text-left px-4 py-2 rounded-lg bg-red-600/10 text-red-500 font-medium border border-red-600/20">Todos</button>
+                <button onclick="filterCategory('TDAH')" class="w-full text-left px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 transition">TDAH</button>
+                <button onclick="filterCategory('TEA')" class="w-full text-left px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 transition">TEA</button>
+                <button onclick="filterCategory('Psicofarmacologia')" class="w-full text-left px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 transition">Psicofarmacologia</button>
+                <button onclick="filterCategory('Neuroimagem')" class="w-full text-left px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 transition">Neuroimagem</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 lg:ml-64">
+            <header class="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+                <div class="flex-1 max-w-xl relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"></i>
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Buscar por título ou autor..." 
+                        class="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm focus:ring-2 focus:ring-red-600 outline-none transition">
+                </div>
+                
+                <div class="ml-4">
+                    <lottie-player src="Live chatbot.json" speed="1" style="width: 50px; height: 50px;" loop autoplay></lottie-player>
+                </div>
+            </header>
+
+            <div class="p-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold">Acervo Digital</h1>
+                    <p class="text-zinc-500 mt-2" id="bookCount">Neurociência & Psicopatologia</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" id="bookGrid">
+                    </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // SEU BANCO DE DADOS DE LIVROS (CONECTADO AO SUPABASE)
+        const books = [
+            {
+                title: "Tratado de Psicopatologia",
+                author: "Dalgalarrondo",
+                category: "Psicofarmacologia",
+                cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
+                link: "LINK_DO_SUPABASE_AQUI"
+            },
+            {
+                title: "Manejo de TDAH",
+                author: "CBI of Miami",
+                category: "TDAH",
+                cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400",
+                link: "LINK_DO_SUPABASE_AQUI"
+            },
+            {
+                title: "Neuroimagem Funcional",
+                author: "USP",
+                category: "Neuroimagem",
+                cover: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400",
+                link: "LINK_DO_SUPABASE_AQUI"
+            }
+        ];
+
+        let currentCategory = "Todos";
+        let searchTerm = "";
+
+        function renderBooks() {
+            const grid = document.getElementById('bookGrid');
+            const filtered = books.filter(b => {
+                const matchesCat = currentCategory === "Todos" || b.category === currentCategory;
+                const matchesSearch = b.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                    b.author.toLowerCase().includes(searchTerm.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            grid.innerHTML = filtered.map(book => `
+                <div class="card-book bg-[#121214] border border-zinc-800 rounded-xl overflow-hidden transition-all duration-300">
+                    <img src="${book.cover}" class="w-full h-48 object-cover opacity-80">
+                    <div class="p-4">
+                        <span class="text-[10px] uppercase tracking-widest text-red-500 font-bold">${book.category}</span>
+                        <h3 class="font-bold text-zinc-100 mt-1 line-clamp-1">${book.title}</h3>
+                        <p class="text-zinc-500 text-xs mt-1">${book.author}</p>
+                        <a href="${book.link}" target="_blank" class="mt-4 flex items-center justify-center gap-2 w-full bg-zinc-800 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i data-lucide="download" class="w-4 h-4"></i> Baixar PDF
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('bookCount').innerText = `${filtered.length} livros encontrados`;
+            lucide.createIcons(); // Recarrega os ícones
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            // Atualiza visual dos botões
+            document.querySelectorAll('#categories button').forEach(btn => {
+                btn.className = "w-full text-left px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 transition";
+            });
+            event.target.className = "w-full text-left px-4 py-2 rounded-lg bg-red-600/10 text-red-500 font-medium border border-red-600/20";
+            renderBooks();
+        }
+
+        function handleSearch() {
+            searchTerm = document.getElementById('searchInput').value;
+            renderBooks();
+        }
+
+        // Inicializar
+        lucide.createIcons();
+        renderBooks();
+    </script>
+</body>
+</html>
