@@ -11,7 +11,7 @@
         header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-red); background: #000; z-index: 100; }
         #main-viewport { flex: 1; position: relative; display: flex; overflow: hidden; }
         #history-panel { width: 220px; border-right: 1px solid rgba(0, 242, 255, 0.1); background: rgba(0,0,0,0.8); padding: 20px; z-index: 10; overflow-y: auto; }
-        .log-item { font-size: 10px; color: var(--ia-cyan); margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #1a1a1a; }
+        .log-item { font-size: 10px; color: var(--ia-cyan); margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; }
         #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #robot-standby { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 5; transition: opacity 0.8s; }
         #robot-vid { width: 150px; filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4)); }
@@ -42,7 +42,7 @@
         </video>
     </div>
     <div class="voice-hub">
-        <div id="v-fish" class="voice-card active" onclick="setVoice('fish', this)">FISH_S1_ULTRA</div>
+        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">ANTONIO_NEURAL_PRO</div>
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
     <div id="brain-container"></div>
@@ -75,7 +75,6 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('brain-container').appendChild(renderer.domElement);
     
-    // Luzes (Essenciais para o cérebro aparecer!)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
     const pointLight = new THREE.PointLight(0x00f2ff, 2);
@@ -111,7 +110,9 @@
     animate(0);
 
     // --- LÓGICA DE VOZ E CHAT ---
-    window.currentVoice = 'fish';
+    window.currentVoice = 'antonio';
+    window.isAnalyzing = false;
+
     window.setVoice = (mode, el) => {
         window.currentVoice = mode;
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
@@ -125,6 +126,22 @@
         logsContainer.prepend(item);
     }
 
+    // FUNÇÃO QUE FAZ O ANTÔNIO FALAR (MICROSOFT NEURAL)
+    function falarAntonio(texto) {
+        // Limpa asteriscos e hashtags que a IA manda
+        const textoLimpo = texto.replace(/[*#]/g, '');
+        const url = `https://api.vocalremover.org/tts?text=${encodeURIComponent(textoLimpo)}&lang=pt-BR&voice=pt-BR-AntonioNeural`;
+        const audio = new Audio(url);
+        audio.play().catch(e => console.log("Áudio bloqueado: O usuário precisa interagir primeiro."));
+    }
+
+    function nativeSpeak(t) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t.replace(/[*#]/g, ''));
+        msg.lang = 'pt-BR';
+        window.speechSynthesis.speak(msg);
+    }
+
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
@@ -136,20 +153,23 @@
         addLog(txt);
         
         try {
-            // 1. ANÁLISE DE TEXTO (ChatGPT/Gemini)
-            const res = await fetch("/api/analisar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: txt }) });
+            // 1. CHAMA SUA API (GROQ/GEMINI)
+            const res = await fetch("/api/analisar", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ prompt: txt }) 
+            });
             const data = await res.json();
             const resp = data.choices[0].message.content;
+            
             bar.style.width = "70%";
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
-            const cleanText = resp.replace(/[*#]/g, '');
 
-            // 2. GERAÇÃO DE VOZ HUMANA
-            if(window.currentVoice === 'fish') {
-                const success = await tryFishAudio(cleanText);
-                if(!success) nativeSpeak(cleanText);
+            // 2. DISPARA A VOZ QUE O USUÁRIO ESCOLHEU
+            if(window.currentVoice === 'antonio') {
+                falarAntonio(resp);
             } else { 
-                nativeSpeak(cleanText); 
+                nativeSpeak(resp); 
             }
 
         } catch(e) { 
@@ -164,47 +184,6 @@
                 robot.style.opacity = "1"; 
             }, 1500); 
         }
-    }
-
-    async function tryFishAudio(textToSpeak) {
-        try {
-            const response = await fetch("/api/falar", { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ text: textToSpeak }) 
-            });
-            
-            const data = await response.json();
-            if(!data.eventId) return false;
-
-            let audioUrl = null;
-            // Polling para buscar o link do áudio gerado
-            for(let i=0; i<30; i++) {
-                const poll = await fetch(`https://fishaudio-openaudio-s1-mini.hf.space/gradio_api/call/predict/${data.eventId}`);
-                const resText = await poll.text();
-                const match = resText.match(/https?:\/\/[^"']+\.(wav|mp3)/);
-                
-                if(match) { 
-                    audioUrl = match[0]; 
-                    break; 
-                }
-                await new Promise(r => setTimeout(r, 1200));
-            }
-
-            if(audioUrl) { 
-                const a = new Audio(audioUrl); 
-                await a.play(); 
-                return true; 
-            }
-            return false;
-        } catch (e) { return false; }
-    }
-
-    function nativeSpeak(t) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'pt-BR';
-        window.speechSynthesis.speak(msg);
     }
 
     document.getElementById('btnEnviar').onclick = enviar;
