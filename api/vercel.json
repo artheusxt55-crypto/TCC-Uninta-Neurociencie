@@ -1,13 +1,1 @@
-{
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org; media-src 'self' https://api.vocalremover.org; audio-src 'self' https://api.vocalremover.org;"
-        }
-      ]
-    }
-  ]
-}
+
