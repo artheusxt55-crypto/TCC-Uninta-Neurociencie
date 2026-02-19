@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org blob:; media-src 'self' https://api.vocalremover.org blob:; audio-src 'self' https://api.vocalremover.org; img-src 'self' data:; worker-src 'self' blob:;"
+          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org https://*.vercel.app data: blob:; media-src 'self' https://api.vocalremover.org data: blob:; audio-src 'self' https://api.vocalremover.org; img-src 'self' data:; worker-src 'self' blob:;"
         }
       ]
     }
