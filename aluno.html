@@ -67,6 +67,7 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
+    // 1. Configuração do Three.js (Cérebro 3D)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -90,30 +91,56 @@
     }
     animate(0);
 
+    // 2. Sistema de Voz e Destravamento
     window.currentVoice = 'antonio';
-    window.setVoice = (m, el) => { window.currentVoice = m; document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); };
+    window.audioCtx = null; // Contexto global para destravar áudio
+
+    window.setVoice = (m, el) => { 
+        window.currentVoice = m; 
+        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); 
+        el.classList.add('active'); 
+    };
 
     function nativeSpeak(t) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t.replace(/[*#]/g, ''));
         msg.lang = 'pt-BR';
+        msg.rate = 1.1;
         window.speechSynthesis.speak(msg);
     }
 
     async function falarAntonio(texto) {
         const limpo = texto.replace(/[*#]/g, '');
-        const url = `https://api.vocalremover.org/tts?text=${encodeURIComponent(limpo)}&lang=pt-BR&voice=pt-BR-AntonioNeural`;
+        // URL da API do Antônio
+        const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
         const audio = new Audio(url);
-        // Tenta tocar o Antônio, se o navegador bloquear, usa o nativo
-        audio.play().catch(() => nativeSpeak(limpo));
+        
+        // Se der erro no Antônio, pula pro Nativo
+        audio.play().catch(() => {
+            console.warn("Antônio bloqueado. Usando voz nativa.");
+            nativeSpeak(limpo);
+        });
     }
 
+    // 3. Função Principal (Scanner)
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
 
-        // --- MUDANÇA AQUI: Destrava o áudio no clique ---
-        const unlock = new Audio(); unlock.play().catch(()=>{});
+        // --- DESTRAVA O ÁUDIO NO CLIQUE (CRÍTICO) ---
+        if (!window.audioCtx) {
+            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (window.audioCtx.state === 'suspended') {
+            window.audioCtx.resume();
+        }
+        // Toca um silêncio para o navegador entender a interação
+        const silentBuffer = window.audioCtx.createBuffer(1, 1, 22050);
+        const source = window.audioCtx.createBufferSource();
+        source.buffer = silentBuffer;
+        source.connect(window.audioCtx.destination);
+        source.start();
+        // --------------------------------------------
 
         window.isAnalyzing = true; 
         input.disabled = true; 
@@ -130,13 +157,31 @@
             const resp = data.choices[0].message.content;
             
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
-            if(window.currentVoice === 'antonio') { await falarAntonio(resp); } 
-            else { nativeSpeak(resp); }
+            
+            // Registra no histórico lateral
+            const log = document.createElement('div');
+            log.className = 'log-item';
+            log.innerText = `> ${txt.substring(0,15)}...`;
+            logsContainer.prepend(log);
 
-        } catch(e) { display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO."; } 
-        finally { 
+            // Executa a voz escolhida
+            if(window.currentVoice === 'antonio') { 
+                await falarAntonio(resp); 
+            } else { 
+                nativeSpeak(resp); 
+            }
+
+        } catch(e) { 
+            display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO."; 
+        } finally { 
             bar.style.width = "100%";
-            setTimeout(() => { window.isAnalyzing = false; input.disabled = false; input.value = ""; bar.style.width = "0%"; robot.style.opacity = "1"; }, 1500); 
+            setTimeout(() => { 
+                window.isAnalyzing = false; 
+                input.disabled = false; 
+                input.value = ""; 
+                bar.style.width = "0%"; 
+                robot.style.opacity = "1"; 
+            }, 1500); 
         }
     }
 
