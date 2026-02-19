@@ -31,7 +31,6 @@
 
 <header>
     <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
-    <div style="font-size: 10px; color: var(--ia-cyan)">SECURE_BUILD_V15_FINAL</div>
 </header>
 
 <div id="main-viewport">
@@ -42,7 +41,7 @@
         </video>
     </div>
     <div class="voice-hub">
-        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">ANTONIO_NEURAL_PRO</div>
+        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">ANTONIO_NEURAL</div>
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
     <div id="brain-container"></div>
@@ -51,7 +50,7 @@
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="TDAH, TEA, Neuroimagem, Alzheimer..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="TDAH, TEA, Neuroimagem..." autocomplete="off">
         <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
     </div>
 </div>
@@ -68,72 +67,31 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
-    // --- SETUP DO CÉREBRO 3D ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('brain-container').appendChild(renderer.domElement);
-    
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0x00f2ff, 2);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
-
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     camera.position.z = 7;
 
     let brain;
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
         brain = gltf.scene;
         brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse(n => { 
-            if(n.isMesh) {
-                n.material = new THREE.MeshStandardMaterial({ 
-                    color: 0x00f2ff, 
-                    emissive: 0x00f2ff, 
-                    wireframe: true 
-                }); 
-            }
-        });
+        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, wireframe: true }); });
         scene.add(brain);
     });
 
     function animate(time) {
         requestAnimationFrame(animate);
-        if(brain) { 
-            brain.rotation.y += 0.006; 
-            brain.position.y = Math.sin(time * 0.0015) * 0.15; 
-        }
+        if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
         renderer.render(scene, camera);
     }
     animate(0);
 
-    // --- LÓGICA DE VOZ E CHAT ---
     window.currentVoice = 'antonio';
-    window.isAnalyzing = false;
-
-    window.setVoice = (mode, el) => {
-        window.currentVoice = mode;
-        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-    };
-
-    function addLog(text) {
-        const item = document.createElement('div');
-        item.className = 'log-item';
-        item.innerText = `> CONSULTA: ${text.toUpperCase()}`;
-        logsContainer.prepend(item);
-    }
-
-    // FUNÇÃO QUE FAZ O ANTÔNIO FALAR (MICROSOFT NEURAL)
-    function falarAntonio(texto) {
-        // Limpa asteriscos e hashtags que a IA manda
-        const textoLimpo = texto.replace(/[*#]/g, '');
-        const url = `https://api.vocalremover.org/tts?text=${encodeURIComponent(textoLimpo)}&lang=pt-BR&voice=pt-BR-AntonioNeural`;
-        const audio = new Audio(url);
-        audio.play().catch(e => console.log("Áudio bloqueado: O usuário precisa interagir primeiro."));
-    }
+    window.setVoice = (m, el) => { window.currentVoice = m; document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); };
 
     function nativeSpeak(t) {
         window.speechSynthesis.cancel();
@@ -142,18 +100,27 @@
         window.speechSynthesis.speak(msg);
     }
 
+    async function falarAntonio(texto) {
+        const limpo = texto.replace(/[*#]/g, '');
+        const url = `https://api.vocalremover.org/tts?text=${encodeURIComponent(limpo)}&lang=pt-BR&voice=pt-BR-AntonioNeural`;
+        const audio = new Audio(url);
+        // Tenta tocar o Antônio, se o navegador bloquear, usa o nativo
+        audio.play().catch(() => nativeSpeak(limpo));
+    }
+
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
-        
+
+        // --- MUDANÇA AQUI: Destrava o áudio no clique ---
+        const unlock = new Audio(); unlock.play().catch(()=>{});
+
         window.isAnalyzing = true; 
         input.disabled = true; 
         robot.style.opacity = "0"; 
         bar.style.width = "40%";
-        addLog(txt);
         
         try {
-            // 1. CHAMA SUA API (GROQ/GEMINI)
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
@@ -162,27 +129,14 @@
             const data = await res.json();
             const resp = data.choices[0].message.content;
             
-            bar.style.width = "70%";
             display.innerHTML = `>> [ANÁLISE]: ${resp}`;
+            if(window.currentVoice === 'antonio') { await falarAntonio(resp); } 
+            else { nativeSpeak(resp); }
 
-            // 2. DISPARA A VOZ QUE O USUÁRIO ESCOLHEU
-            if(window.currentVoice === 'antonio') {
-                falarAntonio(resp);
-            } else { 
-                nativeSpeak(resp); 
-            }
-
-        } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO NEURAL."; 
-        } finally { 
+        } catch(e) { display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO."; } 
+        finally { 
             bar.style.width = "100%";
-            setTimeout(() => { 
-                window.isAnalyzing = false; 
-                input.disabled = false; 
-                input.value = ""; 
-                bar.style.width = "0%"; 
-                robot.style.opacity = "1"; 
-            }, 1500); 
+            setTimeout(() => { window.isAnalyzing = false; input.disabled = false; input.value = ""; bar.style.width = "0%"; robot.style.opacity = "1"; }, 1500); 
         }
     }
 
