@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnintaBot - Neural Analytics Ultra (Aluno)</title>
+    <title>UnintaBot - Untbot Neural Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
@@ -30,7 +31,7 @@
 <body>
 
 <header>
-    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">ALUNO_CORE</span></div>
+    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">UNTBOT_CORE</span></div>
 </header>
 
 <div id="main-viewport">
@@ -41,16 +42,16 @@
         </video>
     </div>
     <div class="voice-hub">
-        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">ANTONIO_NEURAL</div>
+        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">UNTBOT_NEURAL</div>
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
     <div id="brain-container"></div>
-    <div id="chat-display">>> [ACADEMIA]: PRONTO PARA ANÁLISE CLÍNICA...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [SISTEMA]: UNTBOT AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="TDAH, TEA, Neuroimagem..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="Digite seu comando para o laboratório..." autocomplete="off">
         <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
     </div>
 </div>
@@ -61,13 +62,16 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+    // --- CONFIGURAÇÃO SUPABASE (Substitua pelos seus dados se necessário) ---
+    const _supabase = supabase.createClient('https://kczzuvkuubeqdokjihrm.supabase.co', 'SUA_KEY_AQUI');
+
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
     const logsContainer = document.getElementById('logs-container');
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
-    // 1. Configuração do Three.js (Cérebro 3D)
+    // 1. Three.js - Cérebro 3D
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -91,10 +95,8 @@
     }
     animate(0);
 
-    // 2. Sistema de Voz e Destravamento
+    // 2. Sistema de Voz
     window.currentVoice = 'antonio';
-    window.audioCtx = null; // Contexto global para destravar áudio
-
     window.setVoice = (m, el) => { 
         window.currentVoice = m; 
         document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); 
@@ -105,74 +107,68 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t.replace(/[*#]/g, ''));
         msg.lang = 'pt-BR';
-        msg.rate = 1.1;
         window.speechSynthesis.speak(msg);
     }
 
-    async function falarAntonio(texto) {
+    async function falarUntbot(texto) {
         const limpo = texto.replace(/[*#]/g, '');
-        // URL da API do Antônio
         const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
         const audio = new Audio(url);
-        
-        // Se der erro no Antônio, pula pro Nativo
-        audio.play().catch(() => {
-            console.warn("Antônio bloqueado. Usando voz nativa.");
-            nativeSpeak(limpo);
-        });
+        audio.play().catch(() => nativeSpeak(limpo));
     }
 
-    // 3. Função Principal (Scanner)
+    // 3. Função Principal com Memória Supabase + Groq
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
-
-        // --- DESTRAVA O ÁUDIO NO CLIQUE (CRÍTICO) ---
-        if (!window.audioCtx) {
-            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (window.audioCtx.state === 'suspended') {
-            window.audioCtx.resume();
-        }
-        // Toca um silêncio para o navegador entender a interação
-        const silentBuffer = window.audioCtx.createBuffer(1, 1, 22050);
-        const source = window.audioCtx.createBufferSource();
-        source.buffer = silentBuffer;
-        source.connect(window.audioCtx.destination);
-        source.start();
-        // --------------------------------------------
 
         window.isAnalyzing = true; 
         input.disabled = true; 
         robot.style.opacity = "0"; 
         bar.style.width = "40%";
+        display.innerHTML = ">> [PROCESSANDO]: ACESSANDO BANCO DE DADOS DO LABORATÓRIO...";
         
         try {
+            // A. BUSCAR PERSONALIDADE E MEMÓRIA NO SUPABASE
+            const { data: config } = await _supabase.from('bot_config').select('valor').eq('chave', 'instrucoes_sistema').single();
+            const { data: memorias } = await _supabase.from('memorias').select('conteudo').eq('usuario_id', 'Mestre_Matheus').limit(3).order('data_criacao', { ascending: false });
+            
+            const historico = memorias ? memorias.map(m => m.conteudo).join(" | ") : "";
+
+            // B. CHAMAR A API (Ajustado para enviar contexto de memória)
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ prompt: txt }) 
+                body: JSON.stringify({ 
+                    prompt: txt,
+                    systemContext: `${config.valor} | HISTÓRICO DO ALUNO: ${historico}`
+                }) 
             });
+
             const data = await res.json();
             const resp = data.choices[0].message.content;
             
-            display.innerHTML = `>> [ANÁLISE]: ${resp}`;
+            display.innerHTML = `>> [UNTBOT]: ${resp}`;
             
-            // Registra no histórico lateral
+            // Voz
+            if(window.currentVoice === 'antonio') await falarUntbot(resp);
+            else nativeSpeak(resp);
+
+            // C. SALVAR NOVA MEMÓRIA NO SUPABASE
+            await _supabase.from('memorias').insert([{ 
+                usuario_id: 'Mestre_Matheus', 
+                conteudo: `O aluno perguntou: ${txt}` 
+            }]);
+
+            // D. Log lateral
             const log = document.createElement('div');
             log.className = 'log-item';
-            log.innerText = `> ${txt.substring(0,15)}...`;
+            log.innerText = `> ${txt.substring(0,12)}...`;
             logsContainer.prepend(log);
 
-            // Executa a voz escolhida
-            if(window.currentVoice === 'antonio') { 
-                await falarAntonio(resp); 
-            } else { 
-                nativeSpeak(resp); 
-            }
-
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA COMUNICAÇÃO."; 
+            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL."; 
+            console.error(e);
         } finally { 
             bar.style.width = "100%";
             setTimeout(() => { 
