@@ -62,7 +62,6 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // 1. Configuração Supabase
     const _supabase = supabase.createClient(
         'https://kczzuvkuubeqdokjihrm.supabase.co', 
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtjenp1dmt1dWJlcWRva2ppaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTQwOTcsImV4cCI6MjA4NjkzMDA5N30.d9R02a-ZYKTr9BCDVA-7DGjrTKVjzS434Uh9UCqrzRc'
@@ -74,7 +73,6 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
-    // ID ÚNICO E PERSISTENTE
     const USER_KEY = 'untbot_user_uuid';
     let currentUserId = localStorage.getItem(USER_KEY);
     if(!currentUserId) {
@@ -82,7 +80,7 @@
         localStorage.setItem(USER_KEY, currentUserId);
     }
 
-    // 2. Three.js - Cérebro 3D
+    // 3D Brain Setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -105,7 +103,7 @@
     }
     animate(0);
 
-    // 3. Voz
+    // Voice Engine
     window.currentVoice = 'antonio';
     window.setVoice = (m, el) => { 
         window.currentVoice = m; 
@@ -124,10 +122,9 @@
         const limpo = texto.replace(/[*#]/g, '');
         const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
         const audio = new Audio(url);
-        audio.play().catch(() => nativeSpeak(limpo));
+        return audio.play().catch(() => nativeSpeak(limpo));
     }
 
-    // 4. Efeito Digitação com Promessa
     function typeEffect(element, text, speed = 15) {
         return new Promise((resolve) => {
             let i = 0;
@@ -145,7 +142,6 @@
         });
     }
 
-    // 5. Função Principal Enviar
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
@@ -154,10 +150,10 @@
         input.disabled = true; 
         robot.style.opacity = "0"; 
         bar.style.width = "40%";
-        display.innerHTML = ">> [SINAPSE]: ACESSANDO HISTÓRICO...";
+        display.innerHTML = ">> [SINAPSE]: CONSULTANDO MEMÓRIA CENTRAL...";
 
         try {
-            // A. Busca Contexto no Supabase
+            // 1. Puxar Histórico
             const { data: memorias } = await _supabase.from('memorias')
                 .select('autor, conteudo')
                 .eq('usuario_id', currentUserId)
@@ -166,13 +162,15 @@
 
             const historico = memorias ? memorias.reverse().map(m => `${m.autor === 'bot' ? 'Untbot' : 'Usuário'}: ${m.conteudo}`).join("\n") : "";
 
-            // B. Prompt de Personalidade
-            const systemPrompt = `Você é o Untbot, assistente do laboratório UNINTA.
-            REGRAS:
-            1. Memorize e use o nome do usuário presente no histórico abaixo.
-            2. Foco total UNINTA. Proibido citar outras instituições.
-            3. Use gírias locais se o usuário for informal.
-            HISTÓRICO: ${historico}`;
+            // 2. Prompt com Instrução de Identidade
+            const systemPrompt = `Você é o Untbot, o assistente oficial do laboratório UNINTA. 
+            CONTEXTO DE MEMÓRIA:
+            ${historico}
+            ---
+            INSTRUÇÕES CRÍTICAS:
+            - Se o nome do usuário estiver no contexto acima, use-o para cumprimentar.
+            - Responda de forma técnica mas amigável (use "macho" ou "fera" se ele for informal).
+            - Jamais cite outras faculdades como USP ou UFRGS. Foco total na UNINTA.`;
 
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
@@ -183,13 +181,13 @@
             const data = await res.json();
             const resp = data.choices[0].message.content;
 
-            // C. Fala e Digita
+            // 3. Feedback Visual e Sonoro
             if(window.currentVoice === 'antonio') falarUntbot(resp);
             else nativeSpeak(resp);
             
             await typeEffect(display, resp);
 
-            // D. Salva no Supabase só após terminar
+            // 4. Salvar na Memória do Supabase
             await _supabase.from('memorias').insert([
                 { usuario_id: currentUserId, conteudo: txt, autor: 'usuario' },
                 { usuario_id: currentUserId, conteudo: resp, autor: 'bot' }
@@ -197,11 +195,11 @@
 
             const log = document.createElement('div');
             log.className = 'log-item';
-            log.innerText = `> MEMÓRIA_OK: ${currentUserId.slice(-4)}`;
+            log.innerText = `> MEMO_SYNC: ${currentUserId.slice(-4)}`;
             logsContainer.prepend(log);
 
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL."; 
+            display.innerHTML = ">> [ERRO]: FALHA NA MATRIZ NEURAL."; 
         } finally {
             bar.style.width = "100%";
             setTimeout(() => { 
