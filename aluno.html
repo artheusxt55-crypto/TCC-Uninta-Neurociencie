@@ -62,8 +62,11 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // --- CONFIGURAÇÃO SUPABASE (Substitua pelos seus dados se necessário) ---
-    const _supabase = supabase.createClient('https://kczzuvkuubeqdokjihrm.supabase.co', 'SUA_KEY_AQUI');
+    // --- CONFIGURAÇÃO SUPABASE COM A CHAVE CORRETA ---
+    const _supabase = supabase.createClient(
+        'https://kczzuvkuubeqdokjihrm.supabase.co', 
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtjenp1dmt1dWJlcWRva2ppaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTQwOTcsImV4cCI6MjA4NjkzMDA5N30.d9R02a-ZYKTr9BCDVA-7DGjrTKVjzS434Uh9UCqrzRc'
+    );
 
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
@@ -129,19 +132,21 @@
         display.innerHTML = ">> [PROCESSANDO]: ACESSANDO BANCO DE DADOS DO LABORATÓRIO...";
         
         try {
-            // A. BUSCAR PERSONALIDADE E MEMÓRIA NO SUPABASE
+            // A. BUSCAR PERSONALIDADE (Com proteção contra erro 401/null)
             const { data: config } = await _supabase.from('bot_config').select('valor').eq('chave', 'instrucoes_sistema').single();
             const { data: memorias } = await _supabase.from('memorias').select('conteudo').eq('usuario_id', 'Mestre_Matheus').limit(3).order('data_criacao', { ascending: false });
             
-            const historico = memorias ? memorias.map(m => m.conteudo).join(" | ") : "";
+            // Define personalidade padrão caso o banco falhe
+            const personaFinal = (config && config.valor) ? config.valor : "Você é o Untbot, o Assistente oficial do laboratório.";
+            const historico = (memorias && memorias.length > 0) ? memorias.map(m => m.conteudo).join(" | ") : "Nenhuma conversa anterior.";
 
-            // B. CHAMAR A API (Ajustado para enviar contexto de memória)
+            // B. CHAMAR A API
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
                 body: JSON.stringify({ 
                     prompt: txt,
-                    systemContext: `${config.valor} | HISTÓRICO DO ALUNO: ${historico}`
+                    systemContext: `${personaFinal} | HISTÓRICO RECENTE: ${historico}`
                 }) 
             });
 
@@ -150,24 +155,22 @@
             
             display.innerHTML = `>> [UNTBOT]: ${resp}`;
             
-            // Voz
             if(window.currentVoice === 'antonio') await falarUntbot(resp);
             else nativeSpeak(resp);
 
-            // C. SALVAR NOVA MEMÓRIA NO SUPABASE
+            // C. SALVAR NOVA MEMÓRIA
             await _supabase.from('memorias').insert([{ 
                 usuario_id: 'Mestre_Matheus', 
-                conteudo: `O aluno perguntou: ${txt}` 
+                conteudo: `Aluno perguntou: ${txt}` 
             }]);
 
-            // D. Log lateral
             const log = document.createElement('div');
             log.className = 'log-item';
             log.innerText = `> ${txt.substring(0,12)}...`;
             logsContainer.prepend(log);
 
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL."; 
+            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL. VERIFIQUE AS CHAVES."; 
             console.error(e);
         } finally { 
             bar.style.width = "100%";
