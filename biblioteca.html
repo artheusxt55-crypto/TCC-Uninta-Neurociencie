@@ -118,7 +118,7 @@
 
         const badgeColors = {
             'USP': 'bg-blue-500/20 text-blue-400',
-            'CBI of Miami': 'bg-purple-500/20 text-purple-400',
+            'CBI': 'bg-purple-500/20 text-purple-400',
             'AVASUS': 'bg-green-500/20 text-green-400',
             'UFRGS': 'bg-orange-500/20 text-orange-400',
             'Padrao': 'bg-red-500/20 text-red-400'
@@ -142,11 +142,13 @@
         async function fetchBooks() {
             renderSkeletons();
             try {
-                const { data, error } = await _supabase.from('livros').select('*');
+                // CORREÇÃO: Nome da tabela mudado de 'livros' para 'biblioteca'
+                const { data, error } = await _supabase.from('biblioteca').select('*');
                 if (error) throw error;
-                allBooks = data;
-                setTimeout(renderBooks, 800); // Delay suave para o efeito skeleton
+                allBooks = data || [];
+                setTimeout(renderBooks, 800); 
             } catch (err) {
+                console.error(err);
                 document.getElementById('bookCount').innerText = "Erro na conexão.";
             }
         }
@@ -155,9 +157,9 @@
             const grid = document.getElementById('bookGrid');
             const filtered = allBooks.filter(b => {
                 const matchesCat = currentCategory === "Todos" || b.categoria === currentCategory;
-                const matchesSearch = b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                    b.autor.toLowerCase().includes(searchTerm.toLowerCase());
-                return matchesCat && matchesSearch;
+                const titleMatch = b.titulo ? b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+                const authorMatch = b.autor ? b.autor.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+                return matchesCat && (titleMatch || authorMatch);
             });
 
             grid.innerHTML = filtered.map(book => {
@@ -165,9 +167,10 @@
                 let badgeClass = badgeColors['Padrao'];
                 let fonteNome = 'NeuroLib';
                 
-                if(book.autor.includes('USP')) { badgeClass = badgeColors['USP']; fonteNome = 'USP'; }
-                else if(book.autor.includes('CBI')) { badgeClass = badgeColors['CBI of Miami']; fonteNome = 'CBI'; }
-                else if(book.autor.includes('AVASUS')) { badgeClass = badgeColors['AVASUS']; fonteNome = 'AVASUS'; }
+                const autorStr = book.autor || '';
+                if(autorStr.includes('USP')) { badgeClass = badgeColors['USP']; fonteNome = 'USP'; }
+                else if(autorStr.includes('CBI')) { badgeClass = badgeColors['CBI']; fonteNome = 'CBI'; }
+                else if(autorStr.includes('AVASUS')) { badgeClass = badgeColors['AVASUS']; fonteNome = 'AVASUS'; }
 
                 return `
                 <div class="card-book rounded-2xl overflow-hidden flex flex-col h-full group relative">
@@ -175,16 +178,16 @@
                         ${fonteNome}
                     </span>
                     <div class="relative h-40 overflow-hidden">
-                        <img src="${book.capa_url || 'https://via.placeholder.com/400x200?text=NeuroLib'}" 
+                        <img src="${book.capa_url || 'https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000&auto=format&fit=crop'}" 
                              class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                     </div>
                     <div class="p-5 flex flex-col flex-1">
-                        <span class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1">${book.categoria}</span>
+                        <span class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1">${book.categoria || 'Geral'}</span>
                         <h3 class="font-bold text-zinc-100 text-base leading-tight mb-1 line-clamp-2 group-hover:text-red-500 transition-colors">${book.titulo}</h3>
-                        <p class="text-zinc-500 text-xs mb-4">${book.autor}</p>
+                        <p class="text-zinc-500 text-xs mb-4">${book.autor || 'Autor Desconhecido'}</p>
                         
-                        <a href="${book.pdf_url}" target="_blank" class="mt-auto flex items-center justify-center gap-2 w-full bg-white text-black hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95">
+                        <a href="${book.url_pdf}" target="_blank" class="mt-auto flex items-center justify-center gap-2 w-full bg-white text-black hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95">
                             <i data-lucide="file-text" class="w-3.5 h-3.5"></i> ACESSAR MATERIAL
                         </a>
                     </div>
@@ -199,6 +202,7 @@
             currentCategory = cat;
             document.querySelectorAll('.nav-button').forEach(btn => {
                 btn.classList.remove('active');
+                // Compara o texto do botão para marcar como ativo
                 if(btn.innerText.trim().includes(cat)) btn.classList.add('active');
             });
             renderBooks();
@@ -209,6 +213,7 @@
             renderBooks();
         }
 
+        // Inicialização
         fetchBooks();
         lucide.createIcons();
     </script>
