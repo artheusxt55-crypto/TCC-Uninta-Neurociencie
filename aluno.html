@@ -16,43 +16,36 @@
         #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #robot-standby { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 5; transition: opacity 0.8s; }
         #robot-vid { width: 150px; filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4)); }
-        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); scroll-behavior: smooth; }
         .control-panel { padding: 30px; background: #000; border-top: 1px solid #1a1a1a; z-index: 100; }
         .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
         input { flex: 1; padding: 18px; border-radius: 8px; border: 1px solid #333; background: #050505; color: var(--ia-cyan); outline: none; font-size: 16px; }
         .btn-analyze { height: 58px; border-radius: 8px; border: none; background: var(--primary-red); color: white; padding: 0 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
         .btn-analyze:hover { background: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
         #loading-bar { height: 3px; background: var(--ia-cyan); width: 0%; position: absolute; bottom: 0; left: 0; transition: 0.4s; }
-        .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
-        .voice-card { padding: 10px 18px; font-size: 10px; border: 1px solid var(--ia-cyan); background: rgba(0,0,0,0.8); cursor: pointer; color: var(--ia-cyan); border-radius: 4px; }
-        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 15px var(--ia-cyan); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">UNTBOT_CORE</span></div>
+    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">UNTBOT_NEURAL_V2</span></div>
 </header>
 
 <div id="main-viewport">
-    <aside id="history-panel"><div id="logs-container"><div class="log-item">> SISTEMA: ONLINE</div></div></aside>
+    <aside id="history-panel"><div id="logs-container"><div class="log-item">> NÚCLEO ATIVO</div></div></aside>
     <div id="robot-standby">
         <video id="robot-vid" autoplay loop muted playsinline>
             <source src="robo-dormindo.mp4" type="video/mp4">
         </video>
     </div>
-    <div class="voice-hub">
-        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">UNTBOT_NEURAL</div>
-        <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
-    </div>
     <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: UNTBOT AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [SISTEMA]: AGUARDANDO IDENTIFICAÇÃO...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="Digite seu comando para o laboratório..." autocomplete="off">
-        <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
+        <input type="text" id="userInput" placeholder="Identifique-se ou digite um comando..." autocomplete="off">
+        <button id="btnEnviar" class="btn-analyze">EXECUTAR ⚡</button>
     </div>
 </div>
 
@@ -73,7 +66,14 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
-    // 1. Three.js - Cérebro 3D
+    // ID de Usuário Único por Navegador
+    const USER_KEY = 'untbot_user_uuid';
+    if(!localStorage.getItem(USER_KEY)) {
+        localStorage.setItem(USER_KEY, 'user_' + Math.random().toString(36).substr(2, 9));
+    }
+    const currentUserId = localStorage.getItem(USER_KEY);
+
+    // Three.js Brain Core
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -84,42 +84,33 @@
 
     let brain;
     new GLTFLoader().load('./brainunt.glb', (gltf) => {
-        brain = gltf.scene;
-        brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, wireframe: true }); });
+        brain = gltf.scene; brain.scale.set(2.2, 2.2, 2.2);
+        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, wireframe: true }); });
         scene.add(brain);
     });
 
     function animate(time) {
         requestAnimationFrame(animate);
-        if(brain) { brain.rotation.y += 0.006; brain.position.y = Math.sin(time * 0.0015) * 0.15; }
+        if(brain) { brain.rotation.y += 0.005; brain.position.y = Math.sin(time * 0.001) * 0.1; }
         renderer.render(scene, camera);
     }
     animate(0);
 
-    // 2. Sistema de Voz
-    window.currentVoice = 'antonio';
-    window.setVoice = (m, el) => { 
-        window.currentVoice = m; 
-        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); 
-        el.classList.add('active'); 
-    };
-
-    function nativeSpeak(t) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t.replace(/[*#]/g, ''));
-        msg.lang = 'pt-BR';
-        window.speechSynthesis.speak(msg);
+    // Função de Digitação (Streaming Effect)
+    function typeEffect(element, text, speed = 15) {
+        let i = 0;
+        element.innerHTML = ">> [UNTBOT]: ";
+        const interval = setInterval(() => {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                display.scrollTop = display.scrollHeight;
+                i++;
+            } else {
+                clearInterval(interval);
+            }
+        }, speed);
     }
 
-    async function falarUntbot(texto) {
-        const limpo = texto.replace(/[*#]/g, '');
-        const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
-        const audio = new Audio(url);
-        audio.play().catch(() => nativeSpeak(limpo));
-    }
-
-    // 3. Função com Memória Adaptativa e Aprendizado de Perfil
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
@@ -127,70 +118,53 @@
         window.isAnalyzing = true; 
         input.disabled = true; 
         robot.style.opacity = "0"; 
-        bar.style.width = "40%";
-        display.innerHTML = ">> [SINAPSE]: PROCESSANDO HISTÓRICO E APRENDENDO ESTILO...";
-        
+        bar.style.width = "50%";
+        display.innerHTML = ">> [ANALISANDO CAMADAS DE MEMÓRIA...]";
+
         try {
-            // A. BUSCAR PERSONALIDADE E HISTÓRICO (Últimas 6 para contexto profundo)
-            const { data: config } = await _supabase.from('bot_config').select('valor').eq('chave', 'instrucoes_sistema').single();
+            // 1. Busca Histórico Específico do Usuário
             const { data: memorias } = await _supabase.from('memorias')
-                .select('conteudo')
-                .eq('usuario_id', 'Mestre_Matheus')
-                .limit(6)
-                .order('data_criacao', { ascending: false });
-            
-            const personaBase = (config && config.valor) ? config.valor : "Você é o Untbot, o Assistente oficial do laboratório UNINTA.";
-            const historicoContexto = (memorias && memorias.length > 0) ? memorias.reverse().map(m => m.conteudo).join("\n") : "Iniciando nova conexão.";
+                .select('autor, conteudo')
+                .eq('usuario_id', currentUserId)
+                .order('data_criacao', { ascending: false })
+                .limit(8);
 
-            // B. PROMPT ADAPTATIVO (Onde o bot aprende quem você é)
-            const promptFinal = `
-                ${personaBase}
-                
-                REGRAS DE APRENDIZADO EM TEMPO REAL:
-                1. Memorize o nome do usuário assim que ele disser.
-                2. Identifique o "tom" do usuário (informal, técnico, brincalhão).
-                3. Se o usuário usar gírias éticas (ex: macho, top, fera), comece a usá-las sutilmente para criar Rapport.
-                4. Nunca cite outras universidades. Foco total na UNINTA.
+            const historico = memorias ? memorias.reverse().map(m => `${m.autor === 'bot' ? 'Bot' : 'Usuário'}: ${m.conteudo}`).join("\n") : "";
 
-                MEMÓRIA RECENTE (CONTEXTO):
-                ${historicoContexto}
-                
-                MENSAGEM DO USUÁRIO AGORA: ${txt}
-            `;
+            // 2. Prompt com Instruções de Aprendizado de Nome
+            const systemPrompt = `Você é o Untbot, o assistente oficial do laboratório UNINTA. 
+            REGRAS RÍGIDAS: 
+            1. Identifique o nome do usuário pelo histórico. Se ele disser o nome agora, memorize. 
+            2. NUNCA cite outras universidades (USP, etc). 
+            3. Use gírias locais (macho, fera) se o usuário for informal.
+            HISTÓRICO: ${historico}`;
 
-            // C. CHAMAR A API
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ 
-                    prompt: txt,
-                    systemContext: promptFinal
-                }) 
+                body: JSON.stringify({ prompt: txt, systemContext: systemPrompt }) 
             });
 
             const data = await res.json();
             const resp = data.choices[0].message.content;
-            
-            display.innerHTML = `>> [UNTBOT]: ${resp}`;
-            
-            if(window.currentVoice === 'antonio') await falarUntbot(resp);
-            else nativeSpeak(resp);
 
-            // D. SALVAR O PAR (PERGUNTA E RESPOSTA) PARA APRENDER
+            // 3. Efeito de Escrita
+            typeEffect(display, resp);
+
+            // 4. Salva no Supabase (Memória de longo prazo)
             await _supabase.from('memorias').insert([
-                { usuario_id: 'Mestre_Matheus', conteudo: `Usuário: ${txt}` },
-                { usuario_id: 'Mestre_Matheus', conteudo: `Untbot: ${resp}` }
+                { usuario_id: currentUserId, conteudo: txt, autor: 'usuario' },
+                { usuario_id: currentUserId, conteudo: resp, autor: 'bot' }
             ]);
 
             const log = document.createElement('div');
             log.className = 'log-item';
-            log.innerText = `> MEMORIZADO: ${txt.substring(0,12)}...`;
+            log.innerText = `> MEMÓRIA_SYNC: ${currentUserId.slice(-4)}`;
             logsContainer.prepend(log);
 
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO NEURAL."; 
-            console.error(e);
-        } finally { 
+            display.innerHTML = ">> [ERRO]: FALHA NA MATRIZ."; 
+        } finally {
             bar.style.width = "100%";
             setTimeout(() => { 
                 window.isAnalyzing = false; 
@@ -198,7 +172,7 @@
                 input.value = ""; 
                 bar.style.width = "0%"; 
                 robot.style.opacity = "1"; 
-            }, 1500); 
+            }, 1000);
         }
     }
 
