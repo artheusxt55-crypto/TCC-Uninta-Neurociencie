@@ -62,6 +62,7 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+    // CONFIGURAÇÃO SUPABASE
     const _supabase = supabase.createClient(
         'https://kczzuvkuubeqdokjihrm.supabase.co', 
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtjenp1dmt1dWJlcWRva2ppaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTQwOTcsImV4cCI6MjA4NjkzMDA5N30.d9R02a-ZYKTr9BCDVA-7DGjrTKVjzS434Uh9UCqrzRc'
@@ -73,14 +74,15 @@
     const bar = document.getElementById('loading-bar');
     const robot = document.getElementById('robot-standby');
 
+    // ID PERSISTENTE (LOCALSTORAGE)
     const USER_KEY = 'untbot_user_uuid';
     let currentUserId = localStorage.getItem(USER_KEY);
     if(!currentUserId) {
-        currentUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+        currentUserId = 'assistant_lab_' + Math.random().toString(36).substr(2, 6);
         localStorage.setItem(USER_KEY, currentUserId);
     }
 
-    // 3D Brain Setup
+    // --- ENGINE 3D ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -103,7 +105,7 @@
     }
     animate(0);
 
-    // Voice Engine
+    // --- SISTEMA DE VOZ ---
     window.currentVoice = 'antonio';
     window.setVoice = (m, el) => { 
         window.currentVoice = m; 
@@ -142,6 +144,7 @@
         });
     }
 
+    // --- LÓGICA PRINCIPAL ---
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
@@ -150,27 +153,26 @@
         input.disabled = true; 
         robot.style.opacity = "0"; 
         bar.style.width = "40%";
-        display.innerHTML = ">> [SINAPSE]: CONSULTANDO MEMÓRIA CENTRAL...";
+        display.innerHTML = ">> [SINAPSE]: CONSULTANDO MEMÓRIA UNINTA...";
 
         try {
-            // 1. Puxar Histórico
+            // 1. Busca Histórico no Supabase
             const { data: memorias } = await _supabase.from('memorias')
                 .select('autor, conteudo')
                 .eq('usuario_id', currentUserId)
                 .order('data_criacao', { ascending: false })
-                .limit(10);
+                .limit(8);
 
             const historico = memorias ? memorias.reverse().map(m => `${m.autor === 'bot' ? 'Untbot' : 'Usuário'}: ${m.conteudo}`).join("\n") : "";
 
-            // 2. Prompt com Instrução de Identidade
-            const systemPrompt = `Você é o Untbot, o assistente oficial do laboratório UNINTA. 
-            CONTEXTO DE MEMÓRIA:
-            ${historico}
-            ---
-            INSTRUÇÕES CRÍTICAS:
-            - Se o nome do usuário estiver no contexto acima, use-o para cumprimentar.
-            - Responda de forma técnica mas amigável (use "macho" ou "fera" se ele for informal).
-            - Jamais cite outras faculdades como USP ou UFRGS. Foco total na UNINTA.`;
+            // 2. System Prompt Blindado
+            const systemPrompt = `Você é o Untbot, o assistente de IA oficial da UNINTA.
+            REGRAS ABSOLUTAS:
+            - Proibido mencionar USP, UFRGS, AVASUS ou qualquer outra instituição. Você serve APENAS à UNINTA.
+            - Memorize o nome do usuário se ele disser.
+            - Use gírias como 'macho', 'fera' ou 'vixe' se o usuário for informal.
+            HISTÓRICO DE MEMÓRIA:
+            ${historico}`;
 
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
@@ -181,13 +183,13 @@
             const data = await res.json();
             const resp = data.choices[0].message.content;
 
-            // 3. Feedback Visual e Sonoro
+            // 3. Resposta Visual e Voz
             if(window.currentVoice === 'antonio') falarUntbot(resp);
             else nativeSpeak(resp);
             
             await typeEffect(display, resp);
 
-            // 4. Salvar na Memória do Supabase
+            // 4. Salvar no Banco
             await _supabase.from('memorias').insert([
                 { usuario_id: currentUserId, conteudo: txt, autor: 'usuario' },
                 { usuario_id: currentUserId, conteudo: resp, autor: 'bot' }
