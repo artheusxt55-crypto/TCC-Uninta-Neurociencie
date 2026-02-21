@@ -5,19 +5,11 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org https://*.vercel.app https://kczzuvkuubeqdokjihrm.supabase.co https://*.supabase.co wss://*.supabase.co data: blob:; media-src 'self' https://api.vocalremover.org data: blob:; img-src 'self' data: https://* blob:; worker-src 'self' blob:;"
+          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org https://*.vercel.app https://kczzuvkuubeqdokjihrm.supabase.co https://*.supabase.co wss://kczzuvkuubeqdokjihrm.supabase.co data: blob:; media-src 'self' https://api.vocalremover.org data: blob:; img-src 'self' data: https://* blob:; worker-src 'self' blob:;"
         },
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
         }
       ]
     }
