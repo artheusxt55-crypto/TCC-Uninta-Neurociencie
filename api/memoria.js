@@ -4,7 +4,7 @@ const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 export default async function handler(req, res) {
-  // 1. Habilitar CORS para o seu frontend não ser bloqueado
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -12,36 +12,40 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { userId, texto, autor, acao, range } = req.body;
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+      return res.status(500).json({ error: "Variáveis de ambiente não configuradas" });
+    }
+
+    const { userId, texto, autor, acao } = req.body;
 
     if (!userId || !acao) {
       return res.status(400).json({ error: "userId e acao são obrigatórios" });
     }
 
-    // 2. Ajuste na montagem da URL para REST API do Upstash
-    // O formato correto é: URL/comando/chave/valor
     let finalUrl = `${UPSTASH_URL}/${acao}/${userId}`;
-    let options = {
-      method: 'POST', // O Upstash aceita quase tudo via POST na REST API
-      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
-    };
+    let method = 'POST'; // default
+    if (acao === 'lrange') method = 'GET';
 
     if (acao === 'rpush') {
+      if (!texto || !autor) return res.status(400).json({ error: "texto e autor são obrigatórios para rpush" });
       const mensagem = encodeURIComponent(`${autor}: ${texto}`);
       finalUrl += `/${mensagem}`;
     } else if (acao === 'lrange') {
-      finalUrl += `/0/-1`; // Pega todo o histórico
+      finalUrl += `/0/-1`; // todo histórico
     } else if (acao === 'ltrim') {
-      finalUrl += `/-10/-1`; // Mantém as últimas 10
+      finalUrl += `/-10/-1`; // mantém últimas 10 mensagens
     }
 
-    const resp = await fetch(finalUrl, options);
-    const data = await resp.json();
+    const resp = await fetch(finalUrl, {
+      method,
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    });
 
+    const data = await resp.json();
     return res.status(200).json(data);
 
   } catch (e) {
     console.error("Erro na API de memória:", e);
-    return res.status(500).json({ error: "Falha no backend" });
+    return res.status(500).json({ error: "Falha no backend", detail: e.message });
   }
 }
