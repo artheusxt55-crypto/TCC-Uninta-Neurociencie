@@ -6,8 +6,7 @@
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://* wss://*; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
     
-    <title>UnintaBot - Untbot Neural Analytics</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>UnintaBot - Aluno Neural</title>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
@@ -24,17 +23,16 @@
         .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
         input { flex: 1; padding: 18px; border-radius: 8px; border: 1px solid #333; background: #050505; color: var(--ia-cyan); outline: none; font-size: 16px; }
         .btn-analyze { height: 58px; border-radius: 8px; border: none; background: var(--primary-red); color: white; padding: 0 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-analyze:hover { background: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
         #loading-bar { height: 3px; background: var(--ia-cyan); width: 0%; position: absolute; bottom: 0; left: 0; transition: 0.4s; }
         .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
         .voice-card { padding: 10px 18px; font-size: 10px; border: 1px solid var(--ia-cyan); background: rgba(0,0,0,0.8); cursor: pointer; color: var(--ia-cyan); border-radius: 4px; }
-        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; box-shadow: 0 0 15px var(--ia-cyan); }
+        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span id="status-tag" style="color:var(--primary-red)">UNTBOT_NEURAL_V3</span></div>
+    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span style="color:var(--primary-red)">UNTBOT_ALUNO_V3</span></div>
 </header>
 
 <div id="main-viewport">
@@ -49,12 +47,12 @@
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
     <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: UNTBOT AGUARDANDO COMANDO...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [SISTEMA]: UNTBOT AGUARDANDO COMANDO DO ALUNO...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="Identifique-se ou digite um comando..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="Digite sua dúvida aqui..." autocomplete="off">
         <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
     </div>
 </div>
@@ -65,11 +63,9 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // 🔗 CONEXÃO SUPABASE (VERIFICADA)
-    const _supabase = supabase.createClient(
-        'https://kczzuvkuubeqdokjihrm.supabase.co', 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtjenp1dmt1dWJlcWRva2ppaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTQwOTcsImV4cCI6MjA4NjkzMDA5N30.d9R02a-ZYKTr9BCDVA-7DGjrTKVjzS434Uh9UCqrzRc'
-    );
+    // 🧠 CONFIGURAÇÃO UPSTASH (CONEXÃO DIRETA)
+    const UPSTASH_URL = "https://enormous-raccoon-41416.upstash.io";
+    const UPSTASH_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
@@ -78,10 +74,30 @@
     const robot = document.getElementById('robot-standby');
 
     const USER_KEY = 'untbot_user_uuid';
-    let currentUserId = localStorage.getItem(USER_KEY);
-    if(!currentUserId) {
-        currentUserId = 'lab_user_' + Math.random().toString(36).substr(2, 5);
-        localStorage.setItem(USER_KEY, currentUserId);
+    let currentUserId = localStorage.getItem(USER_KEY) || 'lab_user_' + Math.random().toString(36).substr(2, 5);
+    localStorage.setItem(USER_KEY, currentUserId);
+
+    // --- FUNÇÕES UPSTASH ---
+    async function carregarMemoria(userId) {
+        try {
+            const res = await fetch(`${UPSTASH_URL}/lrange/${userId}/0/-1`, {
+                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            });
+            const data = await res.json();
+            return data.result ? data.result.join("\n") : "";
+        } catch (e) { return ""; }
+    }
+
+    async function salvarMemoria(userId, texto, autor) {
+        try {
+            const msg = `${autor}: ${texto}`;
+            await fetch(`${UPSTASH_URL}/rpush/${userId}/${encodeURIComponent(msg)}`, {
+                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            });
+            await fetch(`${UPSTASH_URL}/ltrim/${userId}/-6/-1`, { 
+                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            });
+        } catch (e) { console.error(e); }
     }
 
     // --- ENGINE 3D ---
@@ -98,7 +114,7 @@
         brain = gltf.scene; brain.scale.set(2.2, 2.2, 2.2);
         brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, wireframe: true }); });
         scene.add(brain);
-    }, undefined, (e) => console.error("Erro ao carregar cérebro:", e));
+    }, undefined, (e) => console.error("Erro 3D:", e));
 
     function animate(time) {
         requestAnimationFrame(animate);
@@ -107,7 +123,7 @@
     }
     animate(0);
 
-    // --- SISTEMA DE VOZ ---
+    // --- VOZ ---
     window.currentVoice = 'antonio';
     window.setVoice = (m, el) => { 
         window.currentVoice = m; 
@@ -115,39 +131,19 @@
         el.classList.add('active'); 
     };
 
-    function nativeSpeak(t) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t.replace(/[*#]/g, ''));
-        msg.lang = 'pt-BR';
-        window.speechSynthesis.speak(msg);
-    }
-
     async function falarUntbot(texto) {
         const limpo = texto.replace(/[*#]/g, '');
-        if(window.currentVoice === 'google') return nativeSpeak(limpo);
+        if(window.currentVoice === 'google') {
+            const msg = new SpeechSynthesisUtterance(limpo);
+            msg.lang = 'pt-BR';
+            window.speechSynthesis.speak(msg);
+            return;
+        }
         const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
-        const audio = new Audio(url);
-        return audio.play().catch(() => nativeSpeak(limpo));
+        new Audio(url).play().catch(() => {});
     }
 
-    function typeEffect(element, text) {
-        return new Promise((resolve) => {
-            let i = 0;
-            element.innerHTML = ">> [UNTBOT]: ";
-            const interval = setInterval(() => {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    display.scrollTop = display.scrollHeight;
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 15);
-        });
-    }
-
-    // --- LÓGICA PRINCIPAL (UNTBOT UNINTA) ---
+    // --- ENVIAR ---
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
@@ -156,27 +152,18 @@
         input.disabled = true; 
         robot.style.opacity = "0"; 
         bar.style.width = "40%";
-        display.innerHTML = ">> [SISTEMA]: ANALISANDO SINAPSES...";
+        display.innerHTML = ">> [SISTEMA]: PROCESSANDO MEMÓRIA...";
 
         try {
-            // 1. Tenta buscar histórico
-            let historico = "";
-            try {
-                const { data: memorias } = await _supabase.from('memorias')
-                    .select('autor, conteudo')
-                    .eq('usuario_id', currentUserId)
-                    .order('data_criacao', { ascending: false })
-                    .limit(5);
-                if(memorias) historico = memorias.reverse().map(m => `${m.autor}: ${m.conteudo}`).join("\n");
-            } catch (dbErr) { console.warn("Banco offline ou bloqueado."); }
+            const historico = await carregarMemoria(currentUserId);
 
-            // 2. System Prompt (AQUI ESTÁ A TUA IDENTIDADE)
             const systemPrompt = `Você é o UNTBOT, assistente oficial da UNINTA.
-            REGRAS ABSOLUTAS:
-            - NUNCA diga que é da USP, UFRGS ou AVASUS. Seu criador é Matheus (UNINTA).
-            - Use gírias cearenses como 'macho', 'fera' ou 'vixe' se o clima for informal.
-            - Responda de forma inteligente sobre neurociência.
-            HISTÓRICO: ${historico}`;
+            REGRAS:
+            - Criado por Matheus (UNINTA).
+            - Nunca diga que é da USP ou UFRGS.
+            - Use gírias como 'macho' ou 'fera'.
+            HISTÓRICO RECENTE:
+            ${historico}`;
 
             const res = await fetch("/api/analisar", { 
                 method: "POST", 
@@ -188,21 +175,18 @@
             const resp = data.choices[0].message.content;
 
             falarUntbot(resp);
-            await typeEffect(display, resp);
+            display.innerHTML = ">> [UNTBOT]: " + resp;
 
-            // 3. Salva no banco em background
-            _supabase.from('memorias').insert([
-                { usuario_id: currentUserId, conteudo: txt, autor: 'usuario' },
-                { usuario_id: currentUserId, conteudo: resp, autor: 'bot' }
-            ]).then(() => {
-                const log = document.createElement('div');
-                log.className = 'log-item';
-                log.innerText = `> MEMORIA_SALVA: ${currentUserId.slice(-4)}`;
-                logsContainer.prepend(log);
-            });
+            await salvarMemoria(currentUserId, txt, "Aluno");
+            await salvarMemoria(currentUserId, resp, "Untbot");
+
+            const log = document.createElement('div');
+            log.className = 'log-item';
+            log.innerText = `> MEMORIA_OK: ${currentUserId.slice(-4)}`;
+            logsContainer.prepend(log);
 
         } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA MATRIZ NEURAL."; 
+            display.innerHTML = ">> [ERRO]: FALHA NA CONEXÃO."; 
         } finally {
             bar.style.width = "100%";
             setTimeout(() => { 
