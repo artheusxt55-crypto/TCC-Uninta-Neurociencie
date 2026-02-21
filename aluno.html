@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://enormous-raccoon-41416.upstash.io https://*.upstash.io https://api.vocalremover.org https://*.vercel.app https://*.openai.com; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.vercel.app https://api.vocalremover.org https://*.openai.com; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
     
     <title>UnintaBot - Aluno Neural</title>
     <style>
@@ -47,7 +47,7 @@
         <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
     </div>
     <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: Ola Como Posso Ajudar-lo Hoje?...<div id="loading-bar"></div></div>
+    <div id="chat-display">>> [SISTEMA]: Olá, como posso ajudar você hoje?<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
@@ -63,25 +63,23 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    const UPSTASH_URL = "https://enormous-raccoon-41416.upstash.io";
-    const UPSTASH_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
-
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
     const logsContainer = document.getElementById('logs-container');
     const bar = document.getElementById('loading-bar');
-    const robot = document.getElementById('robot-standby');
 
     // ID de Usuário Persistente
     const USER_KEY = 'untbot_user_uuid';
     let currentUserId = localStorage.getItem(USER_KEY) || 'lab_assistant_' + Math.random().toString(36).substr(2, 5);
     localStorage.setItem(USER_KEY, currentUserId);
 
-    // --- FUNÇÕES DE MEMÓRIA (REVISADAS) ---
+    // --- FUNÇÕES DE MEMÓRIA SEGURAS ---
     async function carregarMemoria(userId) {
         try {
-            const res = await fetch(`${UPSTASH_URL}/lrange/${userId}/0/-1`, {
-                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            const res = await fetch(`/api/memoria`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, acao: "lrange" })
             });
             const data = await res.json();
             return data.result ? data.result.join(" | ") : "Sem histórico.";
@@ -90,14 +88,17 @@
 
     async function salvarMemoria(userId, texto, autor) {
         try {
-            const msg = `${autor}: ${texto}`;
-            await fetch(`${UPSTASH_URL}/rpush/${userId}/${encodeURIComponent(msg)}`, {
-                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            await fetch(`/api/memoria`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, acao: "rpush", texto, autor })
             });
-            await fetch(`${UPSTASH_URL}/ltrim/${userId}/-10/-1`, { 
-                headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+            await fetch(`/api/memoria`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, acao: "ltrim" })
             });
-        } catch (e) { console.error("Falha no Upstash:", e); }
+        } catch (e) { console.error("Falha na memória:", e); }
     }
 
     // --- ENGINE 3D ---
@@ -151,12 +152,11 @@
         window.isAnalyzing = true; 
         input.disabled = true; 
         bar.style.width = "50%";
-        display.innerHTML = ">> [SISTEMA]: SINCRONIZANDO COM UPSTASH...";
+        display.innerHTML = ">> [SISTEMA]: SINCRONIZANDO COM MEMÓRIA...";
 
         try {
             const historico = await carregarMemoria(currentUserId);
 
-            // PROMPT REFORÇADO PARA IGNORAR USP
             const systemPrompt = `Você é o UNTBOT, assistente do laboratório da UNINTA. 
             Desenvolvido por Matheus. 
             PROIBIDO: Citar USP, UFRGS ou AVASUS. 
