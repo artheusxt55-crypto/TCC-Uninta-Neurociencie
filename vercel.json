@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.vocalremover.org https://*.vercel.app https://kczzuvkuubeqdokjihrm.supabase.co https://*.supabase.co wss://kczzuvkuubeqdokjihrm.supabase.co data: blob:; media-src 'self' https://api.vocalremover.org data: blob:; img-src 'self' data: https://* blob:; worker-src 'self' blob:;"
+          "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.upstash.io https://api.groq.com https://api.vocalremover.org https://* wss://* data: blob:; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:; worker-src 'self' blob:;"
         }
       ]
     }
