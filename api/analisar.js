@@ -1,18 +1,17 @@
 // api/analisar.js
 export default async function handler(req, res) {
-    // 1. Segurança: Só aceita requisições do tipo POST (que seu site envia)
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido' });
     }
 
-    const { prompt } = req.body;
+    // AQUI ESTÁ A MUDANÇA: Agora ele pega o 'systemContext' que o HTML envia
+    const { prompt, systemContext } = req.body;
 
     try {
-        // 2. O Servidor faz a chamada para a Groq usando a chave oculta
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`, // CHAVE SEGURA AQUI
+                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -20,7 +19,8 @@ export default async function handler(req, res) {
                 messages: [
                     {
                         role: "system", 
-                        content: "Você é o UnintaBot, ferramenta técnica de Neurociência. Use termos baseados na USP/UFRGS e foque em psicopatologia e neuroimagem."
+                        // Se o HTML não mandar contexto, ele usa um padrão da UNINTA
+                        content: systemContext || "Você é o Untbot da UNINTA Tianguá, assistente de Neurociência e Psicopatologia."
                     },
                     { role: "user", content: prompt }
                 ]
@@ -28,8 +28,6 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
-
-        // 3. Devolve a resposta da IA para o seu site 3D
         return res.status(200).json(data);
 
     } catch (error) {
