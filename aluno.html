@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.upstash.io https://api.vocalremover.org https://* wss://*; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.upstash.io https://api.groq.com https://api.vocalremover.org https://* wss://*; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
 
     <title>UNTBOT NEURAL - UNINTA TIANGUÁ</title>
     
@@ -67,6 +67,7 @@
 <script type="module">
     // --- CONFIGURAÇÕES DO SEU REDIS (UPSTASH) ---
     const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
+    // Removido o Bearer do token aqui para evitar duplicação no fetch
     const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
     const input = document.getElementById('userInput');
@@ -78,35 +79,41 @@
     let currentUserId = localStorage.getItem('untbot_last_id');
     if(currentUserId) userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
 
-    // --- FUNÇÃO DE MEMÓRIA (REDIS) ---
     async function gerenciarMemoriaRedis(id, novaMsg = null) {
-        const key = `untbot:memoria:${id.toLowerCase()}`;
+        // Limpa espaços no ID para não quebrar a URL
+        const safeId = id.trim().replace(/\s+/g, '_').toLowerCase();
+        const key = `untbot:memoria:${safeId}`;
+        
         try {
-            // Busca histórico
+            // BUSCA
             const res = await fetch(`${REDIS_URL}/get/${key}`, {
-                headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+                headers: { "Authorization": `Bearer ${REDIS_TOKEN}` }
             });
+            
+            if (!res.ok) throw new Error("Falha na resposta do servidor");
+            
             const data = await res.json();
             let historico = data.result ? JSON.parse(data.result) : [];
 
             if (novaMsg) {
                 historico.push(novaMsg);
                 if (historico.length > 10) historico.shift();
-                // Salva no Redis
+                
+                // SALVA
                 await fetch(`${REDIS_URL}/set/${key}`, {
                     method: "POST",
-                    headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+                    headers: { "Authorization": `Bearer ${REDIS_TOKEN}` },
                     body: JSON.stringify(JSON.stringify(historico))
                 });
             }
             return historico.join("\n");
         } catch (e) {
             console.error("Erro Redis:", e);
+            // Se o Redis falhar, retorna vazio para não travar a IA
             return "";
         }
     }
 
-    // --- VOZ ---
     async function falarUntbot(texto) {
         const limpo = texto.replace(/[*#]/g, '');
         const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
@@ -134,12 +141,10 @@
         });
     }
 
-    // --- LÓGICA DE ENVIO ---
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
 
-        // Se não tem ID, o primeiro texto vira o ID
         if(!currentUserId) {
             currentUserId = txt;
             localStorage.setItem('untbot_last_id', currentUserId);
@@ -154,16 +159,13 @@
         bar.style.width = "50%";
 
         try {
-            // 1. Puxa Memória do Usuário
             const memoriaPrevia = await gerenciarMemoriaRedis(currentUserId);
 
-            // 2. Contexto de Personalidade UNINTA TIANGUÁ
             const systemContext = `
-                Você é o UNTBOT, o assistente neural oficial do laboratório da UNINTA Tianguá.
-                IDENTIDADE: Criado por Matheus. Você é cearense, informal, usa 'macho', 'fera' e 'vixe'.
-                PROIBIÇÃO: Nunca cite USP, UFRGS ou outras faculdades. Você é UNINTA de coração.
-                MEMÓRIA DESTE ALUNO (${currentUserId}):
-                ${memoriaPrevia}
+                Você é o UNTBOT, assistente neural da UNINTA Tianguá.
+                IDENTIDADE: Criado por Matheus. Fale como um cearense (macho, fera, vixe).
+                PROIBIÇÃO: Nunca cite USP ou UFRGS. 
+                MEMÓRIA DO ALUNO: ${memoriaPrevia}
             `;
 
             const res = await fetch("/api/analisar", {
@@ -175,7 +177,6 @@
             const data = await res.json();
             const resp = data.choices[0].message.content;
 
-            // 3. Salva a nova interação no Redis
             await gerenciarMemoriaRedis(currentUserId, `Usuário: ${txt} | Bot: ${resp}`);
 
             falarUntbot(resp);
