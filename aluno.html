@@ -77,7 +77,7 @@
     let currentUserId = localStorage.getItem('untbot_last_id');
     if(currentUserId) userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
 
-    // --- FUNÇÃO CORRIGIDA ---
+    // --- FUNÇÃO DE MEMÓRIA BLINDADA ---
     async function gerenciarMemoriaRedis(id, novaMsg = null) {
         const safeId = id.trim().replace(/\s+/g, '_').toLowerCase();
         const key = `untbot:memoria:${safeId}`;
@@ -90,22 +90,25 @@
             const data = await res.json();
             let historico = [];
 
-            // 🛡️ Garante que 'historico' seja sempre um Array
             if (data.result) {
                 try {
-                    const parsed = JSON.parse(data.result);
+                    let parsed = data.result;
+                    // Se o Redis retornar string, descompacta até virar Array
+                    while(typeof parsed === 'string') {
+                        parsed = JSON.parse(parsed);
+                    }
                     historico = Array.isArray(parsed) ? parsed : [];
                 } catch(e) { historico = []; }
             }
 
             if (novaMsg) {
                 historico.push(novaMsg);
-                if (historico.length > 10) historico.shift();
+                if (historico.length > 12) historico.shift();
                 
                 await fetch(`${REDIS_URL}/set/${key}`, {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${REDIS_TOKEN}` },
-                    body: JSON.stringify(JSON.stringify(historico))
+                    body: JSON.stringify(JSON.stringify(historico)) // Double stringify garante persistência no Upstash
                 });
             }
             return historico.join("\n");
@@ -150,7 +153,7 @@
             currentUserId = txt;
             localStorage.setItem('untbot_last_id', currentUserId);
             userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
-            display.innerHTML = `>> [SISTEMA]: ID ${currentUserId} RECONHECIDO. COMO POSSO AJUDAR, MACHO?`;
+            display.innerHTML = `>> [SISTEMA]: ID ${currentUserId} RECONHECIDO. VIXE, MACHO, AGORA EU NÃO ESQUEÇO MAIS!`;
             input.value = "";
             return;
         }
@@ -160,13 +163,16 @@
         bar.style.width = "50%";
 
         try {
+            // Busca a memória do Redis
             const memoriaPrevia = await gerenciarMemoriaRedis(currentUserId);
 
+            // Monta o contexto que vai pro analisar.js
             const systemContext = `
                 Você é o UNTBOT, assistente neural da UNINTA Tianguá.
                 IDENTIDADE: Criado por Matheus. Fale como um cearense (macho, fera, vixe).
-                PROIBIÇÃO: Nunca cite USP ou UFRGS. 
-                MEMÓRIA DO ALUNO: ${memoriaPrevia}
+                PROIBIÇÃO: Nunca cite USP ou UFRGS.
+                HISTÓRICO DE CONVERSA (LEMBRE DISSO):
+                ${memoriaPrevia}
             `;
 
             const res = await fetch("/api/analisar", {
@@ -178,6 +184,7 @@
             const data = await res.json();
             const resp = data.choices[0].message.content;
 
+            // Salva a nova interação no Redis
             await gerenciarMemoriaRedis(currentUserId, `Usuário: ${txt} | Bot: ${resp}`);
 
             falarUntbot(resp);
