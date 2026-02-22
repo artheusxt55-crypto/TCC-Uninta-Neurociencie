@@ -65,9 +65,7 @@
 </div>
 
 <script type="module">
-    // --- CONFIGURAÇÕES DO SEU REDIS (UPSTASH) ---
     const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
-    // Removido o Bearer do token aqui para evitar duplicação no fetch
     const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
     const input = document.getElementById('userInput');
@@ -79,27 +77,31 @@
     let currentUserId = localStorage.getItem('untbot_last_id');
     if(currentUserId) userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
 
+    // --- FUNÇÃO CORRIGIDA ---
     async function gerenciarMemoriaRedis(id, novaMsg = null) {
-        // Limpa espaços no ID para não quebrar a URL
         const safeId = id.trim().replace(/\s+/g, '_').toLowerCase();
         const key = `untbot:memoria:${safeId}`;
         
         try {
-            // BUSCA
             const res = await fetch(`${REDIS_URL}/get/${key}`, {
                 headers: { "Authorization": `Bearer ${REDIS_TOKEN}` }
             });
             
-            if (!res.ok) throw new Error("Falha na resposta do servidor");
-            
             const data = await res.json();
-            let historico = data.result ? JSON.parse(data.result) : [];
+            let historico = [];
+
+            // 🛡️ Garante que 'historico' seja sempre um Array
+            if (data.result) {
+                try {
+                    const parsed = JSON.parse(data.result);
+                    historico = Array.isArray(parsed) ? parsed : [];
+                } catch(e) { historico = []; }
+            }
 
             if (novaMsg) {
                 historico.push(novaMsg);
                 if (historico.length > 10) historico.shift();
                 
-                // SALVA
                 await fetch(`${REDIS_URL}/set/${key}`, {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${REDIS_TOKEN}` },
@@ -109,7 +111,6 @@
             return historico.join("\n");
         } catch (e) {
             console.error("Erro Redis:", e);
-            // Se o Redis falhar, retorna vazio para não travar a IA
             return "";
         }
     }
