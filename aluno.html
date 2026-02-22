@@ -4,195 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.vercel.app https://api.vocalremover.org https://*.openai.com; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.upstash.io https://api.vocalremover.org https://* wss://*; media-src 'self' https://* data: blob:; img-src 'self' data: https://* blob:;">
+
+    <title>UNTBOT NEURAL - UNINTA TIANGUÁ</title>
     
-    <title>UnintaBot - Aluno Neural</title>
     <style>
         :root { --ia-cyan: #00f2ff; --primary-red: #e30613; --bg-dark: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
         body { background: var(--bg-dark); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
         header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-red); background: #000; z-index: 100; }
+        
         #main-viewport { flex: 1; position: relative; display: flex; overflow: hidden; }
+        
         #history-panel { width: 220px; border-right: 1px solid rgba(0, 242, 255, 0.1); background: rgba(0,0,0,0.8); padding: 20px; z-index: 10; overflow-y: auto; }
         .log-item { font-size: 10px; color: var(--ia-cyan); margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; }
-        #brain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        #robot-standby { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 5; transition: opacity 0.8s; }
+
+        #robot-standby { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 5; }
         #robot-vid { width: 150px; filter: drop-shadow(0 0 20px rgba(227, 6, 19, 0.4)); }
-        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); scroll-behavior: smooth; }
+
+        #chat-display { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 850px; padding: 25px; background: var(--panel-bg); border-left: 4px solid var(--ia-cyan); color: #ddd; font-size: 14px; max-height: 200px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+
         .control-panel { padding: 30px; background: #000; border-top: 1px solid #1a1a1a; z-index: 100; }
         .input-box { display: flex; gap: 15px; max-width: 1000px; margin: 0 auto; }
         input { flex: 1; padding: 18px; border-radius: 8px; border: 1px solid #333; background: #050505; color: var(--ia-cyan); outline: none; font-size: 16px; }
         .btn-analyze { height: 58px; border-radius: 8px; border: none; background: var(--primary-red); color: white; padding: 0 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        
         #loading-bar { height: 3px; background: var(--ia-cyan); width: 0%; position: absolute; bottom: 0; left: 0; transition: 0.4s; }
-        .voice-hub { position: absolute; right: 25px; top: 25px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
-        .voice-card { padding: 10px 18px; font-size: 10px; border: 1px solid var(--ia-cyan); background: rgba(0,0,0,0.8); cursor: pointer; color: var(--ia-cyan); border-radius: 4px; }
-        .voice-card.active { background: var(--ia-cyan); color: black; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA <span style="color:var(--primary-red)">UNTBOT_ALUNO_V3</span></div>
+    <div style="font-size: 14px; font-weight: 900; letter-spacing: 4px;">UNINTA TIANGUÁ <span style="color:var(--ia-cyan)">UNTBOT_V3</span></div>
+    <div id="user-tag" style="font-size: 10px; color: #666;">ID: AGUARDANDO...</div>
 </header>
 
 <div id="main-viewport">
-    <aside id="history-panel"><div id="logs-container"><div class="log-item">> SISTEMA: ONLINE</div></div></aside>
+    <aside id="history-panel">
+        <div id="logs-container">
+            <div class="log-item">> NUCLEO_ATIVO</div>
+            <div class="log-item">> REDIS_SYNC_READY</div>
+        </div>
+    </aside>
+
     <div id="robot-standby">
         <video id="robot-vid" autoplay loop muted playsinline>
             <source src="robo-dormindo.mp4" type="video/mp4">
         </video>
     </div>
-    <div class="voice-hub">
-        <div id="v-antonio" class="voice-card active" onclick="setVoice('antonio', this)">UNTBOT_NEURAL</div>
-        <div id="v-native" class="voice-card" onclick="setVoice('google', this)">NATIVE_OS</div>
-    </div>
-    <div id="brain-container"></div>
-    <div id="chat-display">>> [SISTEMA]: Olá, como posso ajudar você hoje?<div id="loading-bar"></div></div>
+
+    <div id="chat-display">>> [SISTEMA]: IDENTIFIQUE-SE PARA INICIAR...<div id="loading-bar"></div></div>
 </div>
 
 <div class="control-panel">
     <div class="input-box">
-        <input type="text" id="userInput" placeholder="Digite sua dúvida aqui..." autocomplete="off">
-        <button id="btnEnviar" class="btn-analyze">EXECUTAR SCANNER ⚡</button>
+        <input type="text" id="userInput" placeholder="Digite seu nome ou ID..." autocomplete="off">
+        <button id="btnEnviar" class="btn-analyze">SCANNER ⚡</button>
     </div>
 </div>
 
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
-
 <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    // --- CONFIGURAÇÕES DO SEU REDIS (UPSTASH) ---
+    const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
+    const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
     const input = document.getElementById('userInput');
     const display = document.getElementById('chat-display');
     const logsContainer = document.getElementById('logs-container');
     const bar = document.getElementById('loading-bar');
+    const userTag = document.getElementById('user-tag');
 
-    // ID de Usuário Persistente
-    const USER_KEY = 'untbot_user_uuid';
-    let currentUserId = localStorage.getItem(USER_KEY) || 'lab_assistant_' + Math.random().toString(36).substr(2, 5);
-    localStorage.setItem(USER_KEY, currentUserId);
+    let currentUserId = localStorage.getItem('untbot_last_id');
+    if(currentUserId) userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
 
-    // --- FUNÇÕES DE MEMÓRIA SEGURAS ---
-    async function carregarMemoria(userId) {
+    // --- FUNÇÃO DE MEMÓRIA (REDIS) ---
+    async function gerenciarMemoriaRedis(id, novaMsg = null) {
+        const key = `untbot:memoria:${id.toLowerCase()}`;
         try {
-            const res = await fetch(`/api/memoria`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, acao: "lrange" })
+            // Busca histórico
+            const res = await fetch(`${REDIS_URL}/get/${key}`, {
+                headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
             });
             const data = await res.json();
-            return data.result ? data.result.join(" | ") : "Sem histórico.";
-        } catch (e) { return "Erro ao carregar."; }
-    }
+            let historico = data.result ? JSON.parse(data.result) : [];
 
-    async function salvarMemoria(userId, texto, autor) {
-        try {
-            await fetch(`/api/memoria`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, acao: "rpush", texto, autor })
-            });
-            await fetch(`/api/memoria`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, acao: "ltrim" })
-            });
-        } catch (e) { console.error("Falha na memória:", e); }
-    }
-
-    // --- ENGINE 3D ---
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('brain-container').appendChild(renderer.domElement);
-    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-    camera.position.z = 7;
-
-    let brain;
-    new GLTFLoader().load('./brainunt.glb', (gltf) => {
-        brain = gltf.scene; brain.scale.set(2.2, 2.2, 2.2);
-        brain.traverse(n => { if(n.isMesh) n.material = new THREE.MeshStandardMaterial({ color: 0x00f2ff, wireframe: true }); });
-        scene.add(brain);
-    });
-
-    function animate(time) {
-        requestAnimationFrame(animate);
-        if(brain) { brain.rotation.y += 0.005; brain.position.y = Math.sin(time * 0.001) * 0.1; }
-        renderer.render(scene, camera);
-    }
-    animate(0);
-
-    // --- VOZ ---
-    window.currentVoice = 'antonio';
-    window.setVoice = (m, el) => { 
-        window.currentVoice = m; 
-        document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active')); 
-        el.classList.add('active'); 
-    };
-
-    async function falar(texto) {
-        const limpo = texto.replace(/[*#]/g, '');
-        if(window.currentVoice === 'google') {
-            const msg = new SpeechSynthesisUtterance(limpo);
-            msg.lang = 'pt-BR';
-            window.speechSynthesis.speak(msg);
-        } else {
-            const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
-            new Audio(url).play().catch(() => {});
+            if (novaMsg) {
+                historico.push(novaMsg);
+                if (historico.length > 10) historico.shift();
+                // Salva no Redis
+                await fetch(`${REDIS_URL}/set/${key}`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+                    body: JSON.stringify(JSON.stringify(historico))
+                });
+            }
+            return historico.join("\n");
+        } catch (e) {
+            console.error("Erro Redis:", e);
+            return "";
         }
     }
 
-    // --- LOGICA DE ENVIO ---
+    // --- VOZ ---
+    async function falarUntbot(texto) {
+        const limpo = texto.replace(/[*#]/g, '');
+        const url = `https://api.vocalremover.org/api/v1/tts-generate?text=${encodeURIComponent(limpo)}&voice=antonio`;
+        const audio = new Audio(url);
+        return audio.play().catch(() => {
+            const msg = new SpeechSynthesisUtterance(limpo);
+            msg.lang = 'pt-BR';
+            window.speechSynthesis.speak(msg);
+        });
+    }
+
+    function typeEffect(text) {
+        return new Promise((resolve) => {
+            let i = 0;
+            display.innerHTML = ">> [UNTBOT]: ";
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    display.innerHTML += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 20);
+        });
+    }
+
+    // --- LÓGICA DE ENVIO ---
     async function enviar() {
         const txt = input.value.trim();
         if(!txt || window.isAnalyzing) return;
 
-        window.isAnalyzing = true; 
-        input.disabled = true; 
+        // Se não tem ID, o primeiro texto vira o ID
+        if(!currentUserId) {
+            currentUserId = txt;
+            localStorage.setItem('untbot_last_id', currentUserId);
+            userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
+            display.innerHTML = `>> [SISTEMA]: ID ${currentUserId} RECONHECIDO. COMO POSSO AJUDAR, MACHO?`;
+            input.value = "";
+            return;
+        }
+
+        window.isAnalyzing = true;
+        input.disabled = true;
         bar.style.width = "50%";
-        display.innerHTML = ">> [SISTEMA]: SINCRONIZANDO COM MEMÓRIA...";
 
         try {
-            const historico = await carregarMemoria(currentUserId);
+            // 1. Puxa Memória do Usuário
+            const memoriaPrevia = await gerenciarMemoriaRedis(currentUserId);
 
-            const systemPrompt = `Você é o UNTBOT, assistente do laboratório da UNINTA. 
-            Desenvolvido por Matheus. 
-            PROIBIDO: Citar USP, UFRGS ou AVASUS. 
-            Obrigatório: Chamar o usuário de 'macho' ou 'fera'.
-            Contexto da conversa atual: ${historico}`;
+            // 2. Contexto de Personalidade UNINTA TIANGUÁ
+            const systemContext = `
+                Você é o UNTBOT, o assistente neural oficial do laboratório da UNINTA Tianguá.
+                IDENTIDADE: Criado por Matheus. Você é cearense, informal, usa 'macho', 'fera' e 'vixe'.
+                PROIBIÇÃO: Nunca cite USP, UFRGS ou outras faculdades. Você é UNINTA de coração.
+                MEMÓRIA DESTE ALUNO (${currentUserId}):
+                ${memoriaPrevia}
+            `;
 
-            const res = await fetch("/api/analisar", { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ prompt: txt, systemContext: systemPrompt }) 
+            const res = await fetch("/api/analisar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: txt, systemContext: systemContext })
             });
 
             const data = await res.json();
             const resp = data.choices[0].message.content;
 
-            display.innerHTML = ">> [UNTBOT]: " + resp;
-            falar(resp);
+            // 3. Salva a nova interação no Redis
+            await gerenciarMemoriaRedis(currentUserId, `Usuário: ${txt} | Bot: ${resp}`);
 
-            await salvarMemoria(currentUserId, txt, "Aluno");
-            await salvarMemoria(currentUserId, resp, "Untbot");
+            falarUntbot(resp);
+            await typeEffect(resp);
 
             const log = document.createElement('div');
             log.className = 'log-item';
-            log.innerText = `> DATA_SYNC: SUCCESS`;
+            log.innerText = `> MEM_SYNC_OK: ${currentUserId}`;
             logsContainer.prepend(log);
 
-        } catch(e) { 
-            display.innerHTML = ">> [ERRO]: FALHA NA REDE."; 
+        } catch (e) {
+            display.innerHTML = ">> [ERRO]: SINAPSE ROMPIDA. TENTE NOVAMENTE.";
         } finally {
-            bar.style.width = "100%";
-            setTimeout(() => { 
-                window.isAnalyzing = false; 
-                input.disabled = false; 
-                input.value = ""; 
-                bar.style.width = "0%"; 
-            }, 400);
+            bar.style.width = "0%";
+            window.isAnalyzing = false;
+            input.disabled = false;
+            input.value = "";
         }
     }
 
