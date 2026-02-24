@@ -7,86 +7,84 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e30613; --bg: #000000; --glass: rgba(18, 18, 18, 0.8); }
-        * { font-family: 'JetBrains Mono', monospace; scroll-behavior: smooth; }
+        :root { --primary: #e30613; --bg: #000000; }
+        * { font-family: 'JetBrains Mono', monospace; }
         body { background-color: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         
         /* Efeito Scanline do Lovable */
         .scanline-overlay::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.4;
         }
 
-        .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .red-glow-border { border-left: 4px solid var(--primary); box-shadow: -10px 0 20px rgba(227, 6, 19, 0.1); }
+        .glass-card { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
+        .red-glow { filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.6)); }
         
-        /* Animação do Robô */
-        .avatar-glow { filter: drop-shadow(0 0 25px rgba(227, 6, 19, 0.6)); animation: pulse-glow 3s infinite; }
-        @keyframes pulse-glow { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
-
-        /* Estilo das mensagens */
-        .msg-bot { color: #f3f4f6; line-height: 1.6; }
-        .msg-user { color: #9ca3af; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+        /* Animações do Robô Reativo */
+        .avatar-container { transition: all 0.3s ease; }
+        .thinking-anim { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+        
+        /* Esconder Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="scanline-overlay">
 
-    <header class="h-16 border-b border-red-900/50 bg-black/80 backdrop-blur-md flex items-center justify-between px-6 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-red-600 rounded-full animate-ping"></div>
-            <h1 class="text-sm font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V3</span></h1>
+    <header class="h-14 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-red-600 rounded-full animate-ping"></div>
+            <span class="text-xs font-bold tracking-widest uppercase">UNINTA <span class="text-red-600">UNTBOT_V3</span></span>
         </div>
-        <div id="user-tag" class="text-[10px] bg-red-950/30 border border-red-500/50 px-3 py-1 rounded text-red-500 font-bold uppercase tracking-tighter">
-            System: Offline
-        </div>
+        <div id="user-tag" class="text-[9px] text-red-500/70 border border-red-900/50 px-2 py-1 rounded uppercase">AGUARDANDO_ID</div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <aside class="hidden lg:flex w-64 flex-col border-r border-red-900/20 bg-[#050505] p-4">
-            <span class="text-[10px] text-red-600 font-bold mb-4 tracking-widest uppercase">Console_Output</span>
-            <div id="logs-container" class="space-y-2 overflow-y-auto">
-                <div class="text-[9px] text-red-500/60 font-mono tracking-tighter">> INITIALIZING_NEURAL_CORE...</div>
-                <div class="text-[9px] text-red-500/60 font-mono tracking-tighter">> REDIS_CONNECTION_READY</div>
+        <aside class="hidden md:flex w-52 flex-col border-r border-red-900/20 bg-black p-4 overflow-hidden">
+            <span class="text-[10px] text-red-600 font-bold mb-4 opacity-50 uppercase tracking-widest">System_Console</span>
+            <div id="logs-container" class="space-y-2 text-[9px] font-mono text-red-500/40 no-scrollbar overflow-y-auto">
+                <div>> NEURAL_CORE_READY</div>
+                <div>> STABLE_CONNECTION_OK</div>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden bg-gradient-to-b from-[#0a0000] to-black">
+        <main class="flex-1 flex flex-col p-4 gap-4 overflow-hidden relative">
             
-            <div class="flex flex-col md:flex-row gap-4 h-56 flex-shrink-0">
-                <div class="w-full md:w-48 glass-card flex items-center justify-center p-4 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-red-600/5 animate-pulse"></div>
-                    <video id="robot-vid" class="w-28 h-28 avatar-glow object-contain z-10" autoplay loop muted playsinline>
-                        <source src="robo-dormindo.mp4" type="video/mp4">
-                    </video>
+            <div class="flex gap-4 h-48 md:h-56 flex-shrink-0">
+                <div id="avatar-box" class="w-40 md:w-48 glass-card flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                    <div id="avatar-status-bg" class="absolute inset-0 bg-red-600/5 transition-colors duration-500"></div>
+                    
+                    <div id="robot-content" class="z-10 flex flex-col items-center gap-2">
+                        <div id="avatar-icon" class="text-5xl md:text-6xl red-glow transition-all duration-300">🤖</div>
+                        <div id="avatar-label" class="text-[9px] font-bold text-red-600 uppercase tracking-widest mt-2">Standby</div>
+                    </div>
                 </div>
-                <div id="brain-container" class="hidden md:flex flex-1 glass-card border-dashed border-red-900/40 items-center justify-center">
-                    <span class="text-[10px] text-red-900 font-bold uppercase tracking-[0.5em]">Neural_Viewport_Active</span>
+
+                <div class="flex-1 glass-card hidden sm:flex items-center justify-center border-dashed border-red-900/30">
+                    <span class="text-[10px] text-red-900 font-bold uppercase tracking-[0.4em]">Brain_Neural_Link</span>
                 </div>
             </div>
 
-            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto red-glow-border space-y-6">
-                <div class="msg-bot">
-                    <span class="text-red-600 font-bold">>> [SISTEMA]:</span> BEM-VINDO AO LABORATÓRIO DE NEUROCIÊNCIAS. IDENTIFIQUE-SE PARA ACESSAR O ACERVO.
-                </div>
+            <div id="chat-display" class="flex-1 glass-card p-4 overflow-y-auto space-y-4 no-scrollbar border-l-2 border-red-600/40 text-sm">
+                <div class="text-red-500 font-bold italic">>> [SISTEMA]: IDENTIFIQUE-SE PARA INICIAR...</div>
             </div>
 
-            <div class="h-20 glass-card p-2 flex items-center gap-3 px-4 border-red-600/30">
+            <div class="h-16 glass-card flex items-center px-4 gap-3 border-red-600/30">
                 <input type="text" id="userInput" 
-                    class="flex-1 bg-transparent border-none outline-none text-red-100 placeholder:text-red-900 text-sm md:text-base"
-                    placeholder="Mande sua dúvida ou comando..." autocomplete="off">
+                    class="flex-1 bg-transparent border-none outline-none text-red-100 placeholder:text-red-900/50"
+                    placeholder="Digite seu comando aqui..." autocomplete="off">
                 <button id="btnEnviar" 
-                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-bold text-xs tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/20">
-                    SCANNER_⚡
+                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded text-[10px] font-bold tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/40 uppercase">
+                    Scanner⚡
                 </button>
             </div>
 
-            <div id="loading-bar" class="absolute bottom-0 left-0 h-[1px] bg-red-600 w-0 transition-all duration-700 shadow-[0_0_10px_#e30613]"></div>
+            <div id="loading-bar" class="absolute bottom-0 left-0 h-[1px] bg-red-600 w-0 transition-all duration-500 shadow-[0_0_10px_#e30613]"></div>
         </main>
     </div>
 
     <script type="module">
-        // Configurações do Matheus (Suas Chaves Atuais)
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
@@ -95,20 +93,44 @@
         const logsContainer = document.getElementById('logs-container');
         const bar = document.getElementById('loading-bar');
         const userTag = document.getElementById('user-tag');
+        
+        // Elementos do Avatar Reativo
+        const avatarIcon = document.getElementById('avatar-icon');
+        const avatarLabel = document.getElementById('avatar-label');
+        const avatarStatusBg = document.getElementById('avatar-status-bg');
 
         let currentUserId = localStorage.getItem('untbot_last_id');
         if(currentUserId) {
             userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
-            userTag.classList.add('text-red-500');
+        }
+
+        function setRobotState(state) {
+            switch(state) {
+                case 'processing':
+                    avatarIcon.innerText = "🤔";
+                    avatarLabel.innerText = "Processando...";
+                    avatarIcon.classList.add('thinking-anim');
+                    avatarStatusBg.classList.replace('bg-red-600/5', 'bg-red-600/20');
+                    break;
+                case 'happy':
+                    avatarIcon.innerText = "😊";
+                    avatarLabel.innerText = "Sinapse Ok!";
+                    avatarIcon.classList.remove('thinking-anim');
+                    avatarStatusBg.classList.replace('bg-red-600/20', 'bg-green-600/10');
+                    break;
+                default:
+                    avatarIcon.innerText = "🤖";
+                    avatarLabel.innerText = "Standby";
+                    avatarIcon.classList.remove('thinking-anim');
+                    avatarStatusBg.className = "absolute inset-0 bg-red-600/5 transition-colors duration-500";
+            }
         }
 
         async function gerenciarMemoriaRedis(id, novaMsg = null) {
             const safeId = id.trim().replace(/\s+/g, '_').toLowerCase();
             const key = `untbot:memoria:${safeId}`;
             try {
-                const res = await fetch(`${REDIS_URL}/get/${key}`, {
-                    headers: { "Authorization": `Bearer ${REDIS_TOKEN}` }
-                });
+                const res = await fetch(`${REDIS_URL}/get/${key}`, { headers: { "Authorization": `Bearer ${REDIS_TOKEN}` } });
                 const data = await res.json();
                 let historico = [];
                 if (data.result) {
@@ -118,7 +140,7 @@
                 }
                 if (novaMsg) {
                     historico.push(novaMsg);
-                    if (historico.length > 12) historico.shift();
+                    if (historico.length > 10) historico.shift();
                     await fetch(`${REDIS_URL}/set/${key}`, {
                         method: "POST",
                         headers: { "Authorization": `Bearer ${REDIS_TOKEN}` },
@@ -131,7 +153,6 @@
 
         function addLog(msg) {
             const log = document.createElement('div');
-            log.className = 'text-[9px] text-red-500/40 font-mono tracking-tighter animate-fade-in';
             log.innerText = `> ${msg}`;
             logsContainer.prepend(log);
         }
@@ -144,21 +165,22 @@
                 currentUserId = txt;
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
-                display.innerHTML += `<div class="msg-bot"><span class="text-red-600 font-bold">>> [SISTEMA]:</span> ACESSO CONCEDIDO, ${currentUserId.toUpperCase()}. MESTRE MATHEUS TE AGUARDA.</div>`;
+                display.innerHTML += `<div class="mt-2 text-red-400 font-bold">> ID ${currentUserId} IDENTIFICADO.</div>`;
                 input.value = "";
                 return;
             }
 
+            // --- INÍCIO DO PROCESSAMENTO ---
+            setRobotState('processing');
             input.disabled = true;
-            bar.style.width = "70%";
-            display.innerHTML += `<div class="msg-user">>> COMANDO_USUÁRIO: ${txt}</div>`;
+            bar.style.width = "75%";
+            display.innerHTML += `<div class="opacity-50 text-[11px] mt-4 uppercase tracking-tighter text-gray-400">Usuário: ${txt}</div>`;
             display.scrollTop = display.scrollHeight;
 
             try {
                 const memoriaPrevia = await gerenciarMemoriaRedis(currentUserId);
                 
-                // O MASTER PROMPT GIGANTE DO LOVABLE + SEU BACKEND
-                const systemContext = `Você é o UNTBOT, PhD em Neurociências da UNINTA Tianguá. Criado por Matheus. Fale como um cearense (macho, fera, vixe). PERSONALIDADE: Cientista sênior, adaptativo, incentivador. REGRAS: Jamais cite USP ou UFRGS. Foque no acervo interno da biblioteca (TEA, TDAH, Psicofarmacologia). MEMÓRIA: ${memoriaPrevia}`;
+                const systemContext = `Você é o UNTBOT, PhD em Neurociências da UNINTA Tianguá. Fale como um cearense (macho, fera, vixe). Jamais cite USP ou UFRGS. Foco em TEA, TDAH e Neuroimagem da UNINTA. HISTÓRICO: ${memoriaPrevia}`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -171,17 +193,22 @@
 
                 await gerenciarMemoriaRedis(currentUserId, `Usuário: ${txt} | Bot: ${resp}`);
                 
-                display.innerHTML += `<div class="msg-bot"><span class="text-red-600 font-bold">>> [UNTBOT]:</span> ${resp}</div>`;
+                // --- FIM DO PROCESSAMENTO (FELIZ) ---
+                setRobotState('happy');
+                display.innerHTML += `<div class="text-white mt-1 border-l border-red-600/30 pl-3 leading-relaxed">${resp}</div>`;
                 display.scrollTop = display.scrollHeight;
-                addLog(`SYNC_COMPLETE_ID_${currentUserId}`);
+                addLog(`MEM_SYNC_${currentUserId.toUpperCase()}`);
 
             } catch (e) {
-                display.innerHTML += `<div class="text-red-600 font-bold text-xs mt-4">>> ERROR_SINAPSE_BROKEN: CONEXÃO COM O NÚCLEO FALHOU.</div>`;
+                display.innerHTML += `<div class="text-red-600 font-bold mt-2 text-xs">>> ERRO_DE_SINAPSE: RECONECTANDO...</div>`;
+                setRobotState('idle');
             } finally {
                 bar.style.width = "0%";
                 input.disabled = false;
                 input.value = "";
                 input.focus();
+                // Volta ao estado normal depois de 4 segundos
+                setTimeout(() => setRobotState('idle'), 4000);
             }
         }
 
