@@ -6,6 +6,7 @@
     <title>UNTBOT NEURAL - UNINTA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -21,13 +22,12 @@
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
         .red-glow { filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.5)); }
         
-        /* Estilo dos Balões de Chat */
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         
         .avatar-circle { 
-            width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3);
-            display: flex; align-items: center; justify-center; background: #000; flex-shrink: 0;
+            width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3);
+            display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden;
         }
         
         .bubble { 
@@ -36,7 +36,7 @@
         }
         
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
-        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; text-align: left; }
+        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
 
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
@@ -55,7 +55,7 @@
         </div>
         <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
             <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
-            <span id="user-tag" class="text-[10px] text-red-400 font-bold tracking-tighter uppercase">Identificando...</span>
+            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">Identificando...</span>
         </div>
     </header>
 
@@ -64,16 +64,15 @@
             <span class="text-[10px] text-red-700 font-bold mb-6 tracking-widest uppercase">Console_Output</span>
             <div id="logs-container" class="space-y-3 text-[9px] text-red-500/30 overflow-y-auto no-scrollbar font-mono">
                 <div>> NEURAL_CORE_INITIALIZED</div>
-                <div>> SYNCING_ACERVO_UNINTA...</div>
+                <div>> LOTTIE_ANIMATION_LOADED</div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
-            
             <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
-                <div id="avatar-box" class="w-full md:w-48 h-32 md:h-full glass-card flex flex-col items-center justify-center p-4">
-                    <div id="robot-display" class="text-5xl red-glow">🤖</div>
-                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Standby</div>
+                <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
+                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
                 </div>
                 <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10">
                     <div class="absolute top-2 left-4 text-[8px] text-red-500/40 z-10 font-bold tracking-[0.2em]">3D_NEURAL_MAP</div>
@@ -81,11 +80,7 @@
             </div>
 
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4">
-                <div class="msg-row bot">
-                    <div class="avatar-circle">🤖</div>
-                    <div class="bubble bot-bubble">>> [SISTEMA]: CONEXÃO ESTABELECIDA. PARA ACESSAR OS DADOS DO LAB, ME DIGA SEU NOME, MACHO.</div>
                 </div>
-            </div>
 
             <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
                 <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando neural..." autocomplete="off">
@@ -124,9 +119,6 @@
         animate();
 
         // --- 2. LÓGICA DO BOT ---
-        const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
-        const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
-        
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
         const logs = document.getElementById('logs-container');
@@ -135,6 +127,36 @@
 
         let currentUserId = localStorage.getItem('untbot_last_id');
         if(currentUserId) userTag.innerText = currentUserId.toUpperCase();
+
+        function addMessageToUI(role, text) {
+            const isBot = role === 'bot';
+            const row = document.createElement('div');
+            row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = "avatar-circle";
+            
+            // AQUI ESTÁ A MÁGICA: O SEU ARQUIVO JSON NO LUGAR DO EMOJI
+            avatar.innerHTML = isBot 
+                ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 50px; height: 50px;" loop autoplay></lottie-player>` 
+                : `<span style="font-size: 20px;">👤</span>`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
+            
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            display.appendChild(row);
+            display.scrollTop = display.scrollHeight;
+            
+            return bubble;
+        }
+
+        // Mensagem de boas-vindas
+        window.onload = () => {
+            const welcome = addMessageToUI('bot', "");
+            typeWriter(welcome, ">> [SISTEMA]: NÚCLEO ATIVO. DIGA SEU NOME PARA ACESSAR OS DADOS DO LAB, MACHO.");
+        };
 
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
@@ -162,26 +184,6 @@
             });
         }
 
-        function addMessageToUI(role, text) {
-            const isBot = role === 'bot';
-            const row = document.createElement('div');
-            row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? "🤖" : "👤";
-            
-            const bubble = document.createElement('div');
-            bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
-            
-            row.appendChild(avatar);
-            row.appendChild(bubble);
-            display.appendChild(row);
-            display.scrollTop = display.scrollHeight;
-            
-            return bubble;
-        }
-
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -190,14 +192,13 @@
                 currentUserId = txt;
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                addMessageToUI('bot', `>> ID ${currentUserId} SINCRONIZADO. AGORA PODE PERGUNTAR, FERA.`);
+                const b = addMessageToUI('bot', "");
+                typeWriter(b, `>> ID ${currentUserId} RECONHECIDO. O QUE VAMOS ANALISAR HOJE?`);
                 input.value = "";
                 return;
             }
 
             addMessageToUI('user', txt);
-            document.getElementById('robot-display').innerText = "🤔";
-            document.getElementById('robot-state').innerText = "Processando...";
             bar.style.width = "85%";
             input.value = "";
             input.disabled = true;
@@ -215,27 +216,16 @@
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
 
-                document.getElementById('robot-display').innerText = "⚡";
-                document.getElementById('robot-state').innerText = "Sinapse Ok";
-
                 const botBubble = addMessageToUI('bot', "");
                 falar(resp);
                 await typeWriter(botBubble, resp);
 
-                const l = document.createElement('div');
-                l.innerText = `> LOG: CMD_OK_${Date.now()}`;
-                logs.prepend(l);
-
             } catch (e) {
-                const errBubble = addMessageToUI('bot', ">> ERRO NA REDE NEURAL. RECONECTANDO...");
+                addMessageToUI('bot', ">> ERRO NA SINAPSE. TENTE NOVAMENTE.");
             } finally {
                 bar.style.width = "0%";
                 input.disabled = false;
                 input.focus();
-                setTimeout(() => { 
-                    document.getElementById('robot-display').innerText = "🤖"; 
-                    document.getElementById('robot-state').innerText = "Standby";
-                }, 3000);
             }
         }
 
