@@ -1,5 +1,7 @@
-export default async function handler(req, res) {
-    // 1. Só aceita requisições do tipo POST
+const fetch = require('node-fetch'); // Caso a versão do Node seja antiga
+
+module.exports = async (req, res) => {
+    // 1. Bloqueia acessos que não sejam POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
@@ -10,10 +12,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum texto fornecido.' });
     }
 
-    // 2. Puxa a chave que você salvou no painel da Vercel
-    const apiKey = process.env.ELEVENLABS_API_KEY; 
-    
-    // ID da voz que a gente escolheu
+    const apiKey = process.env.ELEVENLABS_API_KEY;
     const voiceId = "EXp679D4fX7U9vUTX6NW"; 
 
     try {
@@ -40,11 +39,11 @@ export default async function handler(req, res) {
 
         const audioBuffer = await response.arrayBuffer();
         
-        // 3. Devolve o áudio pronto para o seu HTML tocar
         res.setHeader('Content-Type', 'audio/mpeg');
         return res.send(Buffer.from(audioBuffer));
 
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: 'Erro interno no servidor.' });
     }
-}
+};
