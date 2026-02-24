@@ -3,158 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNTBOT NEURAL - UNINTA TIANGUÁ</title>
+    <title>UNTBOT NEURAL - UNINTA</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e30613; --bg: #000000; }
-        * { font-family: 'JetBrains Mono', monospace; }
-        body { background-color: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --primary: #e30613; --bg: #000; }
+        * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
+        body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Efeito Scanline do Lovable */
-        .scanline-overlay::before {
+        .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.4;
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
 
-        .glass-card { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .red-glow { filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.6)); }
+        .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
+        .red-glow { filter: drop-shadow(0 0 15px rgba(227, 6, 19, 0.5)); }
         
-        /* Animações do Robô Reativo */
-        .avatar-container { transition: all 0.3s ease; }
-        .thinking-anim { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+        /* Estilo dos Balões de Chat */
+        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
+        .msg-row.user { flex-direction: row-reverse; }
         
-        /* Esconder Scrollbar */
+        .avatar-circle { 
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3);
+            display: flex; align-items: center; justify-center; background: #000; flex-shrink: 0;
+        }
+        
+        .bubble { 
+            max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6;
+            position: relative; border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
+        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; text-align: left; }
+
+        .typing::after { content: '|'; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        canvas { width: 100% !important; height: 100% !important; border-radius: 12px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="scanline-overlay">
+<body class="scanline">
 
-    <header class="h-14 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-red-600 rounded-full animate-ping"></div>
-            <span class="text-xs font-bold tracking-widest uppercase">UNINTA <span class="text-red-600">UNTBOT_V3</span></span>
+    <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V3</span></span>
         </div>
-        <div id="user-tag" class="text-[9px] text-red-500/70 border border-red-900/50 px-2 py-1 rounded uppercase">AGUARDANDO_ID</div>
+        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
+            <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
+            <span id="user-tag" class="text-[10px] text-red-400 font-bold tracking-tighter uppercase">Identificando...</span>
+        </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <aside class="hidden md:flex w-52 flex-col border-r border-red-900/20 bg-black p-4 overflow-hidden">
-            <span class="text-[10px] text-red-600 font-bold mb-4 opacity-50 uppercase tracking-widest">System_Console</span>
-            <div id="logs-container" class="space-y-2 text-[9px] font-mono text-red-500/40 no-scrollbar overflow-y-auto">
-                <div>> NEURAL_CORE_READY</div>
-                <div>> STABLE_CONNECTION_OK</div>
+        <aside class="hidden lg:flex w-60 flex-col border-r border-red-900/10 bg-black p-5">
+            <span class="text-[10px] text-red-700 font-bold mb-6 tracking-widest uppercase">Console_Output</span>
+            <div id="logs-container" class="space-y-3 text-[9px] text-red-500/30 overflow-y-auto no-scrollbar font-mono">
+                <div>> NEURAL_CORE_INITIALIZED</div>
+                <div>> SYNCING_ACERVO_UNINTA...</div>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col p-4 gap-4 overflow-hidden relative">
+        <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
             
-            <div class="flex gap-4 h-48 md:h-56 flex-shrink-0">
-                <div id="avatar-box" class="w-40 md:w-48 glass-card flex flex-col items-center justify-center p-4 relative overflow-hidden">
-                    <div id="avatar-status-bg" class="absolute inset-0 bg-red-600/5 transition-colors duration-500"></div>
-                    
-                    <div id="robot-content" class="z-10 flex flex-col items-center gap-2">
-                        <div id="avatar-icon" class="text-5xl md:text-6xl red-glow transition-all duration-300">🤖</div>
-                        <div id="avatar-label" class="text-[9px] font-bold text-red-600 uppercase tracking-widest mt-2">Standby</div>
-                    </div>
+            <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
+                <div id="avatar-box" class="w-full md:w-48 h-32 md:h-full glass-card flex flex-col items-center justify-center p-4">
+                    <div id="robot-display" class="text-5xl red-glow">🤖</div>
+                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Standby</div>
                 </div>
-
-                <div class="flex-1 glass-card hidden sm:flex items-center justify-center border-dashed border-red-900/30">
-                    <span class="text-[10px] text-red-900 font-bold uppercase tracking-[0.4em]">Brain_Neural_Link</span>
+                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10">
+                    <div class="absolute top-2 left-4 text-[8px] text-red-500/40 z-10 font-bold tracking-[0.2em]">3D_NEURAL_MAP</div>
                 </div>
             </div>
 
-            <div id="chat-display" class="flex-1 glass-card p-4 overflow-y-auto space-y-4 no-scrollbar border-l-2 border-red-600/40 text-sm">
-                <div class="text-red-500 font-bold italic">>> [SISTEMA]: IDENTIFIQUE-SE PARA INICIAR...</div>
+            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4">
+                <div class="msg-row bot">
+                    <div class="avatar-circle">🤖</div>
+                    <div class="bubble bot-bubble">>> [SISTEMA]: CONEXÃO ESTABELECIDA. PARA ACESSAR OS DADOS DO LAB, ME DIGA SEU NOME, MACHO.</div>
+                </div>
             </div>
 
-            <div class="h-16 glass-card flex items-center px-4 gap-3 border-red-600/30">
-                <input type="text" id="userInput" 
-                    class="flex-1 bg-transparent border-none outline-none text-red-100 placeholder:text-red-900/50"
-                    placeholder="Digite seu comando aqui..." autocomplete="off">
-                <button id="btnEnviar" 
-                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded text-[10px] font-bold tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/40 uppercase">
-                    Scanner⚡
-                </button>
+            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando neural..." autocomplete="off">
+                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
+                <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700 shadow-[0_0_10px_#e30613]"></div>
             </div>
-
-            <div id="loading-bar" class="absolute bottom-0 left-0 h-[1px] bg-red-600 w-0 transition-all duration-500 shadow-[0_0_10px_#e30613]"></div>
         </main>
     </div>
 
     <script type="module">
+        // --- 1. CÉREBRO 3D ---
+        const container = document.getElementById('brain-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const geometry = new THREE.IcosahedronGeometry(2, 2);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.4
+        });
+        const brain = new THREE.Mesh(geometry, material);
+        scene.add(brain);
+
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        camera.position.z = 4.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            brain.rotation.y += 0.003;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 2. LÓGICA DO BOT ---
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
-
+        
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
-        const logsContainer = document.getElementById('logs-container');
+        const logs = document.getElementById('logs-container');
         const bar = document.getElementById('loading-bar');
         const userTag = document.getElementById('user-tag');
-        
-        // Elementos do Avatar Reativo
-        const avatarIcon = document.getElementById('avatar-icon');
-        const avatarLabel = document.getElementById('avatar-label');
-        const avatarStatusBg = document.getElementById('avatar-status-bg');
 
         let currentUserId = localStorage.getItem('untbot_last_id');
-        if(currentUserId) {
-            userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
+        if(currentUserId) userTag.innerText = currentUserId.toUpperCase();
+
+        async function falar(texto) {
+            const limpo = texto.replace(/[*#]/g, '');
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+            const audio = new Audio(url);
+            audio.playbackRate = 1.1;
+            return audio.play();
         }
 
-        function setRobotState(state) {
-            switch(state) {
-                case 'processing':
-                    avatarIcon.innerText = "🤔";
-                    avatarLabel.innerText = "Processando...";
-                    avatarIcon.classList.add('thinking-anim');
-                    avatarStatusBg.classList.replace('bg-red-600/5', 'bg-red-600/20');
-                    break;
-                case 'happy':
-                    avatarIcon.innerText = "😊";
-                    avatarLabel.innerText = "Sinapse Ok!";
-                    avatarIcon.classList.remove('thinking-anim');
-                    avatarStatusBg.classList.replace('bg-red-600/20', 'bg-green-600/10');
-                    break;
-                default:
-                    avatarIcon.innerText = "🤖";
-                    avatarLabel.innerText = "Standby";
-                    avatarIcon.classList.remove('thinking-anim');
-                    avatarStatusBg.className = "absolute inset-0 bg-red-600/5 transition-colors duration-500";
-            }
+        function typeWriter(elemento, texto) {
+            return new Promise(resolve => {
+                let i = 0;
+                elemento.classList.add('typing');
+                const interval = setInterval(() => {
+                    if (i < texto.length) {
+                        elemento.innerHTML += texto.charAt(i);
+                        i++;
+                        display.scrollTop = display.scrollHeight;
+                    } else {
+                        clearInterval(interval);
+                        elemento.classList.remove('typing');
+                        resolve();
+                    }
+                }, 20);
+            });
         }
 
-        async function gerenciarMemoriaRedis(id, novaMsg = null) {
-            const safeId = id.trim().replace(/\s+/g, '_').toLowerCase();
-            const key = `untbot:memoria:${safeId}`;
-            try {
-                const res = await fetch(`${REDIS_URL}/get/${key}`, { headers: { "Authorization": `Bearer ${REDIS_TOKEN}` } });
-                const data = await res.json();
-                let historico = [];
-                if (data.result) {
-                    let parsed = data.result;
-                    while(typeof parsed === 'string') parsed = JSON.parse(parsed);
-                    historico = Array.isArray(parsed) ? parsed : [];
-                }
-                if (novaMsg) {
-                    historico.push(novaMsg);
-                    if (historico.length > 10) historico.shift();
-                    await fetch(`${REDIS_URL}/set/${key}`, {
-                        method: "POST",
-                        headers: { "Authorization": `Bearer ${REDIS_TOKEN}` },
-                        body: JSON.stringify(JSON.stringify(historico))
-                    });
-                }
-                return historico.join("\n");
-            } catch (e) { return ""; }
-        }
-
-        function addLog(msg) {
-            const log = document.createElement('div');
-            log.innerText = `> ${msg}`;
-            logsContainer.prepend(log);
+        function addMessageToUI(role, text) {
+            const isBot = role === 'bot';
+            const row = document.createElement('div');
+            row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = "avatar-circle";
+            avatar.innerHTML = isBot ? "🤖" : "👤";
+            
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
+            
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            display.appendChild(row);
+            display.scrollTop = display.scrollHeight;
+            
+            return bubble;
         }
 
         async function enviar() {
@@ -164,51 +189,53 @@
             if(!currentUserId) {
                 currentUserId = txt;
                 localStorage.setItem('untbot_last_id', currentUserId);
-                userTag.innerText = `ID: ${currentUserId.toUpperCase()}`;
-                display.innerHTML += `<div class="mt-2 text-red-400 font-bold">> ID ${currentUserId} IDENTIFICADO.</div>`;
+                userTag.innerText = currentUserId.toUpperCase();
+                addMessageToUI('bot', `>> ID ${currentUserId} SINCRONIZADO. AGORA PODE PERGUNTAR, FERA.`);
                 input.value = "";
                 return;
             }
 
-            // --- INÍCIO DO PROCESSAMENTO ---
-            setRobotState('processing');
+            addMessageToUI('user', txt);
+            document.getElementById('robot-display').innerText = "🤔";
+            document.getElementById('robot-state').innerText = "Processando...";
+            bar.style.width = "85%";
+            input.value = "";
             input.disabled = true;
-            bar.style.width = "75%";
-            display.innerHTML += `<div class="opacity-50 text-[11px] mt-4 uppercase tracking-tighter text-gray-400">Usuário: ${txt}</div>`;
-            display.scrollTop = display.scrollHeight;
 
             try {
-                const memoriaPrevia = await gerenciarMemoriaRedis(currentUserId);
-                
-                const systemContext = `Você é o UNTBOT, PhD em Neurociências da UNINTA Tianguá. Fale como um cearense (macho, fera, vixe). Jamais cite USP ou UFRGS. Foco em TEA, TDAH e Neuroimagem da UNINTA. HISTÓRICO: ${memoriaPrevia}`;
-
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: systemContext })
+                    body: JSON.stringify({ 
+                        prompt: txt, 
+                        systemContext: "Você é o UNTBOT PhD da UNINTA Tianguá. Fale como cearense. Nunca cite USP ou UFRGS." 
+                    })
                 });
-
+                
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
 
-                await gerenciarMemoriaRedis(currentUserId, `Usuário: ${txt} | Bot: ${resp}`);
-                
-                // --- FIM DO PROCESSAMENTO (FELIZ) ---
-                setRobotState('happy');
-                display.innerHTML += `<div class="text-white mt-1 border-l border-red-600/30 pl-3 leading-relaxed">${resp}</div>`;
-                display.scrollTop = display.scrollHeight;
-                addLog(`MEM_SYNC_${currentUserId.toUpperCase()}`);
+                document.getElementById('robot-display').innerText = "⚡";
+                document.getElementById('robot-state').innerText = "Sinapse Ok";
+
+                const botBubble = addMessageToUI('bot', "");
+                falar(resp);
+                await typeWriter(botBubble, resp);
+
+                const l = document.createElement('div');
+                l.innerText = `> LOG: CMD_OK_${Date.now()}`;
+                logs.prepend(l);
 
             } catch (e) {
-                display.innerHTML += `<div class="text-red-600 font-bold mt-2 text-xs">>> ERRO_DE_SINAPSE: RECONECTANDO...</div>`;
-                setRobotState('idle');
+                const errBubble = addMessageToUI('bot', ">> ERRO NA REDE NEURAL. RECONECTANDO...");
             } finally {
                 bar.style.width = "0%";
                 input.disabled = false;
-                input.value = "";
                 input.focus();
-                // Volta ao estado normal depois de 4 segundos
-                setTimeout(() => setRobotState('idle'), 4000);
+                setTimeout(() => { 
+                    document.getElementById('robot-display').innerText = "🤖"; 
+                    document.getElementById('robot-state').innerText = "Standby";
+                }, 3000);
             }
         }
 
