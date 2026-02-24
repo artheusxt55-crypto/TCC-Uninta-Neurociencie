@@ -112,13 +112,27 @@
             });
         }
 
+        // --- INTEGRAÇÃO ELEVENLABS VIA API ---
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-            const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
+            try {
+                const response = await fetch('/api/falar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: limpo })
+                });
+                if (!response.ok) throw new Error();
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                return audio.play();
+            } catch (e) {
+                // Fallback Google
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
+            }
         }
 
-        // --- INICIALIZAÇÃO COM HORÁRIO DINÂMICO ---
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
@@ -173,6 +187,7 @@
 - CURSO: Psicologia unindo clínica e neurociência.
 
 ## 3. COMPORTAMENTO
+- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
 - ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
 - DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
