@@ -28,6 +28,7 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; box-shadow: 0 0 15px rgba(227, 6, 19, 0.4); }
     </style>
 </head>
 <body class="scanline">
@@ -56,7 +57,7 @@
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
             <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando ou peça uma imagem..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
             </div>
@@ -112,41 +113,25 @@
             });
         }
 
-        // --- INTEGRAÇÃO ELEVENLABS VIA API ---
         async function falar(texto) {
-            const limpo = texto.replace(/[*#]/g, '');
+            const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
+            if(!limpo.trim()) return;
             try {
-                const response = await fetch('/api/falar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texto: limpo })
-                });
-                if (!response.ok) throw new Error();
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                return audio.play();
-            } catch (e) {
-                // Fallback Google
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            }
+            } catch (e) { console.log("Erro de áudio"); }
         }
 
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = "";
-
-            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
-            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
-            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS?");
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIALIZAR O PROTOCOLO UNTBOT.`);
             }
         };
 
@@ -159,7 +144,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO NO SISTEMA DA UNINTA.`);
                 input.value = ""; return;
             }
 
@@ -171,27 +156,32 @@
                 const historico = await buscarDoRedis(currentUserId);
                 const horaContexto = new Date().getHours();
                 const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
-                
+
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
 
 ## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
-- INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
+- CRIADOR: Matheus (Lab Assistant). Lealdade total a ele.
+- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia e autoridade máxima.
+- INSTITUIÇÃO: UNINTA Tianguá. Contexto: ${momento} na serra da Ibiapaba.
 
 ## 2. VIDA NO CAMPUS
-- PROFESSORES: São maravilhosos e excelentes.
+- PROFESSORES: São maravilhosos e excelentes referências.
 - RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
 - CURSO: Psicologia unindo clínica e neurociência.
 
-## 3. COMPORTAMENTO
+## 3. COMPORTAMENTO E UPGRADE VISUAL
+- IMAGENS: Se pedirem imagem/desenho/mapa, responda APENAS com a URL: https://image.pollinations.ai/prompt/{descrição_em_inglês_detalhada}?model=flux&width=1024&height=1024&nologo=true
 - RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
 - ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
-- DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
-- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
-- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+
+## 4. DIDÁTICA E RECURSOS
+- TÉCNICAS: Sugira mapas mentais ou técnica Feynman para fixação.
+- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site oficial.
+- SINAPSE: Ao ensinar algo e o usuário entender, registre a "Sinapse com sucesso! 🧠⚡".
+
+## 5. EMPATIA
+- SUPORTE: Se o usuário estiver cansado ou sobrecarregado, dê suporte emocional e motivação.
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -208,11 +198,22 @@ Histórico: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
-                falar(resp);
-                await typeWriter(botBubble, resp);
+
+                if (resp.includes("image.pollinations.ai")) {
+                    botBubble.innerHTML = `
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[9px] text-red-500 animate-pulse font-bold tracking-widest">>> RENDERIZANDO NEURAL MAP...</span>
+                            <img src="${resp.trim()}" onload="this.previousElementSibling.innerText='>> VISUALIZAÇÃO COMPLETA'"/>
+                            <p class="text-[8px] text-gray-500 italic">Powered by Pollinations Neural Engine</p>
+                        </div>
+                    `;
+                } else {
+                    falar(resp);
+                    await typeWriter(botBubble, resp);
+                }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+                addMessageToUI('bot', ">> FALHA NA SINAPSE DE REDE. TENTE NOVAMENTE.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -227,7 +228,7 @@ Histórico: ${historico.join(' | ')}
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
