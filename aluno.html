@@ -193,17 +193,21 @@ Histórico: ${historico.join(' | ')}
                 });
                 
                 const data = await res.json();
-                const resp = data.choices[0].message.content;
+                let resp = data.choices[0].message.content.trim();
 
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
 
-                if (resp.includes("image.pollinations.ai")) {
+                // CONSERTO DA IMAGEM AQUI: Captura o link ignorando caracteres extras
+                if (resp.includes("pollinations.ai")) {
+                    const linkMatch = resp.match(/https?:\/\/image\.pollinations\.ai\/prompt\/[^\s)]+/g);
+                    const cleanUrl = linkMatch ? linkMatch[0].replace(/[()]/g, '') : resp;
+
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
                             <span class="text-[9px] text-red-500 animate-pulse font-bold tracking-widest">>> RENDERIZANDO NEURAL MAP...</span>
-                            <img src="${resp.trim()}" onload="this.previousElementSibling.innerText='>> VISUALIZAÇÃO COMPLETA'"/>
+                            <img src="${cleanUrl}" onload="this.previousElementSibling.innerText='>> VISUALIZAÇÃO COMPLETA'"/>
                             <p class="text-[8px] text-gray-500 italic">Powered by Pollinations Neural Engine</p>
                         </div>
                     `;
