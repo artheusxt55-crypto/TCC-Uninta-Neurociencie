@@ -4,11 +4,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Método não permitido' });
     }
 
-    // AQUI ESTÁ A MUDANÇA: Agora ele pega o 'systemContext' que o HTML envia
+    // Recebe exatamente o que o seu HTML envia
     const { prompt, systemContext } = req.body;
 
     try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch("https://api.api.api.api/openai/v1/chat/completions", { // URL da Groq
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
@@ -19,8 +19,8 @@ export default async function handler(req, res) {
                 messages: [
                     {
                         role: "system", 
-                        // Se o HTML não mandar contexto, ele usa um padrão da UNINTA
-                        content: systemContext || "Você é o Untbot da UNINTA Tianguá, assistente de Neurociência e Psicopatologia."
+                        // Aqui é onde a mágica acontece: ele lê as regras que você mandou do front
+                        content: systemContext || "Você é o Untbot da UNINTA Tianguá."
                     },
                     { role: "user", content: prompt }
                 ]
