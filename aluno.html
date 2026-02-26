@@ -28,6 +28,8 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* CSS para a imagem não quebrar o layout */
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; }
     </style>
 </head>
 <body class="scanline">
@@ -112,9 +114,8 @@
             });
         }
 
-        // --- INTEGRAÇÃO ELEVENLABS VIA API ---
         async function falar(texto) {
-            const limpo = texto.replace(/[*#]/g, '');
+            const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
             try {
                 const response = await fetch('/api/falar', {
                     method: 'POST',
@@ -127,7 +128,6 @@
                 const audio = new Audio(url);
                 return audio.play();
             } catch (e) {
-                // Fallback Google
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
             }
@@ -192,6 +192,7 @@
 - DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
 - EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+- IMAGENS: Se pedirem imagem, desenhe enviando APENAS o link: https://image.pollinations.ai/prompt/{descrição_em_inglês}?model=flux&width=1024&height=1024&nologo=true
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -208,8 +209,19 @@ Histórico: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
-                falar(resp);
-                await typeWriter(botBubble, resp);
+
+                // --- LÓGICA DE IMAGEM ADICIONADA ---
+                if (resp.includes("pollinations.ai")) {
+                    const match = resp.match(/https?:\/\/image\.pollinations\.ai\/prompt\/[^\s)\]]*/g);
+                    if (match) {
+                        botBubble.innerHTML = `<img src="${match[0]}" />`;
+                    } else {
+                        await typeWriter(botBubble, resp);
+                    }
+                } else {
+                    falar(resp);
+                    await typeWriter(botBubble, resp);
+                }
 
             } catch (e) {
                 addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
