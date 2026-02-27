@@ -14,7 +14,6 @@
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Efeito CRT/Scanline */
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
@@ -24,7 +23,6 @@
 
         .glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(227, 6, 19, 0.3); border-radius: 12px; }
         
-        /* Mensagens */
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
@@ -38,8 +36,7 @@
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
-        /* Estilo Canva para o Card do Mapa */
-        .mermaid-card { background: #ffffff; padding: 25px; border-radius: 15px; margin-top: 10px; overflow-x: auto; color: #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); border: 2px solid var(--primary); }
+        .mermaid-card { background: #ffffff; padding: 25px; border-radius: 15px; margin-top: 10px; overflow-x: auto; color: #000; border: 2px solid var(--primary); }
     </style>
 </head>
 <body class="scanline">
@@ -56,7 +53,6 @@
 
     <div class="flex flex-1 overflow-hidden">
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
-            
             <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
                 <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
                     <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 110px; height: 110px;" loop autoplay></lottie-player>
@@ -64,9 +60,7 @@
                 </div>
                 <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden"></div>
             </div>
-
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-6"></div>
-
             <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/30 relative">
                 <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm placeholder-red-900" placeholder="Injete o comando neural..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95 text-[10px]">Scanner⚡</button>
@@ -79,7 +73,6 @@
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
-        // ADICIONADO: Configuração visual profissional (Canva Style) para o Mermaid
         mermaid.initialize({ 
             startOnLoad: false, 
             theme: 'base',
@@ -89,7 +82,7 @@
                 primaryTextColor: '#ffffff',
                 primaryBorderColor: '#e30613',
                 lineColor: '#e30613',
-                secondaryColor: '#1a1a1a',
+                secondaryColor: '#f8f9fa',
                 tertiaryColor: '#ffffff',
                 fontSize: '15px',
                 fontFamily: 'JetBrains Mono'
@@ -102,7 +95,6 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // --- LÓGICA DE MEMÓRIA (REDIS) ---
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
             await fetch(url);
@@ -117,19 +109,15 @@
             } catch(e) { return []; }
         }
 
-        // --- INTERFACE ---
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
             const row = document.createElement('div');
             row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
-            
             const avatar = document.createElement('div');
             avatar.className = "avatar-circle";
             avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 50px; height: 50px;" loop autoplay></lottie-player>` : `<span class="text-xl">👤</span>`;
-            
             const bubble = document.createElement('div');
             bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
-            
             row.appendChild(avatar); row.appendChild(bubble);
             display.appendChild(row);
             display.scrollTop = display.scrollHeight;
@@ -137,10 +125,12 @@
         }
 
         function typeWriter(elemento, texto) {
+            // REMOVE ASTERISCOS DO TEXTO PARA NÃO SUJAR A INTERFACE
+            const textoLimpo = texto.replace(/\*/g, '');
             return new Promise(resolve => {
                 let i = 0; elemento.classList.add('typing');
                 const interval = setInterval(() => {
-                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
+                    if (i < textoLimpo.length) { elemento.innerHTML += textoLimpo.charAt(i); i++; display.scrollTop = display.scrollHeight; }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
                 }, 15);
             });
@@ -153,12 +143,10 @@
             const audio = new Audio(url); audio.playbackRate = 1.15; return audio.play();
         }
 
-        // --- INICIALIZAÇÃO ---
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
             let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! PROCESSANDO DADOS NO FRIO DA IBIAPABA.");
-
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
                 await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO NÚCLEO DE EXCELÊNCIA UNINTA, ${currentUserId.toUpperCase()}.`);
@@ -167,7 +155,6 @@
             }
         };
 
-        // --- CORE: ENVIAR COM DIRETRIZES SUPREMAS ---
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -188,21 +175,21 @@
             try {
                 const historico = await buscarDoRedis(currentUserId);
                 const agora = new Date();
-                const dataFormatada = agora.toLocaleDateString('pt-BR');
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // INJEÇÃO DAS DIRETRIZES SUPREMAS V5 (CONSERVADAS INTEGRALMENTE)
+                // DIRETRIZES SUPREMAS INTEGRALMENTE RESTAURADAS
                 const systemContext = `
 # UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
 
 ## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
+- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
 - INSTITUIÇÃO: UNINTA Tianguá (Referência tecnológica, humana e polo de excelência na Ibiapaba).
 - PROFESSORES: Referências técnicas, éticos e inspiradores.
 
 ## 2. MISSÃO CIENTÍFICA
 - Especialista em: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia.
 - Respostas: Densidade acadêmica, nível universitário real, conectando Psicologia com bases neurobiológicas.
+- REGRA CRÍTICA: Não use asteriscos (*) para negrito ou listas no seu texto.
 
 ## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
 - PERSONALIDADE: PhD cearense carismático (uso sutil de "macho", "vixe", "show de bola").
@@ -211,7 +198,7 @@
 - ACOLHIMENTO: Calouros (incentivo) e Veteranos (valorização).
 
 ## 4. EMPATIA E SUPORTE
-- Acolher e validar emoções antes de ensinar. 
+- Acolher e validar emoções antes de ensinar. 
 - JAMAIS substituir terapia ou diagnosticar.
 
 ## 5. MODO MAPA MENTAL (MERMAID)
@@ -232,25 +219,22 @@ Histórico Recente: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                // Renderização de Imagem (IA Visual)
                 if (txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
                     const promptLimpo = encodeURIComponent(txt.replace(/(desenhe|gere uma imagem|imagem de)/gi, '').trim());
                     const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true`;
                     botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
-                // Renderização de Mapa Mental
-                else if (resp.includes("mindmap")) {
+                else if (resp.toLowerCase().includes("mindmap")) {
                     const regex = /mindmap[\s\S]*$/;
                     const match = resp.match(regex);
                     const mapaLimpo = match ? match[0].replace(/```/g, "").trim() : resp;
                     const mapId = "map" + Date.now();
                     
-                    // ADICIONADO: Container com design aprimorado e rodapé informativo
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-tighter">>> DIAGRAMA COGNITIVO GERADO (V5 DESIGN)</span>
+                            <span class="text-[10px] text-red-500 font-bold uppercase">>> DIAGRAMA COGNITIVO - CANVA V5</span>
                             <div class="mermaid-card" id="${mapId}">${mapaLimpo}</div>
-                            <span class="text-[8px] text-gray-500 italic text-right">Criado por Untbot V5 - Lab Matheus</span>
+                            <span class="text-[8px] text-gray-500 italic text-right">Lab Matheus - UNINTA Tianguá</span>
                         </div>`;
                         
                     setTimeout(async () => {
@@ -273,7 +257,6 @@ Histórico Recente: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // --- CÉREBRO 3D (THREE.JS) ---
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
