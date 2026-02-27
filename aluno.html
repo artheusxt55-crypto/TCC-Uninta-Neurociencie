@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; --glass: rgba(18, 18, 18, 0.9); }
@@ -36,7 +35,19 @@
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
-        .mermaid-card { background: #ffffff; padding: 25px; border-radius: 15px; margin-top: 10px; overflow-x: auto; color: #000; border: 2px solid var(--primary); }
+        
+        /* ESTILO CANVA PARA O CARD DO MAPA MENTAL */
+        .mermaid-card { 
+            background: #ffffff; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-top: 10px; 
+            color: #000; 
+            border: 3px solid var(--primary); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 <body class="scanline">
@@ -72,22 +83,6 @@
     <script type="module">
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
-
-        mermaid.initialize({ 
-            startOnLoad: false, 
-            theme: 'base',
-            securityLevel: 'loose',
-            themeVariables: {
-                primaryColor: '#e30613',
-                primaryTextColor: '#ffffff',
-                primaryBorderColor: '#e30613',
-                lineColor: '#e30613',
-                secondaryColor: '#f8f9fa',
-                tertiaryColor: '#ffffff',
-                fontSize: '15px',
-                fontFamily: 'JetBrains Mono'
-            }
-        });
 
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
@@ -125,7 +120,6 @@
         }
 
         function typeWriter(elemento, texto) {
-            // REMOVE ASTERISCOS DO TEXTO PARA NÃO SUJAR A INTERFACE
             const textoLimpo = texto.replace(/\*/g, '');
             return new Promise(resolve => {
                 let i = 0; elemento.classList.add('typing');
@@ -177,7 +171,6 @@
                 const agora = new Date();
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // DIRETRIZES SUPREMAS INTEGRALMENTE RESTAURADAS
                 const systemContext = `
 # UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
 
@@ -224,23 +217,20 @@ Histórico Recente: ${historico.join(' | ')}
                     const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true`;
                     botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
-                else if (resp.toLowerCase().includes("mindmap")) {
-                    const regex = /mindmap[\s\S]*$/;
-                    const match = resp.match(regex);
-                    const mapaLimpo = match ? match[0].replace(/```/g, "").trim() : resp;
-                    const mapId = "map" + Date.now();
-                    
+                else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
+                    // CONEXÃO KROKI: Limpa o código e gera a URL de imagem
+                    const soOCodigo = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
+                    const codigoCodificado = btoa(unescape(encodeURIComponent(soOCodigo)));
+                    const urlKroki = "https://kroki.io/mermaid/svg/" + codigoCodificado;
+
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] text-red-500 font-bold uppercase">>> DIAGRAMA COGNITIVO - CANVA V5</span>
-                            <div class="mermaid-card" id="${mapId}">${mapaLimpo}</div>
+                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO GERADO (VIA KROKI)</span>
+                            <div class="mermaid-card">
+                                <img src="${urlKroki}" style="width: 100%; height: auto;" />
+                            </div>
                             <span class="text-[8px] text-gray-500 italic text-right">Lab Matheus - UNINTA Tianguá</span>
                         </div>`;
-                        
-                    setTimeout(async () => {
-                        const { svg } = await mermaid.render(mapId + "-svg", mapaLimpo);
-                        document.getElementById(mapId).innerHTML = svg;
-                    }, 100);
                 } 
                 else {
                     falar(resp);
