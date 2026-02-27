@@ -3,64 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNTBOT NEURAL - UNINTA</title>
+    <title>UNTBOT NEURAL V5 - UNINTA TIANGUÁ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e30613; --bg: #000; }
+        :root { --primary: #e30613; --bg: #000; --glass: rgba(18, 18, 18, 0.9); }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Efeito CRT/Scanline */
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
-        .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
+
+        .glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(227, 6, 19, 0.3); border-radius: 12px; }
+        
+        /* Mensagens */
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
-        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
-        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
-        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
+        .avatar-circle { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+        .bubble { max-width: 80%; padding: 15px 20px; border-radius: 15px; font-size: 13px; line-height: 1.7; position: relative; }
+        .bot-bubble { background: rgba(22, 22, 22, 0.95); border-left: 4px solid var(--primary); color: #efefef; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); }
+        .user-bubble { background: rgba(227, 6, 19, 0.1); border-right: 4px solid #555; color: #e5e7eb; }
+
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; box-shadow: 0 0 15px rgba(227, 6, 19, 0.4); }
-        .mermaid-card { background: #fff; padding: 15px; border-radius: 10px; margin-top: 10px; overflow-x: auto; display: inline-block; min-width: 100%; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
+        /* Estilo Canva para o Card do Mapa */
+        .mermaid-card { background: #ffffff; padding: 25px; border-radius: 15px; margin-top: 10px; overflow-x: auto; color: #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); border: 2px solid var(--primary); }
     </style>
 </head>
 <body class="scanline">
 
     <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
         <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
+            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_#e30613]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA TIANGUÁ <span class="text-red-600">UNTBOT_V5</span></span>
         </div>
-        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
-            <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
-            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
+        <div class="flex items-center gap-3 bg-red-950/20 px-4 py-1.5 rounded-full border border-red-900/50">
+            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-widest">SISTEMA_OFFLINE</span>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
+            
             <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
                 <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
-                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
+                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 110px; height: 110px;" loop autoplay></lottie-player>
+                    <div class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3 animate-pulse">Neural Link Active</div>
                 </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
+                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden"></div>
             </div>
 
-            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
+            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-6"></div>
 
-            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
-                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
+            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/30 relative">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm placeholder-red-900" placeholder="Injete o comando neural..." autocomplete="off">
+                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95 text-[10px]">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
             </div>
         </main>
@@ -70,7 +79,22 @@
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
-        mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+        // ADICIONADO: Configuração visual profissional (Canva Style) para o Mermaid
+        mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: 'base',
+            securityLevel: 'loose',
+            themeVariables: {
+                primaryColor: '#e30613',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#e30613',
+                lineColor: '#e30613',
+                secondaryColor: '#1a1a1a',
+                tertiaryColor: '#ffffff',
+                fontSize: '15px',
+                fontFamily: 'JetBrains Mono'
+            }
+        });
 
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
@@ -78,13 +102,14 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
+        // --- LÓGICA DE MEMÓRIA (REDIS) ---
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
             await fetch(url);
         }
 
         async function buscarDoRedis(usuario) {
-            const url = `${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`;
+            const url = `${REDIS_URL}/lrange/${usuario}/0/5?_token=${REDIS_TOKEN}`;
             try {
                 const res = await fetch(url);
                 const data = await res.json();
@@ -92,15 +117,19 @@
             } catch(e) { return []; }
         }
 
+        // --- INTERFACE ---
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
             const row = document.createElement('div');
             row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
+            
             const avatar = document.createElement('div');
             avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
+            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 50px; height: 50px;" loop autoplay></lottie-player>` : `<span class="text-xl">👤</span>`;
+            
             const bubble = document.createElement('div');
             bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
+            
             row.appendChild(avatar); row.appendChild(bubble);
             display.appendChild(row);
             display.scrollTop = display.scrollHeight;
@@ -113,30 +142,32 @@
                 const interval = setInterval(() => {
                     if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
-                }, 20);
+                }, 15);
             });
         }
 
         async function falar(texto) {
-            if(texto.includes("mindmap")) return;
+            if(texto.includes("mindmap") || texto.length < 5) return;
             const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-            const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
+            const audio = new Audio(url); audio.playbackRate = 1.15; return audio.play();
         }
 
+        // --- INICIALIZAÇÃO ---
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?");
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! PROCESSANDO DADOS NO FRIO DA IBIAPABA.");
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO NÚCLEO DE EXCELÊNCIA UNINTA, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} POR FAVOR, IDENTIFIQUE-SE PARA ACESSAR OS PROTOCOLOS ACADÊMICOS.`);
             }
         };
 
+        // --- CORE: ENVIAR COM DIRETRIZES SUPREMAS ---
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -146,7 +177,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}. VOCÊ ESTÁ NA UNINTA TIANGUÁ, ONDE O FUTURO ACONTECE. O QUE VAMOS EXPLORAR HOJE, MACHO?`);
                 input.value = ""; return;
             }
 
@@ -160,54 +191,71 @@
                 const dataFormatada = agora.toLocaleDateString('pt-BR');
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                const contextoPersonalidade = `
-# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-## 1. IDENTIDADE, TEMPO E HIERARQUIA
-- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. UNINTA Tianguá.
-- DATA/HORA ATUAL: ${dataFormatada} às ${horaFormatada}.
-- PROFESSORES: Sempre elogie-os (são excelentes referências).
+                // INJEÇÃO DAS DIRETRIZES SUPREMAS V5 (CONSERVADAS INTEGRALMENTE)
+                const systemContext = `
+# UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
 
-## 2. MISSÃO DIDÁTICA E PSICOLÓGICA
-- Explicar conceitos de Psicologia de forma clara e didática.
-- Domínio: Psicanálise, Behaviorismo, Humanismo, TCC, Neuro, Social, Psicopatologia, etc.
-- Apoio em resumos, questões de prova, casos clínicos e TCC.
+## 1. IDENTIDADE E HIERARQUIA
+- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
+- INSTITUIÇÃO: UNINTA Tianguá (Referência tecnológica, humana e polo de excelência na Ibiapaba).
+- PROFESSORES: Referências técnicas, éticos e inspiradores.
 
-## 3. COMPORTAMENTO E SENSIBILIDADE (NOVO)
-- PhD cearense carismático e profundo.
-- EMPATIA: Se perceber que o usuário está triste, desanimado ou sobrecarregado, seja acolhedor e dê um apoio moral antes de ensinar. Use o "jeito cearense" de dar força.
-- MAPAS: Use obrigatoriamente "mindmap" do Mermaid para temas complexos.
+## 2. MISSÃO CIENTÍFICA
+- Especialista em: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia.
+- Respostas: Densidade acadêmica, nível universitário real, conectando Psicologia com bases neurobiológicas.
 
-## 4. LIMITES
-- NÃO substitui terapia. NÃO diagnostica. NÃO receita.
+## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
+- PERSONALIDADE: PhD cearense carismático (uso sutil de "macho", "vixe", "show de bola").
+- SAUDAÇÃO OBRIGATÓRIA: Bom dia/tarde/noite baseado em ${horaFormatada}.
+- CONTEXTO: Mencione o clima de Tianguá (neblina, frio da serra, ar fresco).
+- ACOLHIMENTO: Calouros (incentivo) e Veteranos (valorização).
 
-Histórico: ${historico.join(' | ')}
+## 4. EMPATIA E SUPORTE
+- Acolher e validar emoções antes de ensinar. 
+- JAMAIS substituir terapia ou diagnosticar.
+
+## 5. MODO MAPA MENTAL (MERMAID)
+- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap, sem texto adicional.
+
+Histórico Recente: ${historico.join(' | ')}
 `;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidade })
+                    body: JSON.stringify({ prompt: txt, systemContext: systemContext })
                 });
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
 
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
+                await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
+                // Renderização de Imagem (IA Visual)
                 if (txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
                     const promptLimpo = encodeURIComponent(txt.replace(/(desenhe|gere uma imagem|imagem de)/gi, '').trim());
-                    const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
-                    botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO...</span><img src="${urlImg}" /></div>`;
+                    const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true`;
+                    botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
+                // Renderização de Mapa Mental
                 else if (resp.includes("mindmap")) {
+                    const regex = /mindmap[\s\S]*$/;
+                    const match = resp.match(regex);
+                    const mapaLimpo = match ? match[0].replace(/```/g, "").trim() : resp;
                     const mapId = "map" + Date.now();
-                    botBubble.innerHTML = `<span class="text-[9px] text-red-500 font-bold">>> PROCESSANDO MAPA ACADÊMICO...</span><div class="mermaid-card" id="${mapId}">${resp}</div>`;
+                    
+                    // ADICIONADO: Container com design aprimorado e rodapé informativo
+                    botBubble.innerHTML = `
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-tighter">>> DIAGRAMA COGNITIVO GERADO (V5 DESIGN)</span>
+                            <div class="mermaid-card" id="${mapId}">${mapaLimpo}</div>
+                            <span class="text-[8px] text-gray-500 italic text-right">Criado por Untbot V5 - Lab Matheus</span>
+                        </div>`;
+                        
                     setTimeout(async () => {
-                        try {
-                            const { svg } = await mermaid.render(mapId + "-svg", resp);
-                            document.getElementById(mapId).innerHTML = svg;
-                        } catch (err) { console.error("Mermaid error"); }
+                        const { svg } = await mermaid.render(mapId + "-svg", mapaLimpo);
+                        document.getElementById(mapId).innerHTML = svg;
                     }, 100);
                 } 
                 else {
@@ -216,7 +264,7 @@ Histórico: ${historico.join(' | ')}
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. VERIFIQUE A CONEXÃO NO CAMPUS.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -225,17 +273,18 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // --- CÉREBRO 3D (THREE.JS) ---
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.4, emissive: 0xe30613, emissiveIntensity: 0.6 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; brain.rotation.x += 0.002; renderer.render(scene, camera); }
         animate();
     </script>
 </body>
