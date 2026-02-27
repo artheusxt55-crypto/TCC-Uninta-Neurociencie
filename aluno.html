@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -73,6 +75,36 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
+        // FUNÇÃO MOTOR DO MAPA MENTAL PDF
+        async function gerarMapaMentalPDF(tema, topicos) {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.cssText = `width: 1000px; padding: 60px; background: #000; color: #fff; font-family: 'JetBrains Mono', monospace; position: absolute; left: -9999px;`;
+            
+            const svgBackground = `<svg style="position:absolute; top:0; left:0; opacity:0.1" width="1000" height="1000"><circle cx="500" cy="500" r="400" stroke="#e30613" stroke-width="1" fill="none" /><path d="M500 100 L500 900 M100 500 L900 500" stroke="#e30613" stroke-width="0.5"/></svg>`;
+
+            let htmlTopicos = topicos.map(t => `
+                <div style="margin: 15px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.05); border-radius: 0 10px 10px 0;">
+                    <strong style="color: #e30613; font-size: 18px;">🧬 ${t.titulo}</strong>
+                    <p style="margin: 5px 0 0; font-size: 14px; color: #ccc;">${t.descricao}</p>
+                </div>
+            `).join('');
+
+            tempDiv.innerHTML = `${svgBackground}
+                <div style="position:relative; z-index:10; border: 2px solid #e30613; padding: 40px; border-radius: 20px;">
+                    <h1 style="text-align:center; font-size: 42px; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 40px;">${tema}</h1>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">${htmlTopicos}</div>
+                </div>`;
+
+            document.body.appendChild(tempDiv);
+            const canvas = await html2canvas(tempDiv, { backgroundColor: '#000' });
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'mm', 'a4');
+            pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
+            pdf.save(`MAPA_${tema.replace(/\s+/g, '_')}.pdf`);
+            document.body.removeChild(tempDiv);
+        }
+
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
             await fetch(url);
@@ -113,14 +145,13 @@
         }
 
         async function falar(texto) {
-            const limpo = texto.replace(/[*#]/g, '');
+            const limpo = texto.replace(/[*#]/g, '').split('TEMA:')[0];
             try {
                 const response = await fetch('/api/falar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ texto: limpo })
                 });
-                if (!response.ok) throw new Error();
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 const audio = new Audio(url);
@@ -134,13 +165,13 @@
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18 ? "BOA TARDE!" : "BOA NOITE!");
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?");
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO AO LAB NEURAL, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} IDENTIFIQUE-SE PARA ACESSAR OS DADOS DO LAB.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
             }
         };
 
@@ -153,7 +184,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS.`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
                 input.value = ""; return;
             }
 
@@ -166,11 +197,13 @@
                 const horaContexto = new Date().getHours();
                 const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
+                // RESTAURANDO DIRETRIZES SUPREMAS ORIGINAIS + MAPA MENTAL
                 const contextoPersonalidade = `
-# DIRETRIZES: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi.
-- COMPORTAMENTO: PhD, curto, direto. Sotaque cearense discreto.
-- REGRA DE IMAGEM: Se o usuário pedir mapa ou visual, termine OBRIGATORIAMENTE com: IMAGE_PROMPT: [descrição em inglês].
+# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
+1. IDENTIDADE: Criador Matheus (Lab Assistant). Coordenação Prof. Davi (Psicologia). UNINTA Tianguá.
+2. COMPORTAMENTO: PhD curto, direto e carismático. Sotaque cearense discreto.
+3. MAPA MENTAL: Se pedirem mapa mental, termine com: TEMA: [Titulo] | TOPICOS: [Tit1:Desc1; Tit2:Desc2]
+4. CONTEXTO: Agora é ${momento} em Tianguá.
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -186,26 +219,26 @@ Histórico: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                // DETECTOR DE IMAGEM
-                if (resp.includes("IMAGE_PROMPT:")) {
-                    const partes = resp.split("IMAGE_PROMPT:");
-                    const textoLimpo = partes[0].trim();
-                    const promptImg = partes[1].trim();
-                    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptImg)}?width=1024&height=1024&nologo=true&model=flux`;
-                    
-                    falar(textoLimpo);
-                    botBubble.innerHTML = `
-                        <div class="mb-3">${textoLimpo}</div>
-                        <div class="border border-red-600/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(227,6,19,0.2)]">
-                            <img src="${imgUrl}" class="w-full h-auto opacity-0 transition-opacity duration-1000" onload="this.style.opacity='1'">
-                        </div>`;
+                if (resp.includes("TEMA:")) {
+                    const partes = resp.split("TEMA:");
+                    const textoVoz = partes[0].trim();
+                    const temaPart = partes[1].split("|")[0].trim();
+                    const topicosPart = resp.split("TOPICOS:")[1].split(";");
+                    const topicos = topicosPart.map(tp => {
+                        const s = tp.split(":");
+                        return { titulo: s[0].trim(), descricao: s[1]?.trim() || "" };
+                    }).filter(t => t.titulo);
+
+                    falar(textoVoz);
+                    await typeWriter(botBubble, textoVoz + "\n\n>> [SISTEMA]: DESENHANDO MAPA NEURAL...");
+                    await gerarMapaMentalPDF(temaPart, topicos);
                 } else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA SINAPSE DA API.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -214,14 +247,13 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // Animação do Cérebro (Three.js)
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
