@@ -1,17 +1,16 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
-
     const { prompt } = req.body;
-    // O Vercel vai ler a sua Key das Environment Variables
-    const API_KEY = process.env.POLLINATIONS_API_KEY; 
+    
+    // Puxa a chave que você criou na foto 1 lá do Vercel
+    const api_key = process.env.POLLINATIONS_API_KEY; 
+
+    // O modelo Flux precisa de autorização se você usa Secret Key
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
 
     try {
-        // Usamos o endpoint de imagem do Pollinations com o modelo Flux
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
-
-        // Retornamos o link direto para o seu frontend "pescar"
+        // Retornamos a URL para o frontend
         res.status(200).json({ url: imageUrl });
     } catch (error) {
-        res.status(500).json({ error: 'Falha ao gerar imagem neural' });
+        res.status(500).json({ error: "Erro ao gerar link da imagem" });
     }
 }
