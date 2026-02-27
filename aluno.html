@@ -191,10 +191,10 @@
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
 - EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
 
-## 4. SCANNER NEURAL (MAPA MENTAL ESTILO SLIDE)
-- Sempre que solicitado um mapa, use o formato Graphviz DOT.
-- DESIGN: Use 'rankdir=LR', 'bgcolor="#000000"', nós com 'shape=rect, style=filled'.
-- CORES: Raiz fillcolor="#e30613" (texto branco), sub-nós fillcolor="#1a1a1a" (texto vermelho).
+## 4. SCANNER NEURAL (QUICKCHART DOT)
+- Proibido usar Mermaid. Use APENAS sintaxe DOT para Graphviz.
+- Formato obrigatório: graph G { rankdir=LR; bgcolor="#000000"; node [shape=rect, style=filled, fontname="JetBrains Mono"]; ... }
+- Cores: Raiz fillcolor="#e30613" (texto branco), sub-nós fillcolor="#1a1a1a" (texto vermelho).
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -212,20 +212,20 @@ Histórico: ${historico.join(' | ')}
 
                 const botBubble = addMessageToUI('bot', "");
 
-                // LÓGICA DE DETECÇÃO DO SCANNER NEURAL
+                // Lógica Robusta para detectar e limpar o código DOT
                 if (resp.includes("graph G")) {
-                    const dotMatch = resp.match(/graph G \{[\s\S]*?\}/);
+                    const dotMatch = resp.match(/graph G[\s\S]*?\}/);
                     if (dotMatch) {
                         const dotCode = dotMatch[0];
                         const cleanDot = encodeURIComponent(dotCode.trim());
                         const chartUrl = `https://quickchart.io/graphviz?format=png&width=600&graph=${cleanDot}`;
                         
                         botBubble.innerHTML = `
-                            <div class="text-[10px] text-red-500 mb-2 font-bold">>> SCANNER NEURAL ATIVADO:</div>
-                            <div class="bg-black p-2 rounded border border-red-600/30">
-                                <img src="${chartUrl}" class="w-full h-auto" alt="Neural Map">
+                            <div class="text-[10px] text-red-500 mb-2 font-bold tracking-widest">>> SCANNER NEURAL ATIVADO:</div>
+                            <div class="bg-black p-2 rounded border border-red-600/30 shadow-[0_0_15px_rgba(227,6,19,0.1)]">
+                                <img src="${chartUrl}" class="w-full h-auto rounded" alt="Neural Map" onerror="this.parentElement.innerHTML='>> ERRO AO RENDERIZAR SCANNER.'">
                             </div>
-                            <div class="mt-3 opacity-90">${resp.split('```')[0]}</div>`;
+                            <div class="mt-3 opacity-90">${resp.split('graph G')[0]}</div>`;
                     }
                 } else {
                     falar(resp);
