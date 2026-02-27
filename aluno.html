@@ -115,21 +115,8 @@
 
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
-            try {
-                const response = await fetch('/api/falar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texto: limpo })
-                });
-                if (!response.ok) throw new Error();
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                return audio.play();
-            } catch (e) {
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            }
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+            const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
         }
 
         window.onload = async () => {
@@ -209,23 +196,16 @@ Histórico: ${historico.join(' | ')}
 
                 const botBubble = addMessageToUI('bot', "");
 
-                // --- LÓGICA DE IMAGEM CONSERTADA PARA USAR SUA API KEY ---
-                if (resp.includes("pollinations.ai") || txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
-                    try {
-                        const resImg = await fetch("/api/imagens", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ prompt: txt })
-                        });
-                        const dataImg = await resImg.json();
-                        botBubble.innerHTML = `
-                            <div class="flex flex-col gap-2">
-                                <span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO VIA FLUX ENGINE...</span>
-                                <img src="${dataImg.url}" />
-                            </div>`;
-                    } catch (e) {
-                        await typeWriter(botBubble, ">> ERRO NO MOTOR DE IMAGEM.");
-                    }
+                // Lógica de Imagem Gratuita Turbo
+                if (txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
+                    const promptLimpo = encodeURIComponent(txt.replace(/(desenhe|gere uma imagem|imagem de)/gi, '').trim());
+                    const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
+                    
+                    botBubble.innerHTML = `
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO SINAPSE VISUAL...</span>
+                            <img src="${urlImg}" />
+                        </div>`;
                 } else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
