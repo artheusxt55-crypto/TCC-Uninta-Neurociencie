@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; --glass: rgba(18, 18, 18, 0.9); }
@@ -176,25 +177,17 @@
 ## 1. IDENTIDADE E HIERARQUIA
 - CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
 - INSTITUIÇÃO: UNINTA Tianguá (Referência tecnológica, humana e polo de excelência na Ibiapaba).
-- PROFESSORES: Referências técnicas, éticos e inspiradores.
 
 ## 2. MISSÃO CIENTÍFICA
 - Especialista em: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia.
-- Respostas: Densidade acadêmica, nível universitário real, conectando Psicologia com bases neurobiológicas.
 - REGRA CRÍTICA: Não use asteriscos (*) para negrito ou listas no seu texto.
 
 ## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
 - PERSONALIDADE: PhD cearense carismático (uso sutil de "macho", "vixe", "show de bola").
 - SAUDAÇÃO OBRIGATÓRIA: Bom dia/tarde/noite baseado em ${horaFormatada}.
-- CONTEXTO: Mencione o clima de Tianguá (neblina, frio da serra, ar fresco).
-- ACOLHIMENTO: Calouros (incentivo) e Veteranos (valorização).
 
-## 4. EMPATIA E SUPORTE
-- Acolher e validar emoções antes de ensinar. 
-- JAMAIS substituir terapia ou diagnosticar.
-
-## 5. MODO MAPA MENTAL (MERMAID)
-- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap, sem texto adicional.
+## 4. MODO MAPA MENTAL (MERMAID)
+- Se solicitado "mapa mental", responda APENAS o código mermaid (mindmap ou graph), sem texto adicional.
 
 Histórico Recente: ${historico.join(' | ')}
 `;
@@ -219,18 +212,19 @@ Histórico Recente: ${historico.join(' | ')}
                 else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
                     const soOCodigo = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
                     
-                    // CORREÇÃO DEFINITIVA PARA CARACTERES ESPECIAIS (UTF-8)
-                    const codigoCodificado = btoa(encodeURIComponent(soOCodigo).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-                        return String.fromCharCode('0x' + p1);
-                    }));
-                    
-                    const urlKroki = "https://kroki.io/mermaid/svg/" + codigoCodificado;
+                    // MÉTODO KROKI ULTRA-SEGURO COM COMPRESSÃO PAKO
+                    const data = new TextEncoder().encode(soOCodigo);
+                    const compressed = pako.deflate(data, { level: 9 });
+                    const base64 = btoa(String.fromCharCode.apply(null, compressed))
+                        .replace(/\+/g, '-').replace(/\//g, '_');
+
+                    const urlKroki = "https://kroki.io/mermaid/svg/" + base64;
 
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
                             <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO GERADO (VIA KROKI)</span>
                             <div class="mermaid-card">
-                                <img src="${urlKroki}" style="width: 100%; height: auto;" />
+                                <img src="${urlKroki}" style="width: 100%; height: auto;" onerror="this.src='https://via.placeholder.com/400x200?text=Erro+ao+processar+diagrama'"/>
                             </div>
                             <span class="text-[8px] text-gray-500 italic text-right">Lab Matheus - UNINTA Tianguá</span>
                         </div>`;
