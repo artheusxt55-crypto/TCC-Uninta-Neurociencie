@@ -108,7 +108,7 @@
                 const interval = setInterval(() => {
                     if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
-                }, 20);
+                }, 15);
             });
         }
 
@@ -181,20 +181,16 @@
 
 ## 2. VIDA NO CAMPUS
 - PROFESSORES: São maravilhosos e excelentes.
-- RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
 - CURSO: Psicologia unindo clínica e neurociência.
 
 ## 3. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
-- ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
-- DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
-- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
-- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+- RESTRICAO: Responda de forma CURTA e OBJETIVA.
+- ESTILO: PhD inteligente e carismático. Sotaque cearense discreto.
 
 ## 4. SCANNER NEURAL (QUICKCHART DOT)
-- Proibido usar Mermaid. Use APENAS sintaxe DOT para Graphviz.
-- Formato obrigatório: graph G { rankdir=LR; bgcolor="#000000"; node [shape=rect, style=filled, fontname="JetBrains Mono"]; ... }
-- Cores: Raiz fillcolor="#e30613" (texto branco), sub-nós fillcolor="#1a1a1a" (texto vermelho).
+- Quando solicitado um mapa mental, use APENAS sintaxe Graphviz DOT simples.
+- PROIBIDO: Mermaid, ícones, ::icon, HTML tags.
+- FORMATO OBRIGATÓRIO: digraph G { rankdir=LR; bgcolor="#000000"; node [shape=rect, style=filled, fillcolor="#1a1a1a", color="#e30613", fontcolor="#e30613", fontname="JetBrains Mono"]; edge [color="#ffffff"]; "Raiz" [fillcolor="#e30613", fontcolor="#ffffff"]; "Raiz" -> "Nó1"; ... }
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -212,20 +208,19 @@ Histórico: ${historico.join(' | ')}
 
                 const botBubble = addMessageToUI('bot', "");
 
-                // Lógica Robusta para detectar e limpar o código DOT
-                if (resp.includes("graph G")) {
-                    const dotMatch = resp.match(/graph G[\s\S]*?\}/);
+                // LÓGICA DE DETECÇÃO E LIMPEZA DO MAPA DOT
+                if (resp.includes("digraph G")) {
+                    const dotMatch = resp.match(/digraph G[\s\S]*?\}/);
                     if (dotMatch) {
-                        const dotCode = dotMatch[0];
-                        const cleanDot = encodeURIComponent(dotCode.trim());
-                        const chartUrl = `https://quickchart.io/graphviz?format=png&width=600&graph=${cleanDot}`;
+                        const dotCode = dotMatch[0].replace(/```/g, "");
+                        const chartUrl = `https://quickchart.io/graphviz?format=png&width=600&graph=${encodeURIComponent(dotCode)}`;
                         
                         botBubble.innerHTML = `
                             <div class="text-[10px] text-red-500 mb-2 font-bold tracking-widest">>> SCANNER NEURAL ATIVADO:</div>
-                            <div class="bg-black p-2 rounded border border-red-600/30 shadow-[0_0_15px_rgba(227,6,19,0.1)]">
-                                <img src="${chartUrl}" class="w-full h-auto rounded" alt="Neural Map" onerror="this.parentElement.innerHTML='>> ERRO AO RENDERIZAR SCANNER.'">
+                            <div class="bg-black p-2 rounded border border-red-600/30">
+                                <img src="${chartUrl}" class="w-full h-auto rounded" alt="Neural Map" onerror="this.parentElement.innerHTML='>> ERRO DE SINTAXE NO SCANNER.'">
                             </div>
-                            <div class="mt-3 opacity-90">${resp.split('graph G')[0]}</div>`;
+                            <div class="mt-3 opacity-90 text-[11px]">${resp.split('digraph G')[0].replace(/[*#]/g, '')}</div>`;
                     }
                 } else {
                     falar(resp);
@@ -233,7 +228,7 @@ Histórico: ${historico.join(' | ')}
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. REINICIANDO PROTOCOLO.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
