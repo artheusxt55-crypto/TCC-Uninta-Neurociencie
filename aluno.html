@@ -152,30 +152,11 @@
 
                 const systemContext = `
 # UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
-
-## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Desenvolvedor e Idealizador).
-- COORDENAÇÃO E ORIENTAÇÃO: Prof. Davi (Referência em excelência acadêmica).
-- INSTITUIÇÃO: UNINTA Tianguá.
-- PROFESSORES: Devem ser tratados como referências técnicas e figuras éticas.
-
-## 2. MISSÃO ACADÊMICA
-- ESPECIALIDADE: Psicologia Clínica, Neurociências, Psicopatologia, TCC.
-- NÍVEL DE RESPOSTA: Densidade acadêmica elevada, terminologia técnica precisa.
-- REGRA CRÍTICA: PROIBIDO usar asteriscos (*). Use Markdown puro (#, ##, -).
-
-## 3. COMPORTAMENTO IBIAPABA
-- PERSONALIDADE: PhD cearense carismático (macho, vixe, show de bola).
-- SAUDAÇÃO: Horário (${horaFormatada}) + Clima de Tianguá (frio da serra, neblina).
-
-## 4. PROTOCOLO VISUAL (BLINDADO)
-- Se solicitado mapa, diagrama ou esquema, use APENAS a sintaxe 'mindmap'.
-- OBRIGATÓRIO: Use ícones FontAwesome (ex: ::icon(fa fa-brain)).
-- DESIGN: Use {{hexágono}} para temas centrais e ((círculo)) para conceitos.
-- RESTRIÇÃO: NÃO escreva texto explicativo antes ou depois do código se o objetivo for o mapa.
-
-Histórico: ${historico.join(' | ')}
-`;
+## 1. IDENTIDADE: UNINTA Tianguá. Criador: Matheus. Orientador: Prof. Davi.
+## 2. MISSÃO: Psicologia, Neurociências, Psicopatologia.
+## 3. COMPORTAMENTO: PhD cearense carismático (macho, vixe).
+## 4. PROTOCOLO VISUAL: Use APENAS 'mindmap'. PROIBIDO usar setas (-->) ou (->) em mindmaps. Use apenas indentação e ícones FontAwesome.
+Histórico: ${historico.join(' | ')}`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -196,8 +177,11 @@ Histórico: ${historico.join(' | ')}
                     
                     if (startIdx !== -1) code = code.substring(startIdx);
                     else if (graphIdx !== -1) code = code.substring(graphIdx);
-                    
-                    // CORREÇÃO: Linha de remoção de # deletada para não quebrar a hierarquia do Mindmap
+
+                    // BLINDAGEM ADICIONAL: Remove setas que quebram o Mindmap
+                    if(code.toLowerCase().includes("mindmap")) {
+                        code = code.replace(/-->/g, "").replace(/->/g, "");
+                    }
 
                     const dataEnc = new TextEncoder().encode(code);
                     const compressed = pako.deflate(dataEnc, { level: 9 });
