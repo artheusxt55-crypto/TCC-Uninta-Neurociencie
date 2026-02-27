@@ -110,7 +110,7 @@
         }
 
         async function falar(texto) {
-            if(texto.toLowerCase().includes("mindmap") || texto.length < 5) return;
+            if(texto.toLowerCase().includes("mermaid") || texto.toLowerCase().includes("mindmap") || texto.length < 5) return;
             const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
             const audio = new Audio(url); audio.playbackRate = 1.15; return audio.play();
@@ -147,17 +147,17 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const agora = new Date();
-                const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
+                
                 const systemContext = `
-# UNTBOT V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
-- IDENTIDADE: Localizado na UNINTA Tianguá. Criador: Matheus. Orientador: Prof. Davi.
-- COMPORTAMENTO: PhD cearense carismático (macho, vixe, show de bola).
-- MISSÃO: Psicologia, Neurociências, Psicopatologia, TCC.
-- FORMATO CRÍTICO: PROIBIDO usar asteriscos (*). Use Markdown puro.
-- PROTOCOLO VISUAL: Se pedir mapa/diagrama, responda APENAS com o bloco de código mermaid mindmap.
-- REGRAS DO MAPA: Use {{hexágono}} para centro, ((círculo)) para ramos. NUNCA use setas (-->). Use ícones FontAwesome ::icon(fa fa-brain).
+# UNTBOT V5 - DIRETRIZES SUPREMAS (LAB MATHEUS/PROF. DAVI)
+- IDENTIDADE: UNINTA Tianguá. Criador: Matheus. Orientador: Prof. Davi.
+- COMPORTAMENTO: PhD cearense carismático (macho, vixe).
+- MISSÃO: Psicologia Clínica, Neurociências, Psicopatologia, TCC.
+- REGRA CRÍTICA: PROIBIDO usar asteriscos (*). Use Markdown puro.
+- PROTOCOLO SCANNER: Se pedir mapa/diagrama, responda APENAS com o bloco de código mermaid.
+- BLINDAGEM MERMAID: Use APENAS a sintaxe 'mindmap'. PROIBIDO usar setas (-->) ou (->). 
+- ESTRUTURA: Use {{hexágono}} para o nó central, ((círculo)) para ramos. Use ícones ::icon(fa fa-brain).
+- SILÊNCIO: Não escreva texto explicativo antes ou depois do código do mapa.
 Histórico: ${historico.join(' | ')}`;
 
                 const res = await fetch("/api/analisar", {
@@ -172,14 +172,15 @@ Histórico: ${historico.join(' | ')}`;
                 await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                if (resp.toLowerCase().includes("mindmap")) {
-                    // LIMPEZA CIRÚRGICA: extrai apenas o que está entre os backticks ou começa em mindmap
-                    let code = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
+                if (resp.toLowerCase().includes("mermaid") || resp.toLowerCase().includes("mindmap")) {
+                    // EXTRAÇÃO AGRESSIVA: Pega apenas o conteúdo dentro dos backticks
+                    let codeMatch = resp.match(/```mermaid([\s\S]*?)```/i) || resp.match(/```([\s\S]*?)```/);
+                    let code = codeMatch ? codeMatch[1].trim() : resp.trim();
+                    
+                    // Garante que comece com mindmap e remove lixo de setas
                     const startIdx = code.toLowerCase().indexOf("mindmap");
                     if (startIdx !== -1) code = code.substring(startIdx);
-                    
-                    // Blindagem contra setas que quebram o Kroki
-                    code = code.replace(/-->/g, "").replace(/->/g, "");
+                    code = code.replace(/-->/g, "").replace(/->/g, "").replace(/==>/g, "");
 
                     const dataEnc = new TextEncoder().encode(code);
                     const compressed = pako.deflate(dataEnc, { level: 9 });
@@ -214,10 +215,4 @@ Histórico: ${historico.join(' | ')}`;
         brainCont.appendChild(renderer.domElement);
         const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.4, emissive: 0xe30613, emissiveIntensity: 0.6 }));
         scene.add(brain);
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
-        camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-    </script>
-</body>
-</html>
+        const light = new THREE.PointLight(0xffffff, 1, 100
