@@ -197,7 +197,7 @@ Histórico: ${historico.join(' | ')}
                     if (startIdx !== -1) code = code.substring(startIdx);
                     else if (graphIdx !== -1) code = code.substring(graphIdx);
                     
-                    code = code.replace(/#/g, ""); // Remove títulos que quebram o Mermaid
+                    // CORREÇÃO: Linha de remoção de # deletada para não quebrar a hierarquia do Mindmap
 
                     const dataEnc = new TextEncoder().encode(code);
                     const compressed = pako.deflate(dataEnc, { level: 9 });
