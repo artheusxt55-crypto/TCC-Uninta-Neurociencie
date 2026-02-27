@@ -115,20 +115,32 @@
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
             try {
+                const response = await fetch('/api/falar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: limpo })
+                });
+                if (!response.ok) throw new Error();
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                return audio.play();
+            } catch (e) {
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            } catch (e) { console.error("Erro voz"); }
+            }
         }
 
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora < 12) ? "BOM DIA!" : (hora < 18 ? "BOA TARDE!" : "BOA NOITE!");
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18 ? "BOA TARDE!" : "BOA NOITE!");
+
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO AO LAB NEURAL, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} IDENTIFIQUE-SE PARA ACESSAR OS DADOS DO LAB.`);
             }
         };
 
@@ -141,7 +153,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS.`);
                 input.value = ""; return;
             }
 
@@ -151,22 +163,16 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
+                const horaContexto = new Date().getHours();
+                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
-                // DIRETRIZES MANTIDAS E REFORÇADAS PARA POLLINATIONS
                 const contextoPersonalidade = `
-# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-- CRIADOR: Matheus (Lab Assistant).
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
-- INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
-- COMPORTAMENTO: Responda de forma CURTA e OBJETIVA. PhD inteligente. Sotaque cearense discreto.
-
-# REGRA DE MAPA MENTAL (POLLINATIONS)
-- Sempre que pedirem "MAPA MENTAL", você deve criar um prompt em inglês descrevendo um mapa mental visual complexo.
-- Formato obrigatório: IMAGE_PROMPT: [descrição detalhada em inglês do mapa mental de neurociência, estilo futurista, cores vermelho e preto, fundo preto, 8k, cinematográfico]
-- NÃO responda com texto ou listas se pedirem mapa mental. Use apenas o IMAGE_PROMPT.
-Histórico: ${historico.join(' | ')}`;
+# DIRETRIZES: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
+- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi.
+- COMPORTAMENTO: PhD, curto, direto. Sotaque cearense discreto.
+- REGRA DE IMAGEM: Se o usuário pedir mapa ou visual, termine OBRIGATORIAMENTE com: IMAGE_PROMPT: [descrição em inglês].
+Histórico: ${historico.join(' | ')}
+`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -176,38 +182,30 @@ Histórico: ${historico.join(' | ')}`;
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                // PRIORIDADE PARA IMAGE_PROMPT (POLLINATIONS)
+                // DETECTOR DE IMAGEM
                 if (resp.includes("IMAGE_PROMPT:")) {
-                    const promptRaw = resp.split("IMAGE_PROMPT:")[1].trim();
-                    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptRaw)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1000000)}&model=flux`;
+                    const partes = resp.split("IMAGE_PROMPT:");
+                    const textoLimpo = partes[0].trim();
+                    const promptImg = partes[1].trim();
+                    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptImg)}?width=1024&height=1024&nologo=true&model=flux`;
                     
+                    falar(textoLimpo);
                     botBubble.innerHTML = `
-                        <div class="text-[10px] text-red-500 mb-2 font-bold tracking-widest">>> SCANNER NEUROVISUAL GERANDO MAPA:</div>
-                        <img src="${url}" class="w-full h-auto rounded border border-red-600/30 shadow-[0_0_20px_rgba(227,6,19,0.3)] mb-2" alt="Neural Map">
-                        <div class="text-[11px] opacity-70 italic">Mapa gerado via Laboratório Neural UNINTA.</div>
-                    `;
-                } 
-                else if (resp.includes("digraph G")) {
-                    const dotMatch = resp.match(/digraph G[\s\S]*?\}/);
-                    if (dotMatch) {
-                        const code = dotMatch[0].trim();
-                        const b64 = btoa(unescape(encodeURIComponent(code)));
-                        const url = `https://kroki.io/graphviz/svg/${b64}`;
-                        botBubble.innerHTML = `<div class="text-[10px] text-red-500 mb-2 font-bold">>> SCANNER NEURAL:</div>
-                        <img src="${url}" class="w-full h-auto bg-black p-2 border border-red-600/30 rounded">`;
-                    }
-                } 
-                else {
+                        <div class="mb-3">${textoLimpo}</div>
+                        <div class="border border-red-600/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(227,6,19,0.2)]">
+                            <img src="${imgUrl}" class="w-full h-auto opacity-0 transition-opacity duration-1000" onload="this.style.opacity='1'">
+                        </div>`;
+                } else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA CONEXÃO.");
+                addMessageToUI('bot', ">> ERRO NA SINAPSE DA API.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -216,13 +214,14 @@ Histórico: ${historico.join(' | ')}`;
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // Animação do Cérebro (Three.js)
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
