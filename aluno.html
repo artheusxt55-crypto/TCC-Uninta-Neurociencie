@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; --glass: rgba(18, 18, 18, 0.9); }
@@ -37,16 +38,24 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
         
+        /* CARD DO MAPA MENTAL PROFISSIONAL */
         .mermaid-card { 
-            background: #ffffff; 
-            padding: 20px; 
+            background: #0a0a0a; 
+            padding: 25px; 
             border-radius: 15px; 
             margin-top: 10px; 
-            color: #000; 
-            border: 3px solid var(--primary); 
+            border: 2px solid var(--primary); 
             display: flex; 
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 0 25px rgba(227, 6, 19, 0.3);
+        }
+
+        /* Efeito para o mapa brilhar no fundo escuro */
+        .mermaid-card img {
+            filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1);
+            border: none;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -171,33 +180,32 @@
                 const agora = new Date();
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
+                // DIRETRIZES SUPREMAS RESTAURADAS E TURBINADAS
                 const systemContext = `
 # UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
 
 ## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
-- INSTITUIÇÃO: UNINTA Tianguá (Referência tecnológica, humana e polo de excelência na Ibiapaba).
-- PROFESSORES: Referências técnicas, éticos e inspiradores.
+- CRIADOR: Matheus (Desenvolvedor e Idealizador).
+- COORDENAÇÃO E ORIENTAÇÃO: Prof. Davi (Referência em excelência acadêmica).
+- INSTITUIÇÃO: UNINTA Tianguá (O maior polo de tecnologia e humanidade da região da Ibiapaba).
+- PROFESSORES: Devem ser tratados como referências técnicas, figuras éticas e inspiradoras.
 
-## 2. MISSÃO CIENTÍFICA
-- Especialista em: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia.
-- Respostas: Densidade acadêmica, nível universitário real, conectando Psicologia com bases neurobiológicas.
-- REGRA CRÍTICA: Não use asteriscos (*) para negrito ou listas no seu texto.
+## 2. MISSÃO CIENTÍFICA E ACADÊMICA
+- ESPECIALIDADE: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia Científica.
+- NÍVEL DE RESPOSTA: Densidade acadêmica elevada, terminologia técnica precisa.
+- REGRA CRÍTICA: PROIBIDO usar asteriscos (*). Use Markdown puro (#, ##, -).
 
 ## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
-- PERSONALIDADE: PhD cearense carismático (uso sutil de "macho", "vixe", "show de bola").
-- SAUDAÇÃO OBRIGATÓRIA: Bom dia/tarde/noite baseado em ${horaFormatada}.
-- CONTEXTO: Mencione o clima de Tianguá (neblina, frio da serra, ar fresco).
-- ACOLHIMENTO: Calouros (incentivo) e Veteranos (valorização).
+- PERSONALIDADE: PhD cearense carismático (macho, vixe, show de bola).
+- SAUDAÇÃO OBRIGATÓRIA: Horário (${horaFormatada}) + Clima de Tianguá (frio da serra, neblina).
 
-## 4. EMPATIA E SUPORTE
-- Acolher e validar emoções antes de ensinar. 
-- JAMAIS substituir terapia ou diagnosticar.
+## 4. MODO MAPA MENTAL PROFISSIONAL (PROTOCOLO VISUAL)
+- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap.
+- OBRIGATÓRIO: Use ícones FontAwesome (ex: ::icon(fa fa-brain), ::icon(fa fa-book), ::icon(fa fa-dna)).
+- DESIGN: Use formas {{hexágono}} para temas centrais e ((círculo)) para conceitos.
+- CORES: Ramos coloridos para densidade acadêmica.
 
-## 5. MODO MAPA MENTAL (MERMAID)
-- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap, sem texto adicional.
-
-Histórico Recente: ${historico.join(' | ')}
+Histórico: ${historico.join(' | ')}
 `;
 
                 const res = await fetch("/api/analisar", {
@@ -218,7 +226,6 @@ Histórico Recente: ${historico.join(' | ')}
                     botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
                 else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
-                    // Extração rigorosa do código para evitar erros de renderização
                     const regex = /(?:mindmap|graph)[\s\S]+?(?=`{3}|$)/i;
                     const match = resp.match(regex);
                     const soOCodigo = match ? match[0].trim() : resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
@@ -232,11 +239,11 @@ Histórico Recente: ${historico.join(' | ')}
 
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO GERADO (V5)</span>
+                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO NEURAL GERADO</span>
                             <div class="mermaid-card">
                                 <img src="${urlKroki}" style="width: 100%; height: auto;" />
                             </div>
-                            <span class="text-[8px] text-gray-500 italic text-right">Lab Matheus - UNINTA Tianguá</span>
+                            <span class="text-[8px] text-gray-600 italic text-right">Lab Matheus - UNINTA Tianguá</span>
                         </div>`;
                 } 
                 else {
@@ -245,7 +252,7 @@ Histórico Recente: ${historico.join(' | ')}
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. VERIFIQUE A CONEXÃO NO CAMPUS.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. VERIFIQUE A CONEXÃO.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
