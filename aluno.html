@@ -56,7 +56,7 @@
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
             <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando neural..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
             </div>
@@ -115,36 +115,21 @@
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
             try {
-                const response = await fetch('/api/falar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texto: limpo })
-                });
-                if (!response.ok) throw new Error();
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                return audio.play();
-            } catch (e) {
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            }
+            } catch (e) { console.error("Erro de voz"); }
         }
 
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = "";
-
-            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
-            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
-            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora < 12) ? "BOM DIA!" : (hora < 18) ? "BOA TARDE!" : "BOA NOITE!";
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} LAB ASSISTANT ONLINE. PRONTO, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} IDENTIFIQUE-SE PARA ACESSAR OS DADOS DO LAB.`);
             }
         };
 
@@ -156,8 +141,7 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                addMessageToUI('bot', `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO.`);
                 input.value = ""; return;
             }
 
@@ -167,32 +151,13 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const horaContexto = new Date().getHours();
-                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
-                
                 const contextoPersonalidade = `
-# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-
-## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
-- INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
-
-## 2. VIDA NO CAMPUS
-- PROFESSORES: São maravilhosos e excelentes.
-- CURSO: Psicologia unindo clínica e neurociência.
-
-## 3. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA e OBJETIVA.
-- ESTILO: PhD inteligente e carismático. Sotaque cearense discreto.
-
-## 4. SCANNER NEURAL (QUICKCHART DOT)
-- Quando solicitado um mapa mental, use APENAS sintaxe Graphviz DOT simples.
-- PROIBIDO: Mermaid, ícones, ::icon, HTML tags.
-- FORMATO OBRIGATÓRIO: digraph G { rankdir=LR; bgcolor="#000000"; node [shape=rect, style=filled, fillcolor="#1a1a1a", color="#e30613", fontcolor="#e30613", fontname="JetBrains Mono"]; edge [color="#ffffff"]; "Raiz" [fillcolor="#e30613", fontcolor="#ffffff"]; "Raiz" -> "Nó1"; ... }
-
-Histórico: ${historico.join(' | ')}
+# DIRETRIZES: UNTBOT V5 - UNINTA TIANGUÁ
+- Estilo: PhD em Neurociência, direto e inteligente.
+- MAPAS MENTAIS: Use APENAS sintaxe Graphviz (digraph G).
+- CORES DO MAPA: Fundo #000000, nós com borda #e30613 e fonte #ffffff.
+- REGRAS: Proibido Mermaid, proibido ícones ::icon, proibido HTML.
+- FORMATO DOT: digraph G { rankdir=LR; bgcolor="black"; node [color="#e30613", fontcolor="white", shape=box, style=filled, fillcolor="#1a1a1a"]; edge [color="white"]; "Tema" -> "Subtema"; }
 `;
 
                 const res = await fetch("/api/analisar", {
@@ -205,22 +170,22 @@ Histórico: ${historico.join(' | ')}
                 const resp = data.choices[0].message.content;
 
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
-
                 const botBubble = addMessageToUI('bot', "");
 
-                // LÓGICA DE DETECÇÃO E LIMPEZA DO MAPA DOT
+                // NOVA LÓGICA KROKI (MUITO MAIS ESTÁVEL)
                 if (resp.includes("digraph G")) {
                     const dotMatch = resp.match(/digraph G[\s\S]*?\}/);
                     if (dotMatch) {
-                        const dotCode = dotMatch[0].replace(/```/g, "");
-                        const chartUrl = `https://quickchart.io/graphviz?format=png&width=600&graph=${encodeURIComponent(dotCode)}`;
+                        const dotCode = dotMatch[0].trim();
+                        // Kroki aceita o código DOT diretamente na URL se for curto ou via POST
+                        const chartUrl = `https://kroki.io/graphviz/svg/${window.btoa(unescape(encodeURIComponent(dotCode)))}`;
                         
                         botBubble.innerHTML = `
-                            <div class="text-[10px] text-red-500 mb-2 font-bold tracking-widest">>> SCANNER NEURAL ATIVADO:</div>
-                            <div class="bg-black p-2 rounded border border-red-600/30">
-                                <img src="${chartUrl}" class="w-full h-auto rounded" alt="Neural Map" onerror="this.parentElement.innerHTML='>> ERRO DE SINTAXE NO SCANNER.'">
+                            <div class="text-[10px] text-red-500 mb-2 font-bold tracking-widest">>> SCANNER NEURAL (KROKI):</div>
+                            <div class="bg-black p-3 rounded border border-red-600/30 overflow-x-auto">
+                                <img src="${chartUrl}" class="max-w-none h-auto" style="filter: drop-shadow(0 0 5px rgba(227,6,19,0.2));">
                             </div>
-                            <div class="mt-3 opacity-90 text-[11px]">${resp.split('digraph G')[0].replace(/[*#]/g, '')}</div>`;
+                            <div class="mt-3 text-[12px] opacity-80">${resp.split('digraph G')[0].replace(/[*#]/g, '')}</div>`;
                     }
                 } else {
                     falar(resp);
@@ -228,7 +193,7 @@ Histórico: ${historico.join(' | ')}
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. REINICIANDO PROTOCOLO.");
+                addMessageToUI('bot', ">> FALHA NA SINAPSE. TENTE NOVAMENTE.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -243,12 +208,6 @@ Histórico: ${historico.join(' | ')}
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
         scene.add(brain);
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
-        camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
-        animate();
-    </script>
-</body>
-</html>
+        const light
