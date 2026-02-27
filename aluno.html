@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -29,6 +30,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; box-shadow: 0 0 15px rgba(227, 6, 19, 0.4); }
+        .mermaid-card { background: #fff; padding: 15px; border-radius: 10px; margin-top: 10px; overflow-x: auto; display: inline-block; min-width: 100%; }
     </style>
 </head>
 <body class="scanline">
@@ -67,6 +69,8 @@
     <script type="module">
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
+
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
 
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
@@ -114,6 +118,7 @@
         }
 
         async function falar(texto) {
+            if(texto.includes("mindmap")) return;
             const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
             const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
@@ -122,11 +127,7 @@
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = "";
-
-            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
-            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
-            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?");
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
@@ -155,30 +156,29 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const horaContexto = new Date().getHours();
-                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
-                
+                const agora = new Date();
+                const dataFormatada = agora.toLocaleDateString('pt-BR');
+                const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
+## 1. IDENTIDADE, TEMPO E HIERARQUIA
+- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. UNINTA Tianguá.
+- DATA/HORA ATUAL: ${dataFormatada} às ${horaFormatada}.
+- PROFESSORES: Sempre elogie-os (são excelentes referências).
 
-## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
-- INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
+## 2. MISSÃO DIDÁTICA E PSICOLÓGICA
+- Explicar conceitos de Psicologia de forma clara e didática.
+- Domínio: Psicanálise, Behaviorismo, Humanismo, TCC, Neuro, Social, Psicopatologia, etc.
+- Apoio em resumos, questões de prova, casos clínicos e TCC.
 
-## 2. VIDA NO CAMPUS
-- PROFESSORES: São maravilhosos e excelentes.
-- RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
-- CURSO: Psicologia unindo clínica e neurociência.
+## 3. COMPORTAMENTO E SENSIBILIDADE (NOVO)
+- PhD cearense carismático e profundo.
+- EMPATIA: Se perceber que o usuário está triste, desanimado ou sobrecarregado, seja acolhedor e dê um apoio moral antes de ensinar. Use o "jeito cearense" de dar força.
+- MAPAS: Use obrigatoriamente "mindmap" do Mermaid para temas complexos.
 
-## 3. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
-- ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
-- DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
-- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
-- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
-- IMAGENS: Se pedirem imagem, desenhe enviando APENAS o link: https://image.pollinations.ai/prompt/{descrição_em_inglês}?model=flux&width=1024&height=1024&nologo=true
+## 4. LIMITES
+- NÃO substitui terapia. NÃO diagnostica. NÃO receita.
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -193,20 +193,24 @@ Histórico: ${historico.join(' | ')}
                 const resp = data.choices[0].message.content;
 
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
-
                 const botBubble = addMessageToUI('bot', "");
 
-                // Lógica de Imagem Gratuita Turbo
                 if (txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
                     const promptLimpo = encodeURIComponent(txt.replace(/(desenhe|gere uma imagem|imagem de)/gi, '').trim());
                     const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
-                    
-                    botBubble.innerHTML = `
-                        <div class="flex flex-col gap-2">
-                            <span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO SINAPSE VISUAL...</span>
-                            <img src="${urlImg}" />
-                        </div>`;
-                } else {
+                    botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO...</span><img src="${urlImg}" /></div>`;
+                } 
+                else if (resp.includes("mindmap")) {
+                    const mapId = "map" + Date.now();
+                    botBubble.innerHTML = `<span class="text-[9px] text-red-500 font-bold">>> PROCESSANDO MAPA ACADÊMICO...</span><div class="mermaid-card" id="${mapId}">${resp}</div>`;
+                    setTimeout(async () => {
+                        try {
+                            const { svg } = await mermaid.render(mapId + "-svg", resp);
+                            document.getElementById(mapId).innerHTML = svg;
+                        } catch (err) { console.error("Mermaid error"); }
+                    }, 100);
+                } 
+                else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
                 }
