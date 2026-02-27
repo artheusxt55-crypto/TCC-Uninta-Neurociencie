@@ -36,7 +36,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
         
-        /* ESTILO CANVA PARA O CARD DO MAPA MENTAL */
         .mermaid-card { 
             background: #ffffff; 
             padding: 20px; 
@@ -218,9 +217,13 @@ Histórico Recente: ${historico.join(' | ')}
                     botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
                 else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
-                    // CONEXÃO KROKI: Limpa o código e gera a URL de imagem
                     const soOCodigo = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
-                    const codigoCodificado = btoa(unescape(encodeURIComponent(soOCodigo)));
+                    
+                    // CORREÇÃO DEFINITIVA PARA CARACTERES ESPECIAIS (UTF-8)
+                    const codigoCodificado = btoa(encodeURIComponent(soOCodigo).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    }));
+                    
                     const urlKroki = "https://kroki.io/mermaid/svg/" + codigoCodificado;
 
                     botBubble.innerHTML = `
