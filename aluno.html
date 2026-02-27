@@ -150,10 +150,40 @@
                 const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
+async function enviar() {
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            if(!currentUserId) {
+                currentUserId = txt.toLowerCase();
+                localStorage.setItem('untbot_last_id', currentUserId);
+                userTag.innerText = currentUserId.toUpperCase();
+                const b = addMessageToUI('bot', "");
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                input.value = ""; return;
+            }
+
+            addMessageToUI('user', txt);
+            bar.style.width = "85%";
+            input.value = ""; input.disabled = true;
+
+            try {
+                const historico = await buscarDoRedis(currentUserId);
+                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
+                
+                const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
 - CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. INSTITUIÇÃO: UNINTA Tianguá.
-- COMPORTAMENTO: Responda de forma CURTA, DIRETA e OBJETIVA. Estilo PhD inteligente/carismático.
-- SCANNER: Se o usuário pedir mapa mental ou resumo visual, use obrigatoriamente o bloco de código \`\`\`mermaid começando com 'mindmap'. Não use setas (-->), apenas indentação.
+- COMPORTAMENTO: Responda de forma CURTA e DIRETA.
+- SCANNER (MAPA MENTAL): Se o usuário pedir um mapa ou resumo, use APENAS o formato mindmap do Mermaid. 
+- REGRAS MERMAID: 
+  1. Comece com \`\`\`mermaid e na linha seguinte 'mindmap'.
+  2. NÃO use setas (-->), NÃO use 'graph LR', NÃO use barras (|).
+  3. Use apenas espaços para criar os ramos. Exemplo:
+     mindmap
+       Raiz
+         Ramo 1
+         Ramo 2
 Histórico: ${historico.join(' | ')}`;
 
                 const res = await fetch("/api/analisar", {
@@ -162,6 +192,33 @@ Histórico: ${historico.join(' | ')}`;
                     body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidade })
                 });
                 
+                const data = await res.json();
+                let resp = data.choices[0].message.content;
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
+
+                const botBubble = addMessageToUI('bot', "");
+
+                // Lógica corrigida para capturar o código sem quebrar
+                if (resp.includes("mindmap")) {
+                    let mCode = resp.match(/mindmap[\s\S]*?(?=```|$)/)?.[0];
+                    if (mCode) {
+                        // Limpeza de caracteres que causam Parse Error
+                        mCode = mCode.replace(/[|><]/g, ""); 
+                        const bytes = new TextEncoder().encode(mCode.trim());
+                        const compressed = pako.deflate(bytes, { level: 9 });
+                        const base64 = btoa(String.fromCharCode.apply(null, compressed)).replace(/\+/g, '-').replace(/\//g, '_');
+                        botBubble.innerHTML = `<div class="text-[10px] text-red-500 mb-2">>> SCANNER NEURAL:</div><div class="map-box"><img src="https://kroki.io/mermaid/svg/${base64}"></div>`;
+                    }
+                } else {
+                    await typeWriter(botBubble, resp);
+                }
+
+            } catch (e) {
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+            } finally {
+                bar.style.width = "0%"; input.disabled = false; input.focus();
+            }
+        }
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
