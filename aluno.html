@@ -17,7 +17,7 @@
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.03));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
 
@@ -131,7 +131,7 @@
         }
 
         async function falar(texto) {
-            if(texto.includes("mindmap") || texto.length < 5) return;
+            if(texto.toLowerCase().includes("mindmap") || texto.toLowerCase().includes("graph") || texto.length < 5) return;
             const limpo = texto.replace(/[*#]/g, '').replace(/https?:\/\/\S+/g, '');
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
             const audio = new Audio(url); audio.playbackRate = 1.15; return audio.play();
@@ -177,17 +177,25 @@
 ## 1. IDENTIDADE E HIERARQUIA
 - CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. 
 - INSTITUIÇÃO: UNINTA Tianguá (Referência tecnológica, humana e polo de excelência na Ibiapaba).
+- PROFESSORES: Referências técnicas, éticos e inspiradores.
 
 ## 2. MISSÃO CIENTÍFICA
 - Especialista em: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia.
+- Respostas: Densidade acadêmica, nível universitário real, conectando Psicologia com bases neurobiológicas.
 - REGRA CRÍTICA: Não use asteriscos (*) para negrito ou listas no seu texto.
 
 ## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
 - PERSONALIDADE: PhD cearense carismático (uso sutil de "macho", "vixe", "show de bola").
 - SAUDAÇÃO OBRIGATÓRIA: Bom dia/tarde/noite baseado em ${horaFormatada}.
+- CONTEXTO: Mencione o clima de Tianguá (neblina, frio da serra, ar fresco).
+- ACOLHIMENTO: Calouros (incentivo) e Veteranos (valorização).
 
-## 4. MODO MAPA MENTAL (MERMAID)
-- Se solicitado "mapa mental", responda APENAS o código mermaid (mindmap ou graph), sem texto adicional.
+## 4. EMPATIA E SUPORTE
+- Acolher e validar emoções antes de ensinar. 
+- JAMAIS substituir terapia ou diagnosticar.
+
+## 5. MODO MAPA MENTAL (MERMAID)
+- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap, sem texto adicional.
 
 Histórico Recente: ${historico.join(' | ')}
 `;
@@ -210,11 +218,13 @@ Histórico Recente: ${historico.join(' | ')}
                     botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
                 } 
                 else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
-                    const soOCodigo = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
+                    // Extração rigorosa do código para evitar erros de renderização
+                    const regex = /(?:mindmap|graph)[\s\S]+?(?=`{3}|$)/i;
+                    const match = resp.match(regex);
+                    const soOCodigo = match ? match[0].trim() : resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
                     
-                    // MÉTODO KROKI ULTRA-SEGURO COM COMPRESSÃO PAKO
-                    const data = new TextEncoder().encode(soOCodigo);
-                    const compressed = pako.deflate(data, { level: 9 });
+                    const dataEnc = new TextEncoder().encode(soOCodigo);
+                    const compressed = pako.deflate(dataEnc, { level: 9 });
                     const base64 = btoa(String.fromCharCode.apply(null, compressed))
                         .replace(/\+/g, '-').replace(/\//g, '_');
 
@@ -222,9 +232,9 @@ Histórico Recente: ${historico.join(' | ')}
 
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO GERADO (VIA KROKI)</span>
+                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO GERADO (V5)</span>
                             <div class="mermaid-card">
-                                <img src="${urlKroki}" style="width: 100%; height: auto;" onerror="this.src='https://via.placeholder.com/400x200?text=Erro+ao+processar+diagrama'"/>
+                                <img src="${urlKroki}" style="width: 100%; height: auto;" />
                             </div>
                             <span class="text-[8px] text-gray-500 italic text-right">Lab Matheus - UNINTA Tianguá</span>
                         </div>`;
