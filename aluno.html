@@ -137,7 +137,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}. VOCÊ ESTÁ NA UNINTA TIANGUÁ, ONDE O FUTURO ACONTECE. O QUE VAMOS EXPLORAR HOJE, MACHO?`);
+                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}. O QUE VAMOS EXPLORAR HOJE, MACHO?`);
                 input.value = ""; return;
             }
 
@@ -151,11 +151,13 @@
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
                 const systemContext = `
-# UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
-## 1. IDENTIDADE: UNINTA Tianguá. Criador: Matheus. Orientador: Prof. Davi.
-## 2. MISSÃO: Psicologia, Neurociências, Psicopatologia.
-## 3. COMPORTAMENTO: PhD cearense carismático (macho, vixe).
-## 4. PROTOCOLO VISUAL: Use APENAS 'mindmap'. PROIBIDO usar setas (-->) ou (->) em mindmaps. Use apenas indentação e ícones FontAwesome.
+# UNTBOT V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
+- IDENTIDADE: Localizado na UNINTA Tianguá. Criador: Matheus. Orientador: Prof. Davi.
+- COMPORTAMENTO: PhD cearense carismático (macho, vixe, show de bola).
+- MISSÃO: Psicologia, Neurociências, Psicopatologia, TCC.
+- FORMATO CRÍTICO: PROIBIDO usar asteriscos (*). Use Markdown puro.
+- PROTOCOLO VISUAL: Se pedir mapa/diagrama, responda APENAS com o bloco de código mermaid mindmap.
+- REGRAS DO MAPA: Use {{hexágono}} para centro, ((círculo)) para ramos. NUNCA use setas (-->). Use ícones FontAwesome ::icon(fa fa-brain).
 Histórico: ${historico.join(' | ')}`;
 
                 const res = await fetch("/api/analisar", {
@@ -170,18 +172,14 @@ Histórico: ${historico.join(' | ')}`;
                 await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
+                if (resp.toLowerCase().includes("mindmap")) {
+                    // LIMPEZA CIRÚRGICA: extrai apenas o que está entre os backticks ou começa em mindmap
                     let code = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
                     const startIdx = code.toLowerCase().indexOf("mindmap");
-                    const graphIdx = code.toLowerCase().indexOf("graph");
-                    
                     if (startIdx !== -1) code = code.substring(startIdx);
-                    else if (graphIdx !== -1) code = code.substring(graphIdx);
-
-                    // BLINDAGEM ADICIONAL: Remove setas que quebram o Mindmap
-                    if(code.toLowerCase().includes("mindmap")) {
-                        code = code.replace(/-->/g, "").replace(/->/g, "");
-                    }
+                    
+                    // Blindagem contra setas que quebram o Kroki
+                    code = code.replace(/-->/g, "").replace(/->/g, "");
 
                     const dataEnc = new TextEncoder().encode(code);
                     const compressed = pako.deflate(dataEnc, { level: 9 });
