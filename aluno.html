@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -29,8 +28,6 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Estilo do Mapa Mental */
-        .map-box { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 2px solid var(--primary); }
     </style>
 </head>
 <body class="scanline">
@@ -115,10 +112,33 @@
             });
         }
 
+        async function falar(texto) {
+            const limpo = texto.replace(/[*#]/g, '');
+            try {
+                const response = await fetch('/api/falar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: limpo })
+                });
+                if (!response.ok) throw new Error();
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                return audio.play();
+            } catch (e) {
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
+            }
+        }
+
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?");
+            let saudacao = "";
+
+            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
+            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
+            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
@@ -147,44 +167,37 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
-                
-                const contextoPersonalidade = `
-async function enviar() {
-            const txt = input.value.trim();
-            if(!txt) return;
-
-            if(!currentUserId) {
-                currentUserId = txt.toLowerCase();
-                localStorage.setItem('untbot_last_id', currentUserId);
-                userTag.innerText = currentUserId.toUpperCase();
-                const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
-                input.value = ""; return;
-            }
-
-            addMessageToUI('user', txt);
-            bar.style.width = "85%";
-            input.value = ""; input.disabled = true;
-
-            try {
-                const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
+                const horaContexto = new Date().getHours();
+                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. INSTITUIÇÃO: UNINTA Tianguá.
-- COMPORTAMENTO: Responda de forma CURTA e DIRETA.
-- SCANNER (MAPA MENTAL): Se o usuário pedir um mapa ou resumo, use APENAS o formato mindmap do Mermaid. 
-- REGRAS MERMAID: 
-  1. Comece com \`\`\`mermaid e na linha seguinte 'mindmap'.
-  2. NÃO use setas (-->), NÃO use 'graph LR', NÃO use barras (|).
-  3. Use apenas espaços para criar os ramos. Exemplo:
-     mindmap
-       Raiz
-         Ramo 1
-         Ramo 2
-Histórico: ${historico.join(' | ')}`;
+
+## 1. IDENTIDADE E HIERARQUIA
+- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
+- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
+- INSTITUIÇÃO: UNINTA Tianguá.
+- CONTEXTO: Agora é ${momento} em Tianguá.
+
+## 2. VIDA NO CAMPUS
+- PROFESSORES: São maravilhosos e excelentes.
+- RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
+- CURSO: Psicologia unindo clínica e neurociência.
+
+## 3. COMPORTAMENTO
+- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
+- ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
+- DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
+- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
+- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+
+## 4. SCANNER NEURAL (MAPA MENTAL ESTILO SLIDE)
+- Sempre que solicitado um mapa, use o formato Graphviz DOT.
+- DESIGN: Use 'rankdir=LR', 'bgcolor="#000000"', nós com 'shape=rect, style=filled'.
+- CORES: Raiz fillcolor="#e30613" (texto branco), sub-nós fillcolor="#1a1a1a" (texto vermelho).
+
+Histórico: ${historico.join(' | ')}
+`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -193,45 +206,29 @@ Histórico: ${historico.join(' | ')}`;
                 });
                 
                 const data = await res.json();
-                let resp = data.choices[0].message.content;
+                const resp = data.choices[0].message.content;
+
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
 
-                // Lógica corrigida para capturar o código sem quebrar
-                if (resp.includes("mindmap")) {
-                    let mCode = resp.match(/mindmap[\s\S]*?(?=```|$)/)?.[0];
-                    if (mCode) {
-                        // Limpeza de caracteres que causam Parse Error
-                        mCode = mCode.replace(/[|><]/g, ""); 
-                        const bytes = new TextEncoder().encode(mCode.trim());
-                        const compressed = pako.deflate(bytes, { level: 9 });
-                        const base64 = btoa(String.fromCharCode.apply(null, compressed)).replace(/\+/g, '-').replace(/\//g, '_');
-                        botBubble.innerHTML = `<div class="text-[10px] text-red-500 mb-2">>> SCANNER NEURAL:</div><div class="map-box"><img src="https://kroki.io/mermaid/svg/${base64}"></div>`;
+                // LÓGICA DE DETECÇÃO DO SCANNER NEURAL
+                if (resp.includes("graph G")) {
+                    const dotMatch = resp.match(/graph G \{[\s\S]*?\}/);
+                    if (dotMatch) {
+                        const dotCode = dotMatch[0];
+                        const cleanDot = encodeURIComponent(dotCode.trim());
+                        const chartUrl = `https://quickchart.io/graphviz?format=png&width=600&graph=${cleanDot}`;
+                        
+                        botBubble.innerHTML = `
+                            <div class="text-[10px] text-red-500 mb-2 font-bold">>> SCANNER NEURAL ATIVADO:</div>
+                            <div class="bg-black p-2 rounded border border-red-600/30">
+                                <img src="${chartUrl}" class="w-full h-auto" alt="Neural Map">
+                            </div>
+                            <div class="mt-3 opacity-90">${resp.split('```')[0]}</div>`;
                     }
                 } else {
-                    await typeWriter(botBubble, resp);
-                }
-
-            } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
-            } finally {
-                bar.style.width = "0%"; input.disabled = false; input.focus();
-            }
-        }
-                const data = await res.json();
-                const resp = data.choices[0].message.content;
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
-
-                const botBubble = addMessageToUI('bot', "");
-
-                if (resp.includes("mermaid") || resp.includes("mindmap")) {
-                    let mCode = resp.match(/```mermaid([\s\S]*?)```/)?.[1] || resp;
-                    const bytes = new TextEncoder().encode(mCode.trim());
-                    const compressed = pako.deflate(bytes, { level: 9 });
-                    const base64 = btoa(String.fromCharCode.apply(null, compressed)).replace(/\+/g, '-').replace(/\//g, '_');
-                    botBubble.innerHTML = `<div class="text-[10px] text-red-500 mb-2">>> SCANNER NEURAL:</div><div class="map-box"><img src="https://kroki.io/mermaid/svg/${base64}"></div>`;
-                } else {
+                    falar(resp);
                     await typeWriter(botBubble, resp);
                 }
 
