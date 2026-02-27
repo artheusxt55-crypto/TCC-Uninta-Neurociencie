@@ -28,8 +28,7 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* CSS para a imagem não quebrar o layout */
-        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #e30613; box-shadow: 0 0 15px rgba(227, 6, 19, 0.4); }
     </style>
 </head>
 <body class="scanline">
@@ -210,13 +209,22 @@ Histórico: ${historico.join(' | ')}
 
                 const botBubble = addMessageToUI('bot', "");
 
-                // --- LÓGICA DE IMAGEM ADICIONADA ---
-                if (resp.includes("pollinations.ai")) {
-                    const match = resp.match(/https?:\/\/image\.pollinations\.ai\/prompt\/[^\s)\]]*/g);
-                    if (match) {
-                        botBubble.innerHTML = `<img src="${match[0]}" />`;
-                    } else {
-                        await typeWriter(botBubble, resp);
+                // --- LÓGICA DE IMAGEM CONSERTADA PARA USAR SUA API KEY ---
+                if (resp.includes("pollinations.ai") || txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
+                    try {
+                        const resImg = await fetch("/api/imagens", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ prompt: txt })
+                        });
+                        const dataImg = await resImg.json();
+                        botBubble.innerHTML = `
+                            <div class="flex flex-col gap-2">
+                                <span class="text-[9px] text-red-500 animate-pulse font-bold">>> RENDERIZANDO VIA FLUX ENGINE...</span>
+                                <img src="${dataImg.url}" />
+                            </div>`;
+                    } catch (e) {
+                        await typeWriter(botBubble, ">> ERRO NO MOTOR DE IMAGEM.");
                     }
                 } else {
                     falar(resp);
