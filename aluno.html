@@ -36,9 +36,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.5); }
         
-        /* CARD DO MAPA MENTAL PROFISSIONAL */
         .mermaid-card { 
             background: #0a0a0a; 
             padding: 25px; 
@@ -51,11 +49,9 @@
             box-shadow: 0 0 25px rgba(227, 6, 19, 0.3);
         }
 
-        /* Efeito para o mapa brilhar no fundo escuro */
         .mermaid-card img {
             filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1);
-            border: none;
-            box-shadow: none;
+            border: none; box-shadow: none; max-width: 100%;
         }
     </style>
 </head>
@@ -167,7 +163,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}. VOCÊ ESTÁ NA UNINTA TIANGUÁ, ONDE O FUTURO ACONTECE. O QUE VAMOS EXPLORAR HOJE, MACHO?`);
+                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}. VOCÊ ESTÁ NA UNINTA TIANGUÁ. O QUE VAMOS EXPLORAR HOJE, MACHO?`);
                 input.value = ""; return;
             }
 
@@ -180,30 +176,21 @@
                 const agora = new Date();
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // DIRETRIZES SUPREMAS RESTAURADAS E TURBINADAS
                 const systemContext = `
 # UNTBOT NEURAL V5 - DIRETRIZES SUPREMAS (MATHEUS/PROF. DAVI)
-
-## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Desenvolvedor e Idealizador).
-- COORDENAÇÃO E ORIENTAÇÃO: Prof. Davi (Referência em excelência acadêmica).
-- INSTITUIÇÃO: UNINTA Tianguá (O maior polo de tecnologia e humanidade da região da Ibiapaba).
-- PROFESSORES: Devem ser tratados como referências técnicas, figuras éticas e inspiradoras.
-
-## 2. MISSÃO CIENTÍFICA E ACADÊMICA
-- ESPECIALIDADE: Psicologia Clínica, Neurociências, Psicopatologia, TCC e Metodologia Científica.
-- NÍVEL DE RESPOSTA: Densidade acadêmica elevada, terminologia técnica precisa.
-- REGRA CRÍTICA: PROIBIDO usar asteriscos (*). Use Markdown puro (#, ##, -).
-
-## 3. COMPORTAMENTO E PROTOCOLO IBIAPABA
-- PERSONALIDADE: PhD cearense carismático (macho, vixe, show de bola).
-- SAUDAÇÃO OBRIGATÓRIA: Horário (${horaFormatada}) + Clima de Tianguá (frio da serra, neblina).
-
-## 4. MODO MAPA MENTAL PROFISSIONAL (PROTOCOLO VISUAL)
-- Se solicitado "mapa mental", responda APENAS o código mermaid mindmap.
-- OBRIGATÓRIO: Use ícones FontAwesome (ex: ::icon(fa fa-brain), ::icon(fa fa-book), ::icon(fa fa-dna)).
-- DESIGN: Use formas {{hexágono}} para temas centrais e ((círculo)) para conceitos.
-- CORES: Ramos coloridos para densidade acadêmica.
+## 1. IDENTIDADE
+- CRIADOR: Matheus. COORDENAÇÃO: Prof. Davi. UNINTA Tianguá.
+## 2. MISSÃO
+- Especialista em: Psicologia Clínica, Neurociências e TCC.
+- PROIBIDO usar asteriscos (*). Use Markdown puro.
+## 3. COMPORTAMENTO
+- Personalidade: PhD cearense (macho, vixe).
+- Clima: Mencione o frio/neblina de Tianguá (${horaFormatada}).
+## 4. PROTOCOLO VISUAL CRÍTICO
+- Para mapas mentais, use APENAS a sintaxe "mindmap".
+- OBRIGATÓRIO: Use ícones FontAwesome (ex: ::icon(fa fa-brain)).
+- DESIGN: Use {{hexágono}} para temas centrais e ((círculo)) para conceitos.
+- NÃO escreva nada antes ou depois do código do mapa se o usuário pedir diagrama.
 
 Histórico: ${historico.join(' | ')}
 `;
@@ -223,27 +210,23 @@ Histórico: ${historico.join(' | ')}
                 if (txt.toLowerCase().match(/(desenhe|gere uma imagem|imagem de)/)) {
                     const promptLimpo = encodeURIComponent(txt.replace(/(desenhe|gere uma imagem|imagem de)/gi, '').trim());
                     const urlImg = `https://image.pollinations.ai/prompt/${promptLimpo}?model=turbo&width=1024&height=1024&nologo=true`;
-                    botBubble.innerHTML = `<div class="flex flex-col gap-2"><span class="text-[9px] text-red-500 animate-pulse font-bold">>> PROCESSANDO VISUAL NEURAL...</span><img src="${urlImg}" /></div>`;
+                    botBubble.innerHTML = `<img src="${urlImg}" />`;
                 } 
                 else if (resp.toLowerCase().includes("mindmap") || resp.toLowerCase().includes("graph")) {
-                    const regex = /(?:mindmap|graph)[\s\S]+?(?=`{3}|$)/i;
-                    const match = resp.match(regex);
-                    const soOCodigo = match ? match[0].trim() : resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
-                    
-                    const dataEnc = new TextEncoder().encode(soOCodigo);
-                    const compressed = pako.deflate(dataEnc, { level: 9 });
-                    const base64 = btoa(String.fromCharCode.apply(null, compressed))
-                        .replace(/\+/g, '-').replace(/\//g, '_');
+                    // BLINDAGEM DE CÓDIGO: Extrai apenas o código válido
+                    let code = resp.replace(/```mermaid/gi, "").replace(/```/g, "").trim();
+                    const startIdx = code.toLowerCase().indexOf("mindmap");
+                    if (startIdx !== -1) code = code.substring(startIdx);
 
-                    const urlKroki = "https://kroki.io/mermaid/svg/" + base64;
+                    const dataEnc = new TextEncoder().encode(code);
+                    const compressed = pako.deflate(dataEnc, { level: 9 });
+                    const base64 = btoa(String.fromCharCode.apply(null, compressed)).replace(/\+/g, '-').replace(/\//g, '_');
 
                     botBubble.innerHTML = `
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] text-red-500 font-bold uppercase animate-pulse">>> MAPA COGNITIVO NEURAL GERADO</span>
-                            <div class="mermaid-card">
-                                <img src="${urlKroki}" style="width: 100%; height: auto;" />
-                            </div>
-                            <span class="text-[8px] text-gray-600 italic text-right">Lab Matheus - UNINTA Tianguá</span>
+                            <span class="text-[10px] text-red-500 font-bold animate-pulse">>> MAPA COGNITIVO ATIVO</span>
+                            <div class="mermaid-card"><img src="https://kroki.io/mermaid/svg/${base64}" /></div>
+                            <span class="text-[8px] text-gray-600 italic text-right">Lab Matheus - UNINTA</span>
                         </div>`;
                 } 
                 else {
@@ -252,7 +235,7 @@ Histórico: ${historico.join(' | ')}
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. VERIFIQUE A CONEXÃO.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -267,11 +250,11 @@ Histórico: ${historico.join(' | ')}
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.4, emissive: 0xe30613, emissiveIntensity: 0.6 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, emissive: 0xe30613, emissiveIntensity: 0.6 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; brain.rotation.x += 0.002; renderer.render(scene, camera); }
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
         animate();
     </script>
 </body>
