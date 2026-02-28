@@ -29,8 +29,6 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Botão do PDF customizado para o Lab */
         .btn-pdf { 
             display: block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
             border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
@@ -82,7 +80,6 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // FUNÇÃO PARA GERAR O PDF (NÃO MUDA NADA NAS DIRETRIZES)
         function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -140,25 +137,6 @@
             });
         }
 
-        async function falar(texto) {
-            const limpo = texto.replace(/[*#]/g, '');
-            try {
-                const response = await fetch('/api/falar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texto: limpo })
-                });
-                if (!response.ok) throw new Error();
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                return audio.play();
-            } catch (e) {
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            }
-        }
-
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
@@ -183,7 +161,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
                 input.value = ""; return;
             }
 
@@ -196,7 +174,6 @@
                 const horaContexto = new Date().getHours();
                 const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
-                // MANTIDAS TODAS AS DIRETRIZES ORIGINAIS ABAIXO
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
 ## 1. IDENTIDADE E HIERARQUIA
@@ -229,10 +206,8 @@ Histórico: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
-                falar(resp);
                 await typeWriter(botBubble, resp);
 
-                // BOTÃO DE PDF ADICIONADO AO FINAL
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf";
                 bPdf.innerText = "📄 Baixar PDF da Resposta";
@@ -240,7 +215,7 @@ Histórico: ${historico.join(' | ')}
                 botBubble.appendChild(bPdf);
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -249,7 +224,6 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // THREE JS BRAIN
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
