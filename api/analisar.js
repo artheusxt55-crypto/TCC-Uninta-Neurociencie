@@ -1,37 +1,52 @@
 // api/analisar.js
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Método não permitido' });
-    }
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Método não permitido' });
+    }
 
-    // AQUI ESTÁ A MUDANÇA: Agora ele pega o 'systemContext' que o HTML envia
-    const { prompt, systemContext } = req.body;
+    const { prompt, systemContext } = req.body;
 
-    try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    {
-                        role: "system", 
-                        // Se o HTML não mandar contexto, ele usa um padrão da UNINTA
-                        content: systemContext || "Você é o Untbot da UNINTA Tianguá, assistente de Neurociência e Psicopatologia."
-                    },
-                    { role: "user", content: prompt }
-                ]
-            })
-        });
+    async function tryGroq(apiKey) {
+        if (!apiKey) return null; // Ignora se a chave estiver vazia
+        try {
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: systemContext || "Você é o Untbot da UNINTA Tianguá." },
+                        { role: "user", content: prompt }
+                    ]
+                })
+            });
+            return response;
+        } catch (e) {
+            return null;
+        }
+    }
 
-        const data = await response.json();
-        return res.status(200).json(data);
+    // 1. TENTA A PRIMEIRA CHAVE
+    let result = await tryGroq(process.env.GROQ_API_KEY);
 
-    } catch (error) {
-        console.error("Erro no Back-end:", error);
-        return res.status(500).json({ error: "Erro interno no servidor neural" });
-    }
+    // 2. SE FALHAR (ou não for status 200), TENTA A SEGUNDA CHAVE (da sua imagem: GROQ_API_KEY2)
+    if (!result || result.status !== 200) {
+        console.log("Sistema: Chave 1 expirada. Rotacionando para GROQ_API_KEY2...");
+        result = await tryGroq(process.env.GROQ_API_KEY2);
+    }
+
+    // Se as duas falharem
+    if (!result || result.status !== 200) {
+        const errorData = result ? await result.json() : { error: "Erro de conexão" };
+        return res.status(500).json({ 
+            error: "Falha na sinapse neural: chaves expiradas.", 
+            details: errorData 
+        });
+    }
+
+    const data = await result.json();
+    return res.status(200).json(data);
 }
