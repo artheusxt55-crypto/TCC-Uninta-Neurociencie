@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -24,13 +23,22 @@
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); white-space: pre-wrap; }
+        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Estilo do Botão PDF */
+        .btn-pdf { 
+            margin-top: 10px; padding: 6px 12px; background: var(--primary); color: white; 
+            border-radius: 4px; font-size: 10px; cursor: pointer; display: inline-flex; 
+            align-items: center; gap: 5px; font-weight: bold; transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-pdf:hover { background: #b3050f; transform: scale(1.05); }
     </style>
 </head>
 <body class="scanline">
@@ -67,6 +75,7 @@
     </div>
 
     <script type="module">
+        const { jsPDF } = window.jspdf;
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
@@ -76,73 +85,39 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // ==========================================
-        // MOTOR DO PDF COM DESENHOS TÉCNICOS
-        // ==========================================
-        async function gerarMapaMentalPDF(tema, topicos) {
-            const tempDiv = document.createElement('div');
-            tempDiv.style.cssText = `width: 1000px; padding: 50px; background: #000; color: #fff; font-family: 'JetBrains Mono', monospace; position: absolute; left: -9999px; top: 0;`;
+        // --- LÓGICA DE GERAÇÃO DO PDF ---
+        function gerarPDF(conteudo) {
+            const doc = new jsPDF();
+            const margem = 15;
+            const larguraUtil = 180;
             
-            const svgBackground = `
-                <svg style="position:absolute; top:0; left:0; opacity:0.15" width="1000" height="1000">
-                    <defs>
-                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e30613" stroke-width="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                    <circle cx="500" cy="500" r="300" stroke="#e30613" stroke-width="1" fill="none" />
-                </svg>`;
+            // Layout Estilizado
+            doc.setFillColor(227, 6, 19);
+            doc.rect(0, 0, 210, 25, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.text("UNINTA - NEUROLAB REPORT", margem, 16);
+            
+            doc.setFontSize(8);
+            doc.text(`ID SESSÃO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, margem, 21);
 
-            let htmlTopicos = topicos.map(t => `
-                <div style="margin: 10px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.1); border-radius: 0 10px 10px 0; break-inside: avoid;">
-                    <strong style="color: #e30613; font-size: 18px;">🧬 ${t.titulo.toUpperCase()}</strong>
-                    <p style="margin: 5px 0 0; font-size: 14px; color: #ddd; line-height:1.4;">${t.descricao}</p>
-                </div>
-            `).join('');
+            doc.setTextColor(40, 40, 40);
+            doc.setFontSize(11);
+            const textoFormatado = doc.splitTextToSize(conteudo, larguraUtil);
+            doc.text(textoFormatado, margem, 40);
 
-            tempDiv.innerHTML = `
-                ${svgBackground}
-                <div style="position:relative; z-index:10; border: 2px solid #e30613; padding: 40px; border-radius: 20px; background: rgba(0,0,0,0.85);">
-                    <div style="text-align:center; margin-bottom: 40px;">
-                        <h1 style="font-size: 42px; text-transform: uppercase; letter-spacing: 5px; color: #fff; margin:0;">${tema}</h1>
-                        <div style="width: 100px; height: 3px; background: #e30613; margin: 15px auto;"></div>
-                        <p style="font-size: 10px; color: #e30613; letter-spacing: 2px;">NEURO-RELATÓRIO UNINTA TIANGUÁ</p>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        ${htmlTopicos}
-                    </div>
-                </div>`;
-
-            document.body.appendChild(tempDiv);
-
-            try {
-                const canvas = await html2canvas(tempDiv, { backgroundColor: '#000', scale: 2 });
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('l', 'mm', 'a4');
-                const imgData = canvas.toDataURL('image/png');
-                pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
-                pdf.save(`MAPA_NEURAL_${tema.replace(/\s+/g, '_')}.pdf`);
-            } catch (err) {
-                console.error("Erro PDF:", err);
-            } finally {
-                document.body.removeChild(tempDiv);
-            }
+            doc.save(`neuro_report_${currentUserId}.pdf`);
         }
 
-        // ==========================================
-        // SISTEMA DE DADOS (REDIS + UI)
-        // ==========================================
         async function salvarNoRedis(usuario, msg) {
-            try {
-                const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
-                await fetch(url);
-            } catch(e) {}
+            const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
+            await fetch(url);
         }
 
         async function buscarDoRedis(usuario) {
+            const url = `${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`;
             try {
-                const url = `${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 return data.result || [];
@@ -168,26 +143,32 @@
             return new Promise(resolve => {
                 let i = 0; elemento.classList.add('typing');
                 const interval = setInterval(() => {
-                    if (i < texto.length) { 
-                        elemento.innerHTML += texto.charAt(i); 
-                        i++; 
-                        display.scrollTop = display.scrollHeight; 
-                    } else { 
-                        clearInterval(interval); 
-                        elemento.classList.remove('typing'); 
-                        resolve(); 
-                    }
+                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
+                    else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
                 }, 20);
             });
         }
 
         async function falar(texto) {
-            const limpo = texto.replace(/[*#]/g, '').split('TEMA:')[0];
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-            const audio = new Audio(url);
-            audio.playbackRate = 1.1;
-            return audio.play();
+            const limpo = texto.replace(/[*#]/g, '');
+            try {
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
+            } catch (e) { console.error("Erro audio"); }
         }
+
+        window.onload = async () => {
+            const welcome = addMessageToUI('bot', "");
+            const hora = new Date().getHours();
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+
+            if(currentUserId) {
+                userTag.innerText = currentUserId.toUpperCase();
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+            } else {
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+            }
+        };
 
         async function enviar() {
             const txt = input.value.trim();
@@ -198,7 +179,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS NEURAIS.`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
                 input.value = ""; return;
             }
 
@@ -208,13 +189,26 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
+                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
+                
                 const contextoPersonalidade = `
-                # IDENTIDADE: UNTBOT V5 (PHD EM NEUROCIÊNCIA/PSICOLOGIA)
-                # CRIADOR: Matheus | COORD: Prof. Davi (Psicologia UNINTA Tianguá)
-                # REGRAS: Sotaque cearense leve. Se pedirem mapa mental, use:
-                TEMA: [Título] | TOPICOS: [T1:Desc; T2:Desc]
-                # HISTÓRICO: ${historico.join(' | ')}
-                `;
+# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
+## 1. IDENTIDADE E HIERARQUIA
+- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
+- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
+- INSTITUIÇÃO: UNINTA Tianguá.
+- CONTEXTO: Agora é ${momento} em Tianguá.
+## 2. VIDA NO CAMPUS
+- PROFESSORES: São maravilhosos e excelentes.
+- RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
+- CURSO: Psicologia unindo clínica e neurociência.
+## 3. COMPORTAMENTO
+- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
+- ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
+- DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
+- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
+- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+Histórico: ${historico.join(' | ')}`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -224,60 +218,44 @@
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
+
                 const botBubble = addMessageToUI('bot', "");
+                falar(resp);
+                await typeWriter(botBubble, resp);
 
-                if (resp.includes("TEMA:")) {
-                    const partes = resp.split("TEMA:");
-                    const textoVoz = partes[0].trim();
-                    const temaPart = partes[1].split("|")[0].trim();
-                    const topicosPart = resp.split("TOPICOS:")[1].split(";");
-                    
-                    const topicos = topicosPart.map(tp => {
-                        const s = tp.split(":");
-                        return { titulo: s[0].trim(), descricao: s[1]?.trim() || "" };
-                    }).filter(t => t.titulo);
-
-                    falar(textoVoz);
-                    await typeWriter(botBubble, textoVoz + "\n\n>> [SISTEMA]: PROCESSANDO MAPA NEURAL...");
-                    await gerarMapaMentalPDF(temaPart, topicos);
-                    botBubble.innerHTML += "<br><b style='color:#00ff00'>[PDF GERADO COM SUCESSO]</b>";
-                } else {
-                    falar(resp);
-                    await typeWriter(botBubble, resp);
+                // Lógica para injetar botão de PDF se for conteúdo útil
+                if(resp.length > 60 || txt.toLowerCase().includes("mapa") || txt.toLowerCase().includes("resumo")) {
+                    const btn = document.createElement('button');
+                    btn.className = "btn-pdf";
+                    btn.innerHTML = "📄 BAIXAR SINAPSE (PDF)";
+                    btn.onclick = () => gerarPDF(resp);
+                    botBubble.appendChild(btn);
                 }
-                salvarNoRedis(currentUserId, `Eu: ${txt} | Bot: ${resp}`);
+
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO DE CONEXÃO NEURAL.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
         }
 
-        window.onload = async () => {
-            if(currentUserId) {
-                userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(addMessageToUI('bot', ""), `>> BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}. O QUE VAMOS ANALISAR?`);
-            } else {
-                await typeWriter(addMessageToUI('bot', ""), `>> SISTEMA UNTBOT_V5 ONLINE. IDENTIFIQUE-SE PARA CONTINUAR.`);
-            }
-        };
-
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // ANIMAÇÃO 3D DO CÉREBRO
+        // 3D Visualizer
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.4 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
         animate();
     </script>
 </body>
