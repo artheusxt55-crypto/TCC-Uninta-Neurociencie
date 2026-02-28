@@ -24,7 +24,7 @@
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
+        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); white-space: pre-wrap; }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
@@ -83,7 +83,6 @@
             const tempDiv = document.createElement('div');
             tempDiv.style.cssText = `width: 1000px; padding: 50px; background: #000; color: #fff; font-family: 'JetBrains Mono', monospace; position: absolute; left: -9999px; top: 0;`;
             
-            // Desenho de Grade e Círculos de Neuroimagem (SVG)
             const svgBackground = `
                 <svg style="position:absolute; top:0; left:0; opacity:0.15" width="1000" height="1000">
                     <defs>
@@ -96,7 +95,7 @@
                 </svg>`;
 
             let htmlTopicos = topicos.map(t => `
-                <div style="margin: 10px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.06); border-radius: 0 10px 10px 0; break-inside: avoid;">
+                <div style="margin: 10px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.1); border-radius: 0 10px 10px 0; break-inside: avoid;">
                     <strong style="color: #e30613; font-size: 18px;">🧬 ${t.titulo.toUpperCase()}</strong>
                     <p style="margin: 5px 0 0; font-size: 14px; color: #ddd; line-height:1.4;">${t.descricao}</p>
                 </div>
@@ -119,35 +118,31 @@
 
             try {
                 const canvas = await html2canvas(tempDiv, { backgroundColor: '#000', scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
-                
-                // Correção Crítica na chamada do jsPDF
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('l', 'mm', 'a4');
-                
-                const width = pdf.internal.pageSize.getWidth();
-                const height = (canvas.height * width) / canvas.width;
-
-                pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+                const imgData = canvas.toDataURL('image/png');
+                pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
                 pdf.save(`MAPA_NEURAL_${tema.replace(/\s+/g, '_')}.pdf`);
             } catch (err) {
-                console.error("Erro ao gerar PDF:", err);
+                console.error("Erro PDF:", err);
             } finally {
                 document.body.removeChild(tempDiv);
             }
         }
 
         // ==========================================
-        // FUNÇÕES DE SISTEMA (REDIS, UI, VOZ)
+        // SISTEMA DE DADOS (REDIS + UI)
         // ==========================================
         async function salvarNoRedis(usuario, msg) {
-            const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
-            await fetch(url);
+            try {
+                const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
+                await fetch(url);
+            } catch(e) {}
         }
 
         async function buscarDoRedis(usuario) {
-            const url = `${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`;
             try {
+                const url = `${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 return data.result || [];
@@ -173,45 +168,27 @@
             return new Promise(resolve => {
                 let i = 0; elemento.classList.add('typing');
                 const interval = setInterval(() => {
-                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
-                    else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
+                    if (i < texto.length) { 
+                        elemento.innerHTML += texto.charAt(i); 
+                        i++; 
+                        display.scrollTop = display.scrollHeight; 
+                    } else { 
+                        clearInterval(interval); 
+                        elemento.classList.remove('typing'); 
+                        resolve(); 
+                    }
                 }, 20);
             });
         }
 
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '').split('TEMA:')[0];
-            try {
-                const response = await fetch('/api/falar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texto: limpo })
-                });
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                return audio.play();
-            } catch (e) {
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
-                const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            }
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
+            const audio = new Audio(url);
+            audio.playbackRate = 1.1;
+            return audio.play();
         }
 
-        window.onload = async () => {
-            const welcome = addMessageToUI('bot', "");
-            const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18 ? "BOA TARDE!" : "BOA NOITE!");
-            if(currentUserId) {
-                userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}.`);
-            } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA ACESSAR O LAB.`);
-            }
-        };
-
-        // ==========================================
-        // COMANDO DE ENVIO PRINCIPAL
-        // ==========================================
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -221,7 +198,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR HOJE?`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS NEURAIS.`);
                 input.value = ""; return;
             }
 
@@ -231,15 +208,13 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
-                
                 const contextoPersonalidade = `
-# DIRETRIZES: UNTBOT NEURAL V5 - UNINTA
-1. IDENTIDADE: Criador Matheus, Coordenação Prof. Davi (Psicologia).
-2. COMPORTAMENTO: PhD, direto e carismático. Sotaque cearense discreto.
-3. MAPA MENTAL: Se pedirem, finalize EXATAMENTE assim: TEMA: [Titulo] | TOPICOS: [Tit1:Desc1; Tit2:Desc2]
-Histórico: ${historico.join(' | ')}
-`;
+                # IDENTIDADE: UNTBOT V5 (PHD EM NEUROCIÊNCIA/PSICOLOGIA)
+                # CRIADOR: Matheus | COORD: Prof. Davi (Psicologia UNINTA Tianguá)
+                # REGRAS: Sotaque cearense leve. Se pedirem mapa mental, use:
+                TEMA: [Título] | TOPICOS: [T1:Desc; T2:Desc]
+                # HISTÓRICO: ${historico.join(' | ')}
+                `;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -249,11 +224,8 @@ Histórico: ${historico.join(' | ')}
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
-
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
-                // DETECTOR DE MAPA MENTAL PARA DISPARAR O PDF
                 if (resp.includes("TEMA:")) {
                     const partes = resp.split("TEMA:");
                     const textoVoz = partes[0].trim();
@@ -266,36 +238,46 @@ Histórico: ${historico.join(' | ')}
                     }).filter(t => t.titulo);
 
                     falar(textoVoz);
-                    await typeWriter(botBubble, textoVoz + "\n\n>> [SISTEMA]: DESENHANDO MAPA NEURAL...");
+                    await typeWriter(botBubble, textoVoz + "\n\n>> [SISTEMA]: PROCESSANDO MAPA NEURAL...");
                     await gerarMapaMentalPDF(temaPart, topicos);
-                    botBubble.innerHTML += "<br><b style='color:#00ff00'>[PDF EXPEDIDO COM SUCESSO]</b>";
+                    botBubble.innerHTML += "<br><b style='color:#00ff00'>[PDF GERADO COM SUCESSO]</b>";
                 } else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
                 }
+                salvarNoRedis(currentUserId, `Eu: ${txt} | Bot: ${resp}`);
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL.");
+                addMessageToUI('bot', ">> ERRO DE CONEXÃO NEURAL.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
         }
 
+        window.onload = async () => {
+            if(currentUserId) {
+                userTag.innerText = currentUserId.toUpperCase();
+                await typeWriter(addMessageToUI('bot', ""), `>> BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}. O QUE VAMOS ANALISAR?`);
+            } else {
+                await typeWriter(addMessageToUI('bot', ""), `>> SISTEMA UNTBOT_V5 ONLINE. IDENTIFIQUE-SE PARA CONTINUAR.`);
+            }
+        };
+
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // ANIMAÇÃO DO CÉREBRO 3D (THREE.JS)
+        // ANIMAÇÃO 3D DO CÉREBRO
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.4 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
         animate();
     </script>
 </body>
