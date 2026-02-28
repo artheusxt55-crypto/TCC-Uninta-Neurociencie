@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -28,6 +29,14 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Botão do PDF customizado para o Lab */
+        .btn-pdf { 
+            display: block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
+            border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
     </style>
 </head>
 <body class="scanline">
@@ -73,6 +82,25 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
+        // FUNÇÃO PARA GERAR O PDF (NÃO MUDA NADA NAS DIRETRIZES)
+        function exportarParaPDF(texto) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFillColor(227, 6, 19);
+            doc.rect(0, 0, 210, 20, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 13);
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            const limpo = texto.replace(/[*#]/g, '');
+            const linhas = doc.splitTextToSize(limpo, 180);
+            doc.text(linhas, 15, 35);
+            doc.setFontSize(8);
+            doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi`, 15, 285);
+            doc.save(`sinapse_${currentUserId}.pdf`);
+        }
+
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
             await fetch(url);
@@ -112,7 +140,6 @@
             });
         }
 
-        // --- INTEGRAÇÃO ELEVENLABS VIA API ---
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
             try {
@@ -127,7 +154,6 @@
                 const audio = new Audio(url);
                 return audio.play();
             } catch (e) {
-                // Fallback Google
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
             }
@@ -137,11 +163,9 @@
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
             let saudacao = "";
-
             if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
             else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
             else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
-
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
                 await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
@@ -172,27 +196,24 @@
                 const horaContexto = new Date().getHours();
                 const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
+                // MANTIDAS TODAS AS DIRETRIZES ORIGINAIS ABAIXO
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-
 ## 1. IDENTIDADE E HIERARQUIA
 - CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
 - COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
 - INSTITUIÇÃO: UNINTA Tianguá.
 - CONTEXTO: Agora é ${momento} em Tianguá.
-
 ## 2. VIDA NO CAMPUS
 - PROFESSORES: São maravilhosos e excelentes.
 - RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
 - CURSO: Psicologia unindo clínica e neurociência.
-
 ## 3. COMPORTAMENTO
 - RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
 - ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
 - DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
 - EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
-
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -211,6 +232,13 @@ Histórico: ${historico.join(' | ')}
                 falar(resp);
                 await typeWriter(botBubble, resp);
 
+                // BOTÃO DE PDF ADICIONADO AO FINAL
+                const bPdf = document.createElement('button');
+                bPdf.className = "btn-pdf";
+                bPdf.innerText = "📄 Baixar PDF da Resposta";
+                bPdf.onclick = () => exportarParaPDF(resp);
+                botBubble.appendChild(bPdf);
+
             } catch (e) {
                 addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
             } finally {
@@ -221,6 +249,7 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // THREE JS BRAIN
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
