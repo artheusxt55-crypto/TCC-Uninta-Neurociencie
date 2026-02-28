@@ -9,6 +9,12 @@
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+        window.GradioClient = Client; 
+    </script>
+
     <style>
         :root { --primary: #e30613; --bg: #000; }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
@@ -80,7 +86,6 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // --- INTERFACE DE PDF MELHORADA (MAPA MENTAL GEOMÉTRICO) ---
         function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -88,7 +93,6 @@
             let y = 45; 
             let lastTitleY = y;
 
-            // Cabeçalho Profissional
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
             doc.setTextColor(255, 255, 255);
@@ -104,7 +108,6 @@
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
 
-                // Estilo para Títulos (Módulos do Mapa)
                 if ((linha.includes('**') && linha.endsWith(':**')) || linha.startsWith('#')) {
                     if (y > 260) { doc.addPage(); y = 35; }
                     y += 10;
@@ -118,17 +121,14 @@
                     lastTitleY = y + 3;
                     y += 15;
                 } 
-                // Estilo para Itens (Sinapses com conectores)
                 else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
                     if (y > 275) { doc.addPage(); y = 35; }
-                    // Desenha o conector visual
                     doc.setDrawColor(200, 200, 200);
                     doc.setLineWidth(0.2);
-                    doc.line(20, lastTitleY, 20, y - 2); // linha vertical
-                    doc.line(20, y - 2, 24, y - 2);      // linha horizontal
-                    
+                    doc.line(20, lastTitleY, 20, y - 2); 
+                    doc.line(20, y - 2, 24, y - 2);     
                     doc.setFillColor(227, 6, 19);
-                    doc.circle(25, y - 2, 0.7, 'F');    // ponto da sinapse
+                    doc.circle(25, y - 2, 0.7, 'F');    
 
                     doc.setTextColor(50, 50, 50);
                     doc.setFont("helvetica", "normal");
@@ -138,7 +138,6 @@
                     doc.text(splitItem, 28, y);
                     y += (splitItem.length * 7);
                 }
-                // Texto Geral
                 else {
                     if (y > 275) { doc.addPage(); y = 35; }
                     doc.setTextColor(100, 100, 100);
@@ -150,13 +149,11 @@
                 }
             });
 
-            // Rodapé Hierárquico Obrigatório
             doc.setDrawColor(230, 230, 230);
             doc.line(15, 282, 195, 282);
             doc.setFontSize(8);
             doc.setTextColor(150, 150, 150);
             doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
-
             doc.save(`sinapse_${currentUserId}.pdf`);
         }
 
@@ -202,10 +199,7 @@
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = "";
-            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
-            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
-            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
                 await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
@@ -245,14 +239,9 @@
 - CONTEXTO: Agora é ${momento} em Tianguá.
 ## 2. VIDA NO CAMPUS
 - PROFESSORES: São maravilhosos e excelentes.
-- RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
 - CURSO: Psicologia unindo clínica e neurociência.
 ## 3. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
-- ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
-- DIDÁTICA: Sugira mapas mentais ou técnica Feynman. Use bullets (+ ou -) para o mapa mental.
-- RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
-- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
+- RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -) para o mapa mental.
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -269,6 +258,16 @@ Histórico: ${historico.join(' | ')}
 
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
+
+                // --- FUNÇÃO DE VOZ AUTOMÁTICA (HUGGING FACE) ---
+                try {
+                    const client = await window.GradioClient.connect("Ttheus/uninta-voice");
+                    const result = await client.predict("/sintetizar", { text: resp });
+                    if (result.data && result.data[0]) {
+                        const audio = new Audio(result.data[0].url);
+                        audio.play();
+                    }
+                } catch (vErr) { console.error("Falha na síntese vocal:", vErr); }
 
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf";
