@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -30,15 +28,6 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Estilo do Botão PDF */
-        .btn-pdf { 
-            margin-top: 10px; padding: 6px 12px; background: var(--primary); color: white; 
-            border-radius: 4px; font-size: 10px; cursor: pointer; display: inline-flex; 
-            align-items: center; gap: 5px; font-weight: bold; transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-pdf:hover { background: #b3050f; transform: scale(1.05); }
     </style>
 </head>
 <body class="scanline">
@@ -75,7 +64,6 @@
     </div>
 
     <script type="module">
-        const { jsPDF } = window.jspdf;
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
@@ -84,31 +72,6 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
-
-        // --- LÓGICA DE GERAÇÃO DO PDF ---
-        function gerarPDF(conteudo) {
-            const doc = new jsPDF();
-            const margem = 15;
-            const larguraUtil = 180;
-            
-            // Layout Estilizado
-            doc.setFillColor(227, 6, 19);
-            doc.rect(0, 0, 210, 25, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.text("UNINTA - NEUROLAB REPORT", margem, 16);
-            
-            doc.setFontSize(8);
-            doc.text(`ID SESSÃO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, margem, 21);
-
-            doc.setTextColor(40, 40, 40);
-            doc.setFontSize(11);
-            const textoFormatado = doc.splitTextToSize(conteudo, larguraUtil);
-            doc.text(textoFormatado, margem, 40);
-
-            doc.save(`neuro_report_${currentUserId}.pdf`);
-        }
 
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
@@ -149,18 +112,35 @@
             });
         }
 
+        // --- INTEGRAÇÃO ELEVENLABS VIA API ---
         async function falar(texto) {
             const limpo = texto.replace(/[*#]/g, '');
             try {
+                const response = await fetch('/api/falar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: limpo })
+                });
+                if (!response.ok) throw new Error();
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                return audio.play();
+            } catch (e) {
+                // Fallback Google
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(limpo)}&tl=pt-BR&client=tw-ob`;
                 const audio = new Audio(url); audio.playbackRate = 1.1; return audio.play();
-            } catch (e) { console.error("Erro audio"); }
+            }
         }
 
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = "";
+
+            if (hora >= 5 && hora < 12) saudacao = "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?";
+            else if (hora >= 12 && hora < 18) saudacao = "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR.";
+            else saudacao = "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
 
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
@@ -189,26 +169,32 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
+                const horaContexto = new Date().getHours();
+                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
+
 ## 1. IDENTIDADE E HIERARQUIA
 - CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
 - COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
 - INSTITUIÇÃO: UNINTA Tianguá.
 - CONTEXTO: Agora é ${momento} em Tianguá.
+
 ## 2. VIDA NO CAMPUS
 - PROFESSORES: São maravilhosos e excelentes.
 - RECEPÇÃO: Acolhimento caloroso de calouros e união veterano-novato.
 - CURSO: Psicologia unindo clínica e neurociência.
+
 ## 3. COMPORTAMENTO
 - RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
 - ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
 - DIDÁTICA: Sugira mapas mentais ou técnica Feynman.
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
 - EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
-Histórico: ${historico.join(' | ')}`;
+
+Histórico: ${historico.join(' | ')}
+`;
 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
@@ -219,20 +205,11 @@ Histórico: ${historico.join(' | ')}`;
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
 
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
+
                 const botBubble = addMessageToUI('bot', "");
                 falar(resp);
                 await typeWriter(botBubble, resp);
-
-                // Lógica para injetar botão de PDF se for conteúdo útil
-                if(resp.length > 60 || txt.toLowerCase().includes("mapa") || txt.toLowerCase().includes("resumo")) {
-                    const btn = document.createElement('button');
-                    btn.className = "btn-pdf";
-                    btn.innerHTML = "📄 BAIXAR SINAPSE (PDF)";
-                    btn.onclick = () => gerarPDF(resp);
-                    botBubble.appendChild(btn);
-                }
-
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
             } catch (e) {
                 addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
@@ -244,7 +221,6 @@ Histórico: ${historico.join(' | ')}`;
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // 3D Visualizer
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
