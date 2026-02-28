@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e30613; --bg: #000; }
@@ -75,36 +76,70 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // FUNÇÃO MOTOR DO MAPA MENTAL PDF
+        // ==========================================
+        // MOTOR DO PDF COM DESENHOS TÉCNICOS
+        // ==========================================
         async function gerarMapaMentalPDF(tema, topicos) {
             const tempDiv = document.createElement('div');
-            tempDiv.style.cssText = `width: 1000px; padding: 60px; background: #000; color: #fff; font-family: 'JetBrains Mono', monospace; position: absolute; left: -9999px;`;
+            tempDiv.style.cssText = `width: 1000px; padding: 50px; background: #000; color: #fff; font-family: 'JetBrains Mono', monospace; position: absolute; left: -9999px; top: 0;`;
             
-            const svgBackground = `<svg style="position:absolute; top:0; left:0; opacity:0.1" width="1000" height="1000"><circle cx="500" cy="500" r="400" stroke="#e30613" stroke-width="1" fill="none" /><path d="M500 100 L500 900 M100 500 L900 500" stroke="#e30613" stroke-width="0.5"/></svg>`;
+            // Desenho de Grade e Círculos de Neuroimagem (SVG)
+            const svgBackground = `
+                <svg style="position:absolute; top:0; left:0; opacity:0.15" width="1000" height="1000">
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e30613" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                    <circle cx="500" cy="500" r="300" stroke="#e30613" stroke-width="1" fill="none" />
+                </svg>`;
 
             let htmlTopicos = topicos.map(t => `
-                <div style="margin: 15px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.05); border-radius: 0 10px 10px 0;">
-                    <strong style="color: #e30613; font-size: 18px;">🧬 ${t.titulo}</strong>
-                    <p style="margin: 5px 0 0; font-size: 14px; color: #ccc;">${t.descricao}</p>
+                <div style="margin: 10px; padding: 15px; border-left: 4px solid #e30613; background: rgba(227, 6, 19, 0.06); border-radius: 0 10px 10px 0; break-inside: avoid;">
+                    <strong style="color: #e30613; font-size: 18px;">🧬 ${t.titulo.toUpperCase()}</strong>
+                    <p style="margin: 5px 0 0; font-size: 14px; color: #ddd; line-height:1.4;">${t.descricao}</p>
                 </div>
             `).join('');
 
-            tempDiv.innerHTML = `${svgBackground}
-                <div style="position:relative; z-index:10; border: 2px solid #e30613; padding: 40px; border-radius: 20px;">
-                    <h1 style="text-align:center; font-size: 42px; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 40px;">${tema}</h1>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">${htmlTopicos}</div>
+            tempDiv.innerHTML = `
+                ${svgBackground}
+                <div style="position:relative; z-index:10; border: 2px solid #e30613; padding: 40px; border-radius: 20px; background: rgba(0,0,0,0.85);">
+                    <div style="text-align:center; margin-bottom: 40px;">
+                        <h1 style="font-size: 42px; text-transform: uppercase; letter-spacing: 5px; color: #fff; margin:0;">${tema}</h1>
+                        <div style="width: 100px; height: 3px; background: #e30613; margin: 15px auto;"></div>
+                        <p style="font-size: 10px; color: #e30613; letter-spacing: 2px;">NEURO-RELATÓRIO UNINTA TIANGUÁ</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        ${htmlTopicos}
+                    </div>
                 </div>`;
 
             document.body.appendChild(tempDiv);
-            const canvas = await html2canvas(tempDiv, { backgroundColor: '#000' });
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('l', 'mm', 'a4');
-            pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
-            pdf.save(`MAPA_${tema.replace(/\s+/g, '_')}.pdf`);
-            document.body.removeChild(tempDiv);
+
+            try {
+                const canvas = await html2canvas(tempDiv, { backgroundColor: '#000', scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Correção Crítica na chamada do jsPDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                
+                const width = pdf.internal.pageSize.getWidth();
+                const height = (canvas.height * width) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+                pdf.save(`MAPA_NEURAL_${tema.replace(/\s+/g, '_')}.pdf`);
+            } catch (err) {
+                console.error("Erro ao gerar PDF:", err);
+            } finally {
+                document.body.removeChild(tempDiv);
+            }
         }
 
+        // ==========================================
+        // FUNÇÕES DE SISTEMA (REDIS, UI, VOZ)
+        // ==========================================
         async function salvarNoRedis(usuario, msg) {
             const url = `${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`;
             await fetch(url);
@@ -165,16 +200,18 @@
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18 ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?");
-
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18 ? "BOA TARDE!" : "BOA NOITE!");
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA ACESSAR O LAB.`);
             }
         };
 
+        // ==========================================
+        // COMANDO DE ENVIO PRINCIPAL
+        // ==========================================
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -184,7 +221,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR NO LAB?`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO. O QUE VAMOS ANALISAR HOJE?`);
                 input.value = ""; return;
             }
 
@@ -194,16 +231,13 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const horaContexto = new Date().getHours();
-                const momento = horaContexto < 12 ? "manhã" : (horaContexto < 18 ? "tarde" : "noite");
+                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
-                // RESTAURANDO DIRETRIZES SUPREMAS ORIGINAIS + MAPA MENTAL
                 const contextoPersonalidade = `
-# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-1. IDENTIDADE: Criador Matheus (Lab Assistant). Coordenação Prof. Davi (Psicologia). UNINTA Tianguá.
-2. COMPORTAMENTO: PhD curto, direto e carismático. Sotaque cearense discreto.
-3. MAPA MENTAL: Se pedirem mapa mental, termine com: TEMA: [Titulo] | TOPICOS: [Tit1:Desc1; Tit2:Desc2]
-4. CONTEXTO: Agora é ${momento} em Tianguá.
+# DIRETRIZES: UNTBOT NEURAL V5 - UNINTA
+1. IDENTIDADE: Criador Matheus, Coordenação Prof. Davi (Psicologia).
+2. COMPORTAMENTO: PhD, direto e carismático. Sotaque cearense discreto.
+3. MAPA MENTAL: Se pedirem, finalize EXATAMENTE assim: TEMA: [Titulo] | TOPICOS: [Tit1:Desc1; Tit2:Desc2]
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -219,11 +253,13 @@ Histórico: ${historico.join(' | ')}
                 await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
                 const botBubble = addMessageToUI('bot', "");
 
+                // DETECTOR DE MAPA MENTAL PARA DISPARAR O PDF
                 if (resp.includes("TEMA:")) {
                     const partes = resp.split("TEMA:");
                     const textoVoz = partes[0].trim();
                     const temaPart = partes[1].split("|")[0].trim();
                     const topicosPart = resp.split("TOPICOS:")[1].split(";");
+                    
                     const topicos = topicosPart.map(tp => {
                         const s = tp.split(":");
                         return { titulo: s[0].trim(), descricao: s[1]?.trim() || "" };
@@ -232,13 +268,14 @@ Histórico: ${historico.join(' | ')}
                     falar(textoVoz);
                     await typeWriter(botBubble, textoVoz + "\n\n>> [SISTEMA]: DESENHANDO MAPA NEURAL...");
                     await gerarMapaMentalPDF(temaPart, topicos);
+                    botBubble.innerHTML += "<br><b style='color:#00ff00'>[PDF EXPEDIDO COM SUCESSO]</b>";
                 } else {
                     falar(resp);
                     await typeWriter(botBubble, resp);
                 }
 
             } catch (e) {
-                addMessageToUI('bot', ">> ERRO NA REDE NEURAL. TENTE NOVAMENTE.");
+                addMessageToUI('bot', ">> ERRO NA REDE NEURAL.");
             } finally {
                 bar.style.width = "0%"; input.disabled = false; input.focus();
             }
@@ -247,13 +284,14 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // ANIMAÇÃO DO CÉREBRO 3D (THREE.JS)
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
