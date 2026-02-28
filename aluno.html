@@ -80,97 +80,82 @@
         const bar = document.getElementById('loading-bar');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
+        // --- INTERFACE DE PDF MELHORADA (MAPA MENTAL GEOMÉTRICO) ---
         function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const larguraUtil = 180;
-            let y = 40; 
+            let y = 45; 
             let lastTitleY = y;
 
-            // --- ESTILO DE CORES LAB ---
-            const corPrimaria = [227, 6, 19];
-            const corTexto = [40, 40, 40];
-            const corLinha = [200, 200, 200];
-
-            // Cabeçalho
-            doc.setFillColor(...corPrimaria);
+            // Cabeçalho Profissional
+            doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(14);
-            doc.text("UNINTA - RELATÓRIO TÉCNICO DE NEUROLAB", 15, 16);
+            doc.setFontSize(16);
+            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
             
             doc.setFontSize(8);
-            doc.text(`ID PROCESSO: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`, 160, 16);
+            doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
             const linhasBrutas = texto.split('\n');
-            
             linhasBrutas.forEach(linha => {
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
 
-                // LÓGICA DE DETECÇÃO DE TÍTULO (NÓ CENTRAL)
+                // Estilo para Títulos (Módulos do Mapa)
                 if ((linha.includes('**') && linha.endsWith(':**')) || linha.startsWith('#')) {
-                    if (y > 250) { doc.addPage(); y = 35; }
-                    
+                    if (y > 260) { doc.addPage(); y = 35; }
                     y += 10;
-                    // Desenha Cápsula do Título
-                    doc.setDrawColor(...corPrimaria);
+                    doc.setDrawColor(227, 6, 19);
                     doc.setLineWidth(0.5);
-                    doc.setFillColor(255, 245, 245);
-                    doc.roundedRect(12, y - 6, larguraUtil, 10, 2, 2, 'FD');
-                    
-                    doc.setTextColor(...corPrimaria);
+                    doc.roundedRect(13, y - 7, larguraUtil, 10, 1, 1, 'D');
+                    doc.setTextColor(227, 6, 19);
                     doc.setFont("helvetica", "bold");
                     doc.setFontSize(11);
-                    doc.text(textoLimpo.toUpperCase(), 18, y + 1);
-                    
-                    lastTitleY = y + 4;
-                    y += 12;
+                    doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y);
+                    lastTitleY = y + 3;
+                    y += 15;
                 } 
-                // LÓGICA DE SUBTÓPICOS (NÓS CONECTADOS)
+                // Estilo para Itens (Sinapses com conectores)
                 else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
-                    if (y > 270) { doc.addPage(); y = 35; }
-
-                    // Desenha a Linha Conectora (Vertical)
-                    doc.setDrawColor(...corLinha);
+                    if (y > 275) { doc.addPage(); y = 35; }
+                    // Desenha o conector visual
+                    doc.setDrawColor(200, 200, 200);
                     doc.setLineWidth(0.2);
-                    doc.line(20, lastTitleY, 20, y - 2);
+                    doc.line(20, lastTitleY, 20, y - 2); // linha vertical
+                    doc.line(20, y - 2, 24, y - 2);      // linha horizontal
                     
-                    // Desenha a "Seta" ou Conector Lateral
-                    doc.line(20, y - 2, 25, y - 2);
-                    doc.circle(26, y - 2, 0.8, 'F');
+                    doc.setFillColor(227, 6, 19);
+                    doc.circle(25, y - 2, 0.7, 'F');    // ponto da sinapse
 
-                    doc.setTextColor(...corTexto);
+                    doc.setTextColor(50, 50, 50);
                     doc.setFont("helvetica", "normal");
                     doc.setFontSize(10);
-                    
                     const item = textoLimpo.replace(/^[+-]/, '').trim();
                     const splitItem = doc.splitTextToSize(item, larguraUtil - 20);
-                    doc.text(splitItem, 30, y);
-                    
+                    doc.text(splitItem, 28, y);
                     y += (splitItem.length * 7);
                 }
-                // DESCRIÇÕES
+                // Texto Geral
                 else {
-                    if (y > 270) { doc.addPage(); y = 35; }
+                    if (y > 275) { doc.addPage(); y = 35; }
                     doc.setTextColor(100, 100, 100);
                     doc.setFont("helvetica", "italic");
-                    doc.setFontSize(9);
-                    const desc = doc.splitTextToSize(textoLimpo, larguraUtil - 15);
-                    doc.text(desc, 18, y);
+                    doc.setFontSize(10);
+                    const desc = doc.splitTextToSize(textoLimpo, larguraUtil);
+                    doc.text(desc, 15, y);
                     y += (desc.length * 6);
                 }
             });
 
-            // Rodapé
-            doc.setDrawColor(227, 6, 19);
-            doc.setLineWidth(1);
-            doc.line(15, 280, 195, 280);
-            doc.setFont("helvetica", "bold");
+            // Rodapé Hierárquico Obrigatório
+            doc.setDrawColor(230, 230, 230);
+            doc.line(15, 282, 195, 282);
             doc.setFontSize(8);
             doc.setTextColor(150, 150, 150);
-            doc.text(`LAB ASSISTANT: MATHEUS | COORDENAÇÃO: PROF. DAVI | UNINTA TIANGUÁ`, 15, 287);
+            doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
 
             doc.save(`sinapse_${currentUserId}.pdf`);
         }
@@ -265,9 +250,9 @@
 ## 3. COMPORTAMENTO
 - RESTRICAO: Responda de forma CURTA, DIRETA e OBJETIVA. Evite textos longos.
 - ESTILO: PhD inteligente e carismático. Sotaque cearense raro e discreto.
-- DIDÁTICA: Sugira mapas mentais usando símbolos (+ para tópicos) ou técnica Feynman.
+- DIDÁTICA: Sugira mapas mentais ou técnica Feynman. Use bullets (+ ou -) para o mapa mental.
 - RECURSOS: Recomende a Biblioteca Digital "NeuroLab" do site.
-- EMPATIA: Se ensinar algo, registre a "sinapse".
+- EMPATIA: Se o usuário estiver cansado, dê suporte. Se ensinar algo, registre a "sinapse".
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -287,7 +272,7 @@ Histórico: ${historico.join(' | ')}
 
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf";
-                bPdf.innerText = "📄 Baixar Relatório Neural (PDF)";
+                bPdf.innerText = "📄 Baixar PDF da Resposta";
                 bPdf.onclick = () => exportarParaPDF(resp);
                 botBubble.appendChild(bPdf);
 
@@ -311,4 +296,8 @@ Histórico: ${historico.join(' | ')}
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        animate();
+    </script>
+</body>
+</html>
