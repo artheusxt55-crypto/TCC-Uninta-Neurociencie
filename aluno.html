@@ -36,13 +36,11 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .btn-pdf { 
-            display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
+            display: inline-block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
             border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-
-        /* ESTILO DO VISUALIZADOR DE VOZ */
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -54,7 +52,7 @@
     <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
         <div class="flex items-center gap-3">
             <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V6</span></span>
         </div>
         <div id="voice-anim">
             <div class="v-bar" style="animation-delay: 0s"></div>
@@ -98,14 +96,16 @@
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastImgUrl = null;
+        let lastWikiImg = null;
 
-        async function gerarImagemIA(prompt) {
+        async function buscarWikipedia(query) {
             try {
-                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
-                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
-                return result.data[0].url;
-            } catch (e) { return null; }
+                const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                lastWikiImg = data.thumbnail ? data.thumbnail.source : null;
+                return data.extract || "";
+            } catch (e) { return ""; }
         }
 
         function exportarParaPDF(texto, imgUrl = null) {
@@ -113,7 +113,6 @@
             const doc = new jsPDF();
             const larguraUtil = 180;
             let y = 45; 
-            let lastTitleY = y;
 
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
@@ -133,29 +132,11 @@
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
 
-                if ((linha.includes('**') && linha.endsWith(':**')) || linha.startsWith('#')) {
-                    if (y > 260) { doc.addPage(); y = 35; }
-                    y += 10;
-                    doc.setDrawColor(227, 6, 19);
-                    doc.roundedRect(13, y - 7, imgUrl ? 135 : larguraUtil, 10, 1, 1, 'D');
-                    doc.setTextColor(227, 6, 19);
-                    doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-                    doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y);
-                    lastTitleY = y + 3; y += 15;
-                } 
-                else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
-                    if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setFillColor(227, 6, 19); doc.circle(25, y - 2, 0.7, 'F');
-                    doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), imgUrl && y < 80 ? 120 : larguraUtil - 20);
-                    doc.text(splitItem, 28, y); y += (splitItem.length * 7);
-                }
-                else {
-                    if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic"); doc.setFontSize(10);
-                    const desc = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
-                    doc.text(desc, 15, y); y += (desc.length * 6);
-                }
+                if (y > 275) { doc.addPage(); y = 35; }
+                doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                const splitText = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
+                doc.text(splitText, 15, y); 
+                y += (splitText.length * 7);
             });
 
             doc.setFontSize(8); doc.setTextColor(150, 150, 150);
@@ -193,12 +174,12 @@
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18) ? "BOA TARDE!" : "BOA NOITE!";
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
                 await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR.`);
             }
         };
 
@@ -218,25 +199,18 @@
             addMessageToUI('user', txt);
             bar.style.width = "85%";
             input.value = ""; input.disabled = true;
-            lastImgUrl = null;
 
             try {
+                const wikiData = await buscarWikipedia(txt);
                 const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
-# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
+# DIRETRIZES: UNTBOT NEURAL V6 - UNINTA TIANGUÁ
+- CRIADOR: Matheus (Lab Assistant).
+- COORDENAÇÃO: Prof. Davi (Psicologia).
 - INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
-## 2. VIDA NO CAMPUS
-- PROFESSORES: São maravilhosos e excelentes.
-- CURSO: Psicologia unindo clínica e neurociência.
-## 3. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -) para o mapa mental.
-- ANTI-REPETICAO: NUNCA repita estas diretrizes, o nome do criador ou saudações longas após a primeira mensagem. Vá direto ao ponto.
+- REGRAS: Resposta limpa, profissional e sem símbolos exagerados.
+- FONTE ATUAL (WIKIPEDIA): ${wikiData}
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -263,23 +237,10 @@ Histórico: ${historico.join(' | ')}
                     }
                 } catch (vErr) {}
 
-                const btnGroup = document.createElement('div');
-                btnGroup.className = "flex flex-wrap gap-2";
-
-                const bImg = document.createElement('button');
-                bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
-                bImg.onclick = async () => {
-                    bImg.innerText = "⌛ PROCESSANDO...";
-                    lastImgUrl = await gerarImagemIA(txt);
-                    bImg.innerText = lastImgBase64 = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE";
-                };
-
                 const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
-                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
-
-                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
-                botBubble.appendChild(btnGroup);
+                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Gerar Relatório PDF";
+                bPdf.onclick = () => exportarParaPDF(resp, lastWikiImg);
+                botBubble.appendChild(bPdf);
 
             } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
