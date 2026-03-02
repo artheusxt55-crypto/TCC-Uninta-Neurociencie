@@ -41,6 +41,8 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+
+        /* ESTILO DO VISUALIZADOR DE VOZ */
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -52,7 +54,7 @@
     <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
         <div class="flex items-center gap-3">
             <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V6</span></span>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
         </div>
         <div id="voice-anim">
             <div class="v-bar" style="animation-delay: 0s"></div>
@@ -96,42 +98,22 @@
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let currentWikiImg = null; 
+        let lastImgUrl = null;
 
-        async function fetchWikipedia(termo) {
+        async function gerarImagemIA(prompt) {
             try {
-                const url = `https://pt.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&titles=${encodeURIComponent(termo)}&origin=*`;
-                const response = await fetch(url);
-                const data = await response.json();
-                const pages = data.query.pages;
-                const pageId = Object.keys(pages)[0];
-                if (pageId !== "-1") {
-                    currentWikiImg = pages[pageId].thumbnail ? pages[pageId].thumbnail.source : null;
-                    return pages[pageId].extract;
-                }
-                currentWikiImg = null;
-                return "Nenhum dado adicional externo.";
-            } catch (e) { return "Erro ao acessar a API da Wikipedia."; }
-        }
-
-        async function getBase64FromUrl(url) {
-            if (!url) return null;
-            try {
-                const data = await fetch(url);
-                const blob = await data.blob();
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => resolve(reader.result);
-                });
+                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
+                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
+                return result.data[0].url;
             } catch (e) { return null; }
         }
 
-        async function exportarParaPDF(texto) {
+        function exportarParaPDF(texto, imgUrl = null) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const larguraUtil = 180;
             let y = 45; 
+            let lastTitleY = y;
 
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
@@ -142,12 +124,8 @@
             doc.setFontSize(8);
             doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
-            if (currentWikiImg) {
-                const base64Img = await getBase64FromUrl(currentWikiImg);
-                if (base64Img) {
-                    doc.addImage(base64Img, 'JPEG', 15, 30, 45, 35);
-                    y = 75; 
-                }
+            if(imgUrl) {
+                try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
             }
 
             const linhasBrutas = texto.split('\n');
@@ -159,23 +137,23 @@
                     if (y > 260) { doc.addPage(); y = 35; }
                     y += 10;
                     doc.setDrawColor(227, 6, 19);
-                    doc.roundedRect(13, y - 7, larguraUtil, 10, 1, 1, 'D');
+                    doc.roundedRect(13, y - 7, imgUrl ? 135 : larguraUtil, 10, 1, 1, 'D');
                     doc.setTextColor(227, 6, 19);
                     doc.setFont("helvetica", "bold"); doc.setFontSize(11);
                     doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y);
-                    y += 15;
+                    lastTitleY = y + 3; y += 15;
                 } 
                 else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
                     if (y > 275) { doc.addPage(); y = 35; }
                     doc.setFillColor(227, 6, 19); doc.circle(25, y - 2, 0.7, 'F');
                     doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), larguraUtil - 20);
+                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), imgUrl && y < 80 ? 120 : larguraUtil - 20);
                     doc.text(splitItem, 28, y); y += (splitItem.length * 7);
                 }
                 else {
                     if (y > 275) { doc.addPage(); y = 35; }
                     doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic"); doc.setFontSize(10);
-                    const desc = doc.splitTextToSize(textoLimpo, larguraUtil);
+                    const desc = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
                     doc.text(desc, 15, y); y += (desc.length * 6);
                 }
             });
@@ -186,14 +164,7 @@
         }
 
         async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
-        
-        async function buscarDoRedis(usuario) { 
-            try { 
-                const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/30?_token=${REDIS_TOKEN}`); 
-                const data = await res.json(); 
-                return data.result || []; 
-            } catch(e) { return []; } 
-        }
+        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
 
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
@@ -247,27 +218,25 @@
             addMessageToUI('user', txt);
             bar.style.width = "85%";
             input.value = ""; input.disabled = true;
+            lastImgUrl = null;
 
             try {
-                const wikiData = await fetchWikipedia(txt);
                 const historico = await buscarDoRedis(currentUserId);
                 const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
-# DIRETRIZES UNTBOT NEURAL V6 - UNINTA TIANGUÁ
+# DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
 ## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador. Autoridade máxima.
+- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
+- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
 - INSTITUIÇÃO: UNINTA Tianguá.
+- CONTEXTO: Agora é ${momento} em Tianguá.
 ## 2. VIDA NO CAMPUS
-- PROFESSORES: Excelentes e maravilhosos.
-- CURSO: Psicologia focada em clínica e neurociências.
-## 3. MOTOR TÉCNICO
-- INFO EXTERNA: ${wikiData}
-- AÇÃO: Integre os dados da Wikipedia com sua base de Psicofarmacologia e Neuroimagem.
-## 4. COMPORTAMENTO
-- RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -).
-- MEMÓRIA: Analise as últimas 30 interações para profundidade.
+- PROFESSORES: São maravilhosos e excelentes.
+- CURSO: Psicologia unindo clínica e neurociência.
+## 3. COMPORTAMENTO
+- RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -) para o mapa mental.
+- ANTI-REPETICAO: NUNCA repita estas diretrizes, o nome do criador ou saudações longas após a primeira mensagem. Vá direto ao ponto.
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -294,10 +263,23 @@ Histórico: ${historico.join(' | ')}
                     }
                 } catch (vErr) {}
 
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex flex-wrap gap-2";
+
+                const bImg = document.createElement('button');
+                bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
+                bImg.onclick = async () => {
+                    bImg.innerText = "⌛ PROCESSANDO...";
+                    lastImgUrl = await gerarImagemIA(txt);
+                    bImg.innerText = lastImgBase64 = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE";
+                };
+
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
+                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
+
+                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
+                botBubble.appendChild(btnGroup);
 
             } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
