@@ -41,9 +41,7 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-
-        .verification-tag { display: block; margin-top: 10px; font-size: 10px; color: #666; border-top: 1px solid #333; padding-top: 5px; font-style: italic; }
-
+        .verification-tag { display: block; margin-top: 10px; font-size: 10px; color: #888; border-top: 1px solid #333; padding-top: 5px; font-style: italic; }
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -103,10 +101,18 @@
         let lastWikiUrl = null;
         let lastWikiTitle = null;
 
-        // --- NOVA FUNÇÃO WIKIPEDIA ---
+        // --- NOVA FUNÇÃO WIKIPEDIA OTIMIZADA ---
         async function buscarWikipedia(query) {
             try {
-                const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+                // Limpa a query para pegar o termo principal (ex: "O que é TDAH?" -> "TDAH")
+                let termo = query.replace(/[?.,!]/g, '').trim();
+                const palavras = termo.split(' ');
+                // Se for frase longa, tenta pegar apenas as últimas palavras que costumam ser o tema
+                if (palavras.length > 2) {
+                    termo = palavras.slice(-1).join(''); 
+                }
+
+                const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`;
                 const res = await fetch(url);
                 if (res.ok) {
                     const data = await res.json();
@@ -148,7 +154,6 @@
             linhasBrutas.forEach(linha => {
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
-
                 if (y > 275) { doc.addPage(); y = 35; }
                 doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
                 const splitText = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
@@ -218,19 +223,15 @@
             lastImgUrl = null; lastWikiUrl = null; lastWikiTitle = null;
 
             try {
-                // 1. BUSCA WIKIPEDIA PRIMEIRO
+                // 1. BUSCA WIKIPEDIA (AGORA MAIS INTELIGENTE)
                 const wikiContexto = await buscarWikipedia(txt);
-
                 const historico = await buscarDoRedis(currentUserId);
                 
-                // 2. MONTA O CONTEXTO COM WIKIPEDIA
                 const contextoPersonalidade = `
 # DIRETRIZES: UNTBOT NEURAL V5
-- CRIADOR: Matheus (Lab Assistant).
-- COORDENAÇÃO: Prof. Davi (Psicologia).
-- INSTITUIÇÃO: UNINTA Tianguá.
-- REGRAS: Responda de forma CURTA e DIRETA.
-- CONTEXTO WIKIPEDIA: ${wikiContexto}
+- CRIADOR: Matheus | COORDENAÇÃO: Prof. Davi | UNINTA.
+- REGRAS: Responda CURTO e DIRETO.
+- CONTEXTO WIKIPEDIA: ${wikiContexto || "Nenhum dado enciclopédico específico encontrado."}
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -247,11 +248,11 @@ Histórico: ${historico.join(' | ')}
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                // 3. ADICIONA O SELO DA WIKIPEDIA SE HOUVER RESULTADO
+                // 2. SELO DE REFERÊNCIA REALISTA
                 if (lastWikiTitle) {
                     const selo = document.createElement('div');
                     selo.className = "verification-tag";
-                    selo.innerHTML = `✔️ Verificado: <a href="${lastWikiUrl}" target="_blank" style="color:#e30613; text-decoration:underline;">Artigo Científico (${lastWikiTitle})</a>`;
+                    selo.innerHTML = `🔍 REFERÊNCIA: <a href="${lastWikiUrl}" target="_blank" style="color:#e30613; text-decoration:underline;">Wikipédia (${lastWikiTitle})</a>`;
                     botBubble.appendChild(selo);
                 }
 
@@ -268,7 +269,6 @@ Histórico: ${historico.join(' | ')}
 
                 const btnGroup = document.createElement('div');
                 btnGroup.className = "flex flex-wrap gap-2";
-
                 const bImg = document.createElement('button');
                 bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
                 bImg.onclick = async () => {
@@ -276,11 +276,9 @@ Histórico: ${historico.join(' | ')}
                     lastImgUrl = await gerarImagemIA(txt);
                     bImg.innerText = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE";
                 };
-
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
                 bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
-
                 btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
                 botBubble.appendChild(btnGroup);
 
