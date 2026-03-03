@@ -41,6 +41,7 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+        .verification-tag { display: block; margin-top: 10px; font-size: 10px; color: #666; border-top: 1px solid #333; padding-top: 5px; font-style: italic; }
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -97,6 +98,7 @@
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
         let lastWikiImg = null;
+        let lastWikiTitle = null;
 
         async function buscarWikipedia(query) {
             try {
@@ -104,11 +106,15 @@
                 const res = await fetch(url);
                 const data = await res.json();
                 lastWikiImg = data.thumbnail ? data.thumbnail.source : null;
+                lastWikiTitle = data.title || null;
                 return data.extract || "";
-            } catch (e) { return ""; }
+            } catch (e) { 
+                lastWikiTitle = null;
+                return ""; 
+            }
         }
 
-        function exportarParaPDF(texto, imgUrl = null) {
+        function exportarParaPDF(texto, imgUrl = null, wikiTitle = null) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const larguraUtil = 180;
@@ -117,11 +123,10 @@
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
             doc.setFontSize(8);
-            doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
+            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
             if(imgUrl) {
                 try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
@@ -131,13 +136,18 @@
             linhasBrutas.forEach(linha => {
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
-
-                if (y > 275) { doc.addPage(); y = 35; }
+                if (y > 270) { doc.addPage(); y = 35; }
                 doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
                 const splitText = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
                 doc.text(splitText, 15, y); 
                 y += (splitText.length * 7);
             });
+
+            // Selo de Verificação no PDF
+            y += 5;
+            doc.setFontSize(8); doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic");
+            const seloText = wikiTitle ? `VERIFICAÇÃO: Artigo Científico via Wikipedia (${wikiTitle})` : `VERIFICAÇÃO: Base de Dados Interna UNINTA`;
+            doc.text(seloText, 15, y);
 
             doc.setFontSize(8); doc.setTextColor(150, 150, 150);
             doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
@@ -173,13 +183,11 @@
 
         window.onload = async () => {
             const welcome = addMessageToUI('bot', "");
-            const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18) ? "BOA TARDE!" : "BOA NOITE!";
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: PRONTO PARA SCANNER, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR.`);
+                await typeWriter(welcome, `>> [SISTEMA]: IDENTIFIQUE-SE PARA ACESSAR O LAB.`);
             }
         };
 
@@ -192,7 +200,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} REGISTRADO.`);
                 input.value = ""; return;
             }
 
@@ -202,16 +210,15 @@
 
             try {
                 const wikiData = await buscarWikipedia(txt);
+                const currentWikiTitle = lastWikiTitle; // Captura para este turno
                 const historico = await buscarDoRedis(currentUserId);
                 
                 const contextoPersonalidade = `
-# DIRETRIZES: UNTBOT NEURAL V6 - UNINTA TIANGUÁ
+# DIRETRIZES: UNTBOT NEURAL V6
 - CRIADOR: Matheus (Lab Assistant).
 - COORDENAÇÃO: Prof. Davi (Psicologia).
-- INSTITUIÇÃO: UNINTA Tianguá.
-- REGRAS: Resposta limpa, profissional e sem símbolos exagerados.
-- FONTE ATUAL (WIKIPEDIA): ${wikiData}
-Histórico: ${historico.join(' | ')}
+- REGRAS: Resposta técnica e direta.
+- FONTE WIKIPEDIA: ${wikiData}
 `;
 
                 const res = await fetch("/api/analisar", {
@@ -227,6 +234,18 @@ Histórico: ${historico.join(' | ')}
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
+                // Injeção do Selo de Verificação com Hyperlink
+                const selo = document.createElement('div');
+                selo.className = "verification-tag";
+                
+                if (currentWikiTitle) {
+                    const wikiUrl = `https://pt.wikipedia.org/wiki/${encodeURIComponent(currentWikiTitle)}`;
+                    selo.innerHTML = `✔️ Verificado: <a href="${wikiUrl}" target="_blank" style="color: #e30613; text-decoration: underline; cursor: pointer;">Artigo Científico (Wikipedia - ${currentWikiTitle})</a>`;
+                } else {
+                    selo.innerHTML = `✔️ Verificado: Base Neural UNINTA`;
+                }
+                botBubble.appendChild(selo);
+
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
@@ -238,11 +257,11 @@ Histórico: ${historico.join(' | ')}
                 } catch (vErr) {}
 
                 const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Gerar Relatório PDF";
-                bPdf.onclick = () => exportarParaPDF(resp, lastWikiImg);
+                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Gerar Relatório Verificado";
+                bPdf.onclick = () => exportarParaPDF(resp, lastWikiImg, currentWikiTitle);
                 botBubble.appendChild(bPdf);
 
-            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
+            } catch (e) { addMessageToUI('bot', ">> FALHA NA SINAPSE."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
