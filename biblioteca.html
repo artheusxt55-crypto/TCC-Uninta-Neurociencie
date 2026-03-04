@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuroLib - Biblioteca Digital</title>
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kczzuvkuubeqdokjihrm.supabase.co https://*.upstash.io https://api.groq.com; img-src 'self' data: https://kczzuvkuubeqdokjihrm.supabase.co https://images.unsplash.com https://*.supabase.co; frame-src 'self' https://kczzuvkuubeqdokjihrm.supabase.co; worker-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kczzuvkuubeqdokjihrm.supabase.co https://*.upstash.io https://api.groq.com; img-src 'self' data: https://*.googleusercontent.com https://drive.google.com https://kczzuvkuubeqdokjihrm.supabase.co https://images.unsplash.com https://*.supabase.co; frame-src 'self' https://drive.google.com https://kczzuvkuubeqdokjihrm.supabase.co; worker-src 'self' blob:;">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -24,24 +24,38 @@
         
         .header-glass { background: rgba(3, 3, 3, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #1a1a1a; }
         
+        .card-book { background: var(--card-bg); border: 1px solid #1a1a1a; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-book:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(227, 6, 19, 0.2); }
+        
+        .modal-blur { backdrop-filter: blur(12px); background: rgba(0,0,0,0.85); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+
         .skeleton-pulse {
             background: linear-gradient(90deg, #0d0d0d 25%, #1a1a1a 50%, #0d0d0d 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .card-book { background: var(--card-bg); border: 1px solid #1a1a1a; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-book:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(227, 6, 19, 0.2); }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
+
+    <div id="pdfModal" class="fixed inset-0 z-[100] hidden modal-blur p-4 md:p-8 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 id="modalTitle" class="text-xl font-bold truncate max-w-md">Visualizando Material</h2>
+                <p id="modalCategory" class="text-xs text-red-500 font-bold uppercase tracking-widest"></p>
+            </div>
+            <button onclick="closeModal()" class="p-2 hover:bg-white/10 rounded-full transition">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="flex-1 bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 relative">
+            <iframe id="pdfFrame" class="w-full h-full" src="" frameborder="0"></iframe>
+        </div>
+    </div>
 
     <aside class="sidebar w-64 flex flex-col hidden lg:flex">
         <div class="p-6 flex items-center gap-3">
@@ -51,10 +65,13 @@
             <span class="font-bold text-xl tracking-tight">NeuroLib</span>
         </div>
 
-        <nav class="flex-1 mt-4 space-y-1" id="categories">
+        <nav class="flex-1 mt-4 space-y-1">
             <p class="px-6 py-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Navegação</p>
             <button onclick="filterCategory('Todos')" class="nav-button active w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
                 <i data-lucide="layout-grid" class="w-4 h-4"></i> Todos
+            </button>
+            <button onclick="filterCategory('Favoritos')" class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
+                <i data-lucide="heart" class="w-4 h-4 text-red-500"></i> Meus Favoritos
             </button>
             <button onclick="filterCategory('TDAH')" class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
                 <i data-lucide="focus" class="w-4 h-4"></i> TDAH
@@ -65,13 +82,10 @@
             <button onclick="filterCategory('Psicofarmacologia')" class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
                 <i data-lucide="pill" class="w-4 h-4"></i> Psicofarmacologia
             </button>
-            <button onclick="filterCategory('Neuroimagem')" class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-                <i data-lucide="microscope" class="w-4 h-4"></i> Neuroimagem
-            </button>
         </nav>
 
         <div class="p-6 border-t border-zinc-900">
-            <p class="text-[9px] text-zinc-600 mb-4 font-bold text-center">PARCEIROS: | Uninta Tiangua |</p>
+            <p class="text-[9px] text-zinc-600 mb-4 font-bold text-center">ASSISTENTE: UNT BOT</p>
             <a href="index.html" class="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition justify-center">
                 <i data-lucide="arrow-left" class="w-3 h-3"></i> Voltar ao Lab
             </a>
@@ -82,17 +96,24 @@
         <header class="header-glass px-8 py-4 flex items-center justify-between z-30">
             <div class="flex-1 max-w-xl relative">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"></i>
-                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Pesquisar livros ou autores..." 
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Pesquisar por título, autor ou instituição..." 
                     class="w-full pl-10 pr-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm focus:border-red-600 outline-none transition text-white">
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="hidden sm:block text-right leading-none">
-                    <p class="text-xs font-bold">Mestre Matheus</p>
-                    <p class="text-[10px] text-zinc-500">Uninta Tianguá</p>
+                <div class="hidden sm:flex items-center gap-3 px-4 py-2 bg-zinc-900 rounded-xl border border-white/5">
+                   <div class="text-center"><p id="statTotal" class="text-xs font-bold">0</p><p class="text-[8px] text-zinc-500 uppercase font-bold">Obras</p></div>
+                   <div class="w-px h-6 bg-zinc-800"></div>
+                   <div class="text-center cursor-pointer hover:opacity-70" onclick="handleSearch('AVASUS')"><p id="statAvasus" class="text-xs font-bold text-green-500">0</p><p class="text-[8px] text-zinc-500 uppercase font-bold">AVASUS</p></div>
                 </div>
-                <div class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
-                    <i data-lucide="user" class="w-5 h-5 text-zinc-400"></i>
+                <div class="flex items-center gap-3 pl-4 border-l border-zinc-800">
+                    <div class="text-right leading-none hidden md:block">
+                        <p class="text-xs font-bold">Mestre Matheus</p>
+                        <p class="text-[9px] text-zinc-500 font-medium">Uninta Tianguá</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
+                        <i data-lucide="user" class="w-5 h-5 text-zinc-400"></i>
+                    </div>
                 </div>
             </div>
         </header>
@@ -101,12 +122,11 @@
             <div class="mb-10 flex justify-between items-end">
                 <div>
                     <h1 class="text-3xl font-bold tracking-tight">Acervo Digital</h1>
-                    <p class="text-zinc-500 text-sm mt-1" id="bookCount">Carregando acervo...</p>
+                    <p class="text-zinc-500 text-sm mt-1" id="bookCount">Carregando dados do servidor...</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" id="bookGrid">
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" id="bookGrid"></div>
         </div>
     </main>
 
@@ -118,6 +138,7 @@
         let allBooks = []; 
         let currentCategory = "Todos";
         let searchTerm = "";
+        let favorites = JSON.parse(localStorage.getItem('neurolib_favorites') || '[]');
 
         const badgeColors = {
             'USP': 'bg-blue-500/20 text-blue-400',
@@ -132,11 +153,11 @@
             grid.innerHTML = Array(8).fill(`
                 <div class="card-book rounded-2xl overflow-hidden flex flex-col h-[320px]">
                     <div class="skeleton-pulse h-40 w-full"></div>
-                    <div class="p-5 space-y-3">
+                    <div class="p-5 space-y-3 flex-1">
                         <div class="skeleton-pulse h-3 w-1/4"></div>
                         <div class="skeleton-pulse h-5 w-3/4"></div>
                         <div class="skeleton-pulse h-3 w-1/2"></div>
-                        <div class="skeleton-pulse h-10 w-full mt-4"></div>
+                        <div class="skeleton-pulse h-10 w-full mt-4 rounded-xl"></div>
                     </div>
                 </div>
             `).join('');
@@ -148,52 +169,100 @@
                 const { data, error } = await _supabase.from('biblioteca').select('*');
                 if (error) throw error;
                 allBooks = data || [];
-                setTimeout(renderBooks, 800); 
+                updateStats();
+                setTimeout(renderBooks, 600);
             } catch (err) {
-                console.error(err);
-                document.getElementById('bookCount').innerText = "Erro na conexão com o banco.";
+                document.getElementById('bookCount').innerText = "Erro ao conectar com o banco.";
             }
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').innerText = allBooks.length;
+            document.getElementById('statAvasus').innerText = allBooks.filter(b => (b.autor||'').includes('AVASUS')).length;
+        }
+
+        function toggleFavorite(id, e) {
+            e.stopPropagation();
+            const index = favorites.indexOf(id);
+            if (index > -1) favorites.splice(index, 1);
+            else favorites.push(id);
+            localStorage.setItem('neurolib_favorites', JSON.stringify(favorites));
+            renderBooks();
+        }
+
+        function openModal(url, titulo, categoria) {
+            const modal = document.getElementById('pdfModal');
+            const frame = document.getElementById('pdfFrame');
+            document.getElementById('modalTitle').innerText = titulo;
+            document.getElementById('modalCategory').innerText = categoria;
+            
+            // Link de visualização (troca export por view)
+            const viewUrl = url.replace('export=download', 'view').replace('export=view', 'view');
+            frame.src = viewUrl;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('pdfModal').classList.add('hidden');
+            document.getElementById('pdfFrame').src = "";
         }
 
         function renderBooks() {
             const grid = document.getElementById('bookGrid');
             const filtered = allBooks.filter(b => {
-                const matchesCat = currentCategory === "Todos" || b.categoria === currentCategory;
-                const titleMatch = b.titulo ? b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-                const authorMatch = b.autor ? b.autor.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-                return matchesCat && (titleMatch || authorMatch);
+                const isFav = currentCategory === "Favoritos" ? favorites.includes(b.id) : true;
+                const matchesCat = currentCategory === "Todos" || currentCategory === "Favoritos" || b.categoria === currentCategory;
+                const matchesSearch = (b.titulo||'').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                     (b.autor||'').toLowerCase().includes(searchTerm.toLowerCase());
+                return isFav && matchesCat && matchesSearch;
             });
 
             if (filtered.length === 0) {
                 grid.innerHTML = '<p class="text-zinc-500 col-span-full text-center py-20">Nenhum material encontrado.</p>';
             } else {
                 grid.innerHTML = filtered.map(book => {
+                    const isFav = favorites.includes(book.id);
                     let badgeClass = badgeColors['Padrao'];
                     let fonteNome = 'NeuroLib';
                     
                     const autorStr = book.autor || '';
                     if(autorStr.includes('USP')) { badgeClass = badgeColors['USP']; fonteNome = 'USP'; }
-                    else if(autorStr.includes('CBI')) { badgeClass = badgeColors['CBI']; fonteNome = 'CBI'; }
                     else if(autorStr.includes('AVASUS')) { badgeClass = badgeColors['AVASUS']; fonteNome = 'AVASUS'; }
+                    else if(autorStr.includes('CBI')) { badgeClass = badgeColors['CBI']; fonteNome = 'CBI'; }
 
                     return `
                     <div class="card-book rounded-2xl overflow-hidden flex flex-col h-full group relative">
+                        <button onclick="toggleFavorite(${book.id}, event)" class="absolute top-3 left-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/80 transition backdrop-blur-sm">
+                            <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : 'text-white'}"></i>
+                        </button>
+                        
                         <span class="absolute top-3 right-3 z-10 text-[10px] font-bold px-2 py-1 rounded-md ${badgeClass} border border-white/5">
                             ${fonteNome}
                         </span>
-                        <div class="relative h-40 overflow-hidden">
-                            <img src="${book.capa_url || 'https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000&auto=format&fit=crop'}" 
+
+                        <div class="relative h-44 overflow-hidden cursor-pointer" onclick="openModal('${book.url_pdf}', '${book.titulo}', '${book.categoria}')">
+                            <img src="${book.capa || 'https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000'}" 
                                  class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                                <div class="bg-red-600 p-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition">
+                                    <i data-lucide="play" class="w-5 h-5 text-white fill-white"></i>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="p-5 flex flex-col flex-1">
                             <span class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1">${book.categoria || 'Geral'}</span>
-                            <h3 class="font-bold text-zinc-100 text-base leading-tight mb-1 line-clamp-2 group-hover:text-red-500 transition-colors">${book.titulo}</h3>
-                            <p class="text-zinc-500 text-xs mb-4">${book.autor || 'Autor Desconhecido'}</p>
+                            <h3 class="font-bold text-zinc-100 text-sm leading-tight mb-1 line-clamp-2 group-hover:text-red-500 transition-colors cursor-pointer" onclick="openModal('${book.url_pdf}', '${book.titulo}', '${book.categoria}')">${book.titulo}</h3>
+                            <p class="text-zinc-500 text-[11px] mb-4">${book.autor || 'Autor do Acervo'}</p>
                             
-                            <a href="${book.url_pdf}" target="_blank" class="mt-auto flex items-center justify-center gap-2 w-full bg-white text-black hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95">
-                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> ACESSAR MATERIAL
-                            </a>
+                            <div class="mt-auto flex gap-2">
+                                <button onclick="openModal('${book.url_pdf}', '${book.titulo}', '${book.categoria}')" class="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl text-[10px] font-bold transition-all active:scale-95">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> LER AGORA
+                                </button>
+                                <a href="${book.url_pdf}" target="_blank" class="flex items-center justify-center bg-white text-black hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl transition-all active:scale-95 shadow-lg">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;}).join('');
@@ -212,14 +281,18 @@
             renderBooks();
         }
 
-        function handleSearch() {
-            searchTerm = document.getElementById('searchInput').value;
+        function handleSearch(preset = "") {
+            if(preset) {
+                document.getElementById('searchInput').value = preset;
+                searchTerm = preset;
+            } else {
+                searchTerm = document.getElementById('searchInput').value;
+            }
             renderBooks();
         }
 
         // Inicialização
         fetchBooks();
-        lucide.createIcons();
     </script>
 </body>
 </html>
