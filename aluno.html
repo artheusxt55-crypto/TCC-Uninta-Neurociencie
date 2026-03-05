@@ -32,6 +32,12 @@
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
+        
+        /* ESTILO DA LEGENDA WIKIPEDIA */
+        .wiki-tag { display: block; margin-top: 10px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-left: 2px solid #e30613; font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .wiki-tag a { color: #e30613; font-weight: bold; text-decoration: none; }
+        .wiki-tag a:hover { text-decoration: underline; }
+
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -41,15 +47,11 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-        .verification-tag { 
-            display: block; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); 
-            border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; 
-        }
+
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
         @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-        #brain-container canvas { border-radius: 12px; }
     </style>
 </head>
 <body class="scanline">
@@ -100,64 +102,60 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
-        const brainCont = document.getElementById('brain-container');
-        
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastWikiUrl = null;
-        let lastWikiTitle = null;
+        let lastImgUrl = null;
+        let lastWikiData = { title: null, url: null };
 
-        // --- MOTOR 3D (NÚCLEO NEURAL) ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
-        brainCont.appendChild(renderer.domElement);
-
-        const brainGeo = new THREE.IcosahedronGeometry(2, 2);
-        const brainMat = new THREE.MeshPhongMaterial({ 
-            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, 
-            emissive: 0xe30613, emissiveIntensity: 0.5 
-        });
-        const brain = new THREE.Mesh(brainGeo, brainMat);
-        scene.add(brain);
-
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10);
-        scene.add(light);
-        camera.position.z = 4.5;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            brain.rotation.y += 0.003;
-            brain.rotation.z += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // --- FUNÇÕES DE APOIO ---
-        async function buscarWikipedia(query) {
+        // API WIKIPEDIA
+        async function fetchWikipedia(query) {
             try {
-                let termo = query.replace(/[?.,!]/g, '').trim();
-                const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`;
-                const res = await fetch(url);
+                const term = query.trim().split(' ').slice(0, 3).join('_'); // Pega os primeiros termos
+                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`);
                 if (res.ok) {
                     const data = await res.json();
-                    lastWikiUrl = data.content_urls?.desktop?.page;
-                    lastWikiTitle = data.title;
-                    return data.extract || "";
+                    lastWikiData = { title: data.title, url: data.content_urls.desktop.page };
+                    return data.extract;
                 }
                 return "";
             } catch (e) { return ""; }
         }
 
-        function exportarParaPDF(texto) {
+        async function gerarImagemIA(prompt) {
+            try {
+                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
+                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
+                return result.data[0].url;
+            } catch (e) { return null; }
+        }
+
+        function exportarParaPDF(texto, imgUrl = null) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFillColor(227, 6, 19); doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+            const larguraUtil = 180;
+            let y = 45; 
+
+            doc.setFillColor(227, 6, 19);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
-            doc.text(splitText, 15, 45);
+            doc.setFontSize(8);
+            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
+
+            if(imgUrl) {
+                try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
+            }
+
+            const linhasBrutas = texto.split('\n');
+            linhasBrutas.forEach(linha => {
+                let textoLimpo = linha.replace(/[*#]/g, '').trim();
+                if (!textoLimpo) return;
+                if (y > 270) { doc.addPage(); y = 30; }
+                doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                const splitText = doc.splitTextToSize(textoLimpo, 170);
+                doc.text(splitText, 15, y); y += (splitText.length * 6) + 2;
+            });
+
             doc.save(`sinapse_${currentUserId}.pdf`);
         }
 
@@ -184,11 +182,20 @@
                 const interval = setInterval(() => {
                     if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
-                }, 20);
+                }, 15);
             });
         }
 
-        // --- SISTEMA DE ENVIO ---
+        window.onload = async () => {
+            const welcome = addMessageToUI('bot', "");
+            if(currentUserId) {
+                userTag.innerText = currentUserId.toUpperCase();
+                await typeWriter(welcome, `>> [SISTEMA]: CONEXÃO ESTABELECIDA. BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+            } else {
+                await typeWriter(welcome, `>> [SISTEMA]: IDENTIFIQUE-SE PARA ACESSAR O LAB NEURAL.`);
+            }
+        };
+
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -197,71 +204,91 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} REGISTRADO NO SISTEMA UNINTA.`);
+                const b = addMessageToUI('bot', "");
+                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
                 input.value = ""; return;
             }
 
             addMessageToUI('user', txt);
             bar.style.width = "85%";
             input.value = ""; input.disabled = true;
+            lastImgUrl = null;
+            lastWikiData = { title: null, url: null };
 
             try {
-                const wikiContexto = await buscarWikipedia(txt);
+                // BUSCA CONTEXTO NA WIKIPEDIA
+                const wikiContext = await fetchWikipedia(txt);
                 const historico = await buscarDoRedis(currentUserId);
+                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
+                const contextoPersonalidade = `
+                # UNTBOT NEURAL V5 - UNINTA
+                Contexto: ${momento} em Tianguá.
+                Conhecimento Extra (Wiki): ${wikiContext}
+                Histórico: ${historico.join(' | ')}
+                Instrução: Responda de forma curta. Se houver conhecimento wiki, use-o para ser preciso.
+                `;
+
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        prompt: txt, 
-                        systemContext: `Responda como UNTBOT, assistente de laboratório do Matheus na UNINTA. Seja direto. Wiki: ${wikiContexto}` 
-                    })
+                    body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidade })
                 });
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
 
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                if (lastWikiTitle) {
-                    const selo = document.createElement('div');
-                    selo.className = "verification-tag";
-                    selo.innerHTML = `🔍 <strong>REFERÊNCIA:</strong> <a href="${lastWikiUrl}" target="_blank" style="text-decoration:underline;">Wikipedia - ${lastWikiTitle}</a>`;
-                    botBubble.appendChild(selo);
+                // ADICIONAR LEGENDA WIKI SE EXISTIR
+                if(lastWikiData.title) {
+                    const wikiEl = document.createElement('div');
+                    wikiEl.className = "wiki-tag";
+                    wikiEl.innerHTML = `📚 Ref. Acadêmica: <a href="${lastWikiData.url}" target="_blank">Wikipedia - ${lastWikiData.title}</a>`;
+                    botBubble.appendChild(wikiEl);
                 }
 
-                // SÍNTESE DE VOZ COM REAÇÃO VISUAL
+                // VOZ E BOTÕES
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
-                    if (vRes.data?.[0]) {
+                    if (vRes.data && vRes.data[0]) {
                         const audio = new Audio(vRes.data[0].url);
                         voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        brainMat.emissiveIntensity = 2.0; // Brilho extra ao falar
-                        audio.play();
-                        audio.onended = () => { 
-                            voiceAnim.classList.remove("playing"); 
-                            voiceAnim.style.opacity = "0"; 
-                            brainMat.emissiveIntensity = 0.5;
-                        };
+                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
                     }
                 } catch (vErr) {}
 
-                const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF do Relatório";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
-                
-                await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex flex-wrap gap-2";
+                const bImg = document.createElement('button'); bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
+                bImg.onclick = async () => { bImg.innerText = "⌛..."; lastImgUrl = await gerarImagemIA(txt); bImg.innerText = "✅ PRONTA"; };
+                const bPdf = document.createElement('button'); bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
+                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
+                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
+                botBubble.appendChild(btnGroup);
 
-            } catch (e) { addMessageToUI('bot', ">> FALHA NA SINAPSE NEURAL."); }
+            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
-        window.onload = () => { if(currentUserId) userTag.innerText = currentUserId.toUpperCase(); };
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+
+        const brainCont = document.getElementById('brain-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
+        brainCont.appendChild(renderer.domElement);
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        scene.add(brain);
+        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
+        camera.position.z = 4.5;
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        animate();
     </script>
 </body>
 </html>
