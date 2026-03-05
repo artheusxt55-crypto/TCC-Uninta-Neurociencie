@@ -20,26 +20,22 @@
         :root { --primary: #e30613; --bg: #000; }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* Efeito de Scanline clássico do Untbot */
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
-
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
-        
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
         .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
-        
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         
         .btn-pdf { 
             display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
@@ -47,22 +43,28 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+        
+        .verification-tag { 
+            display: block; margin-top: 12px; padding: 10px; background: rgba(227, 6, 19, 0.05); 
+            border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; 
+        }
 
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
         @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
 
-        /* MÁSCARA PARA ESCONDER LOGO DO SPLINE */
-        .spline-mask {
+        /* Container do Spline com recorte para esconder logo */
+        .spline-wrapper {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(100% + 50px); /* Empurra o rodapé com a logo para fora da div */
+            height: calc(100% + 50px); /* Aumentamos a altura para empurrar a logo pra baixo */
             overflow: hidden;
         }
-        spline-viewer { width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        spline-viewer { width: 100%; height: 100%; transition: transform 0.3s ease; }
+        .brain-talking { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--primary)); }
     </style>
 </head>
 <body class="scanline">
@@ -91,10 +93,9 @@
                     <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
                     <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
                 </div>
-
                 <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10">
-                    <div class="spline-mask">
-                        <spline-viewer id="main-spline" url="https://prod.spline.design/seu-link-aqui/scene.splinecode"></spline-viewer>
+                    <div class="spline-wrapper">
+                        <spline-viewer id="spline-brain" url="https://prod.spline.design/seu-link-aqui/scene.splinecode"></spline-viewer>
                     </div>
                 </div>
             </div>
@@ -118,22 +119,11 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
-        const spline = document.getElementById('main-spline');
+        const splineViewer = document.getElementById('spline-brain');
         
         let currentUserId = localStorage.getItem('untbot_last_id');
         let lastWikiUrl = null;
         let lastWikiTitle = null;
-
-        // --- FUNÇÃO DE PULSAÇÃO DO MODELO 3D ---
-        function pulsarModelo(isTalking) {
-            if(isTalking) {
-                spline.style.transform = "scale(1.15)";
-                spline.style.filter = "brightness(1.5) drop-shadow(0 0 20px #e30613)";
-            } else {
-                spline.style.transform = "scale(1)";
-                spline.style.filter = "brightness(1) drop-shadow(0 0 0px transparent)";
-            }
-        }
 
         // --- FUNÇÕES DE APOIO ---
         async function buscarWikipedia(query) {
@@ -199,7 +189,7 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS.`);
+                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} REGISTRADO NO SISTEMA UNINTA.`);
                 input.value = ""; return;
             }
 
@@ -210,13 +200,12 @@
             try {
                 const wikiContexto = await buscarWikipedia(txt);
                 
-                // Chamada fictícia para sua API de análise (ajuste conforme seu endpoint)
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         prompt: txt, 
-                        systemContext: `Responda como UNTBOT, assistente do Matheus na UNINTA. Seja preciso. Wiki: ${wikiContexto}` 
+                        systemContext: `Responda como UNTBOT, assistente de laboratório na UNINTA. Seja direto. Wiki: ${wikiContexto}` 
                     })
                 });
                 
@@ -226,7 +215,14 @@
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                // Síntese de Voz com Pulsação do Modelo
+                if (lastWikiTitle) {
+                    const selo = document.createElement('div');
+                    selo.className = "verification-tag";
+                    selo.innerHTML = `🔍 <strong>REFERÊNCIA:</strong> <a href="${lastWikiUrl}" target="_blank" style="text-decoration:underline;">Wikipedia - ${lastWikiTitle}</a>`;
+                    botBubble.appendChild(selo);
+                }
+
+                // SÍNTESE DE VOZ E PULSAÇÃO DO SPLINE
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
@@ -235,37 +231,27 @@
                         voiceAnim.style.opacity = "1"; 
                         voiceAnim.classList.add("playing");
                         
-                        // Intervalo para o modelo "respirar" enquanto fala
-                        const talkEffect = setInterval(() => pulsarModelo(true), 400);
-                        const restEffect = setInterval(() => pulsarModelo(false), 800);
+                        // Inicia pulsação no modelo Spline
+                        splineViewer.classList.add('brain-talking');
 
                         audio.play();
                         audio.onended = () => { 
-                            clearInterval(talkEffect);
-                            clearInterval(restEffect);
-                            pulsarModelo(false);
                             voiceAnim.classList.remove("playing"); 
                             voiceAnim.style.opacity = "0"; 
+                            // Para pulsação
+                            splineViewer.classList.remove('brain-talking');
                         };
                     }
                 } catch (vErr) {}
 
-                // Botão de PDF e Wiki Ref
-                if (lastWikiTitle) {
-                    const selo = document.createElement('div');
-                    selo.className = "verification-tag p-2 text-[10px] bg-white/5 mt-2 border-l-2 border-red-600";
-                    selo.innerHTML = `🔍 REFERÊNCIA: <a href="${lastWikiUrl}" target="_blank" class="underline">Wiki - ${lastWikiTitle}</a>`;
-                    botBubble.appendChild(selo);
-                }
-
                 const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Gerar Relatório PDF";
+                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF do Relatório";
                 bPdf.onclick = () => exportarParaPDF(resp);
                 botBubble.appendChild(bPdf);
                 
-                await salvarNoRedis(currentUserId, `Msg: ${txt}`);
+                await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
 
-            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
+            } catch (e) { addMessageToUI('bot', ">> FALHA NA SINAPSE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
