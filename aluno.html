@@ -41,7 +41,10 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-        .verification-tag { display: block; margin-top: 10px; font-size: 10px; color: #888; border-top: 1px solid #333; padding-top: 5px; font-style: italic; }
+        .verification-tag { 
+            display: block; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); 
+            border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; 
+        }
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -97,20 +100,15 @@
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastImgUrl = null;
         let lastWikiUrl = null;
         let lastWikiTitle = null;
 
-        // --- NOVA FUNÇÃO WIKIPEDIA OTIMIZADA ---
+        // --- BUSCA WIKIPEDIA OTIMIZADA PARA REFERÊNCIA ---
         async function buscarWikipedia(query) {
             try {
-                // Limpa a query para pegar o termo principal (ex: "O que é TDAH?" -> "TDAH")
                 let termo = query.replace(/[?.,!]/g, '').trim();
                 const palavras = termo.split(' ');
-                // Se for frase longa, tenta pegar apenas as últimas palavras que costumam ser o tema
-                if (palavras.length > 2) {
-                    termo = palavras.slice(-1).join(''); 
-                }
+                if (palavras.length > 2) termo = palavras.slice(-2).join(' '); // Tenta ser mais específico
 
                 const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`;
                 const res = await fetch(url);
@@ -124,15 +122,7 @@
             } catch (e) { return ""; }
         }
 
-        async function gerarImagemIA(prompt) {
-            try {
-                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
-                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
-                return result.data[0].url;
-            } catch (e) { return null; }
-        }
-
-        function exportarParaPDF(texto, imgUrl = null) {
+        function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const larguraUtil = 180;
@@ -146,19 +136,20 @@
             doc.setFontSize(8);
             doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
-            if(imgUrl) {
-                try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
-            }
-
             const linhasBrutas = texto.split('\n');
             linhasBrutas.forEach(linha => {
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
                 if (y > 275) { doc.addPage(); y = 35; }
                 doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                const splitText = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
+                const splitText = doc.splitTextToSize(textoLimpo, larguraUtil);
                 doc.text(splitText, 15, y); y += (splitText.length * 7);
             });
+
+            if(lastWikiUrl) {
+                doc.setTextColor(227, 6, 19); doc.setFontSize(8);
+                doc.text(`FONTE: ${lastWikiUrl}`, 15, y + 5);
+            }
 
             doc.setFontSize(8); doc.setTextColor(150, 150, 150);
             doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
@@ -220,17 +211,16 @@
             addMessageToUI('user', txt);
             bar.style.width = "85%";
             input.value = ""; input.disabled = true;
-            lastImgUrl = null; lastWikiUrl = null; lastWikiTitle = null;
+            lastWikiUrl = null; lastWikiTitle = null;
 
             try {
-                // 1. BUSCA WIKIPEDIA (AGORA MAIS INTELIGENTE)
                 const wikiContexto = await buscarWikipedia(txt);
                 const historico = await buscarDoRedis(currentUserId);
                 
                 const contextoPersonalidade = `
 # DIRETRIZES: UNTBOT NEURAL V5
 - CRIADOR: Matheus | COORDENAÇÃO: Prof. Davi | UNINTA.
-- REGRAS: Responda CURTO e DIRETO.
+- REGRAS: Responda CURTO e DIRETO. Não cite outras universidades.
 - CONTEXTO WIKIPEDIA: ${wikiContexto || "Nenhum dado enciclopédico específico encontrado."}
 Histórico: ${historico.join(' | ')}
 `;
@@ -248,11 +238,14 @@ Histórico: ${historico.join(' | ')}
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                // 2. SELO DE REFERÊNCIA REALISTA
+                // --- INJEÇÃO DO SELO DE REFERÊNCIA WIKIPEDIA ---
                 if (lastWikiTitle) {
                     const selo = document.createElement('div');
                     selo.className = "verification-tag";
-                    selo.innerHTML = `🔍 REFERÊNCIA: <a href="${lastWikiUrl}" target="_blank" style="color:#e30613; text-decoration:underline;">Wikipédia (${lastWikiTitle})</a>`;
+                    selo.innerHTML = `
+                        <strong style="color: #e30613;">🔍 REFERÊNCIA ACADÊMICA:</strong><br>
+                        Link: <a href="${lastWikiUrl}" target="_blank" style="color:#fff; text-decoration:underline;">Wikipédia - ${lastWikiTitle}</a>
+                    `;
                     botBubble.appendChild(selo);
                 }
 
@@ -269,17 +262,10 @@ Histórico: ${historico.join(' | ')}
 
                 const btnGroup = document.createElement('div');
                 btnGroup.className = "flex flex-wrap gap-2";
-                const bImg = document.createElement('button');
-                bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
-                bImg.onclick = async () => {
-                    bImg.innerText = "⌛ PROCESSANDO...";
-                    lastImgUrl = await gerarImagemIA(txt);
-                    bImg.innerText = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE";
-                };
                 const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
-                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
-                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
+                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF do Relatório";
+                bPdf.onclick = () => exportarParaPDF(resp);
+                btnGroup.appendChild(bPdf);
                 botBubble.appendChild(btnGroup);
 
             } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
