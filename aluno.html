@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNTBOT NEURAL - UNINTA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+        import { Application } from 'https://unpkg.com/@splinetool/runtime';
         window.GradioClient = Client; 
+        window.SplineApp = Application;
     </script>
 
     <style>
@@ -25,6 +26,15 @@
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
+        
+        /* Ajuste do Container da Orb para esconder a logo do Spline */
+        #brain-container { position: relative; overflow: hidden; cursor: pointer; }
+        canvas#canvas3d { 
+            width: 140% !important; height: 140% !important; 
+            position: absolute; top: -20%; left: -20%; 
+            outline: none;
+        }
+
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
@@ -35,21 +45,12 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .btn-pdf { 
-            display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
-            border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
-        }
+        .btn-pdf { display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-        .verification-tag { 
-            display: block; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); 
-            border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; 
-        }
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
         @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-        #brain-container canvas { border-radius: 12px; }
     </style>
 </head>
 <body class="scanline">
@@ -63,7 +64,6 @@
             <div class="v-bar" style="animation-delay: 0s"></div>
             <div class="v-bar" style="animation-delay: 0.1s"></div>
             <div class="v-bar" style="animation-delay: 0.2s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
         </div>
         <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
             <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
@@ -78,7 +78,9 @@
                     <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
                     <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
                 </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
+                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card border border-red-900/10">
+                    <canvas id="canvas3d"></canvas>
+                </div>
             </div>
 
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
@@ -100,38 +102,51 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
-        const brainCont = document.getElementById('brain-container');
+        const canvas = document.getElementById('canvas3d');
         
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastWikiUrl = null;
-        let lastWikiTitle = null;
+        let splineObj = null;
 
-        // --- MOTOR 3D (NÚCLEO NEURAL) ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
-        brainCont.appendChild(renderer.domElement);
-
-        const brainGeo = new THREE.IcosahedronGeometry(2, 2);
-        const brainMat = new THREE.MeshPhongMaterial({ 
-            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, 
-            emissive: 0xe30613, emissiveIntensity: 0.5 
+        // --- INICIALIZAÇÃO DA ORB (SPLINE) ---
+        const spline = new window.SplineApp(canvas);
+        // Substitua pela URL do seu arquivo .splinecode exportado
+        spline.load('SEU_ARQUIVO_AQUI.splinecode').then(() => {
+            splineObj = spline.findObjectByName('Group 3'); // Nome do grupo da Orb na sua print
+            console.log("UNTBOT: Orb Neural Ativada");
         });
-        const brain = new THREE.Mesh(brainGeo, brainMat);
-        scene.add(brain);
 
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10);
-        scene.add(light);
-        camera.position.z = 4.5;
+        // --- FUNÇÃO PARA FAZER A ORB PULSAR COM ÁUDIO ---
+        function pulseOrbWithAudio(audioElement) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioCtx.createAnalyser();
+            const source = audioCtx.createMediaElementSource(audioElement);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 256;
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            brain.rotation.y += 0.003;
-            brain.rotation.z += 0.001;
-            renderer.render(scene, camera);
+            function update() {
+                if (!audioElement.paused) {
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    if (splineObj) {
+                        const scale = 0.84 + (average / 250); // 0.84 é sua escala base da print
+                        splineObj.scale.x = scale;
+                        splineObj.scale.y = scale;
+                        splineObj.scale.z = scale;
+                    }
+                    requestAnimationFrame(update);
+                } else {
+                    // Retorna ao tamanho normal quando para de falar
+                    if (splineObj) {
+                        splineObj.scale.x = 0.84;
+                        splineObj.scale.y = 0.84;
+                        splineObj.scale.z = 0.84;
+                    }
+                }
+            }
+            update();
         }
-        animate();
 
         // --- FUNÇÕES DE APOIO ---
         async function buscarWikipedia(query) {
@@ -139,30 +154,9 @@
                 let termo = query.replace(/[?.,!]/g, '').trim();
                 const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`;
                 const res = await fetch(url);
-                if (res.ok) {
-                    const data = await res.json();
-                    lastWikiUrl = data.content_urls?.desktop?.page;
-                    lastWikiTitle = data.title;
-                    return data.extract || "";
-                }
-                return "";
+                return res.ok ? (await res.json()).extract : "";
             } catch (e) { return ""; }
         }
-
-        function exportarParaPDF(texto) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFillColor(227, 6, 19); doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
-            doc.text(splitText, 15, 45);
-            doc.save(`sinapse_${currentUserId}.pdf`);
-        }
-
-        async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
-        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
 
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
@@ -207,14 +201,12 @@
 
             try {
                 const wikiContexto = await buscarWikipedia(txt);
-                const historico = await buscarDoRedis(currentUserId);
-                
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         prompt: txt, 
-                        systemContext: `Responda como UNTBOT, assistente de laboratório do Matheus na UNINTA. Seja direto. Wiki: ${wikiContexto}` 
+                        systemContext: `Responda como UNTBOT, assistente do Matheus na UNINTA. Wiki: ${wikiContexto}` 
                     })
                 });
                 
@@ -224,36 +216,24 @@
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                if (lastWikiTitle) {
-                    const selo = document.createElement('div');
-                    selo.className = "verification-tag";
-                    selo.innerHTML = `🔍 <strong>REFERÊNCIA:</strong> <a href="${lastWikiUrl}" target="_blank" style="text-decoration:underline;">Wikipedia - ${lastWikiTitle}</a>`;
-                    botBubble.appendChild(selo);
-                }
-
-                // SÍNTESE DE VOZ COM REAÇÃO VISUAL
+                // VOZ E PULSAÇÃO DA ORB
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
                     if (vRes.data?.[0]) {
                         const audio = new Audio(vRes.data[0].url);
+                        audio.crossOrigin = "anonymous"; // Necessário para o AudioContext
                         voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        brainMat.emissiveIntensity = 2.0; // Brilho extra ao falar
+                        
                         audio.play();
+                        pulseOrbWithAudio(audio); // CONECTA A VOZ À BOLA
+
                         audio.onended = () => { 
                             voiceAnim.classList.remove("playing"); 
                             voiceAnim.style.opacity = "0"; 
-                            brainMat.emissiveIntensity = 0.5;
                         };
                     }
-                } catch (vErr) {}
-
-                const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF do Relatório";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
-                
-                await salvarNoRedis(currentUserId, `User: ${txt} | Bot: ${resp}`);
+                } catch (vErr) { console.error("Voz falhou:", vErr); }
 
             } catch (e) { addMessageToUI('bot', ">> FALHA NA SINAPSE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
