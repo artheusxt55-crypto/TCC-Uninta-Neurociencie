@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNTBOT NEURAL - UNINTA</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.94/build/spline-viewer.js"></script>
-
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
         window.GradioClient = Client; 
@@ -36,35 +35,21 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
         .btn-pdf { 
             display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
             border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-        
         .verification-tag { 
-            display: block; margin-top: 12px; padding: 10px; background: rgba(227, 6, 19, 0.05); 
+            display: block; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); 
             border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; 
         }
-
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
         @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-
-        /* Container do Spline com recorte para esconder logo */
-        .spline-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(100% + 50px); /* Aumentamos a altura para empurrar a logo pra baixo */
-            overflow: hidden;
-        }
-        spline-viewer { width: 100%; height: 100%; transition: transform 0.3s ease; }
-        .brain-talking { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--primary)); }
+        #brain-container canvas { border-radius: 12px; }
     </style>
 </head>
 <body class="scanline">
@@ -93,17 +78,13 @@
                     <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
                     <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
                 </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10">
-                    <div class="spline-wrapper">
-                        <spline-viewer id="spline-brain" url="https://prod.spline.design/seu-link-aqui/scene.splinecode"></spline-viewer>
-                    </div>
-                </div>
+                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
             </div>
 
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
             <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando neural..." autocomplete="off">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
             </div>
@@ -119,11 +100,38 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
-        const splineViewer = document.getElementById('spline-brain');
+        const brainCont = document.getElementById('brain-container');
         
         let currentUserId = localStorage.getItem('untbot_last_id');
         let lastWikiUrl = null;
         let lastWikiTitle = null;
+
+        // --- MOTOR 3D (NÚCLEO NEURAL) ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
+        brainCont.appendChild(renderer.domElement);
+
+        const brainGeo = new THREE.IcosahedronGeometry(2, 2);
+        const brainMat = new THREE.MeshPhongMaterial({ 
+            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, 
+            emissive: 0xe30613, emissiveIntensity: 0.5 
+        });
+        const brain = new THREE.Mesh(brainGeo, brainMat);
+        scene.add(brain);
+
+        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10);
+        scene.add(light);
+        camera.position.z = 4.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            brain.rotation.y += 0.003;
+            brain.rotation.z += 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
 
         // --- FUNÇÕES DE APOIO ---
         async function buscarWikipedia(query) {
@@ -199,13 +207,14 @@
 
             try {
                 const wikiContexto = await buscarWikipedia(txt);
+                const historico = await buscarDoRedis(currentUserId);
                 
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         prompt: txt, 
-                        systemContext: `Responda como UNTBOT, assistente de laboratório na UNINTA. Seja direto. Wiki: ${wikiContexto}` 
+                        systemContext: `Responda como UNTBOT, assistente de laboratório do Matheus na UNINTA. Seja direto. Wiki: ${wikiContexto}` 
                     })
                 });
                 
@@ -222,24 +231,19 @@
                     botBubble.appendChild(selo);
                 }
 
-                // SÍNTESE DE VOZ E PULSAÇÃO DO SPLINE
+                // SÍNTESE DE VOZ COM REAÇÃO VISUAL
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
                     if (vRes.data?.[0]) {
                         const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; 
-                        voiceAnim.classList.add("playing");
-                        
-                        // Inicia pulsação no modelo Spline
-                        splineViewer.classList.add('brain-talking');
-
+                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
+                        brainMat.emissiveIntensity = 2.0; // Brilho extra ao falar
                         audio.play();
                         audio.onended = () => { 
                             voiceAnim.classList.remove("playing"); 
                             voiceAnim.style.opacity = "0"; 
-                            // Para pulsação
-                            splineViewer.classList.remove('brain-talking');
+                            brainMat.emissiveIntensity = 0.5;
                         };
                     }
                 } catch (vErr) {}
