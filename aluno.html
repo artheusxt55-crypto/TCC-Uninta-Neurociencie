@@ -5,52 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNTBOT NEURAL - UNINTA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
+
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
-        import { Application } from 'https://unpkg.com/@splinetool/runtime';
         window.GradioClient = Client; 
-        window.SplineApp = Application;
     </script>
 
     <style>
         :root { --primary: #e30613; --bg: #000; }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
+
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
         
-        /* Ajuste do Container da Orb para esconder a logo do Spline */
-        #brain-container { position: relative; overflow: hidden; cursor: pointer; }
-        canvas#canvas3d { 
-            width: 140% !important; height: 140% !important; 
-            position: absolute; top: -20%; left: -20%; 
-            outline: none;
-        }
-
+        /* Chat e Bubbles */
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
         .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
+        
+        /* Animações */
+        @keyframes splinePulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0px var(--primary)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 25px rgba(227, 6, 19, 0.5)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 0px var(--primary)); }
+        }
+        .speaking-spline { animation: splinePulse 0.4s infinite ease-in-out; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .btn-pdf { display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+
+        /* Barras de Voz */
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
         @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
+
+        /* Botões e Tags */
+        .btn-pdf { display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+        .verification-tag { display: block; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        spline-viewer { width: 100%; height: 100%; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="scanline">
@@ -64,6 +73,7 @@
             <div class="v-bar" style="animation-delay: 0s"></div>
             <div class="v-bar" style="animation-delay: 0.1s"></div>
             <div class="v-bar" style="animation-delay: 0.2s"></div>
+            <div class="v-bar" style="animation-delay: 0.1s"></div>
         </div>
         <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
             <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
@@ -73,13 +83,14 @@
 
     <div class="flex flex-1 overflow-hidden">
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
-            <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
-                <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
-                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
-                </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card border border-red-900/10">
-                    <canvas id="canvas3d"></canvas>
+            
+            <div class="flex flex-col md:flex-row gap-4 h-64 md:h-80 flex-shrink-0">
+                <div id="main-visual" class="flex-1 glass-card relative overflow-hidden border border-red-900/20">
+                    <spline-viewer id="bot-sphere" url="ai_assistant_hover_and_click_interaction.spline"></spline-viewer>
+                    <div class="absolute bottom-4 left-4 flex items-center gap-2 bg-black/40 p-2 rounded-md">
+                        <div id="status-led" class="w-2 h-2 bg-red-900 rounded-full transition-all"></div>
+                        <span id="status-text" class="text-[8px] font-bold text-white/30 uppercase tracking-widest">Standby</span>
+                    </div>
                 </div>
             </div>
 
@@ -102,73 +113,52 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
-        const canvas = document.getElementById('canvas3d');
+        const botSphere = document.getElementById('bot-sphere');
+        const statusLed = document.getElementById('status-led');
+        const statusText = document.getElementById('status-text');
         
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let splineObj = null;
+        let lastWikiUrl = null, lastWikiTitle = null;
 
-        // --- INICIALIZAÇÃO DA ORB (SPLINE) ---
-        const spline = new window.SplineApp(canvas);
-        // Substitua pela URL do seu arquivo .splinecode exportado
-        spline.load('SEU_ARQUIVO_AQUI.splinecode').then(() => {
-            splineObj = spline.findObjectByName('Group 3'); // Nome do grupo da Orb na sua print
-            console.log("UNTBOT: Orb Neural Ativada");
-        });
-
-        // --- FUNÇÃO PARA FAZER A ORB PULSAR COM ÁUDIO ---
-        function pulseOrbWithAudio(audioElement) {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const analyser = audioCtx.createAnalyser();
-            const source = audioCtx.createMediaElementSource(audioElement);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 256;
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-            function update() {
-                if (!audioElement.paused) {
-                    analyser.getByteFrequencyData(dataArray);
-                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-                    if (splineObj) {
-                        const scale = 0.84 + (average / 250); // 0.84 é sua escala base da print
-                        splineObj.scale.x = scale;
-                        splineObj.scale.y = scale;
-                        splineObj.scale.z = scale;
-                    }
-                    requestAnimationFrame(update);
-                } else {
-                    // Retorna ao tamanho normal quando para de falar
-                    if (splineObj) {
-                        splineObj.scale.x = 0.84;
-                        splineObj.scale.y = 0.84;
-                        splineObj.scale.z = 0.84;
-                    }
-                }
-            }
-            update();
-        }
-
-        // --- FUNÇÕES DE APOIO ---
+        // Wikipedia e PDF
         async function buscarWikipedia(query) {
             try {
                 let termo = query.replace(/[?.,!]/g, '').trim();
-                const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`;
-                const res = await fetch(url);
-                return res.ok ? (await res.json()).extract : "";
+                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    lastWikiUrl = data.content_urls?.desktop?.page;
+                    lastWikiTitle = data.title;
+                    return data.extract || "";
+                }
+                return "";
             } catch (e) { return ""; }
         }
+
+        function exportarParaPDF(texto) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFillColor(227, 6, 19); doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(16);
+            doc.text("UNINTA - RELATÓRIO NEURAL", 15, 16);
+            doc.setTextColor(50, 50, 50); doc.setFontSize(10);
+            const lines = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
+            doc.text(lines, 15, 45);
+            doc.save(`relatorio_${currentUserId}.pdf`);
+        }
+
+        async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
 
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
             const row = document.createElement('div');
             row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
-            const avatar = document.createElement('div');
-            avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
             const bubble = document.createElement('div');
             bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
-            row.appendChild(avatar); row.appendChild(bubble);
-            display.appendChild(row); display.scrollTop = display.scrollHeight;
+            row.innerHTML = `<div class="avatar-circle">${isBot ? '🤖' : '👤'}</div>`;
+            row.appendChild(bubble);
+            display.appendChild(row);
+            display.scrollTop = display.scrollHeight;
             return bubble;
         }
 
@@ -182,7 +172,6 @@
             });
         }
 
-        // --- SISTEMA DE ENVIO ---
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -191,7 +180,7 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} REGISTRADO NO SISTEMA UNINTA.`);
+                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} REGISTRADO.`);
                 input.value = ""; return;
             }
 
@@ -204,44 +193,60 @@
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        prompt: txt, 
-                        systemContext: `Responda como UNTBOT, assistente do Matheus na UNINTA. Wiki: ${wikiContexto}` 
-                    })
+                    body: JSON.stringify({ prompt: txt, systemContext: `UNTBOT na UNINTA. Wiki: ${wikiContexto}` })
                 });
                 
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
-
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                // VOZ E PULSAÇÃO DA ORB
+                if (lastWikiTitle) {
+                    const selo = document.createElement('div');
+                    selo.className = "verification-tag";
+                    selo.innerHTML = `🔍 <strong>FONTE:</strong> <a href="${lastWikiUrl}" target="_blank">${lastWikiTitle}</a>`;
+                    botBubble.appendChild(selo);
+                }
+
+                // Voz e Sincronia com Spline
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
                     if (vRes.data?.[0]) {
                         const audio = new Audio(vRes.data[0].url);
-                        audio.crossOrigin = "anonymous"; // Necessário para o AudioContext
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        
-                        audio.play();
-                        pulseOrbWithAudio(audio); // CONECTA A VOZ À BOLA
-
-                        audio.onended = () => { 
-                            voiceAnim.classList.remove("playing"); 
-                            voiceAnim.style.opacity = "0"; 
+                        audio.onplay = () => {
+                            voiceAnim.style.opacity = "1";
+                            voiceAnim.classList.add("playing");
+                            botSphere.classList.add("speaking-spline");
+                            statusLed.style.backgroundColor = "#22c55e";
+                            statusText.innerText = "Transmitindo...";
+                            statusText.style.color = "#22c55e";
                         };
+                        audio.onended = () => {
+                            voiceAnim.classList.remove("playing");
+                            voiceAnim.style.opacity = "0";
+                            botSphere.classList.remove("speaking-spline");
+                            statusLed.style.backgroundColor = "#450a0a";
+                            statusText.innerText = "Standby";
+                            statusText.style.color = "rgba(255,255,255,0.3)";
+                        };
+                        audio.play();
                     }
-                } catch (vErr) { console.error("Voz falhou:", vErr); }
+                } catch (vErr) {}
 
-            } catch (e) { addMessageToUI('bot', ">> FALHA NA SINAPSE NEURAL."); }
+                const bPdf = document.createElement('button');
+                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF";
+                bPdf.onclick = () => exportarParaPDF(resp);
+                botBubble.appendChild(bPdf);
+                await salvarNoRedis(currentUserId, `U: ${txt} | B: ${resp}`);
+
+            } catch (e) { addMessageToUI('bot', ">> FALHA DE CONEXÃO."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
-        window.onload = () => { if(currentUserId) userTag.innerText = currentUserId.toUpperCase(); };
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+        window.onload = () => { if(currentUserId) userTag.innerText = currentUserId.toUpperCase(); };
     </script>
 </body>
 </html>
