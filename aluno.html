@@ -28,30 +28,24 @@
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
+        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); position: relative; }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
+        .wiki-tag { display: block; margin-top: 10px; padding: 8px; background: rgba(227, 6, 19, 0.1); border: 1px dashed var(--primary); font-size: 10px; color: #fff; border-radius: 4px; }
+        .wiki-link { color: #ff4d4d; font-weight: bold; text-decoration: underline; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
-        
-        /* ESTILO DA LEGENDA WIKIPEDIA */
-        .wiki-tag { display: block; margin-top: 10px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-left: 2px solid #e30613; font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .wiki-tag a { color: #e30613; font-weight: bold; text-decoration: none; }
-        .wiki-tag a:hover { text-decoration: underline; }
-
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .btn-pdf { 
-            display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
+            display: inline-block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.2); 
             border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase;
         }
-        .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
-
-        #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
-        .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
-        .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
-        @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
+        .btn-pdf:hover { background: #e30613; }
+        #voice-anim { display: flex; align-items: center; gap: 3px; height: 15px; opacity: 0; }
+        .v-bar { width: 2px; height: 100%; background: var(--primary); animation: pulse 0.5s infinite alternate; }
+        @keyframes pulse { from { height: 4px; } to { height: 15px; } }
     </style>
 </head>
 <body class="scanline">
@@ -61,12 +55,7 @@
             <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
             <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
         </div>
-        <div id="voice-anim">
-            <div class="v-bar" style="animation-delay: 0s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-            <div class="v-bar" style="animation-delay: 0.2s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-        </div>
+        <div id="voice-anim"><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div></div>
         <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
             <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
             <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
@@ -103,98 +92,77 @@
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastImgUrl = null;
-        let lastWikiData = { title: null, url: null };
 
-        // API WIKIPEDIA
-        async function fetchWikipedia(query) {
+        // WIKIPEDIA CORE
+        async function fetchWiki(query) {
             try {
-                const term = query.trim().split(' ').slice(0, 3).join('_'); // Pega os primeiros termos
+                // Filtra o termo para buscar apenas substantivos próprios ou termos técnicos
+                const term = query.split(' ').filter(w => w.length > 3).slice(-2).join(' ');
                 const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    lastWikiData = { title: data.title, url: data.content_urls.desktop.page };
-                    return data.extract;
-                }
-                return "";
-            } catch (e) { return ""; }
-        }
-
-        async function gerarImagemIA(prompt) {
-            try {
-                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
-                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
-                return result.data[0].url;
+                const data = await res.json();
+                return data.type === 'standard' ? { content: data.extract, url: data.content_urls.desktop.page, title: data.title } : null;
             } catch (e) { return null; }
         }
 
-        function exportarParaPDF(texto, imgUrl = null) {
+        // VOZ GRADIO
+        async function falar(texto) {
+            try {
+                voiceAnim.style.opacity = "1";
+                const client = await window.GradioClient.connect("Ttheus/uninta-voice");
+                const result = await client.predict("/sintetizar", { text: texto });
+                if (result.data) {
+                    const audio = new Audio(result.data[0].url);
+                    audio.play();
+                    audio.onended = () => voiceAnim.style.opacity = "0";
+                }
+            } catch (e) { voiceAnim.style.opacity = "0"; }
+        }
+
+        function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const larguraUtil = 180;
-            let y = 45; 
-
-            doc.setFillColor(227, 6, 19);
-            doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setFontSize(8);
-            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
-
-            if(imgUrl) {
-                try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
-            }
-
-            const linhasBrutas = texto.split('\n');
-            linhasBrutas.forEach(linha => {
-                let textoLimpo = linha.replace(/[*#]/g, '').trim();
-                if (!textoLimpo) return;
-                if (y > 270) { doc.addPage(); y = 30; }
-                doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                const splitText = doc.splitTextToSize(textoLimpo, 170);
-                doc.text(splitText, 15, y); y += (splitText.length * 6) + 2;
-            });
-
-            doc.save(`sinapse_${currentUserId}.pdf`);
+            doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 297, 'F');
+            doc.setTextColor(227, 6, 19); doc.setFontSize(16); doc.text("UNINTA NEURAL REPORT", 15, 20);
+            doc.setTextColor(255, 255, 255); doc.setFontSize(10);
+            const lines = doc.splitTextToSize(texto, 180);
+            doc.text(lines, 15, 40);
+            doc.save(`untbot_${currentUserId}.pdf`);
         }
 
         async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
-        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
+        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/5?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
 
-        function addMessageToUI(role, text) {
+        function addMessageToUI(role, text, wiki = null) {
             const isBot = role === 'bot';
             const row = document.createElement('div');
             row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
-            const avatar = document.createElement('div');
-            avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
             const bubble = document.createElement('div');
             bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
-            row.appendChild(avatar); row.appendChild(bubble);
-            display.appendChild(row); display.scrollTop = display.scrollHeight;
-            return bubble;
-        }
-
-        function typeWriter(elemento, texto) {
-            return new Promise(resolve => {
-                let i = 0; elemento.classList.add('typing');
+            row.innerHTML = `<div class="avatar-circle">${isBot ? '🤖' : '👤'}</div>`;
+            row.appendChild(bubble);
+            display.appendChild(row);
+            
+            if (isBot) {
+                let i = 0; bubble.classList.add('typing');
                 const interval = setInterval(() => {
-                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
-                    else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
+                    if (i < text.length) { bubble.innerHTML += text.charAt(i); i++; display.scrollTop = display.scrollHeight; }
+                    else { 
+                        clearInterval(interval); bubble.classList.remove('typing');
+                        if(wiki) {
+                            const wTag = document.createElement('div');
+                            wTag.className = "wiki-tag";
+                            wTag.innerHTML = `📚 <b>Wiki Ref:</b> ${wiki.title}<br><a href="${wiki.url}" target="_blank" class="wiki-link">Ver na Wikipedia →</a>`;
+                            bubble.appendChild(wTag);
+                        }
+                        const btn = document.createElement('button');
+                        btn.className = "btn-pdf"; btn.innerText = "Exportar PDF";
+                        btn.onclick = () => exportarParaPDF(text);
+                        bubble.appendChild(btn);
+                    }
                 }, 15);
-            });
+            } else { bubble.innerText = text; }
+            display.scrollTop = display.scrollHeight;
         }
-
-        window.onload = async () => {
-            const welcome = addMessageToUI('bot', "");
-            if(currentUserId) {
-                userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: CONEXÃO ESTABELECIDA. BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
-            } else {
-                await typeWriter(welcome, `>> [SISTEMA]: IDENTIFIQUE-SE PARA ACESSAR O LAB NEURAL.`);
-            }
-        };
 
         async function enviar() {
             const txt = input.value.trim();
@@ -204,91 +172,65 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
+                addMessageToUI('bot', `SISTEMA RECONHECIDO. BEM-VINDO AO LAB, ${currentUserId.toUpperCase()}.`);
                 input.value = ""; return;
             }
 
             addMessageToUI('user', txt);
-            bar.style.width = "85%";
+            bar.style.width = "100%";
             input.value = ""; input.disabled = true;
-            lastImgUrl = null;
-            lastWikiData = { title: null, url: null };
+
+            const wikiData = await fetchWiki(txt);
+            const historico = await buscarDoRedis(currentUserId);
+            
+            const context = `
+            Persona: UNTBOT V5, lab assistant de Tianguá.
+            Histórico: ${historico.join(' | ')}
+            Wikipedia Context: ${wikiData ? wikiData.content : 'N/A'}
+            Instrução: Responda de forma técnica e curta.
+            `;
 
             try {
-                // BUSCA CONTEXTO NA WIKIPEDIA
-                const wikiContext = await fetchWikipedia(txt);
-                const historico = await buscarDoRedis(currentUserId);
-                const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
-                
-                const contextoPersonalidade = `
-                # UNTBOT NEURAL V5 - UNINTA
-                Contexto: ${momento} em Tianguá.
-                Conhecimento Extra (Wiki): ${wikiContext}
-                Histórico: ${historico.join(' | ')}
-                Instrução: Responda de forma curta. Se houver conhecimento wiki, use-o para ser preciso.
-                `;
-
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidade })
+                    body: JSON.stringify({ prompt: txt, systemContext: context })
                 });
-                
                 const data = await res.json();
                 const resp = data.choices[0].message.content;
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
-
-                const botBubble = addMessageToUI('bot', "");
-                await typeWriter(botBubble, resp);
-
-                // ADICIONAR LEGENDA WIKI SE EXISTIR
-                if(lastWikiData.title) {
-                    const wikiEl = document.createElement('div');
-                    wikiEl.className = "wiki-tag";
-                    wikiEl.innerHTML = `📚 Ref. Acadêmica: <a href="${lastWikiData.url}" target="_blank">Wikipedia - ${lastWikiData.title}</a>`;
-                    botBubble.appendChild(wikiEl);
-                }
-
-                // VOZ E BOTÕES
-                try {
-                    const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp });
-                    if (vRes.data && vRes.data[0]) {
-                        const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
-                    }
-                } catch (vErr) {}
-
-                const btnGroup = document.createElement('div');
-                btnGroup.className = "flex flex-wrap gap-2";
-                const bImg = document.createElement('button'); bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
-                bImg.onclick = async () => { bImg.innerText = "⌛..."; lastImgUrl = await gerarImagemIA(txt); bImg.innerText = "✅ PRONTA"; };
-                const bPdf = document.createElement('button'); bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
-                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
-                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
-                botBubble.appendChild(btnGroup);
-
-            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
+                
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Bot: ${resp}`);
+                addMessageToUI('bot', resp, wikiData);
+                falar(resp);
+            } catch (e) { addMessageToUI('bot', "ERRO CRÍTICO NA CONEXÃO NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // 3D BRAIN
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.3 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
         animate();
+
+        window.onload = () => { 
+            if(currentUserId) {
+                userTag.innerText = currentUserId.toUpperCase();
+                addMessageToUI('bot', `CONEXÃO ESTABELECIDA. AGUARDANDO COMANDOS, ${currentUserId.toUpperCase()}.`);
+            } else {
+                addMessageToUI('bot', "SISTEMA UNINTA ONLINE. POR FAVOR, INJETE SEU ID DE ACESSO.");
+            }
+        };
     </script>
 </body>
 </html>
