@@ -91,61 +91,54 @@
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
 
-        // NOVA FUNÇÃO: BUSCA NA WIKIPEDIA
+        // Filtro: Só busca artigos se a frase for técnica ou longa
+        const termosChave = ["psicologia", "neuro", "tdah", "tea", "uninta", "saude", "clinica", "estudo", "artigo", "cerebro"];
+        const ehBuscaValida = (t) => termosChave.some(p => t.toLowerCase().includes(p)) || t.split(' ').length > 3;
+
         async function buscarWikipedia(termo) {
+            if (!ehBuscaValida(termo)) return "";
             try {
                 const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
                 const data = await res.json();
-                return data.extract ? `\n\n[WIKIPEDIA]: ${data.extract}` : "";
+                if(!data.extract) return "";
+                return `<div style="border: 1px solid #555; padding: 10px; border-radius: 8px; margin-top: 10px; background: rgba(255,255,255,0.05)">
+                    <b style="color: #ccc; font-size: 10px;">🌐 WIKIPEDIA</b><br><small style="font-size: 11px; color: #bbb">${data.extract}</small>
+                </div>`;
             } catch (e) { return ""; }
         }
 
-        // NOVA FUNÇÃO: BUSCA ARTIGOS BRASILEIROS (SCIELO/CROSSREF)
         async function buscarArtigosBr(tema) {
+            if (!ehBuscaValida(tema)) return "";
             try {
                 const url = `https://api.crossref.org/works?query=${encodeURIComponent(tema)}&filter=prefix:10.1590&rows=2`;
                 const res = await fetch(url);
                 const data = await res.json();
                 if(data.message.items.length > 0) {
-                    let ref = "\n\n[ARTIGOS CIENTÍFICOS BR]:";
+                    let html = `<div style="border: 1px solid #e30613; padding: 10px; border-radius: 8px; margin-top: 10px; background: rgba(227,6,19,0.05)">
+                        <b style="color: #e30613; font-size: 10px;">📚 SCIELO BRASIL</b>`;
                     data.message.items.forEach(item => {
-                        ref += `\n- ${item.title[0]} (${item.URL})`;
+                        html += `<br><a href="${item.URL}" target="_blank" style="color: #ff4d4d; font-size: 10px; text-decoration: underline">🔗 ${item.title[0].substring(0, 75)}...</a>`;
                     });
-                    return ref;
+                    return html + `</div>`;
                 }
                 return "";
             } catch (e) { return ""; }
         }
 
-        function exportarParaPDF(texto) {
+        function exportarParaPDF(htmlContent) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const larguraUtil = 180;
-            let y = 35;
-
-            doc.setFillColor(227, 6, 19);
-            doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(14);
-            doc.text("UNINTA - RELATÓRIO TÉCNICO NEURAL", 15, 16);
-
-            const linhas = texto.split('\n');
-            linhas.forEach(linha => {
-                if (y > 275) { doc.addPage(); y = 20; }
-                doc.setTextColor(50, 50, 50);
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
-                const splitText = doc.splitTextToSize(linha.replace(/[*#]/g, ''), larguraUtil);
-                doc.text(splitText, 15, y);
-                y += (splitText.length * 6);
-            });
-
-            doc.save(`sinapse_${currentUserId}.pdf`);
+            const textoLimpo = htmlContent.replace(/<[^>]*>/g, '');
+            doc.setFillColor(227, 6, 19); doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255); doc.text("UNINTA - RELATÓRIO NEURAL", 15, 16);
+            doc.setTextColor(40, 40, 40); doc.setFontSize(10);
+            const linhas = doc.splitTextToSize(textoLimpo, 180);
+            doc.text(linhas, 15, 35);
+            doc.save(`relatorio_${currentUserId}.pdf`);
         }
 
-        async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
-        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
+        async function salvarNoRedis(u, m) { await fetch(`${REDIS_URL}/lpush/${u}/${encodeURIComponent(m)}?_token=${REDIS_TOKEN}`); }
+        async function buscarDoRedis(u) { try { const res = await fetch(`${REDIS_URL}/lrange/${u}/0/5?_token=${REDIS_TOKEN}`); const d = await res.json(); return d.result || []; } catch(e) { return []; } }
 
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
@@ -165,20 +158,26 @@
             let i = 0; elemento.classList.add('typing');
             return new Promise(resolve => {
                 const interval = setInterval(() => {
-                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
+                    if (i < texto.length) { 
+                        if (texto.charAt(i) === '<') {
+                            const fimTag = texto.indexOf('>', i);
+                            elemento.innerHTML += texto.substring(i, fimTag + 1);
+                            i = fimTag + 1;
+                        } else {
+                            elemento.innerHTML += texto.charAt(i); i++; 
+                        }
+                        display.scrollTop = display.scrollHeight; 
+                    }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
-                }, 15);
+                }, 5);
             });
         }
 
         window.onload = async () => {
-            const welcome = addMessageToUI('bot', "");
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: CONEXÃO RESTABELECIDA, ${currentUserId.toUpperCase()}. AGUARDANDO COMANDO TÉCNICO.`);
-            } else {
-                await typeWriter(welcome, `>> [SISTEMA]: INICIE O PROTOCOLO INFORMANDO SEU NOME.`);
-            }
+                await typeWriter(addMessageToUI('bot', ""), `>> [SISTEMA]: PRONTO, ${currentUserId.toUpperCase()}.`);
+            } else { await typeWriter(addMessageToUI('bot', ""), `>> [SISTEMA]: IDENTIFIQUE-SE.`); }
         };
 
         async function enviar() {
@@ -189,8 +188,7 @@
                 currentUserId = txt.toLowerCase();
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
-                const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO.`);
+                await typeWriter(addMessageToUI('bot', ""), `>> ID REGISTRADO.`);
                 input.value = ""; return;
             }
 
@@ -199,55 +197,49 @@
             input.value = ""; input.disabled = true;
 
             try {
-                // BUSCA EM TEMPO REAL
-                const [infoWiki, infoScielo] = await Promise.all([buscarWikipedia(txt), buscarArtigosBr(txt)]);
+                const [infoW, infoS] = await Promise.all([buscarWikipedia(txt), buscarArtigosBr(txt)]);
+                const hist = await buscarDoRedis(currentUserId);
                 
-                const historico = await buscarDoRedis(currentUserId);
-                const contextoPersonalidade = `
-                IDENTIDADE: UNTBOT NEURAL V5.
-                INSTITUIÇÃO: UNINTA Tianguá. Coordenador Prof. Davi. Criador Matheus.
-                COMPORTAMENTO: Direto, acadêmico, focado em Psicologia e Neurociência.
-                DADOS EM TEMPO REAL: ${infoWiki} ${infoScielo}
-                HISTÓRICO: ${historico.join(' | ')}
-                `;
-
                 const res = await fetch("/api/analisar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidade })
+                    body: JSON.stringify({ 
+                        prompt: txt, 
+                        systemContext: `Você é Untbot V5, assistente do Matheus e Prof Davi na UNINTA. Contexto: ${infoW} ${infoS}.`
+                    })
                 });
                 
                 const data = await res.json();
-                const resp = data.choices[0].message.content + infoWiki + infoScielo;
-                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
-
+                const respostaIA = data.choices[0].message.content;
                 const botBubble = addMessageToUI('bot', "");
-                await typeWriter(botBubble, resp);
+                
+                await typeWriter(botBubble, respostaIA + infoW + infoS);
 
-                // VOZ (MANTIDA)
+                // VOZ: Fala apenas o texto da IA (sem tags HTML)
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp.substring(0, 200) });
-                    if (vRes.data && vRes.data[0]) {
-                        const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
-                    }
-                } catch (vErr) {}
+                    vClient.predict("/sintetizar", { text: respostaIA.substring(0, 250) }).then(vRes => {
+                        if (vRes.data?.[0]) {
+                            const audio = new Audio(vRes.data[0].url);
+                            voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
+                            audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
+                        }
+                    });
+                } catch (v) {}
 
                 const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Gerar Relatório PDF";
-                bPdf.onclick = () => exportarParaPDF(resp);
+                bPdf.className = "btn-pdf"; bPdf.innerText = "PDF";
+                bPdf.onclick = () => exportarParaPDF(botBubble.innerHTML);
                 botBubble.appendChild(bPdf);
 
-            } catch (e) { addMessageToUI('bot', ">> FALHA NO PROCESSAMENTO NEURAL."); }
+            } catch (e) { addMessageToUI('bot', ">> ERRO."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // THREE.JS BRAIN (MANTIDO)
+        // THREE.JS BRAIN
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
