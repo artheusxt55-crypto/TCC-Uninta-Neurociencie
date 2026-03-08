@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -87,6 +88,7 @@
             </div>
         </main>
     </div>
+
     <script type="module">
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
@@ -101,7 +103,7 @@
         let currentUserId = localStorage.getItem('untbot_last_id');
         let lastWikiUrl = null, lastWikiTitle = null, lastScieloUrl = null;
 
-        // --- MOTOR 3D ---
+        // --- MOTOR 3D CORRIGIDO ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -115,7 +117,12 @@
         });
         const brain = new THREE.Mesh(brainGeo, brainMat);
         scene.add(brain);
-        scene.add(new THREE.PointLight(0xffffff, 1, 100).clone().set(10,10,10));
+
+        // Luz corrigida sem erro de encadeamento
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+
         camera.position.z = 4.5;
 
         function animate() {
@@ -187,7 +194,7 @@
                         i++; display.scrollTop = display.scrollHeight; 
                     } else { 
                         clearInterval(interval); elemento.classList.remove('typing'); 
-                        MathJax.typeset(); resolve(); 
+                        if(window.MathJax) MathJax.typeset(); resolve(); 
                     }
                 }, 10);
             });
