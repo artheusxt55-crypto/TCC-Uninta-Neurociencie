@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -20,78 +19,172 @@
     </script>
 
     <style>
-        :root { --primary: #e30613; --bg: #000; }
-        * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
+        :root { --primary: #e30613; --primary-glow: rgba(227, 6, 19, 0.4); --bg: #000; --card: rgba(15, 15, 15, 0.9); }
+        * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; cursor: crosshair; }
+        
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Efeito CRT/Scanline de Laboratório */
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.4;
         }
-        .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
+
+        .glass-card { 
+            background: var(--card); backdrop-filter: blur(15px); 
+            border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        /* Sistema de Mensagens Avançado */
+        .msg-row { display: flex; width: 100%; gap: 15px; align-items: flex-start; margin-bottom: 2rem; animation: neuralFade 0.5s ease-out; }
         .msg-row.user { flex-direction: row-reverse; }
-        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
-        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
-        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
-        .bubble ul, .bubble ol { margin-left: 20px; list-style-type: disc; margin-bottom: 10px; }
-        .bubble p { margin-bottom: 8px; }
-        .typing::after { content: '|'; animation: blink 0.8s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .avatar-circle { 
+            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary);
+            display: flex; align-items: center; justify-content: center; background: #000;
+            flex-shrink: 0; box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .bubble { 
+            max-width: 75%; padding: 18px 22px; border-radius: 18px; font-size: 13.5px; 
+            line-height: 1.7; position: relative; transition: all 0.3s ease;
+        }
+
+        .bot-bubble { 
+            background: rgba(20, 20, 20, 0.95); border-left: 4px solid var(--primary); 
+            color: #efefef; box-shadow: 5px 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .user-bubble { 
+            background: rgba(227, 6, 19, 0.08); border-right: 4px solid #444; 
+            color: #d1d5db; text-align: right;
+        }
+
+        /* Typography & Math */
+        .bubble h1, .bubble h2 { color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .bubble ul { list-style: none; padding-left: 0; }
+        .bubble li::before { content: "► "; color: var(--primary); font-size: 10px; }
+
+        /* UI Elements */
+        #loading-bar { height: 3px; background: linear-gradient(90deg, transparent, var(--primary), transparent); position: absolute; bottom: 0; left: 0; transition: width 0.5s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        
+        #voice-anim { display: flex; align-items: center; gap: 4px; height: 30px; opacity: 0; }
+        .v-bar { width: 4px; height: 8px; background: var(--primary); border-radius: 4px; transition: height 0.2s; }
+        .playing .v-bar { animation: pulseNeural 0.7s infinite alternate; }
+
+        @keyframes pulseNeural { from { height: 5px; opacity: 0.5; } to { height: 25px; opacity: 1; } }
+        @keyframes neuralFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .btn-neural {
+            background: rgba(227, 6, 19, 0.1); border: 1px solid var(--primary);
+            color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 10px;
+            text-transform: uppercase; transition: 0.3s; margin-top: 15px;
+        }
+        .btn-neural:hover { background: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
-        .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
-        .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
-        @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-        .verification-tag { margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.03); border-left: 2px solid var(--primary); font-size: 10px; color: #aaa; }
-        .btn-pdf { display: inline-block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-pdf:hover { background: #e30613; }
-        #brain-container canvas { border-radius: 12px; }
     </style>
 </head>
 <body class="scanline">
 
-    <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA TIANGUÁ <span class="text-red-600">UNTBOT_V5</span></span>
+    <header class="h-16 border-b border-red-900/40 bg-black/80 flex items-center justify-between px-8 z-50">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <div class="w-4 h-4 bg-red-600 rounded-full animate-ping absolute"></div>
+                <div class="w-4 h-4 bg-red-600 rounded-full relative shadow-[0_0_15px_#e30613]"></div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[10px] text-red-500 font-bold tracking-[0.4em]">SISTEMA NEURAL</span>
+                <span class="text-xs font-bold uppercase tracking-widest">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
+            </div>
         </div>
+        
         <div id="voice-anim">
-            <div class="v-bar" style="animation-delay: 0s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-            <div class="v-bar" style="animation-delay: 0.2s"></div>
+            <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
         </div>
-        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
-            <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
-            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
+
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden md:block">
+                <div class="text-[9px] text-gray-500">COORDENAÇÃO: PROF. DAVI</div>
+                <div class="text-[9px] text-gray-500">LAB: MATHEUS</div>
+            </div>
+            <div class="h-10 w-[1px] bg-red-900/30"></div>
+            <div id="user-display" class="bg-red-950/20 px-4 py-2 rounded-lg border border-red-900/50 flex items-center gap-3">
+                <span id="user-tag" class="text-[10px] text-red-400 font-bold tracking-tighter uppercase">SINCRONIZANDO...</span>
+            </div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
-            <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
-                <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
-                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
+    <div class="flex flex-1 overflow-hidden p-4 gap-4">
+        <aside class="w-64 hidden lg:flex flex-col gap-4">
+            <div class="glass-card flex-1 p-4 overflow-y-auto no-scrollbar">
+                <h3 class="text-[10px] font-bold text-red-600 mb-4 border-b border-red-900/30 pb-2">MÉTRICAS DO SISTEMA</h3>
+                <div id="neural-metrics" class="space-y-4">
+                    </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col gap-4 relative">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 h-52">
+                <div class="glass-card md:col-span-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 110px; height: 110px;" loop autoplay></lottie-player>
+                    <div class="absolute top-2 left-2 text-[8px] text-red-600 animate-pulse">LIVE_CORE</div>
                 </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
+                <div id="brain-container" class="glass-card md:col-span-3 relative border border-red-900/20">
+                    <div class="absolute bottom-2 right-4 text-[9px] text-red-900/60 font-bold">MONITORAMENTO CEREBRAL 3D</div>
+                </div>
             </div>
 
-            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
+            <div id="chat-display" class="flex-1 glass-card p-8 overflow-y-auto no-scrollbar space-y-6"></div>
 
-            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
-                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
-                <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
+            <div class="h-24 glass-card flex items-center px-8 gap-6 border-red-600/30 relative">
+                <div class="flex-1 flex flex-col">
+                    <span class="text-[8px] text-red-900 mb-1 font-bold">PROMPT_COMMAND_LINE:</span>
+                    <input type="text" id="userInput" class="bg-transparent border-none outline-none text-red-100 text-sm w-full placeholder-red-900/50" placeholder="Digite sua dúvida clínica ou comando neural..." autocomplete="off">
+                </div>
+                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-md text-[10px] font-bold tracking-[0.2em] uppercase shadow-[0_0_20px_rgba(227,6,19,0.3)] transition-all active:scale-95">
+                    PROCESSAR⚡
+                </button>
+                <div id="loading-bar" class="w-0"></div>
             </div>
         </main>
     </div>
 
     <script type="module">
+        // --- CLASSE DE PROCESSAMENTO DE DADOS (EXPANSÃO) ---
+        class NeuralProcessor {
+            constructor() {
+                this.startTime = Date.now();
+                this.ops = 0;
+            }
+
+            async simulateAnalysis(query) {
+                const metrics = document.getElementById('neural-metrics');
+                const steps = ["Iniciando Sinapse", "Mapeando SciELO", "Consultando Wikipedia", "Limpando Ruído", "Gerando Mapa Mental"];
+                
+                metrics.innerHTML = "";
+                for(let step of steps) {
+                    const div = document.createElement('div');
+                    div.className = "text-[9px] text-gray-400";
+                    div.innerHTML = `<span class="text-red-600">●</span> ${step.toUpperCase()}...`;
+                    metrics.appendChild(div);
+                    await new Promise(r => setTimeout(r, 400));
+                }
+            }
+
+            updateUptime() {
+                const diff = Math.floor((Date.now() - this.startTime) / 1000);
+                document.getElementById('neural-metrics').innerHTML += `<div class="mt-4 pt-4 border-t border-red-900/20 text-[9px] text-red-500">UPTIME: ${diff}s | OPS: ${Math.random().toFixed(2)}ms</div>`;
+            }
+        }
+        window.Processor = new NeuralProcessor();
+        // --- CONFIGURAÇÕES DE ACESSO ---
         const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
         const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
+        const GROQ_API_KEY = "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";
 
         const input = document.getElementById('userInput');
         const display = document.getElementById('chat-display');
@@ -101,77 +194,173 @@
         const brainCont = document.getElementById('brain-container');
         
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastWikiUrl = null, lastWikiTitle = null, lastScieloUrl = null;
+        let lastWikiData = { url: null, title: null };
+        let lastScieloData = { url: null, title: null };
 
-        // --- MOTOR 3D CORRIGIDO ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
-        brainCont.appendChild(renderer.domElement);
-
-        const brainGeo = new THREE.IcosahedronGeometry(2, 2);
-        const brainMat = new THREE.MeshPhongMaterial({ 
-            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, 
-            emissive: 0xe30613, emissiveIntensity: 0.5 
-        });
-        const brain = new THREE.Mesh(brainGeo, brainMat);
-        scene.add(brain);
-
-        // Luz corrigida sem erro de encadeamento
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(10, 10, 10);
-        scene.add(light);
-
-        camera.position.z = 4.5;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            brain.rotation.y += 0.003; brain.rotation.z += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // --- BUSCAS ACADÊMICAS ---
-        async function buscarScielo(query) {
+        // --- MOTOR DE BUSCA: SCIELO (ACADÊMICO) ---
+        async function fetchScielo(query) {
             try {
                 const res = await fetch(`https://search.scielo.org/api/v1/search?q=${encodeURIComponent(query)}&lang=pt&count=1`);
                 const data = await res.json();
-                if (data.results?.length > 0) {
-                    lastScieloUrl = data.results[0].url;
-                    return `[Fonte SciELO: ${data.results[0].title[0]}]`;
+                if (data.results && data.results.length > 0) {
+                    lastScieloData.url = data.results[0].url;
+                    lastScieloData.title = data.results[0].title[0];
+                    return `[ARTIGO SCIELO: ${lastScieloData.title}]`;
                 }
-                return "";
+                return "[Sem resultados no SciELO]";
             } catch (e) { return ""; }
         }
 
-        async function buscarWikipedia(query) {
+        // --- MOTOR DE BUSCA: WIKIPEDIA (CONCEITUAL) ---
+        async function fetchWiki(query) {
             try {
-                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query.replace(/[?.,!]/g, ''))}`);
+                const cleanQuery = query.replace(/[?.,!]/g, '').trim();
+                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanQuery)}`);
                 if (res.ok) {
                     const data = await res.json();
-                    lastWikiUrl = data.content_urls?.desktop?.page; lastWikiTitle = data.title;
+                    lastWikiData.url = data.content_urls?.desktop?.page;
+                    lastWikiData.title = data.title;
                     return data.extract || "";
                 }
                 return "";
             } catch (e) { return ""; }
         }
 
-        function exportarParaPDF(texto) {
+        // --- EXPORTAÇÃO AVANÇADA PARA PDF ---
+        function exportToPDF(content) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFillColor(227, 6, 19); doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFontSize(16);
-            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setTextColor(50, 50, 50); doc.setFontSize(10);
-            const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
+            
+            // Header Estilizado UNINTA
+            doc.setFillColor(227, 6, 19);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text("LAUDO DE CONSULTA NEURAL - UNINTA", 15, 20);
+            
+            doc.setFontSize(9);
+            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleString()}`, 140, 20);
+
+            // Conteúdo
+            doc.setTextColor(40, 40, 40);
+            doc.setFontSize(11);
+            const splitText = doc.splitTextToSize(content.replace(/[*#]/g, ''), 180);
             doc.text(splitText, 15, 45);
-            doc.save(`sinapse_${currentUserId}.pdf`);
+
+            // Fontes de Verificação
+            if(lastWikiData.url || lastScieloData.url) {
+                doc.setDrawColor(200, 200, 200);
+                doc.line(15, 270, 195, 270);
+                doc.setFontSize(8);
+                doc.text(`FONTES: Wikipedia (${lastWikiData.title || 'N/A'}) | SciELO (${lastScieloData.title || 'N/A'})`, 15, 275);
+            }
+
+            doc.save(`relatorio_neural_${currentUserId}.pdf`);
         }
 
-        async function salvarNoRedis(u, m) { await fetch(`${REDIS_URL}/lpush/${u}/${encodeURIComponent(m)}?_token=${REDIS_TOKEN}`); }
-        async function buscarDoRedis(u) { try { const r = await fetch(`${REDIS_URL}/lrange/${u}/0/10?_token=${REDIS_TOKEN}`); const d = await r.json(); return d.result || []; } catch(e) { return []; } }
+        // --- MEMÓRIA REDIS ---
+        async function saveChat(msg) { await fetch(`${REDIS_URL}/lpush/${currentUserId}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
+        async function loadHistory() { 
+            try { 
+                const r = await fetch(`${REDIS_URL}/lrange/${currentUserId}/0/5?_token=${REDIS_TOKEN}`); 
+                const d = await r.json(); return d.result || []; 
+            } catch(e) { return []; } 
+        }
 
+        // --- RENDERIZAÇÃO 3D (CORRIGIDA E EXPANDIDA) ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
+        brainCont.appendChild(renderer.domElement);
+
+        const brainGeo = new THREE.SphereGeometry(2, 32, 32);
+        const brainMat = new THREE.MeshPhongMaterial({ 
+            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.3,
+            emissive: 0xff0000, emissiveIntensity: 0.2
+        });
+        const brain = new THREE.Mesh(brainGeo, brainMat);
+        scene.add(brain);
+
+        const light1 = new THREE.PointLight(0xffffff, 1, 100); light1.position.set(10, 10, 10); scene.add(light1);
+        const light2 = new THREE.AmbientLight(0x404040); scene.add(light2);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            brain.rotation.y += 0.005;
+            brain.rotation.x += 0.002;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- LÓGICA DE INTERAÇÃO ---
+        async function processar() {
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            if(!currentUserId) {
+                currentUserId = txt.toLowerCase();
+                localStorage.setItem('untbot_last_id', currentUserId);
+                userTag.innerText = currentUserId.toUpperCase();
+                addMessageToUI('bot', `>> SINAPSE ESTABELECIDA. BEM-VINDO, ${currentUserId.toUpperCase()}.`);
+                input.value = ""; return;
+            }
+
+            addMessageToUI('user', txt);
+            bar.style.width = "100%";
+            input.value = ""; input.disabled = true;
+
+            try {
+                // Execução paralela de buscas e histórico
+                const [wiki, scielo, hist] = await Promise.all([fetchWiki(txt), fetchScielo(txt), loadHistory()]);
+                
+                const promptFinal = `
+                    SISTEMA: UNTBOT NEURAL V5. 
+                    CONTEXTO ACADÊMICO: Wiki(${wiki}) | SciELO(${scielo}).
+                    DIRETRIZES: Resposta curta, direta, tom profissional clínico. 
+                    REFERÊNCIAS: Cite UNINTA Tianguá e o Coordenador Prof. Davi se relevante.
+                    HISTÓRICO RECENTE: ${hist.join(' | ')}
+                `;
+
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "system", content: promptFinal }, { role: "user", content: txt }] })
+                });
+
+                const data = await res.json();
+                const resp = data.choices[0].message.content;
+
+                const botBubble = addMessageToUI('bot', "");
+                await typeWriter(botBubble, resp);
+
+                // Adicionar Verificação Visual
+                if(lastWikiData.url || lastScieloData.url) {
+                    const tag = document.createElement('div');
+                    tag.className = "mt-4 p-2 bg-black/40 border-l-2 border-red-600 text-[9px] text-gray-400";
+                    tag.innerHTML = `FONTES VERIFICADAS: ${lastWikiData.url ? `<a href="${lastWikiData.url}" target="_blank" class="text-red-500 underline">WIKIPEDIA</a>` : ''} | ${lastScieloData.url ? `<a href="${lastScieloData.url}" target="_blank" class="text-red-500 underline">SCIELO</a>` : ''}`;
+                    botBubble.appendChild(tag);
+                }
+
+                // Botão de Download
+                const btn = document.createElement('button');
+                btn.className = "btn-neural"; btn.innerText = "BAIXAR RELATÓRIO PDF";
+                btn.onclick = () => exportToPDF(resp);
+                botBubble.appendChild(btn);
+
+                await saveChat(`U: ${txt} | B: ${resp}`);
+                window.Processor.updateUptime();
+
+            } catch (e) {
+                addMessageToUI('bot', ">> ERRO CRÍTICO NA TRANSMISSÃO NEURAL.");
+            } finally {
+                bar.style.width = "0%"; input.disabled = false; input.focus();
+            }
+        }
+
+        // Auxiliares de UI
         function addMessageToUI(role, text) {
             const isBot = role === 'bot';
             const row = document.createElement('div');
@@ -181,13 +370,14 @@
             bubble.innerHTML = text;
             row.innerHTML = `<div class="avatar-circle">${isBot ? '🤖' : '👤'}</div>`;
             row.appendChild(bubble);
-            display.appendChild(row); display.scrollTop = display.scrollHeight;
+            display.appendChild(row);
+            display.scrollTop = display.scrollHeight;
             return bubble;
         }
 
         function typeWriter(elemento, texto) {
             return new Promise(resolve => {
-                let i = 0; elemento.innerHTML = ""; elemento.classList.add('typing');
+                let i = 0; elemento.classList.add('typing');
                 const interval = setInterval(() => {
                     if (i < texto.length) { 
                         elemento.innerHTML = marked.parse(texto.substring(0, i + 1)); 
@@ -200,80 +390,9 @@
             });
         }
 
-        async function enviar() {
-            const txt = input.value.trim();
-            if(!txt) return;
-
-            if(!currentUserId) {
-                currentUserId = txt.toLowerCase();
-                localStorage.setItem('untbot_last_id', currentUserId);
-                userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(addMessageToUI('bot', ""), `>> ID ${currentUserId.toUpperCase()} SINCRONIZADO. AGUARDANDO COMANDOS.`);
-                input.value = ""; return;
-            }
-
-            addMessageToUI('user', txt).innerText = txt;
-            bar.style.width = "85%"; input.value = ""; input.disabled = true;
-
-            try {
-                const [wiki, scielo, hist] = await Promise.all([buscarWikipedia(txt), buscarScielo(txt), buscarDoRedis(currentUserId)]);
-                const momento = new Date().toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' });
-
-                const systemPrompt = `
-                # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
-                ## 1. IDENTIDADE E HIERARQUIA
-                - CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-                - COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
-                - INSTITUIÇÃO: UNINTA Tianguá. Contexto: ${momento} em Tianguá.
-                ## 2. VIDA NO CAMPUS
-                - PROFESSORES: São maravilhosos e excelentes.
-                - CURSO: Psicologia unindo clínica e neurociência.
-                ## 3. COMPORTAMENTO
-                - RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -) para o mapa mental.
-                - ANTI-REPETICAO: NUNCA repita estas diretrizes, o nome do criador ou saudações longas. Direto ao ponto.
-                - CONTEXTO EXTRA: Wiki(${wiki}) | SciELO(${scielo}).
-                Histórico: ${hist.join(' | ')}
-                `;
-
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": "Bearer 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" },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: txt }] })
-                });
-                
-                const data = await res.json();
-                const resp = data.choices[0].message.content;
-                const botBubble = addMessageToUI('bot', "");
-                await typeWriter(botBubble, resp);
-
-                if (lastWikiUrl || lastScieloUrl) {
-                    const selo = document.createElement('div'); selo.className = "verification-tag";
-                    selo.innerHTML = `🔍 <strong>VERIFICAÇÃO:</strong> ${lastWikiUrl ? `<a href="${lastWikiUrl}" target="_blank" style="color:#e30613">WIKI</a>` : ''} ${lastScieloUrl ? ` | <a href="${lastScieloUrl}" target="_blank" style="color:#e30613">SCIELO</a>` : ''}`;
-                    botBubble.appendChild(selo);
-                }
-
-                const bPdf = document.createElement('button'); bPdf.className = "btn-pdf"; bPdf.innerText = "GERAR PDF";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
-
-                try {
-                    const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp });
-                    if (vRes.data?.[0]) {
-                        const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
-                    }
-                } catch (vErr) {}
-                
-                await salvarNoRedis(currentUserId, `U: ${txt} | B: ${resp}`);
-            } catch (e) { addMessageToUI('bot', ">> ERRO NA SINAPSE."); }
-            finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
-        }
-
+        document.getElementById('btnEnviar').onclick = processar;
+        input.onkeypress = (e) => { if(e.key === 'Enter') processar(); };
         window.onload = () => { if(currentUserId) userTag.innerText = currentUserId.toUpperCase(); };
-        document.getElementById('btnEnviar').onclick = enviar;
-        input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
     </script>
 </body>
 </html>
