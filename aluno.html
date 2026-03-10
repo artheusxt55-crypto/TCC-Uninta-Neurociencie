@@ -9,164 +9,278 @@
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
         window.GradioClient = Client; 
     </script>
+
     <style>
         :root { --primary: #e30613; --bg: #000; }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        .scanline::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
+        }
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .msg-row { display: flex; gap: 12px; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out; }
+        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
-        .bubble { max-width: 80%; padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
-        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); }
-        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
+        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
+        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
+        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
+        .typing::after { content: '|'; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-pdf { 
+            display: inline-block; margin-top: 12px; margin-right: 8px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
+            border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
+        #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
+        .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
+        .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
+        @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
     </style>
 </head>
-<body>
+<body class="scanline">
 
-<header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
-    <div class="flex items-center gap-3">
-        <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-        <span class="text-xs font-bold uppercase tracking-widest">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
-    </div>
-    <div class="flex items-center gap-3">
-        <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase">AGUARDANDO_ID</span>
-    </div>
-</header>
-
-<main class="flex-1 flex flex-col p-4 md:p-6 gap-4 overflow-hidden">
-    <div class="flex flex-col md:flex-row gap-4 h-40 md:h-52 flex-shrink-0">
-        <div class="w-full md:w-48 glass-card flex flex-col items-center justify-center p-4">
-            <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 80px; height: 80px;" loop autoplay></lottie-player>
-            <div class="text-[8px] font-bold text-red-600 uppercase mt-2">Neural Active</div>
+    <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
+            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
         </div>
-        <div id="brain-container" class="flex-1 glass-card relative overflow-hidden"></div>
+        <div id="voice-anim">
+            <div class="v-bar" style="animation-delay: 0s"></div>
+            <div class="v-bar" style="animation-delay: 0.1s"></div>
+            <div class="v-bar" style="animation-delay: 0.2s"></div>
+            <div class="v-bar" style="animation-delay: 0.1s"></div>
+        </div>
+        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
+            <div class="w-6 h-6 rounded-full bg-red-900 flex items-center justify-center text-[10px]">👤</div>
+            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
+                <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
+                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
+                </div>
+                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
+            </div>
+
+            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
+
+            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
+                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
+                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
+                <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
+            </div>
+        </main>
     </div>
 
-    <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
+    <script type="module">
+        const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
+        const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
 
-    <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20">
-        <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
-        <button id="btnEnviar" class="bg-red-600 text-white px-6 py-2 rounded text-[10px] font-bold uppercase">Scanner⚡</button>
-    </div>
-</main>
+        const input = document.getElementById('userInput');
+        const display = document.getElementById('chat-display');
+        const userTag = document.getElementById('user-tag');
+        const bar = document.getElementById('loading-bar');
+        const voiceAnim = document.getElementById('voice-anim');
+        let currentUserId = localStorage.getItem('untbot_last_id');
+        let lastImgUrl = null;
+        let DIRETRIZES_MESTRE = ""; // Variável global para armazenar o cérebro vindo do Redis
 
-<script>
-    const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
-    const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
-    
-    let DIRETRIZES_SUPREMAS = ""; 
-    let audioCtx, analyser, dataArray, source, isSpeaking = false;
-    let currentUserId = localStorage.getItem('untbot_last_id');
-
-    const input = document.getElementById('userInput');
-    const display = document.getElementById('chat-display');
-    const userTag = document.getElementById('user-tag');
-
-    // --- MOTOR 3D REATIVO ---
-    const brainCont = document.getElementById('brain-container');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth / brainCont.clientHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
-    brainCont.appendChild(renderer.domElement);
-    const orbe = new THREE.Mesh(new THREE.SphereGeometry(2, 64, 64), new THREE.MeshPhongMaterial({ color: 0xe30613, emissive: 0x440000, shininess: 100 }));
-    scene.add(orbe);
-    const light = new THREE.PointLight(0xffffff, 1.2, 100); light.position.set(5, 5, 5); scene.add(light);
-    camera.position.z = 5;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        if (isSpeaking && dataArray) {
-            analyser.getByteFrequencyData(dataArray);
-            let vol = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            let s = 1 + (vol / 60);
-            orbe.scale.set(s, s, s);
-        } else {
-            let s = 1 + Math.sin(Date.now() * 0.002) * 0.05;
-            orbe.scale.set(s, s, s);
+        // --- FUNÇÕES MANTIDAS IGUAIS ---
+        async function gerarImagemIA(prompt) {
+            try {
+                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
+                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
+                return result.data[0].url;
+            } catch (e) { return null; }
         }
-        orbe.rotation.y += 0.005;
-        renderer.render(scene, camera);
-    }
-    animate();
 
-    // --- LOGICA DE DADOS ---
-    async function buscarWikipedia(termo) {
-        try {
-            const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
-            const data = await res.json();
-            return data.extract ? `\n[WIKIPEDIA]: ${data.extract}` : "";
-        } catch (e) { return ""; }
-    }
+        async function buscarWikipedia(termo) {
+            try {
+                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
+                const data = await res.json();
+                return data.extract ? `\n[FONTE WIKIPEDIA]: ${data.extract}` : "";
+            } catch (e) { return ""; }
+        }
 
-    window.onload = async () => {
-        const res = await fetch(`${REDIS_URL}/get/DIRETRIZES_MESTRE?_token=${REDIS_TOKEN}`);
-        const data = await res.json();
-        DIRETRIZES_SUPREMAS = data.result || "";
-        if(currentUserId) userTag.innerText = currentUserId.toUpperCase();
-    };
+        function exportarParaPDF(texto, imgUrl = null) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const larguraUtil = 180;
+            let y = 45; 
 
-    async function enviar() {
-        const txt = input.value.trim();
-        if(!txt) return;
-        if(!currentUserId) { currentUserId = txt.toLowerCase(); localStorage.setItem('untbot_last_id', currentUserId); userTag.innerText = currentUserId.toUpperCase(); input.value=""; return; }
+            doc.setFillColor(227, 6, 19);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
+            doc.setFontSize(8); doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
-        addMsg('user', txt);
-        input.value = "";
-        
-        const wiki = await buscarWikipedia(txt);
-        const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
-        const context = `${DIRETRIZES_SUPREMAS.replace('${momento}', momento)} ${wiki}`;
+            if(imgUrl) { try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){} }
 
-        const res = await fetch("/api/analisar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: txt, systemContext: context })
-        });
-        const d = await res.json();
-        const resp = d.choices[0].message.content;
-        
-        const bubble = addMsg('bot', resp);
-        falar(resp);
-    }
+            const linhasBrutas = texto.split('\n');
+            linhasBrutas.forEach(linha => {
+                let textoLimpo = linha.replace(/[*#]/g, '').trim();
+                if (!textoLimpo) return;
+                if ((linha.includes('**') && linha.endsWith(':**')) || linha.startsWith('#')) {
+                    if (y > 260) { doc.addPage(); y = 35; }
+                    y += 10; doc.setDrawColor(227, 6, 19); doc.roundedRect(13, y - 7, imgUrl ? 135 : larguraUtil, 10, 1, 1, 'D');
+                    doc.setTextColor(227, 6, 19); doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+                    doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y); y += 15;
+                } else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
+                    if (y > 275) { doc.addPage(); y = 35; }
+                    doc.setFillColor(227, 6, 19); doc.circle(25, y - 2, 0.7, 'F');
+                    doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), imgUrl && y < 80 ? 120 : larguraUtil - 20);
+                    doc.text(splitItem, 28, y); y += (splitItem.length * 7);
+                } else {
+                    if (y > 275) { doc.addPage(); y = 35; }
+                    doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic"); doc.setFontSize(10);
+                    const desc = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
+                    doc.text(desc, 15, y); y += (desc.length * 6);
+                }
+            });
+            doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+            doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
+            doc.save(`sinapse_${currentUserId}.pdf`);
+        }
 
-    function addMsg(role, text) {
-        const row = document.createElement('div');
-        row.className = `msg-row ${role === 'bot' ? 'bot' : 'user'}`;
-        const bubble = document.createElement('div');
-        bubble.className = `bubble ${role === 'bot' ? 'bot-bubble' : 'user-bubble'}`;
-        bubble.innerText = text;
-        row.appendChild(bubble);
-        display.appendChild(row);
-        display.scrollTop = display.scrollHeight;
-        return bubble;
-    }
+        async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
+        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
 
-    async function falar(t) {
-        try {
-            const client = await window.GradioClient.connect("Ttheus/uninta-voice");
-            const res = await client.predict("/sintetizar", { text: t.replace(/[+*-]/g, '') });
-            if (res.data[0]) {
-                if (!audioCtx) audioCtx = new AudioContext();
-                if (!analyser) { analyser = audioCtx.createAnalyser(); analyser.fftSize = 64; dataArray = new Uint8Array(analyser.frequencyBinCount); }
-                const audio = new Audio(res.data[0].url);
-                audio.crossOrigin = "anonymous";
-                source = audioCtx.createMediaElementSource(audio);
-                source.connect(analyser); analyser.connect(audioCtx.destination);
-                isSpeaking = true; audio.play();
-                audio.onended = () => isSpeaking = false;
+        function addMessageToUI(role, text) {
+            const isBot = role === 'bot';
+            const row = document.createElement('div'); row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
+            const avatar = document.createElement('div'); avatar.className = "avatar-circle";
+            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
+            const bubble = document.createElement('div'); bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
+            row.appendChild(avatar); row.appendChild(bubble);
+            display.appendChild(row); display.scrollTop = display.scrollHeight;
+            return bubble;
+        }
+
+        function typeWriter(elemento, texto) {
+            return new Promise(resolve => {
+                let i = 0; elemento.classList.add('typing');
+                const interval = setInterval(() => {
+                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
+                    else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
+                }, 20);
+            });
+        }
+
+        // --- ALTERAÇÃO: CARREGAR DIRETRIZES DO REDIS AO INICIAR ---
+        window.onload = async () => {
+            try {
+                const res = await fetch(`${REDIS_URL}/get/DIRETRIZES_MESTRE?_token=${REDIS_TOKEN}`);
+                const data = await res.json();
+                DIRETRIZES_MESTRE = data.result || ""; 
+            } catch(e) { console.error("Falha ao carregar diretrizes externas."); }
+
+            const welcome = addMessageToUI('bot', "");
+            const hora = new Date().getHours();
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            if(currentUserId) {
+                userTag.innerText = currentUserId.toUpperCase();
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+            } else {
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
             }
-        } catch(e) {}
-    }
+        };
 
-    document.getElementById('btnEnviar').onclick = enviar;
-    input.onkeypress = (e) => e.key === 'Enter' && enviar();
-</script>
+        // --- ALTERAÇÃO: ENVIAR USANDO DIRETRIZES DO REDIS E WIKIPEDIA ---
+        async function enviar() {
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            if(!currentUserId) {
+                currentUserId = txt.toLowerCase(); localStorage.setItem('untbot_last_id', currentUserId);
+                userTag.innerText = currentUserId.toUpperCase();
+                const b = addMessageToUI('bot', ""); await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO.`);
+                input.value = ""; return;
+            }
+
+            addMessageToUI('user', txt);
+            bar.style.width = "85%"; input.value = ""; input.disabled = true;
+
+            try {
+                const historico = await buscarDoRedis(currentUserId);
+                const infoWiki = await buscarWikipedia(txt); // Pesquisa na Wikipedia
+                const hora = new Date().getHours();
+                const momento = (hora >= 5 && hora < 12) ? "manhã" : (hora >= 12 && hora < 18) ? "tarde" : "noite";
+                
+                // Injeta o momento e a Wiki nas diretrizes que vieram do Redis
+                const contextoPersonalidadeFinal = `
+                    ${DIRETRIZES_MESTRE.replace('${momento}', momento)}
+                    ${infoWiki}
+                    Histórico Recente: ${historico.join(' | ')}
+                `;
+
+                const res = await fetch("/api/analisar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: txt, systemContext: contextoPersonalidadeFinal })
+                });
+                
+                const data = await res.json();
+                const resp = data.choices[0].message.content;
+                await salvarNoRedis(currentUserId, `Eu: ${txt} | Você: ${resp}`);
+
+                const botBubble = addMessageToUI('bot', "");
+                await typeWriter(botBubble, resp);
+
+                // VOZ E BOTÕES MANTIDOS
+                try {
+                    const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
+                    const vRes = await vClient.predict("/sintetizar", { text: resp });
+                    if (vRes.data && vRes.data[0]) {
+                        const audio = new Audio(vRes.data[0].url);
+                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
+                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
+                    }
+                } catch (vErr) {}
+
+                const btnGroup = document.createElement('div'); btnGroup.className = "flex flex-wrap gap-2";
+                const bImg = document.createElement('button'); bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
+                bImg.onclick = async () => { bImg.innerText = "⌛ PROCESSANDO..."; lastImgUrl = await gerarImagemIA(txt); bImg.innerText = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE"; };
+                const bPdf = document.createElement('button'); bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
+                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
+                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
+                botBubble.appendChild(btnGroup);
+
+            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
+            finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
+        }
+
+        document.getElementById('btnEnviar').onclick = enviar;
+        input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
+
+        // THREE.JS MANTIDO IGUAL
+        const brainCont = document.getElementById('brain-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
+        brainCont.appendChild(renderer.domElement);
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+        scene.add(brain);
+        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
+        camera.position.z = 4.5;
+        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+        animate();
+    </script>
 </body>
 </html>
