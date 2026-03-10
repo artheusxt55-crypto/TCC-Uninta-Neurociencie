@@ -95,11 +95,13 @@
         const userTag = document.getElementById('user-tag');
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
+        
         let currentUserId = localStorage.getItem('untbot_last_id');
         let lastImgUrl = null;
-        let DIRETRIZES_MESTRE = ""; // Variável global para armazenar o cérebro vindo do Redis
+        let DIRETRIZES_MESTRE = "";
+        window.isBotSpeaking = false; // Flag para sincronia do Orbe
 
-        // --- FUNÇÕES MANTIDAS IGUAIS ---
+        // --- FUNÇÕES DE APOIO ---
         async function gerarImagemIA(prompt) {
             try {
                 const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
@@ -140,21 +142,13 @@
                     y += 10; doc.setDrawColor(227, 6, 19); doc.roundedRect(13, y - 7, imgUrl ? 135 : larguraUtil, 10, 1, 1, 'D');
                     doc.setTextColor(227, 6, 19); doc.setFont("helvetica", "bold"); doc.setFontSize(11);
                     doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y); y += 15;
-                } else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
-                    if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setFillColor(227, 6, 19); doc.circle(25, y - 2, 0.7, 'F');
-                    doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), imgUrl && y < 80 ? 120 : larguraUtil - 20);
-                    doc.text(splitItem, 28, y); y += (splitItem.length * 7);
                 } else {
                     if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic"); doc.setFontSize(10);
+                    doc.setTextColor(80, 80, 80); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
                     const desc = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
-                    doc.text(desc, 15, y); y += (desc.length * 6);
+                    doc.text(desc, 15, y); y += (desc.length * 7);
                 }
             });
-            doc.setFontSize(8); doc.setTextColor(150, 150, 150);
-            doc.text(`Lab Assistant: Matheus | Coordenação: Prof. Davi | UNINTA Tianguá`, 15, 288);
             doc.save(`sinapse_${currentUserId}.pdf`);
         }
 
@@ -182,7 +176,6 @@
             });
         }
 
-        // --- ALTERAÇÃO: CARREGAR DIRETRIZES DO REDIS AO INICIAR ---
         window.onload = async () => {
             try {
                 const res = await fetch(`${REDIS_URL}/get/DIRETRIZES_MESTRE?_token=${REDIS_TOKEN}`);
@@ -192,16 +185,16 @@
 
             const welcome = addMessageToUI('bot', "");
             const hora = new Date().getHours();
-            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA! CAFÉ E NEUROCIÊNCIA NA SERRA?" : (hora >= 12 && hora < 18) ? "BOA TARDE! O LAB ESTÁ EM PLENO VAPOR." : "BOA NOITE! AINDA PROCESSANDO DADOS NO CLIMA DA IBIAPABA?";
+            let saudacao = (hora >= 5 && hora < 12) ? "BOM DIA!" : (hora >= 12 && hora < 18) ? "BOA TARDE!" : "BOA NOITE!";
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} BEM-VINDO DE VOLTA AO LAB, ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR, MACHO.`);
+                await typeWriter(welcome, `>> [SISTEMA]: ${saudacao} DIGA SEU NOME PARA INICIAR O PROTOCOLO.`);
             }
         };
 
-        // --- ALTERAÇÃO: ENVIAR USANDO DIRETRIZES DO REDIS E WIKIPEDIA ---
+        // --- FUNÇÃO ENVIAR (COM SINCRONIA DE VOZ E ORBE) ---
         async function enviar() {
             const txt = input.value.trim();
             if(!txt) return;
@@ -218,11 +211,9 @@
 
             try {
                 const historico = await buscarDoRedis(currentUserId);
-                const infoWiki = await buscarWikipedia(txt); // Pesquisa na Wikipedia
-                const hora = new Date().getHours();
-                const momento = (hora >= 5 && hora < 12) ? "manhã" : (hora >= 12 && hora < 18) ? "tarde" : "noite";
+                const infoWiki = await buscarWikipedia(txt);
+                const momento = new Date().getHours() < 12 ? "manhã" : new Date().getHours() < 18 ? "tarde" : "noite";
                 
-                // Injeta o momento e a Wiki nas diretrizes que vieram do Redis
                 const contextoPersonalidadeFinal = `
                     ${DIRETRIZES_MESTRE.replace('${momento}', momento)}
                     ${infoWiki}
@@ -242,18 +233,28 @@
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
-                // VOZ E BOTÕES MANTIDOS
+                // --- VOZ COM SINCRONIA ---
                 try {
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
                     const vRes = await vClient.predict("/sintetizar", { text: resp });
                     if (vRes.data && vRes.data[0]) {
                         const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
+                        audio.onplay = () => { 
+                            voiceAnim.style.opacity = "1"; 
+                            voiceAnim.classList.add("playing"); 
+                            window.isBotSpeaking = true; 
+                        };
+                        audio.onended = () => { 
+                            voiceAnim.classList.remove("playing"); 
+                            voiceAnim.style.opacity = "0"; 
+                            window.isBotSpeaking = false; 
+                        };
+                        audio.play();
                     }
                 } catch (vErr) {}
 
-                const btnGroup = document.createElement('div'); btnGroup.className = "flex flex-wrap gap-2";
+                // BOTÕES
+                const btnGroup = document.createElement('div'); btnGroup.className = "flex flex-wrap gap-2 mt-4";
                 const bImg = document.createElement('button'); bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
                 bImg.onclick = async () => { bImg.innerText = "⌛ PROCESSANDO..."; lastImgUrl = await gerarImagemIA(txt); bImg.innerText = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE"; };
                 const bPdf = document.createElement('button'); bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
@@ -261,25 +262,45 @@
                 btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
                 botBubble.appendChild(btnGroup);
 
-            } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
+            } catch (e) { addMessageToUI('bot', ">> ERRO NA CONEXÃO NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
         }
 
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
-        // THREE.JS MANTIDO IGUAL
+        // --- THREE.JS ORBE REATIVO ---
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, emissive: 0xe30613, emissiveIntensity: 0.5 }));
+
+        const brainMat = new THREE.MeshPhongMaterial({ 
+            color: 0xe30613, wireframe: true, transparent: true, opacity: 0.5, 
+            emissive: 0xe30613, emissiveIntensity: 0.5 
+        });
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 2), brainMat);
         scene.add(brain);
+
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4.5;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.003; renderer.render(scene, camera); }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (window.isBotSpeaking) {
+                brain.rotation.y += 0.05;
+                brain.rotation.x += 0.02;
+                brainMat.emissiveIntensity = 1.5 + Math.sin(Date.now() * 0.01);
+                brain.scale.set(1.1, 1.1, 1.1);
+            } else {
+                brain.rotation.y += 0.003;
+                brainMat.emissiveIntensity = 0.5;
+                brain.scale.set(1, 1, 1);
+            }
+            renderer.render(scene, camera);
+        }
         animate();
     </script>
 </body>
