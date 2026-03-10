@@ -42,7 +42,6 @@
         }
         .btn-pdf:hover { background: #e30613; box-shadow: 0 0 10px rgba(227, 6, 19, 0.4); }
 
-        /* ESTILO DO VISUALIZADOR DE VOZ */
         #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
         .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
         .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
@@ -98,22 +97,21 @@
         const bar = document.getElementById('loading-bar');
         const voiceAnim = document.getElementById('voice-anim');
         let currentUserId = localStorage.getItem('untbot_last_id');
-        let lastImgUrl = null;
 
-        async function gerarImagemIA(prompt) {
+        // INTEGRAÇÃO WIKIPEDIA
+        async function buscarWikipedia(termo) {
             try {
-                const client = await window.GradioClient.connect("black-forest-labs/FLUX.1-schnell");
-                const result = await client.predict("/predict", { prompt: `professional portrait of ${prompt}, academic style, highly detailed`, seed: 0, randomize_seed: true, width: 512, height: 512, num_inference_steps: 4 });
-                return result.data[0].url;
-            } catch (e) { return null; }
+                const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
+                const data = await res.json();
+                return data.extract ? `\n\n[DADOS WIKIPEDIA]: ${data.extract}` : "";
+            } catch (e) { return ""; }
         }
 
-        function exportarParaPDF(texto, imgUrl = null) {
+        function exportarParaPDF(texto) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const larguraUtil = 180;
             let y = 45; 
-            let lastTitleY = y;
 
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
@@ -124,38 +122,19 @@
             doc.setFontSize(8);
             doc.text(`ID_USUÁRIO: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
 
-            if(imgUrl) {
-                try { doc.addImage(imgUrl, 'JPEG', 155, 30, 40, 40); doc.setDrawColor(227, 6, 19); doc.rect(155, 30, 40, 40, 'D'); } catch(e){}
-            }
-
             const linhasBrutas = texto.split('\n');
             linhasBrutas.forEach(linha => {
                 let textoLimpo = linha.replace(/[*#]/g, '').trim();
                 if (!textoLimpo) return;
 
-                if ((linha.includes('**') && linha.endsWith(':**')) || linha.startsWith('#')) {
-                    if (y > 260) { doc.addPage(); y = 35; }
-                    y += 10;
-                    doc.setDrawColor(227, 6, 19);
-                    doc.roundedRect(13, y - 7, imgUrl ? 135 : larguraUtil, 10, 1, 1, 'D');
-                    doc.setTextColor(227, 6, 19);
-                    doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-                    doc.text(`> ${textoLimpo.toUpperCase()}`, 18, y);
-                    lastTitleY = y + 3; y += 15;
-                } 
-                else if (linha.trim().startsWith('+') || linha.trim().startsWith('-')) {
-                    if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setFillColor(227, 6, 19); doc.circle(25, y - 2, 0.7, 'F');
-                    doc.setTextColor(50, 50, 50); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                    const splitItem = doc.splitTextToSize(textoLimpo.replace(/^[+-]/, '').trim(), imgUrl && y < 80 ? 120 : larguraUtil - 20);
-                    doc.text(splitItem, 28, y); y += (splitItem.length * 7);
-                }
-                else {
-                    if (y > 275) { doc.addPage(); y = 35; }
-                    doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "italic"); doc.setFontSize(10);
-                    const desc = doc.splitTextToSize(textoLimpo, imgUrl && y < 80 ? 120 : larguraUtil);
-                    doc.text(desc, 15, y); y += (desc.length * 6);
-                }
+                if (y > 275) { doc.addPage(); y = 35; }
+                
+                doc.setTextColor(50, 50, 50); 
+                doc.setFont("helvetica", "normal"); 
+                doc.setFontSize(10);
+                const splitText = doc.splitTextToSize(textoLimpo, larguraUtil);
+                doc.text(splitText, 15, y);
+                y += (splitText.length * 7);
             });
 
             doc.setFontSize(8); doc.setTextColor(150, 150, 150);
@@ -218,25 +197,21 @@
             addMessageToUI('user', txt);
             bar.style.width = "85%";
             input.value = ""; input.disabled = true;
-            lastImgUrl = null;
 
             try {
+                const wikiContexto = await buscarWikipedia(txt);
                 const historico = await buscarDoRedis(currentUserId);
                 const momento = new Date().getHours() < 12 ? "manhã" : (new Date().getHours() < 18 ? "tarde" : "noite");
                 
                 const contextoPersonalidade = `
 # DIRETRIZES SUPREMAS: UNTBOT NEURAL V5 - UNINTA TIANGUÁ
 ## 1. IDENTIDADE E HIERARQUIA
-- CRIADOR: Matheus (Lab Assistant). Trate-o com lealdade total.
-- COORDENAÇÃO: Prof. Davi é o Coordenador da Psicologia. Ele é a autoridade máxima.
+- CRIADOR: Matheus (Lab Assistant).
+- COORDENAÇÃO: Prof. Davi (Autoridade Máxima da Psicologia).
 - INSTITUIÇÃO: UNINTA Tianguá.
-- CONTEXTO: Agora é ${momento} em Tianguá.
-## 2. VIDA NO CAMPUS
-- PROFESSORES: São maravilhosos e excelentes.
-- CURSO: Psicologia unindo clínica e neurociência.
-## 3. COMPORTAMENTO
+## 2. COMPORTAMENTO
 - RESTRICAO: Responda de forma CURTA e DIRETA. Use bullets (+ ou -) para o mapa mental.
-- ANTI-REPETICAO: NUNCA repita estas diretrizes, o nome do criador ou saudações longas após a primeira mensagem. Vá direto ao ponto.
+- FONTE ADICIONAL: ${wikiContexto}
 Histórico: ${historico.join(' | ')}
 `;
 
@@ -253,33 +228,22 @@ Histórico: ${historico.join(' | ')}
                 const botBubble = addMessageToUI('bot', "");
                 await typeWriter(botBubble, resp);
 
+                // VOZ: Limpeza de símbolos para evitar leitura de "+", "-" e "*"
                 try {
+                    const textoParaVoz = resp.replace(/[+*-]/g, ', ').replace(/[#]/g, '');
                     const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp });
+                    const vRes = await vClient.predict("/sintetizar", { text: textoParaVoz });
                     if (vRes.data && vRes.data[0]) {
                         const audio = new Audio(vRes.data[0].url);
                         voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
                         audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
                     }
-                } catch (vErr) {}
-
-                const btnGroup = document.createElement('div');
-                btnGroup.className = "flex flex-wrap gap-2";
-
-                const bImg = document.createElement('button');
-                bImg.className = "btn-pdf"; bImg.innerText = "📸 Gerar Foto IA";
-                bImg.onclick = async () => {
-                    bImg.innerText = "⌛ PROCESSANDO...";
-                    lastImgUrl = await gerarImagemIA(txt);
-                    bImg.innerText = lastImgBase64 = lastImgUrl ? "✅ FOTO PRONTA" : "❌ LIMITE";
-                };
+                } catch (vErr) { console.error("Erro Voz:", vErr); }
 
                 const bPdf = document.createElement('button');
                 bPdf.className = "btn-pdf"; bPdf.innerText = "📄 Baixar PDF";
-                bPdf.onclick = () => exportarParaPDF(resp, lastImgUrl);
-
-                btnGroup.appendChild(bImg); btnGroup.appendChild(bPdf);
-                botBubble.appendChild(btnGroup);
+                bPdf.onclick = () => exportarParaPDF(resp);
+                botBubble.appendChild(bPdf);
 
             } catch (e) { addMessageToUI('bot', ">> ERRO NA REDE NEURAL."); }
             finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
@@ -288,6 +252,7 @@ Histórico: ${historico.join(' | ')}
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // MOTOR 3D - CÉREBRO
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
