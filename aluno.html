@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/framer-motion@11/dist/framer-motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
@@ -35,7 +35,7 @@
         }
 
         .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
+        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; position: relative; z-index: 30; }
         .msg-row.user { flex-direction: row-reverse; }
         .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
@@ -43,9 +43,9 @@
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Orbe e Microfone */
-        #lovable-ui { position: absolute; inset: 0; pointer-events: none; z-index: 5; display: flex; align-items: center; justify-content: center; }
-        .mic-trigger { pointer-events: auto; cursor: pointer; position: relative; z-index: 10; transition: all 0.3s ease; }
+        /* Orbe e Microfone - Mantendo o centro livre */
+        #lovable-ui { position: absolute; inset: 0; pointer-events: none; z-index: 10; display: flex; align-items: center; justify-content: center; }
+        .mic-trigger { pointer-events: auto; cursor: pointer; position: relative; z-index: 50; transition: all 0.3s ease; }
     </style>
 </head>
 <body class="scanline">
@@ -66,7 +66,7 @@
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden z-20">
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
-            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative">
+            <div class="h-20 glass-card flex items-center px-6 gap-4 border-red-600/20 relative z-50">
                 <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Fale ou digite o comando..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
@@ -75,8 +75,8 @@
     </div>
 
     <script type="text/babel">
+        const motion = window.Motion.motion;
         const { useState, useEffect } = React;
-        const { motion, AnimatePresence } = window["framer-motion"];
 
         function NeuralVoiceInterface() {
             const [volume, setVolume] = useState(0);
@@ -97,11 +97,12 @@
             }, [isListening]);
 
             const startListening = () => {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    alert("Seu navegador não suporta reconhecimento de voz.");
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    alert("Navegador incompatível com voz.");
                     return;
                 }
-                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                const recognition = new SpeechRecognition();
                 recognition.lang = 'pt-BR';
                 recognition.onstart = () => setIsListening(true);
                 recognition.onend = () => setIsListening(false);
@@ -115,48 +116,41 @@
 
             return (
                 <div className="relative flex items-center justify-center">
-                    {/* Camada 1: Aura Profunda Lovable */}
                     <motion.div 
-                        className="absolute w-64 h-64 rounded-full"
-                        animate={{ 
-                            scale: [1, 1.2, 1],
-                            opacity: [0.1, 0.3, 0.1] 
-                        }}
+                        className="absolute w-72 h-72 rounded-full"
+                        animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
                         transition={{ duration: 4, repeat: Infinity }}
                         style={{
                             background: `radial-gradient(circle, #e30613 0%, transparent 70%)`,
-                            filter: 'blur(50px)',
+                            filter: 'blur(60px)',
                         }}
                     />
 
-                    {/* Camada 2: Brilho de Reação */}
                     <motion.div 
-                        className="absolute w-40 h-40 rounded-full"
+                        className="absolute w-44 h-44 rounded-full"
                         style={{
                             background: `#e30613`,
-                            filter: `blur(${20 + volume * 40}px)`,
-                            opacity: 0.2 + volume * 0.6
+                            filter: `blur(${30 + volume * 40}px)`,
+                            opacity: 0.2 + volume * 0.5
                         }}
                         animate={{ scale: isListening || window.isBotSpeaking ? 1.2 : 1 }}
                     />
                     
-                    {/* Camada 3: O Core / Microfone Profissional */}
-                    <div className="mic-trigger relative" onClick={startListening}>
+                    <div className="mic-trigger" onClick={startListening}>
                         <motion.div 
-                            className="w-24 h-24 rounded-full border border-red-500/50 flex items-center justify-center backdrop-blur-xl bg-black/40 shadow-2xl"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="w-24 h-24 rounded-full border border-red-500/40 flex items-center justify-center backdrop-blur-2xl bg-black/50 shadow-[0_0_30px_rgba(227,6,19,0.3)]"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
                         >
-                            <div className="text-white text-3xl drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                            <span className="text-white text-3xl drop-shadow-md">
                                 {isListening ? "●" : "🎤"}
-                            </div>
+                            </span>
                         </motion.div>
                         
-                        {/* Anel de Rotação Neural */}
                         <motion.div 
-                            className="absolute -inset-4 border border-red-600/20 rounded-full border-t-red-600"
+                            className="absolute -inset-3 border border-red-600/20 rounded-full border-t-red-600/60"
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                         />
                     </div>
                 </div>
@@ -188,7 +182,7 @@
             const row = document.createElement('div'); row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
             const bubble = document.createElement('div'); bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
             bubble.innerText = text;
-            row.innerHTML = `<div class="w-10 h-10 rounded-full border border-red-900 flex items-center justify-center bg-black">${isBot ? '🤖' : '👤'}</div>`;
+            row.innerHTML = `<div class="w-10 h-10 rounded-full border border-red-900 flex items-center justify-center bg-black text-xs">${isBot ? '🤖' : '👤'}</div>`;
             row.appendChild(bubble);
             display.appendChild(row); display.scrollTop = display.scrollHeight;
             return bubble;
