@@ -1,10 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Index from './pages/Index.tsx' // Mudamos de App para Index
+import { ChatInterface } from './components/ChatInterface'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Index /> 
-  </React.StrictMode>,
-)
+// O React vai procurar uma div com id="root" no seu index.html
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <ChatInterface />
+    </React.StrictMode>,
+  )
+}
