@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --neural-red: 0 85% 55%;
+    --neural-crimson: 348 83% 47%;
+    --neural-ember: 15 90% 50%;
+}
+
+body { font-family: 'Inter', sans-serif; }
+.font-mono { font-family: 'IBM Plex Mono', monospace; }
+
+.orb-container { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; }
+
+.main-orb {
+    position: absolute; width: 180px; height: 180px; border-radius: 50%;
+    background: conic-gradient(from 0deg, hsl(var(--neural-red)), hsl(var(--neural-ember)), hsl(var(--neural-crimson)), hsl(var(--neural-red)));
+    filter: blur(2px); animation: rotateOrb 15s linear infinite; z-index: 10;
+}
+
+.glow-outer {
+    position: absolute; width: 400px; height: 400px;
+    background: radial-gradient(circle, hsla(0, 85%, 55%, 0.12) 0%, transparent 70%);
+    filter: blur(60px); animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes rotateOrb { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes pulseGlow { 
+    0%, 100% { opacity: 0.3; transform: scale(1); } 
+    50% { opacity: 0.7; transform: scale(1.15); } 
+}
+
+.msg-ai { border-left: 1px solid hsla(0, 85%, 55%, 0.3); background: linear-gradient(to right, rgba(255,0,0,0.02), transparent); padding: 1.25rem; animation: fadeIn 0.4s ease; }
+.msg-user { background: #0f0f0f; border: 1px solid rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 1.2rem 1.2rem 0.2rem 1.2rem; animation: fadeIn 0.4s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.chat-scrollbar::-webkit-scrollbar { width: 4px; }
+.chat-scrollbar::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
