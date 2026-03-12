@@ -4,19 +4,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/aura/', // ISSO AQUI É A CHAVE! Diz que a Aura mora na pasta /aura/
   build: {
-    outDir: 'dist',
-    rollupOptions: {
-      input: {
-        // Renomeie a saída do chat aqui para não ser "index"
-        aura_chat: './index.html' 
-      },
-      output: {
-        // Isso vai gerar um arquivo chamado aura_chat.html no final
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`
-      }
-    }
+    outDir: '../public/aura', // Joga o resultado para uma pasta que a raiz enxerga
+    emptyOutDir: true,
   }
 })
