@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNTBOT - Aura Vox Neural</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="flex h-screen w-full bg-[#020202] text-white overflow-hidden">
+
+    <aside class="hidden lg:flex w-64 border-r border-white/5 flex-col bg-[#050505] p-4">
+        <button class="w-full border border-white/10 rounded-xl p-3 text-sm mb-6 hover:bg-white/5 transition font-medium text-gray-300">+ Nova Conversa</button>
+        <div class="text-[10px] text-gray-600 font-mono tracking-widest uppercase px-2 mb-4">Laboratório UNINTA</div>
+        <div class="text-xs text-gray-400 p-3 bg-white/5 rounded-lg border border-white/5 flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_red]"></div>
+            Neural AI Assistant
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative h-full">
+        <header class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020202]/50 backdrop-blur-md">
+            <h1 class="text-[10px] font-mono tracking-[0.4em] text-red-500/80 uppercase">Neural Interface // Lab Assistant</h1>
+            <div class="text-[10px] font-mono text-gray-600">STATUS: ONLINE</div>
+        </header>
+
+        <div id="chat-window" class="flex-1 overflow-y-auto chat-scrollbar p-6 scroll-smooth">
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center">
+                <div class="orb-container mb-12">
+                    <div class="glow-outer"></div>
+                    <div class="main-orb"></div>
+                </div>
+                <h2 class="text-2xl font-medium text-white/90 mb-2">Como posso ajudar?</h2>
+                <p class="text-[10px] font-mono text-gray-500 tracking-widest uppercase">Sistema de Neurovisualização Ativo</p>
+            </div>
+            <div id="messages" class="max-w-3xl mx-auto space-y-8 hidden py-8"></div>
+        </div>
+
+        <div class="p-6 bg-gradient-to-t from-[#020202] via-[#020202] to-transparent">
+            <div class="max-w-3xl mx-auto relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 flex items-end shadow-2xl focus-within:border-red-500/30 transition-all duration-500">
+                <button id="mic-btn" class="p-4 text-gray-500 hover:text-red-500 transition-colors">
+                    <i data-lucide="mic" class="w-5 h-5"></i>
+                </button>
+                <textarea id="user-input" rows="1" placeholder="Fale com a Aura..." class="flex-1 bg-transparent border-none outline-none text-sm p-4 resize-none placeholder:text-gray-700"></textarea>
+                <button id="send-btn" class="p-4 text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-[9px] text-center mt-4 text-gray-800 font-mono uppercase tracking-widest">Neural AI Model v3.1 // Powered by UNINTA Laboratory</p>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
