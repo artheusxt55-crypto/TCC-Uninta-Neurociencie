@@ -1,4 +1,4 @@
-import { ChatInterface } from "../components/ChatInterface"; // Adicionei as chaves
+import { ChatInterface } from "../components/ChatInterface.tsx";
 
 export default function Index() {
   return (
