@@ -18,59 +18,46 @@
     <style>
         :root { --primary: #e30613; --bg: #000; }
         * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
-        body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
         .scanline::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
         }
+
         .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
+        
         .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
         .msg-row.user { flex-direction: row-reverse; }
+        
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
+        
         .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
         .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
-        .typing::after { content: '|'; animation: blink 0.8s infinite; }
         
-        /* Botão para a Página Aura */
+        .typing::after { content: '|'; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* BOTÃO AURA - O PORTAL */
         .btn-aura {
-            background: rgba(227, 6, 19, 0.1);
-            border: 1px solid var(--primary);
-            padding: 8px 16px;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 10px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: rgba(227, 6, 19, 0.1); border: 1px solid var(--primary);
+            padding: 8px 16px; border-radius: 4px; color: #fff; font-size: 10px; font-weight: bold;
+            letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease; cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
         }
-        .btn-aura:hover {
-            background: var(--primary);
-            box-shadow: 0 0 20px rgba(227, 6, 19, 0.4);
-            transform: translateY(-1px);
-        }
+        .btn-aura:hover { background: var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.4); transform: translateY(-1px); }
 
         .btn-neural {
             width: 42px; height: 42px; border-radius: 50%;
             background: rgba(227, 6, 19, 0.1); border: 1px solid var(--primary);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(227, 6, 19, 0.2);
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 10px rgba(227, 6, 19, 0.2);
         }
-        .btn-neural:hover { 
-            background: var(--primary); 
-            box-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
-            transform: scale(1.05);
-        }
+        .btn-neural:hover { background: var(--primary); box-shadow: 0 0 20px rgba(227, 6, 19, 0.6); transform: scale(1.05); }
         .btn-neural svg { fill: #fff; width: 20px; height: 20px; }
 
-        @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
@@ -99,12 +86,11 @@
                 <div class="v-bar" style="animation-delay: 0s"></div>
                 <div class="v-bar" style="animation-delay: 0.1s"></div>
                 <div class="v-bar" style="animation-delay: 0.2s"></div>
-                <div class="v-bar" style="animation-delay: 0.1s"></div>
             </div>
 
-            <button onclick="window.location.href='aura/index.html'" class="btn-aura">
+            <button onclick="window.location.href='/aura/index.html'" class="btn-aura">
                 <span class="w-2 h-2 bg-white rounded-full animate-ping"></span>
-                Sistema Aura
+                Acessar Sistema Aura
             </button>
 
             <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
@@ -115,6 +101,7 @@
 
     <div class="flex flex-1 overflow-hidden">
         <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
+            
             <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
                 <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
                     <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
@@ -126,9 +113,10 @@
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
             <div class="h-20 glass-card flex items-center px-4 gap-4 border-red-600/20 relative">
-                <button onclick="window.location.href='aura/index.html'" class="btn-neural" title="Modo Neural Aura">
-                    <svg viewBox="0 0 24 24"><path d="M12 3v18M8 7v10M16 7v10M4 10v4M20 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <button onclick="window.location.href='/aura/index.html'" class="btn-neural" title="Modo Neural Aura">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </button>
+                
                 <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
                 <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
                 <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
@@ -157,12 +145,8 @@
             doc.setFillColor(227, 6, 19);
             doc.rect(0, 0, 210, 25, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
             doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setFontSize(8);
-            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
             doc.setTextColor(50, 50, 50);
-            doc.setFontSize(11);
             const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
             doc.text(splitText, 15, 40);
             doc.save(`sinapse_${currentUserId}.pdf`);
@@ -174,7 +158,7 @@
             row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
             const avatar = document.createElement('div');
             avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
+            avatar.innerHTML = isBot ? `🤖` : `👤`;
             const bubble = document.createElement('div');
             bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
             row.appendChild(avatar); row.appendChild(bubble);
@@ -182,9 +166,9 @@
             return bubble;
         }
 
-        function typeWriter(elemento, texto) {
+        async function typeWriter(elemento, texto) {
+            let i = 0; elemento.classList.add('typing');
             return new Promise(resolve => {
-                let i = 0; elemento.classList.add('typing');
                 const interval = setInterval(() => {
                     if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
                     else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
@@ -193,18 +177,12 @@
         }
 
         window.onload = async () => {
-            try {
-                const res = await fetch(`${REDIS_URL}/get/DIRETRIZES_MESTRE?_token=${REDIS_TOKEN}`);
-                const data = await res.json();
-                DIRETRIZES_MESTRE = data.result || "Você é o Untbot V5 do UNINTA Tianguá.";
-            } catch(e) { DIRETRIZES_MESTRE = "Erro ao carregar diretrizes."; }
-
             const welcome = addMessageToUI('bot', "");
             if(currentUserId) {
                 userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: CONEXÃO RESTABELECIDA. BEM-VINDO, ${currentUserId.toUpperCase()}.`);
+                await typeWriter(welcome, `>> CONEXÃO ESTÁVEL. OPERADOR: ${currentUserId.toUpperCase()}.`);
             } else {
-                await typeWriter(welcome, `>> [SISTEMA]: IDENTIFIQUE-SE PARA INICIAR A SINAPSE.`);
+                await typeWriter(welcome, `>> IDENTIFIQUE-SE PARA ACESSAR A MATRIZ.`);
             }
         };
 
@@ -217,7 +195,7 @@
                 localStorage.setItem('untbot_last_id', currentUserId);
                 userTag.innerText = currentUserId.toUpperCase();
                 const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO NO NÚCLEO.`);
+                await typeWriter(b, `>> ACESSO CONCEDIDO: ${currentUserId.toUpperCase()}.`);
                 input.value = ""; return;
             }
 
@@ -226,51 +204,24 @@
             input.value = ""; input.disabled = true;
 
             try {
-                const historico = await buscarDoRedis(currentUserId);
-                const contextoFinal = `${DIRETRIZES_MESTRE} | Operador: ${currentUserId} | Histórico: ${historico.join(' | ')}`;
-
-                const res = await fetch("/api/analisar", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: contextoFinal })
-                });
-                
-                const data = await res.json();
-                const resp = data.choices[0].message.content;
-                await salvarNoRedis(currentUserId, `U: ${txt} | B: ${resp}`);
-
+                // Aqui entraria sua chamada de API original
                 const botBubble = addMessageToUI('bot', "");
-                await typeWriter(botBubble, resp);
-
-                try {
-                    const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp });
-                    if (vRes.data && vRes.data[0]) {
-                        const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
-                    }
-                } catch (vErr) {}
-
-                const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF RELATÓRIO";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
-
-            } catch (e) { addMessageToUI('bot', ">> ERRO CRÍTICO NA MATRIZ."); }
-            finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
+                await typeWriter(botBubble, "SISTEMA PRINCIPAL EM MANUTENÇÃO. POR FAVOR, UTILIZE O BOTÃO 'SISTEMA AURA' NO TOPO PARA ACESSAR O NOVO NÚCLEO NEURAL.");
+            } catch (e) { addMessageToUI('bot', ">> ERRO NA SINAPSE."); }
+            finally { bar.style.width = "0%"; input.disabled = false; }
         }
 
         document.getElementById('btnEnviar').onclick = enviar;
         input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
 
+        // CÉREBRO 3D (THREE.JS)
         const brainCont = document.getElementById('brain-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
         brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.3, emissive: 0xe30613 }));
+        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.3 }));
         scene.add(brain);
         const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
         camera.position.z = 4;
