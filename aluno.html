@@ -33,7 +33,29 @@
         .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
         .typing::after { content: '|'; animation: blink 0.8s infinite; }
         
-        /* Botão Neural Estilo ChatGPT */
+        /* Botão para a Página Aura */
+        .btn-aura {
+            background: rgba(227, 6, 19, 0.1);
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-aura:hover {
+            background: var(--primary);
+            box-shadow: 0 0 20px rgba(227, 6, 19, 0.4);
+            transform: translateY(-1px);
+        }
+
         .btn-neural {
             width: 42px; height: 42px; border-radius: 50%;
             background: rgba(227, 6, 19, 0.1); border: 1px solid var(--primary);
@@ -71,14 +93,23 @@
             <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
             <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
         </div>
-        <div id="voice-anim">
-            <div class="v-bar" style="animation-delay: 0s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-            <div class="v-bar" style="animation-delay: 0.2s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-        </div>
-        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
-            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
+
+        <div class="flex items-center gap-6">
+            <div id="voice-anim">
+                <div class="v-bar" style="animation-delay: 0s"></div>
+                <div class="v-bar" style="animation-delay: 0.1s"></div>
+                <div class="v-bar" style="animation-delay: 0.2s"></div>
+                <div class="v-bar" style="animation-delay: 0.1s"></div>
+            </div>
+
+            <button onclick="window.location.href='aura/index.html'" class="btn-aura">
+                <span class="w-2 h-2 bg-white rounded-full animate-ping"></span>
+                Sistema Aura
+            </button>
+
+            <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
+                <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
+            </div>
         </div>
     </header>
 
@@ -95,7 +126,7 @@
             <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
 
             <div class="h-20 glass-card flex items-center px-4 gap-4 border-red-600/20 relative">
-                <button onclick="window.location.href='Voz.html'" class="btn-neural" title="Modo Neural Voz">
+                <button onclick="window.location.href='aura/index.html'" class="btn-neural" title="Modo Neural Aura">
                     <svg viewBox="0 0 24 24"><path d="M12 3v18M8 7v10M16 7v10M4 10v4M20 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
                 <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
