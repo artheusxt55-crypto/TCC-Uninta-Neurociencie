@@ -1,250 +1,286 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNTBOT NEURAL - UNINTA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script type="module">
-        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
-        window.GradioClient = Client; 
-    </script>
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Mic, MicOff, Plus, Menu, Loader2, Zap, FileText } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import NeuralOrb from "@/components/NeuralOrb";
+import { useAudioAnalyzer } from "@/hooks/useAudioAnalyzer";
+import ChatSidebar from "@/components/ChatSidebar";
+import { analisarComGroq, salvarNoRedis, buscarDoRedis, falarTexto } from "@/lib/aura-engine";
+import { jsPDF } from "jspdf";
 
-    <style>
-        :root { --primary: #e30613; --bg: #000; }
-        * { font-family: 'JetBrains Mono', monospace; box-sizing: border-box; }
-        body { background: var(--bg); color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-        .scanline::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.3;
-        }
-        .glass-card { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(227, 6, 19, 0.2); border-radius: 12px; }
-        .msg-row { display: flex; width: 100%; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out forwards; }
-        .msg-row.user { flex-direction: row-reverse; }
-        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(227, 6, 19, 0.3); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden; }
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05); }
-        .bot-bubble { background: rgba(22, 22, 22, 0.9); border-left: 3px solid var(--primary); color: #efefef; }
-        .user-bubble { background: rgba(227, 6, 19, 0.05); border-right: 3px solid #444; color: #d1d5db; }
-        .typing::after { content: '|'; animation: blink 0.8s infinite; }
-        
-        /* Botão Neural Estilo ChatGPT */
-        .btn-neural {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: rgba(227, 6, 19, 0.1); border: 1px solid var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(227, 6, 19, 0.2);
-        }
-        .btn-neural:hover { 
-            background: var(--primary); 
-            box-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
-            transform: scale(1.05);
-        }
-        .btn-neural svg { fill: #fff; width: 20px; height: 20px; }
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
 
-        @keyframes blink { 50% { opacity: 0; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .btn-pdf { 
-            display: inline-block; margin-top: 12px; padding: 6px 12px; background: rgba(227, 6, 19, 0.1); 
-            border: 1px solid #e30613; color: #fff; font-size: 9px; font-weight: bold; border-radius: 4px;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
-        }
+interface Conversation {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+}
 
-        #voice-anim { display: flex; align-items: center; gap: 3px; height: 20px; opacity: 0; transition: opacity 0.3s; }
-        .v-bar { width: 3px; height: 5px; background: var(--primary); border-radius: 5px; }
-        .playing .v-bar { animation: pulseVoz 0.6s infinite ease-in-out; }
-        @keyframes pulseVoz { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-    </style>
-</head>
-<body class="scanline">
-
-    <header class="h-16 border-b border-red-900/40 bg-black flex items-center justify-between px-6 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_#e30613]"></div>
-            <span class="text-xs font-bold tracking-[0.3em] uppercase">UNINTA <span class="text-red-600">UNTBOT_V5</span></span>
-        </div>
-        <div id="voice-anim">
-            <div class="v-bar" style="animation-delay: 0s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-            <div class="v-bar" style="animation-delay: 0.2s"></div>
-            <div class="v-bar" style="animation-delay: 0.1s"></div>
-        </div>
-        <div class="flex items-center gap-3 bg-red-950/20 px-3 py-1.5 rounded-full border border-red-900/50">
-            <span id="user-tag" class="text-[10px] text-red-400 font-bold uppercase tracking-tighter">AGUARDANDO_ID</span>
-        </div>
-    </header>
-
-    <div class="flex flex-1 overflow-hidden">
-        <main class="flex-1 flex flex-col p-4 md:p-6 gap-4 relative overflow-hidden">
-            <div class="flex flex-col md:flex-row gap-4 h-auto md:h-52 flex-shrink-0">
-                <div id="avatar-box" class="w-full md:w-48 h-40 md:h-full glass-card flex flex-col items-center justify-center p-4">
-                    <lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
-                    <div id="robot-state" class="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em] mt-3">Sincronizado</div>
-                </div>
-                <div id="brain-container" class="flex-1 h-32 md:h-full glass-card relative overflow-hidden border border-red-900/10"></div>
-            </div>
-
-            <div id="chat-display" class="flex-1 glass-card p-6 overflow-y-auto no-scrollbar space-y-4"></div>
-
-            <div class="h-20 glass-card flex items-center px-4 gap-4 border-red-600/20 relative">
-                <button onclick="window.location.href='Voz.html'" class="btn-neural" title="Modo Neural Voz">
-                    <svg viewBox="0 0 24 24"><path d="M12 3v18M8 7v10M16 7v10M4 10v4M20 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-                <input type="text" id="userInput" class="flex-1 bg-transparent border-none outline-none text-red-100 text-sm" placeholder="Injete o comando..." autocomplete="off">
-                <button id="btnEnviar" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-lg transition-all active:scale-95">Scanner⚡</button>
-                <div id="loading-bar" class="absolute bottom-0 left-0 h-[2px] bg-red-600 w-0 transition-all duration-700"></div>
-            </div>
-        </main>
+function TypingIndicator() {
+  return (
+    <div className="flex gap-1 items-center px-1 py-2">
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="w-2 h-2 rounded-full bg-primary/60"
+          animate={{ y: [0, -6, 0], opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
     </div>
+  );
+}
 
-    <script type="module">
-        const REDIS_URL = "https://enormous-raccoon-41416.upstash.io";
-        const REDIS_TOKEN = "AaHIAAIncDIwNjZhOGMxNmYzMDQ0Mjc0YjYwMTJiNjI1NDYyNDg4ZHAyNDE0MTY";
+export default function Index() {
+  const [conversations, setConversations] = useState<Conversation[]>([
+    { id: "1", title: "Nova conversa", messages: [], createdAt: new Date() },
+  ]);
+  const [activeConvId, setActiveConvId] = useState("1");
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showVoiceOrb, setShowVoiceOrb] = useState(false);
+  const [userId, setUserId] = useState<string>(""); // Estado para o ID do Untbot
 
-        const input = document.getElementById('userInput');
-        const display = document.getElementById('chat-display');
-        const userTag = document.getElementById('user-tag');
-        const bar = document.getElementById('loading-bar');
-        const voiceAnim = document.getElementById('voice-anim');
-        let currentUserId = localStorage.getItem('untbot_last_id');
-        let DIRETRIZES_MESTRE = "";
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const audioAnalyzer = useAudioAnalyzer();
 
-        async function salvarNoRedis(usuario, msg) { await fetch(`${REDIS_URL}/lpush/${usuario}/${encodeURIComponent(msg)}?_token=${REDIS_TOKEN}`); }
-        async function buscarDoRedis(usuario) { try { const res = await fetch(`${REDIS_URL}/lrange/${usuario}/0/10?_token=${REDIS_TOKEN}`); const data = await res.json(); return data.result || []; } catch(e) { return []; } }
+  // RECUPERAR IDENTIDADE DO LABORATÓRIO
+  useEffect(() => {
+    const savedId = localStorage.getItem('untbot_last_id');
+    if (savedId) setUserId(savedId);
+  }, []);
 
-        function exportarParaPDF(texto) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFillColor(227, 6, 19);
-            doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-            doc.setFontSize(8);
-            doc.text(`ID: ${currentUserId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 150, 16);
-            doc.setTextColor(50, 50, 50);
-            doc.setFontSize(11);
-            const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
-            doc.text(splitText, 15, 40);
-            doc.save(`sinapse_${currentUserId}.pdf`);
+  const activeConversation = conversations.find((c) => c.id === activeConvId) || conversations[0];
+  const messages = activeConversation.messages;
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
+    }
+  }, [input]);
+
+  // FUNÇÃO DE PDF (ESTILO V5 UNINTA)
+  const exportarParaPDF = (texto: string) => {
+    const doc = new jsPDF();
+    doc.setFillColor(227, 6, 19);
+    doc.rect(0, 0, 210, 25, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
+    doc.setFontSize(8);
+    doc.text(`ID OPERADOR: ${userId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 140, 16);
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(11);
+    const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
+    doc.text(splitText, 15, 40);
+    doc.save(`sinapse_${userId}_${Date.now()}.pdf`);
+  };
+
+  const addMessage = (role: "user" | "assistant", content: string) => {
+    const msg: Message = { id: Date.now().toString() + Math.random(), role, content, timestamp: new Date() };
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id !== activeConvId) return c;
+        const updated = { ...c, messages: [...c.messages, msg] };
+        if (role === "user" && c.messages.length === 0) {
+          updated.title = content.slice(0, 40) + (content.length > 40 ? "..." : "");
         }
+        return updated;
+      })
+    );
+  };
 
-        function addMessageToUI(role, text) {
-            const isBot = role === 'bot';
-            const row = document.createElement('div');
-            row.className = `msg-row ${isBot ? 'bot' : 'user'}`;
-            const avatar = document.createElement('div');
-            avatar.className = "avatar-circle";
-            avatar.innerHTML = isBot ? `<lottie-player src="Ai Robot Vector Art.json" background="transparent" speed="1" style="width: 45px; height: 45px;" loop autoplay></lottie-player>` : `👤`;
-            const bubble = document.createElement('div');
-            bubble.className = `bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`;
-            row.appendChild(avatar); row.appendChild(bubble);
-            display.appendChild(row); display.scrollTop = display.scrollHeight;
-            return bubble;
-        }
+  const handleSend = async () => {
+    if (!input.trim() || isTyping) return;
+    const userMsg = input.trim();
 
-        function typeWriter(elemento, texto) {
-            return new Promise(resolve => {
-                let i = 0; elemento.classList.add('typing');
-                const interval = setInterval(() => {
-                    if (i < texto.length) { elemento.innerHTML += texto.charAt(i); i++; display.scrollTop = display.scrollHeight; }
-                    else { clearInterval(interval); elemento.classList.remove('typing'); resolve(); }
-                }, 15);
-            });
-        }
+    // LÓGICA DE IDENTIFICAÇÃO (Login do Lab)
+    if (!userId) {
+      const newId = userMsg.toLowerCase();
+      setUserId(newId);
+      localStorage.setItem('untbot_last_id', newId);
+      setInput("");
+      return;
+    }
 
-        window.onload = async () => {
-            try {
-                const res = await fetch(`${REDIS_URL}/get/DIRETRIZES_MESTRE?_token=${REDIS_TOKEN}`);
-                const data = await res.json();
-                DIRETRIZES_MESTRE = data.result || "Você é o Untbot V5 do UNINTA Tianguá.";
-            } catch(e) { DIRETRIZES_MESTRE = "Erro ao carregar diretrizes."; }
+    addMessage("user", userMsg);
+    setInput("");
+    setIsTyping(true);
 
-            const welcome = addMessageToUI('bot', "");
-            if(currentUserId) {
-                userTag.innerText = currentUserId.toUpperCase();
-                await typeWriter(welcome, `>> [SISTEMA]: CONEXÃO RESTABELECIDA. BEM-VINDO, ${currentUserId.toUpperCase()}.`);
-            } else {
-                await typeWriter(welcome, `>> [SISTEMA]: IDENTIFIQUE-SE PARA INICIAR A SINAPSE.`);
-            }
-        };
+    try {
+      const historico = await buscarDoRedis(userId);
+      const contexto = `Você é a Aura AI do Lab Neuro-UNINTA. Mestre: Matheus. Operador: ${userId}. Responda de forma técnica e futurista. Histórico: ${historico.join(" | ")}`;
+      const resposta = await analisarComGroq(userMsg, contexto);
+      
+      await salvarNoRedis(userId, `U: ${userMsg} | B: ${resposta}`);
+      addMessage("assistant", resposta);
+      falarTexto(resposta);
+    } catch (error) {
+      addMessage("assistant", "⚠️ Erro de conexão neural.");
+    } finally {
+      setIsTyping(false);
+    }
+  };
 
-        async function enviar() {
-            const txt = input.value.trim();
-            if(!txt) return;
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
-            if(!currentUserId) {
-                currentUserId = txt.toLowerCase();
-                localStorage.setItem('untbot_last_id', currentUserId);
-                userTag.innerText = currentUserId.toUpperCase();
-                const b = addMessageToUI('bot', "");
-                await typeWriter(b, `>> ID ${currentUserId.toUpperCase()} CADASTRADO NO NÚCLEO.`);
-                input.value = ""; return;
-            }
+  const toggleVoice = () => {
+    if (audioAnalyzer.isActive) {
+      audioAnalyzer.stop();
+      setShowVoiceOrb(false);
+    } else {
+      audioAnalyzer.start();
+      setShowVoiceOrb(true);
+    }
+  };
 
-            addMessageToUI('user', txt);
-            bar.style.width = "85%";
-            input.value = ""; input.disabled = true;
+  return (
+    <div className="flex h-screen bg-background overflow-hidden font-sans relative selection:bg-primary/30">
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
+      </div>
 
-            try {
-                const historico = await buscarDoRedis(currentUserId);
-                const contextoFinal = `${DIRETRIZES_MESTRE} | Operador: ${currentUserId} | Histórico: ${historico.join(' | ')}`;
+      <ChatSidebar
+        conversations={conversations}
+        activeConvId={activeConvId}
+        onSelect={(id) => { setActiveConvId(id); setSidebarOpen(false); }}
+        onNew={() => {
+          const id = Date.now().toString();
+          setConversations(prev => [{ id, title: "Nova conversa", messages: [], createdAt: new Date() }, ...prev]);
+          setActiveConvId(id);
+        }}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-                const res = await fetch("/api/analisar", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: txt, systemContext: contextoFinal })
-                });
-                
-                const data = await res.json();
-                const resp = data.choices[0].message.content;
-                await salvarNoRedis(currentUserId, `U: ${txt} | B: ${resp}`);
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[40] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
-                const botBubble = addMessageToUI('bot', "");
-                await typeWriter(botBubble, resp);
+      <div className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${sidebarOpen ? "blur-md scale-[0.98] pointer-events-none lg:blur-none lg:scale-100 lg:pointer-events-auto" : ""}`}>
+        <header className="flex items-center gap-3 px-6 py-4 border-b border-white/5 bg-background/40 backdrop-blur-xl">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground"><Menu size={20} /></button>
+          <div className="flex items-center gap-3 flex-1">
+            <div className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary shadow-[0_0_8px_rgba(var(--primary),0.8)]"></span>
+            </div>
+            <h1 className="text-xs font-bold font-mono tracking-[0.2em] text-primary uppercase text-glow">
+                UNINTA // {userId || "AGUARDANDO_ID"}
+            </h1>
+          </div>
+        </header>
 
-                try {
-                    const vClient = await window.GradioClient.connect("Ttheus/uninta-voice");
-                    const vRes = await vClient.predict("/sintetizar", { text: resp });
-                    if (vRes.data && vRes.data[0]) {
-                        const audio = new Audio(vRes.data[0].url);
-                        voiceAnim.style.opacity = "1"; voiceAnim.classList.add("playing");
-                        audio.play(); audio.onended = () => { voiceAnim.classList.remove("playing"); voiceAnim.style.opacity = "0"; };
-                    }
-                } catch (vErr) {}
+        <main className="flex-1 overflow-y-auto chat-scrollbar relative scroll-smooth px-4 bg-gradient-to-b from-transparent to-black/20">
+          {!userId ? (
+             <div className="flex flex-col items-center justify-center h-full text-center">
+                <Zap className="text-primary mb-4 animate-pulse" size={40} />
+                <h2 className="text-2xl font-bold tracking-tight">IDENTIFIQUE-SE</h2>
+                <p className="text-xs font-mono text-muted-foreground mt-2 uppercase tracking-widest">Digite seu ID de Operador no terminal abaixo</p>
+             </div>
+          ) : !messages.length ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8 opacity-80 scale-90 drop-shadow-2xl">
+                <NeuralOrb isActive={audioAnalyzer.isActive} volume={audioAnalyzer.volume} frequency={audioAnalyzer.frequency} isProcessing={audioAnalyzer.isProcessing} size="md" />
+              </motion.div>
+              <h2 className="text-3xl font-semibold tracking-tight text-white/90">Olá, {userId.toUpperCase()}</h2>
+              <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground/40 mt-3 italic">Lab Neuro-UNINTA // Online</p>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto w-full py-10 space-y-8">
+              <AnimatePresence mode="popLayout">
+                {messages.map((msg) => (
+                  <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                    {msg.role === "assistant" && (
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                        <Zap size={14} className="text-primary animate-pulse" />
+                      </div>
+                    )}
+                    <div className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed backdrop-blur-md border shadow-2xl ${msg.role === "user" ? "bg-primary/90 text-primary-foreground border-primary/20" : "bg-white/5 border-white/10 text-white/90"}`}>
+                      <ReactMarkdown className="prose prose-invert prose-sm max-w-none">{msg.content}</ReactMarkdown>
+                      
+                      {msg.role === 'assistant' && (
+                        <button 
+                          onClick={() => exportarParaPDF(msg.content)} 
+                          className="mt-3 flex items-center gap-2 text-[10px] bg-white/10 hover:bg-primary/20 p-2 rounded transition-all uppercase font-bold"
+                        >
+                          <FileText size={12} /> PDF RELATÓRIO
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              {isTyping && <div className="flex gap-4 mb-8"><div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-primary animate-pulse" /></div><TypingIndicator /></div>}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </main>
 
-                const bPdf = document.createElement('button');
-                bPdf.className = "btn-pdf"; bPdf.innerText = "📄 PDF RELATÓRIO";
-                bPdf.onclick = () => exportarParaPDF(resp);
-                botBubble.appendChild(bPdf);
+        <footer className="p-6 bg-gradient-to-t from-background to-transparent relative">
+          <div className="max-w-3xl mx-auto relative h-auto">
+            <div className="relative z-10 flex items-end gap-2 bg-black/80 border border-white/10 rounded-[1.5rem] p-2.5 transition-all duration-300 backdrop-blur-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+              <button onClick={toggleVoice} className={`p-2.5 rounded-xl transition-all ${audioAnalyzer.isActive ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.5)]" : "text-muted-foreground hover:bg-white/5"}`}>
+                {audioAnalyzer.isActive ? <MicOff size={18} /> : <Mic size={18} />}
+              </button>
+              
+              <textarea 
+                ref={textareaRef} 
+                value={input} 
+                onChange={(e) => setInput(e.target.value)} 
+                onKeyDown={handleKeyDown} 
+                placeholder={userId ? "Injete um comando..." : "Digite seu nome/ID para acessar..."} 
+                rows={1} 
+                autoComplete="off"
+                spellCheck="false"
+                style={{ border: 'none', boxShadow: 'none', outline: 'none', background: 'transparent' }}
+                className="flex-1 bg-transparent border-0 focus:border-0 focus:ring-0 focus:outline-none resize-none text-sm py-2.5 placeholder:text-muted-foreground/30 font-sans chat-scrollbar overflow-y-auto shadow-none outline-none appearance-none text-white" 
+              />
+              
+              <button onClick={handleSend} disabled={!input.trim() || isTyping} className="p-2.5 bg-primary text-primary-foreground rounded-xl disabled:opacity-20 shadow-lg active:scale-95 transition-all group">
+                {isTyping ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="group-hover:translate-x-0.5 transition-transform" />}
+              </button>
+            </div>
+            <p className="text-center text-[8px] text-muted-foreground/20 mt-4 font-mono uppercase tracking-[0.5em] animate-pulse">Neural Lab // Protocol 6.0</p>
+          </div>
+        </footer>
+      </div>
 
-            } catch (e) { addMessageToUI('bot', ">> ERRO CRÍTICO NA MATRIZ."); }
-            finally { bar.style.width = "0%"; input.disabled = false; input.focus(); }
-        }
-
-        document.getElementById('btnEnviar').onclick = enviar;
-        input.onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-
-        const brainCont = document.getElementById('brain-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, brainCont.clientWidth/brainCont.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(brainCont.clientWidth, brainCont.clientHeight);
-        brainCont.appendChild(renderer.domElement);
-        const brain = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshPhongMaterial({ color: 0xe30613, wireframe: true, transparent: true, opacity: 0.3, emissive: 0xe30613 }));
-        scene.add(brain);
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10, 10, 10); scene.add(light);
-        camera.position.z = 4;
-        function animate() { requestAnimationFrame(animate); brain.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-    </script>
-</body>
-</html>
+      <AnimatePresence>
+        {showVoiceOrb && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center">
+            <NeuralOrb isActive={audioAnalyzer.isActive} volume={audioAnalyzer.volume} frequency={audioAnalyzer.frequency} isProcessing={audioAnalyzer.isProcessing} />
+            <button onClick={toggleVoice} className="mt-12 p-5 rounded-full bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all shadow-[0_0_30px_rgba(var(--destructive),0.2)]"><MicOff size={24} /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
