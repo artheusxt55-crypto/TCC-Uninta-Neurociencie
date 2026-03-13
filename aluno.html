@@ -1,6 +1,9 @@
+Aqui está o código melhorado com integração de Wikipedia e artigos científicos, layout estilo ChatGPT moderno e detecção inteligente de contexto:
+
+```tsx
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Plus, Menu, Loader2, Zap, FileText } from "lucide-react";
+import { Send, Mic, MicOff, Plus, Menu, Loader2, Zap, FileText, Search, BookOpen, Globe, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import NeuralOrb from "@/components/NeuralOrb";
 import { useAudioAnalyzer } from "@/hooks/useAudioAnalyzer";
@@ -13,6 +16,8 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  type?: "text" | "wiki" | "scientific" | "research";
+  source?: string;
 }
 
 interface Conversation {
@@ -24,17 +29,71 @@ interface Conversation {
 
 function TypingIndicator() {
   return (
-    <div className="flex gap-1 items-center px-1 py-2">
-      {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          className="w-2 h-2 rounded-full bg-primary/60"
-          animate={{ y: [0, -6, 0], opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-        />
-      ))}
+    <div className="flex items-center gap-1 p-3 bg-white/5 rounded-2xl backdrop-blur-xl border border-white/10">
+      <div className="flex gap-1">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-500"
+            animate={{ y: [0, -8, 0], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+          />
+        ))}
+      </div>
+      <span className="text-xs text-muted-foreground font-mono tracking-wider">Aura está processando...</span>
     </div>
   );
+}
+
+async function buscarWikipedia(query: string): Promise<string> {
+  try {
+    const response = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+    if (response.ok) {
+      const data = await response.json();
+      return `📖 **WIKIPEDIA**: ${data.extract}\n\n🔗 [Ler mais](${data.content_urls.desktop.page})`;
+    }
+  } catch (error) {
+    console.error('Erro Wikipedia:', error);
+  }
+  return "";
+}
+
+async function buscarArtigosCientificos(query: string): Promise<string> {
+  try {
+    const response = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query + " filetype:pdf OR site:arxiv.org OR site:pubmed.ncbi.nlm.nih.gov")}&format=json&origin=*`
+    );
+    const data = await response.json();
+    if (data.query?.search?.length > 0) {
+      const topResult = data.query.search[0];
+      return `🔬 **PESQUISA CIENTÍFICA**: "${topResult.title}"\n\n${topResult.snippet}...\n\n🔗 [Fonte](${`https://en.wikipedia.org/wiki/${topResult.title.replace(/ /g, '_')}`})`;
+    }
+  } catch (error) {
+    console.error('Erro pesquisa científica:', error);
+  }
+  return "";
+}
+
+function detectarTipoConsulta(texto: string): "wiki" | "scientific" | "research" | "conversation" {
+  const lower = texto.toLowerCase();
+  
+  // Keywords para Wikipedia
+  if (lower.includes('wikipedia') || lower.includes('wiki') || lower.includes('o que é') || lower.includes('definição') || lower.includes('quem é')) {
+    return "wiki";
+  }
+  
+  // Keywords para artigos científicos
+  if (lower.includes('artigo') || lower.includes('pesquisa') || lower.includes('estudo') || lower.includes('paper') || 
+      lower.includes('arxiv') || lower.includes('pubmed') || lower.includes('científico') || lower.includes('análise')) {
+    return "scientific";
+  }
+  
+  // Keywords para pesquisa geral
+  if (lower.includes('pesquise') || lower.includes('procure') || lower.includes('encontre')) {
+    return "research";
+  }
+  
+  return "conversation";
 }
 
 export default function Index() {
@@ -46,13 +105,13 @@ export default function Index() {
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVoiceOrb, setShowVoiceOrb] = useState(false);
-  const [userId, setUserId] = useState<string>(""); // Estado para o ID do Untbot
+  const [userId, setUserId] = useState<string>("");
+  const [searchingType, setSearchingType] = useState<"wiki" | "scientific" | "research" | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const audioAnalyzer = useAudioAnalyzer();
 
-  // RECUPERAR IDENTIDADE DO LABORATÓRIO
   useEffect(() => {
     const savedId = localStorage.getItem('untbot_last_id');
     if (savedId) setUserId(savedId);
@@ -72,31 +131,40 @@ export default function Index() {
     }
   }, [input]);
 
-  // FUNÇÃO DE PDF (ESTILO V5 UNINTA)
-  const exportarParaPDF = (texto: string) => {
+  const exportarParaPDF = (texto: string, tipo: string = "relatorio") => {
     const doc = new jsPDF();
-    doc.setFillColor(227, 6, 19);
+    const gradient = doc.linearGradient(0, 0, 0, 25, ['#E30213', '#A1000F']);
+    doc.setFillGradient('headerGradient', gradient);
     doc.rect(0, 0, 210, 25, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
-    doc.text("UNINTA - RELATÓRIO DE SINAPSE NEURAL", 15, 16);
-    doc.setFontSize(8);
-    doc.text(`ID OPERADOR: ${userId.toUpperCase()} | DATA: ${new Date().toLocaleDateString()}`, 140, 16);
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(11);
-    const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 180);
-    doc.text(splitText, 15, 40);
-    doc.save(`sinapse_${userId}_${Date.now()}.pdf`);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("🧠 UNINTA - SINAPSE NEURAL", 20, 18);
+    doc.setFontSize(10);
+    doc.text(`${tipo.toUpperCase()} | ID: ${userId.toUpperCase()} | ${new Date().toLocaleString()}`, 20, 24);
+    
+    doc.setTextColor(40, 40, 40);
+    doc.setFontSize(12);
+    const splitText = doc.splitTextToSize(texto.replace(/[*#]/g, ''), 190);
+    doc.text(splitText, 20, 45);
+    doc.save(`uninta_${tipo}_${userId}_${Date.now()}.pdf`);
   };
 
-  const addMessage = (role: "user" | "assistant", content: string) => {
-    const msg: Message = { id: Date.now().toString() + Math.random(), role, content, timestamp: new Date() };
+  const addMessage = (role: "user" | "assistant", content: string, type?: Message["type"], source?: string) => {
+    const msg: Message = { 
+      id: Date.now().toString() + Math.random(), 
+      role, 
+      content, 
+      timestamp: new Date(),
+      type,
+      source 
+    };
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id !== activeConvId) return c;
         const updated = { ...c, messages: [...c.messages, msg] };
         if (role === "user" && c.messages.length === 0) {
-          updated.title = content.slice(0, 40) + (content.length > 40 ? "..." : "");
+          updated.title = content.slice(0, 50) + (content.length > 50 ? "..." : "");
         }
         return updated;
       })
@@ -107,7 +175,6 @@ export default function Index() {
     if (!input.trim() || isTyping) return;
     const userMsg = input.trim();
 
-    // LÓGICA DE IDENTIFICAÇÃO (Login do Lab)
     if (!userId) {
       const newId = userMsg.toLowerCase();
       setUserId(newId);
@@ -120,18 +187,34 @@ export default function Index() {
     setInput("");
     setIsTyping(true);
 
+    const tipoConsulta = detectarTipoConsulta(userMsg);
+    setSearchingType(tipoConsulta);
+
     try {
       const historico = await buscarDoRedis(userId);
-      const contexto = `Você é a Aura AI do Lab Neuro-UNINTA. Mestre: Matheus. Operador: ${userId}. Responda de forma técnica e futurista. Histórico: ${historico.join(" | ")}`;
-      const resposta = await analisarComGroq(userMsg, contexto);
+      let resposta = "";
       
-      await salvarNoRedis(userId, `U: ${userMsg} | B: ${resposta}`);
-      addMessage("assistant", resposta);
-      falarTexto(resposta);
+      if (tipoConsulta === "wiki") {
+        const wikiData = await buscarWikipedia(userMsg);
+        resposta = wikiData || "Não encontrei informações na Wikipedia.";
+        addMessage("assistant", resposta, "wiki", "Wikipedia");
+      } else if (tipoConsulta === "scientific") {
+        const sciData = await buscarArtigosCientificos(userMsg);
+        resposta = sciData || "Não encontrei artigos científicos relevantes.";
+        addMessage("assistant", resposta, "scientific", "Research");
+      } else {
+        const contexto = `Você é a Aura AI do Lab Neuro-UNINTA. Mestre: Matheus. Operador: ${userId}. Modo: ${tipoConsulta}. Histórico: ${historico.join(" | ")}`;
+        resposta = await analisarComGroq(userMsg, contexto);
+        await salvarNoRedis(userId, `U: ${userMsg} | B: ${resposta}`);
+        addMessage("assistant", resposta);
+        falarTexto(resposta);
+      }
+      
     } catch (error) {
-      addMessage("assistant", "⚠️ Erro de conexão neural.");
+      addMessage("assistant", "⚠️ Erro na conexão neural. Verifique sua conexão.");
     } finally {
       setIsTyping(false);
+      setSearchingType(null);
     }
   };
 
@@ -152,11 +235,21 @@ export default function Index() {
     }
   };
 
+  const getMessageIcon = (msg: Message) => {
+    switch (msg.type) {
+      case "wiki": return <Globe className="w-5 h-5 text-blue-400" />;
+      case "scientific": return <BookOpen className="w-5 h-5 text-green-400" />;
+      default: return <Sparkles className="w-5 h-5 text-primary" />;
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden font-sans relative selection:bg-primary/30">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
+    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/5 rounded-full mix-blend-multiply filter blur-xl animate-blob" />
+        <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-500/5 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-500/5 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000" />
       </div>
 
       <ChatSidebar
@@ -179,105 +272,272 @@ export default function Index() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[40] lg:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      <div className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${sidebarOpen ? "blur-md scale-[0.98] pointer-events-none lg:blur-none lg:scale-100 lg:pointer-events-auto" : ""}`}>
-        <header className="flex items-center gap-3 px-6 py-4 border-b border-white/5 bg-background/40 backdrop-blur-xl">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground"><Menu size={20} /></button>
-          <div className="flex items-center gap-3 flex-1">
-            <div className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary shadow-[0_0_8px_rgba(var(--primary),0.8)]"></span>
+      {/* Main Chat Area */}
+      <div className={`flex-1 flex flex-col relative z-10 transition-all duration-500 ${sidebarOpen ? "lg:ml-64" : ""}`}>
+        {/* Header */}
+        <header className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 px-6 py-4">
+          <div className="max-w-4xl mx-auto flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)} 
+              className="p-2 rounded-xl hover:bg-white/10 transition-all lg:hidden"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full shadow-lg shadow-emerald-500/50 animate-ping" />
+                <div className="absolute inset-0 w-3 h-3 bg-emerald-400 rounded-full shadow-lg shadow-emerald-500/50" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                  Aura AI Lab
+                </h1>
+                <p className="text-xs font-mono text-emerald-400 tracking-wider">
+                  {userId ? `Operador: ${userId.toUpperCase()}` : "IDENTIFIQUE-SE"}
+                </p>
+              </div>
             </div>
-            <h1 className="text-xs font-bold font-mono tracking-[0.2em] text-primary uppercase text-glow">
-                UNINTA // {userId || "AGUARDANDO_ID"}
-            </h1>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto chat-scrollbar relative scroll-smooth px-4 bg-gradient-to-b from-transparent to-black/20">
+        {/* Messages */}
+        <main className="flex-1 overflow-y-auto px-6 py-8 max-w-4xl mx-auto w-full">
           {!userId ? (
-             <div className="flex flex-col items-center justify-center h-full text-center">
-                <Zap className="text-primary mb-4 animate-pulse" size={40} />
-                <h2 className="text-2xl font-bold tracking-tight">IDENTIFIQUE-SE</h2>
-                <p className="text-xs font-mono text-muted-foreground mt-2 uppercase tracking-widest">Digite seu ID de Operador no terminal abaixo</p>
-             </div>
-          ) : !messages.length ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8 opacity-80 scale-90 drop-shadow-2xl">
-                <NeuralOrb isActive={audioAnalyzer.isActive} volume={audioAnalyzer.volume} frequency={audioAnalyzer.frequency} isProcessing={audioAnalyzer.isProcessing} size="md" />
+            <div className="flex flex-col items-center justify-center h-full text-center py-20">
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-32 h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mb-8 shadow-2xl"
+              >
+                <Zap className="w-16 h-16 text-white drop-shadow-lg" />
               </motion.div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white/90">Olá, {userId.toUpperCase()}</h2>
-              <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground/40 mt-3 italic">Lab Neuro-UNINTA // Online</p>
+              <h2 className="text-4xl font-black tracking-tight mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                IDENTIFIQUE-SE
+              </h2>
+              <p className="text-lg text-gray-400 mb-12 max-w-md">
+                Digite seu ID de operador para acessar o Lab Neuro-UNINTA
+              </p>
+            </div>
+          ) : !messages.length ? (
+            <div className="flex flex-col items-center justify-center h-full text-center py-20">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-12"
+              >
+                <NeuralOrb 
+                  isActive={false} 
+                  volume={0} 
+                  frequency={0} 
+                  isProcessing={false} 
+                  size="lg" 
+                />
+              </motion.div>
+              <h2 className="text-5xl font-black tracking-tight mb-4 bg-gradient-to-r from-white via-blue-300 to-purple-300 bg-clip-text text-transparent">
+                Bem-vindo, {userId.toUpperCase()}
+              </h2>
+              <p className="text-xl text-gray-400 mb-8 max-w-lg">
+                Aura AI está online. Use comandos como "pesquise", "wikipedia" ou faça perguntas normais.
+              </p>
+              <div className="grid grid-cols-3 gap-4 text-sm text-gray-500 max-w-md w-full">
+                <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all">
+                  <Globe className="w-6 h-6 mb-2 text-blue-400" />
+                  <span>Wikipedia</span>
+                </div>
+                <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all">
+                  <BookOpen className="w-6 h-6 mb-2 text-green-400" />
+                  <span>Científico</span>
+                </div>
+                <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all">
+                  <Sparkles className="w-6 h-6 mb-2 text-purple-400" />
+                  <span>IA</span>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto w-full py-10 space-y-8">
+            <div className="space-y-6">
               <AnimatePresence mode="popLayout">
                 {messages.map((msg) => (
-                  <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                    {msg.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
-                        <Zap size={14} className="text-primary animate-pulse" />
-                      </div>
-                    )}
-                    <div className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed backdrop-blur-md border shadow-2xl ${msg.role === "user" ? "bg-primary/90 text-primary-foreground border-primary/20" : "bg-white/5 border-white/10 text-white/90"}`}>
-                      <ReactMarkdown className="prose prose-invert prose-sm max-w-none">{msg.content}</ReactMarkdown>
-                      
-                      {msg.role === 'assistant' && (
-                        <button 
-                          onClick={() => exportarParaPDF(msg.content)} 
-                          className="mt-3 flex items-center gap-2 text-[10px] bg-white/10 hover:bg-primary/20 p-2 rounded transition-all uppercase font-bold"
-                        >
-                          <FileText size={12} /> PDF RELATÓRIO
-                        </button>
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex gap-4"
+                  >
+                    <div className={`flex flex-col ${msg.role === "user" ? "ml-auto" : ""}`}>
+                      {msg.role === "assistant" && (
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white/20 shrink-0 mb-4">
+                          {getMessageIcon(msg)}
+                        </div>
                       )}
+                      <div className={`max-w-2xl ${msg.role === "user" ? "bg-gradient-to-r from-emerald-500 to-blue-600 text-white ml-auto" : "bg-white/10 backdrop-blur-xl border border-white/20"} p-6 rounded-3xl shadow-2xl hover:shadow-3xl transition-all`}>
+                        <ReactMarkdown 
+                          className="prose prose-invert prose-sm max-w-none leading-relaxed"
+                          components={{
+                            a: ({ href
+                                                    a: ({ href, children }) => (
+                            <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline font-medium">
+                              {children}
+                            </a>
+                          )
+                        }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                        
+                        {msg.role === 'assistant' && msg.type && (
+                          <div className="mt-4 pt-4 border-t border-white/20">
+                            <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+                              <span className="font-mono uppercase tracking-wider">Fonte: {msg.source}</span>
+                              {msg.type === 'wiki' && <Globe className="w-3 h-3" />}
+                              {msg.type === 'scientific' && <BookOpen className="w-3 h-3" />}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {msg.role === 'assistant' && (
+                          <div className="mt-4 flex gap-2 pt-4 border-t border-white/20">
+                            <button 
+                              onClick={() => exportarParaPDF(msg.content, msg.type || 'relatorio')} 
+                              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-xs font-bold rounded-2xl transition-all backdrop-blur-sm border border-white/30 hover:border-white/50 group"
+                            >
+                              <FileText size={14} className="group-hover:translate-x-1 transition-transform" />
+                              PDF
+                            </button>
+                            <button 
+                              onClick={() => falarTexto(msg.content)}
+                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/30 to-blue-500/30 hover:from-purple-500/50 hover:to-blue-500/50 text-xs font-bold rounded-2xl transition-all backdrop-blur-sm border border-purple-500/30 hover:border-purple-500/50 group"
+                            >
+                              <Zap size={14} className="group-hover:rotate-12 transition-transform" />
+                              Voz
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
-              {isTyping && <div className="flex gap-4 mb-8"><div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-primary animate-pulse" /></div><TypingIndicator /></div>}
+              
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-4"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white/20 shrink-0">
+                    {searchingType === 'wiki' ? <Globe className="w-6 h-6 text-blue-300 animate-pulse" /> :
+                     searchingType === 'scientific' ? <BookOpen className="w-6 h-6 text-green-400 animate-pulse" /> :
+                     <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-ping" />}
+                  </div>
+                  <TypingIndicator />
+                </motion.div>
+              )}
+              
               <div ref={messagesEndRef} />
             </div>
           )}
         </main>
 
-        <footer className="p-6 bg-gradient-to-t from-background to-transparent relative">
-          <div className="max-w-3xl mx-auto relative h-auto">
-            <div className="relative z-10 flex items-end gap-2 bg-black/80 border border-white/10 rounded-[1.5rem] p-2.5 transition-all duration-300 backdrop-blur-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-              <button onClick={toggleVoice} className={`p-2.5 rounded-xl transition-all ${audioAnalyzer.isActive ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.5)]" : "text-muted-foreground hover:bg-white/5"}`}>
-                {audioAnalyzer.isActive ? <MicOff size={18} /> : <Mic size={18} />}
-              </button>
+        {/* Input Area */}
+        <footer className="sticky bottom-0 z-20 bg-gradient-to-t from-slate-900/95 to-transparent backdrop-blur-3xl border-t border-white/10 p-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/5 hover:bg-white/10 border border-white/20 rounded-3xl p-4 transition-all backdrop-blur-xl shadow-2xl hover:shadow-3xl group">
+              <div className="flex items-end gap-3">
+                <button 
+                  onClick={toggleVoice}
+                  className={`p-3 rounded-2xl transition-all group-hover:scale-105 ${
+                    audioAnalyzer.isActive 
+                      ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/50" 
+                      : "text-gray-400 hover:bg-white/20 hover:text-white"
+                  }`}
+                >
+                  {audioAnalyzer.isActive ? <MicOff size={20} /> : <Mic size={20} />}
+                </button>
+                
+                <textarea 
+                  ref={textareaRef} 
+                  value={input} 
+                  onChange={(e) => setInput(e.target.value)} 
+                  onKeyDown={handleKeyDown}
+                  placeholder={userId ? "Digite sua mensagem, pesquise artigos ou pergunte sobre Wikipedia..." : "Digite seu ID para acessar..."} 
+                  rows={1}
+                  autoComplete="off"
+                  spellCheck="false"
+                  className="flex-1 bg-transparent border-none outline-none resize-none text-lg placeholder:text-gray-400 font-medium py-3 px-4 max-h-32"
+                />
+                
+                <button 
+                  onClick={handleSend} 
+                  disabled={!input.trim() || isTyping}
+                  className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all group"
+                >
+                  {isTyping ? (
+                    <Loader2 size={20} className="animate-spin" />
+                  ) : (
+                    <Send size={20} className="group-hover:translate-x-1 transition-transform" />
+                  )}
+                </button>
+              </div>
               
-              <textarea 
-                ref={textareaRef} 
-                value={input} 
-                onChange={(e) => setInput(e.target.value)} 
-                onKeyDown={handleKeyDown} 
-                placeholder={userId ? "Injete um comando..." : "Digite seu nome/ID para acessar..."} 
-                rows={1} 
-                autoComplete="off"
-                spellCheck="false"
-                style={{ border: 'none', boxShadow: 'none', outline: 'none', background: 'transparent' }}
-                className="flex-1 bg-transparent border-0 focus:border-0 focus:ring-0 focus:outline-none resize-none text-sm py-2.5 placeholder:text-muted-foreground/30 font-sans chat-scrollbar overflow-y-auto shadow-none outline-none appearance-none text-white" 
-              />
-              
-              <button onClick={handleSend} disabled={!input.trim() || isTyping} className="p-2.5 bg-primary text-primary-foreground rounded-xl disabled:opacity-20 shadow-lg active:scale-95 transition-all group">
-                {isTyping ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="group-hover:translate-x-0.5 transition-transform" />}
-              </button>
+              {userId && (
+                <div className="flex items-center gap-6 mt-3 pt-3 border-t border-white/10 text-xs text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <Globe className="w-4 h-4" />
+                    <span>Wikipedia</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Artigos Científicos</span>
+                  </div>
+                  <div className="flex items-center gap-1 ml-auto">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Aura AI</span>
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="text-center text-[8px] text-muted-foreground/20 mt-4 font-mono uppercase tracking-[0.5em] animate-pulse">Neural Lab // Protocol 6.0</p>
+            
+            {userId && (
+              <p className="text-center text-xs text-gray-500 mt-4 font-mono tracking-wider animate-pulse">
+                Lab Neuro-UNINTA • Protocolo 7.0 • Online
+              </p>
+            )}
           </div>
         </footer>
       </div>
 
+      {/* Voice Orb */}
       <AnimatePresence>
         {showVoiceOrb && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center">
-            <NeuralOrb isActive={audioAnalyzer.isActive} volume={audioAnalyzer.volume} frequency={audioAnalyzer.frequency} isProcessing={audioAnalyzer.isProcessing} />
-            <button onClick={toggleVoice} className="mt-12 p-5 rounded-full bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all shadow-[0_0_30px_rgba(var(--destructive),0.2)]"><MicOff size={24} /></button>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="fixed inset-0 z-50 bg-gradient-to-br from-black/95 to-slate-900/95 backdrop-blur-3xl flex flex-col items-center justify-center p-8"
+          >
+            <NeuralOrb 
+              isActive={audioAnalyzer.isActive} 
+              volume={audioAnalyzer.volume} 
+              frequency={audioAnalyzer.frequency} 
+              isProcessing={audioAnalyzer.isProcessing}
+              size="xl"
+            />
+            <p className="text-2xl font-bold text-white mt-8 mb-12 tracking-tight">
+              🎤 Modo Voz Ativo
+            </p>
+            <button 
+              onClick={toggleVoice}
+              className="p-6 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-3xl shadow-2xl hover:shadow-3xl hover:scale-105 active:scale-95 transition-all font-bold text-lg border-4 border-white/20"
+            >
+              <MicOff size={28} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
