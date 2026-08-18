@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -17,8 +16,9 @@
             --secondary: #6d28d9;
             --accent: #a78bfa;
             --success: #34d399;
+            --warning: #f59e0b;
             --bg: #090614;
-            --card: rgba(16, 10, 30, 0.88);
+            --card: rgba(16, 10, 30, 0.90);
             --text: #f4f0ff;
             --muted: #9990aa;
         }
@@ -48,11 +48,7 @@
                 );
 
             color: var(--text);
-
-            font-family:
-                Inter,
-                Arial,
-                sans-serif;
+            font-family: Inter, Arial, sans-serif;
 
             min-height: 100vh;
 
@@ -62,13 +58,16 @@
 
             overflow: hidden;
         }
+
+        /* =========================
+           ÁREA DO ALUNO
+        ========================== */
+
         .btn-aluno-fixo {
             position: fixed;
 
             top: 20px;
             right: 20px;
-
-            width: auto;
 
             padding: 12px 24px;
 
@@ -83,7 +82,6 @@
             border-radius: 12px;
 
             font-size: 11px;
-
             font-weight: 800;
 
             text-decoration: none;
@@ -114,20 +112,18 @@
             display: flex;
 
             width: 95%;
-
             max-width: 1250px;
 
             gap: 45px;
 
             align-items: center;
-
             justify-content: center;
 
             z-index: 10;
         }
 
         /* =========================
-           CARD PRINCIPAL
+           CARD
         ========================== */
 
         .card {
@@ -135,8 +131,7 @@
 
             padding: 30px;
 
-            background:
-                var(--card);
+            background: var(--card);
 
             border:
                 1px solid rgba(255,255,255,.08);
@@ -153,14 +148,13 @@
         }
 
         /* =========================
-           CABEÇALHO
+           MARCA
         ========================== */
 
         .brand {
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
             gap: 10px;
@@ -186,13 +180,11 @@
                     var(--secondary)
                 );
 
-            font-size: 0;
+            position: relative;
 
             box-shadow:
                 0 0 20px
                 rgba(139,92,246,.25);
-
-            position: relative;
         }
 
         .brand-icon::after {
@@ -205,8 +197,6 @@
                 1.5px solid white;
 
             border-radius: 50%;
-
-            opacity: .9;
         }
 
         .brand span {
@@ -220,7 +210,7 @@
         }
 
         /* =========================
-           PAINEL PEDAGÓGICO
+           PAINEL PRINCIPAL
         ========================== */
 
         .learning-panel {
@@ -300,10 +290,6 @@
                 rgba(109,40,217,.12);
         }
 
-        .learning-icon {
-            display: none;
-        }
-
         #status-label {
             font-size: 7px;
 
@@ -317,12 +303,11 @@
         }
 
         /* =========================
-           ROBÔ SPLINE
+           ROBÔ
         ========================== */
 
         .avatar-3d {
             width: 100%;
-
             height: 160px;
 
             margin-bottom: 5px;
@@ -358,10 +343,11 @@
            INPUT
         ========================== */
 
-        input {
+        input,
+        select {
             width: 100%;
 
-            padding: 15px;
+            padding: 14px;
 
             background:
                 rgba(255,255,255,.045);
@@ -373,24 +359,32 @@
 
             color: white;
 
-            margin-bottom: 12px;
-
-            text-align: center;
+            margin-bottom: 10px;
 
             outline: none;
 
-            font-size: 14px;
+            font-size: 12px;
 
             transition: .3s;
         }
 
-        input:focus {
+        input::placeholder {
+            color: #777084;
+        }
+
+        input:focus,
+        select:focus {
             border-color:
                 rgba(139,92,246,.7);
 
             box-shadow:
                 0 0 20px
                 rgba(139,92,246,.12);
+        }
+
+        select option {
+            background: #160d25;
+            color: white;
         }
 
         /* =========================
@@ -444,8 +438,7 @@
         .btn-library {
             margin-top: 10px;
 
-            background:
-                transparent;
+            background: transparent;
 
             border:
                 1px solid
@@ -454,14 +447,6 @@
             font-size: 11px;
 
             padding: 14px;
-        }
-
-        .btn-library:hover {
-            background:
-                rgba(139,92,246,.06);
-
-            border-color:
-                rgba(139,92,246,.35);
         }
 
         .btn-atlas {
@@ -531,7 +516,7 @@
         }
 
         /* =========================
-           CÉREBRO 3D
+           CÉREBRO
         ========================== */
 
         #brain-viewport {
@@ -548,7 +533,6 @@
             position: absolute;
 
             top: 35px;
-
             left: 50%;
 
             transform:
@@ -584,6 +568,262 @@
         }
 
         /* =========================
+           PAINEL FUNCIONAL
+        ========================== */
+
+        .tool-panel {
+            display: none;
+
+            position: fixed;
+
+            top: 50%;
+            left: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            width: min(650px, 90%);
+
+            max-height: 85vh;
+
+            overflow-y: auto;
+
+            padding: 28px;
+
+            background:
+                rgba(12,7,24,.97);
+
+            border:
+                1px solid
+                rgba(139,92,246,.35);
+
+            border-radius: 24px;
+
+            box-shadow:
+                0 30px 100px
+                rgba(0,0,0,.75);
+
+            backdrop-filter:
+                blur(25px);
+
+            z-index: 200;
+
+            text-align: left;
+        }
+
+        .tool-panel.active {
+            display: block;
+            animation: panelIn .25s ease;
+        }
+
+        @keyframes panelIn {
+            from {
+                opacity: 0;
+                transform:
+                    translate(-50%, -47%);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translate(-50%, -50%);
+            }
+        }
+
+        .tool-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 22px;
+        }
+
+        .tool-header h3 {
+            font-size: 20px;
+        }
+
+        .tool-header p {
+            color: var(--muted);
+
+            font-size: 10px;
+
+            margin-top: 4px;
+        }
+
+        .close-tool {
+            width: 32px;
+            height: 32px;
+
+            border:
+                1px solid rgba(255,255,255,.1);
+
+            background:
+                rgba(255,255,255,.04);
+
+            color: white;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+        }
+
+        .tool-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+        }
+
+        .tool-card {
+            padding: 16px;
+
+            background:
+                rgba(255,255,255,.035);
+
+            border:
+                1px solid rgba(255,255,255,.07);
+
+            border-radius: 14px;
+        }
+
+        .tool-card h4 {
+            font-size: 11px;
+
+            color: var(--accent);
+
+            margin-bottom: 7px;
+
+            letter-spacing: .5px;
+        }
+
+        .tool-card p {
+            font-size: 10px;
+
+            color: #aaa2ba;
+
+            line-height: 1.5;
+        }
+
+        .field-label {
+            display: block;
+
+            font-size: 9px;
+
+            color: #aaa2ba;
+
+            margin:
+                4px 0 6px;
+        }
+
+        .result-box {
+            margin-top: 15px;
+
+            padding: 15px;
+
+            background:
+                rgba(139,92,246,.08);
+
+            border:
+                1px solid
+                rgba(139,92,246,.2);
+
+            border-radius: 13px;
+        }
+
+        .result-box strong {
+            color: var(--accent);
+
+            font-size: 10px;
+        }
+
+        .result-box p {
+            color: #c4bbd2;
+
+            font-size: 10px;
+
+            margin-top: 7px;
+
+            line-height: 1.5;
+        }
+
+        .skill-code {
+            display: inline-block;
+
+            padding: 5px 8px;
+
+            margin-bottom: 7px;
+
+            border-radius: 6px;
+
+            background:
+                rgba(139,92,246,.15);
+
+            color: #cfc0f7;
+
+            font-size: 9px;
+
+            font-weight: 800;
+        }
+
+        .progress {
+            height: 5px;
+
+            background:
+                rgba(255,255,255,.07);
+
+            border-radius: 10px;
+
+            margin-top: 8px;
+
+            overflow: hidden;
+        }
+
+        .progress span {
+            display: block;
+
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--secondary),
+                    var(--primary)
+                );
+
+            border-radius: inherit;
+        }
+
+        /* =========================
+           OVERLAY
+        ========================== */
+
+        .overlay {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,.65);
+
+            backdrop-filter:
+                blur(5px);
+
+            z-index: 150;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* =========================
            RESPONSIVIDADE
         ========================== */
 
@@ -615,6 +855,17 @@
                     min(400px, 92%);
             }
         }
+
+        @media (max-width: 550px) {
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .learning-btn {
+                font-size: 7px;
+            }
+        }
     </style>
 </head>
 
@@ -627,6 +878,11 @@
         ÁREA DO ALUNO
 
     </a>
+
+
+    <!-- =========================
+         INTERFACE PRINCIPAL
+    ========================== -->
 
     <div class="main-container">
 
@@ -654,36 +910,36 @@
 
                     <button
                         class="learning-btn active"
-                        onclick="selecionarModulo('ATENÇÃO', this)">
+                        onclick="abrirModulo('diagnostico', this)">
 
-                        ATENÇÃO
-
-                    </button>
-
-
-                    <button
-                        class="learning-btn"
-                        onclick="selecionarModulo('MEMÓRIA', this)">
-
-                        MEMÓRIA
+                        DIAGNÓSTICO
 
                     </button>
 
 
                     <button
                         class="learning-btn"
-                        onclick="selecionarModulo('RACIOCÍNIO', this)">
+                        onclick="abrirModulo('bncc', this)">
 
-                        RACIOCÍNIO
+                        BNCC
 
                     </button>
 
 
                     <button
                         class="learning-btn"
-                        onclick="selecionarModulo('LEITURA', this)">
+                        onclick="abrirModulo('planejamento', this)">
 
-                        LEITURA
+                        PLANEJAMENTO
+
+                    </button>
+
+
+                    <button
+                        class="learning-btn"
+                        onclick="abrirModulo('intervencao', this)">
+
+                        INTERVENÇÃO
 
                     </button>
 
@@ -692,7 +948,7 @@
 
                 <p id="status-label">
 
-                    MÓDULO ATIVO: ATENÇÃO
+                    MÓDULO ATIVO: DIAGNÓSTICO
 
                 </p>
 
@@ -771,6 +1027,10 @@
         </div>
 
 
+        <!-- =========================
+             CÉREBRO 3D
+        ========================== -->
+
         <div id="brain-viewport">
 
             <div class="brain-label">
@@ -785,6 +1045,498 @@
     </div>
 
 
+    <!-- =========================
+         OVERLAY
+    ========================== -->
+
+    <div
+        class="overlay"
+        id="overlay"
+        onclick="fecharModulo()">
+    </div>
+
+
+    <!-- =========================
+         DIAGNÓSTICO
+    ========================== -->
+
+    <div
+        class="tool-panel"
+        id="diagnostico">
+
+        <div class="tool-header">
+
+            <div>
+                <h3>
+                    Diagnóstico da Aprendizagem
+                </h3>
+
+                <p>
+                    Identifique habilidades consolidadas
+                    e habilidades em desenvolvimento.
+                </p>
+            </div>
+
+            <button
+                class="close-tool"
+                onclick="fecharModulo()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="tool-grid">
+
+            <div class="tool-card">
+
+                <label class="field-label">
+                    ANO / SÉRIE
+                </label>
+
+                <select id="diagAno">
+
+                    <option>1º Ano</option>
+                    <option>2º Ano</option>
+                    <option>3º Ano</option>
+                    <option>4º Ano</option>
+                    <option>5º Ano</option>
+                    <option>6º Ano</option>
+                    <option>7º Ano</option>
+                    <option>8º Ano</option>
+                    <option>9º Ano</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="tool-card">
+
+                <label class="field-label">
+                    COMPONENTE
+                </label>
+
+                <select id="diagComponente">
+
+                    <option>Língua Portuguesa</option>
+                    <option>Matemática</option>
+                    <option>Ciências</option>
+                    <option>História</option>
+                    <option>Geografia</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="tool-card" style="margin-top:12px;">
+
+            <h4>
+                HABILIDADE AVALIADA
+            </h4>
+
+            <span class="skill-code">
+                HABILIDADE BNCC
+            </span>
+
+            <p>
+                Seleção de habilidades para
+                composição do diagnóstico.
+            </p>
+
+            <select id="diagHabilidade">
+
+                <option>
+                    Compreensão e interpretação textual
+                </option>
+
+                <option>
+                    Localização de informações explícitas
+                </option>
+
+                <option>
+                    Inferência de informações
+                </option>
+
+                <option>
+                    Resolução de problemas matemáticos
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            class="btn-neuro"
+            style="margin-top:15px;"
+            onclick="executarDiagnostico()">
+
+            INICIAR DIAGNÓSTICO
+
+        </button>
+
+
+        <div
+            class="result-box"
+            id="resultadoDiagnostico"
+            style="display:none;">
+
+            <strong>
+                RESULTADO DA ANÁLISE
+            </strong>
+
+            <p id="textoDiagnostico"></p>
+
+            <div class="progress">
+                <span
+                    id="barraDiagnostico"
+                    style="width:0%">
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         BNCC
+    ========================== -->
+
+    <div
+        class="tool-panel"
+        id="bncc">
+
+        <div class="tool-header">
+
+            <div>
+                <h3>
+                    Base Nacional Comum Curricular
+                </h3>
+
+                <p>
+                    Consulte e organize habilidades
+                    por etapa e componente.
+                </p>
+            </div>
+
+            <button
+                class="close-tool"
+                onclick="fecharModulo()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input
+            type="text"
+            id="buscaBNCC"
+            placeholder="Pesquisar habilidade, código ou palavra-chave..."
+        >
+
+
+        <div class="tool-grid">
+
+            <div class="tool-card">
+
+                <span class="skill-code">
+                    LÍNGUA PORTUGUESA
+                </span>
+
+                <h4>
+                    HABILIDADE
+                </h4>
+
+                <p>
+                    Compreensão de textos,
+                    localização de informações
+                    e construção de sentidos.
+                </p>
+
+            </div>
+
+
+            <div class="tool-card">
+
+                <span class="skill-code">
+                    MATEMÁTICA
+                </span>
+
+                <h4>
+                    HABILIDADE
+                </h4>
+
+                <p>
+                    Resolução e elaboração de
+                    problemas utilizando diferentes
+                    estratégias.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong>
+                ORGANIZAÇÃO PEDAGÓGICA
+            </strong>
+
+            <p>
+                Cada habilidade poderá ser vinculada
+                a atividades, avaliações, diagnósticos
+                e planos de intervenção.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         PLANEJAMENTO
+    ========================== -->
+
+    <div
+        class="tool-panel"
+        id="planejamento">
+
+        <div class="tool-header">
+
+            <div>
+                <h3>
+                    Planejamento Pedagógico
+                </h3>
+
+                <p>
+                    Estruture uma proposta de aula
+                    baseada em objetivos e habilidades.
+                </p>
+            </div>
+
+            <button
+                class="close-tool"
+                onclick="fecharModulo()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <label class="field-label">
+            TEMA
+        </label>
+
+        <input
+            id="temaPlano"
+            placeholder="Ex.: Interpretação textual"
+        >
+
+
+        <label class="field-label">
+            ANO / SÉRIE
+        </label>
+
+        <select>
+
+            <option>1º Ano</option>
+            <option>2º Ano</option>
+            <option>3º Ano</option>
+            <option>4º Ano</option>
+            <option>5º Ano</option>
+            <option>6º Ano</option>
+            <option>7º Ano</option>
+            <option>8º Ano</option>
+            <option>9º Ano</option>
+
+        </select>
+
+
+        <label class="field-label">
+            OBJETIVO DE APRENDIZAGEM
+        </label>
+
+        <input
+            placeholder="Defina o que o aluno deverá desenvolver..."
+        >
+
+
+        <div class="tool-grid">
+
+            <div class="tool-card">
+
+                <h4>
+                    METODOLOGIA
+                </h4>
+
+                <p>
+                    Estratégias, atividades e
+                    organização da experiência
+                    de aprendizagem.
+                </p>
+
+            </div>
+
+
+            <div class="tool-card">
+
+                <h4>
+                    AVALIAÇÃO
+                </h4>
+
+                <p>
+                    Evidências utilizadas para
+                    verificar a aprendizagem.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="btn-neuro"
+            style="margin-top:15px;"
+            onclick="gerarPlano()">
+
+            ESTRUTURAR PLANEJAMENTO
+
+        </button>
+
+
+        <div
+            class="result-box"
+            id="resultadoPlano"
+            style="display:none;">
+
+            <strong>
+                ESTRUTURA GERADA
+            </strong>
+
+            <p id="textoPlano"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         INTERVENÇÃO
+    ========================== -->
+
+    <div
+        class="tool-panel"
+        id="intervencao">
+
+        <div class="tool-header">
+
+            <div>
+                <h3>
+                    Intervenção Pedagógica
+                </h3>
+
+                <p>
+                    Planeje ações a partir das
+                    necessidades identificadas.
+                </p>
+            </div>
+
+            <button
+                class="close-tool"
+                onclick="fecharModulo()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="tool-grid">
+
+            <div class="tool-card">
+
+                <h4>
+                    HABILIDADE EM DESENVOLVIMENTO
+                </h4>
+
+                <span class="skill-code">
+                    NECESSITA DE REFORÇO
+                </span>
+
+                <p>
+                    Identificação de informações
+                    implícitas e construção de inferências.
+                </p>
+
+            </div>
+
+
+            <div class="tool-card">
+
+                <h4>
+                    DESEMPENHO ATUAL
+                </h4>
+
+                <p>
+                    62% de aproveitamento nas
+                    atividades avaliativas.
+                </p>
+
+                <div class="progress">
+                    <span style="width:62%"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong>
+                PROPOSTA DE INTERVENÇÃO
+            </strong>
+
+            <p>
+                1. Trabalhar textos curtos.<br>
+                2. Utilizar perguntas orientadoras.<br>
+                3. Propor atividades graduais.<br>
+                4. Registrar novas evidências.<br>
+                5. Realizar reavaliação da habilidade.
+            </p>
+
+        </div>
+
+
+        <button
+            class="btn-neuro"
+            style="margin-top:15px;"
+            onclick="alert('Plano de intervenção preparado para revisão do professor.')">
+
+            PREPARAR INTERVENÇÃO
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         THREE.JS
+    ========================== -->
+
     <script
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
     </script>
@@ -796,6 +1548,10 @@
 
 
     <script>
+
+        /* =====================================
+           THREE.JS
+        ====================================== */
 
         const container =
             document.getElementById(
@@ -853,7 +1609,9 @@
         );
 
 
-        /* ILUMINAÇÃO */
+        /* =====================================
+           ILUMINAÇÃO
+        ====================================== */
 
         scene.add(
             new THREE.AmbientLight(
@@ -899,7 +1657,9 @@
         );
 
 
-        /* PARTÍCULAS */
+        /* =====================================
+           PARTÍCULAS
+        ====================================== */
 
         const partGeo =
             new THREE.BufferGeometry();
@@ -959,7 +1719,9 @@
         scene.add(particles);
 
 
-        /* CÉREBRO */
+        /* =====================================
+           CÉREBRO
+        ====================================== */
 
         let brain = null;
 
@@ -968,7 +1730,7 @@
         let tY = 0;
 
         let moduloAtual =
-            'ATENÇÃO';
+            'DIAGNÓSTICO';
 
         let pulseSpeed =
             0.002;
@@ -1037,13 +1799,15 @@
         );
 
 
-        /* MÓDULOS PEDAGÓGICOS */
+        /* =====================================
+           MÓDULOS
+        ====================================== */
 
-        window.selecionarModulo =
+        window.abrirModulo =
             function(modulo, elemento) {
 
                 moduloAtual =
-                    modulo;
+                    modulo.toUpperCase();
 
 
                 document
@@ -1064,111 +1828,224 @@
                 );
 
 
-                const label =
-                    document.getElementById(
-                        'status-label'
+                document
+                    .querySelectorAll(
+                        '.tool-panel'
+                    )
+                    .forEach(panel => {
+
+                        panel.classList.remove(
+                            'active'
+                        );
+
+                    });
+
+
+                document
+                    .getElementById(
+                        modulo
+                    )
+                    .classList.add(
+                        'active'
                     );
+
+
+                document
+                    .getElementById(
+                        'overlay'
+                    )
+                    .classList.add(
+                        'active'
+                    );
+
+
+                document
+                    .getElementById(
+                        'status-label'
+                    )
+                    .innerText =
+                    "MÓDULO ATIVO: " +
+                    modulo.toUpperCase();
 
 
                 if (
                     modulo ===
-                    'ATENÇÃO'
+                    'diagnostico'
                 ) {
 
                     pulseSpeed =
                         0.004;
 
-                    particles
-                        .material
-                        .color
-                        .setHex(
-                            0x8b5cf6
-                        );
-
-                    label.innerText =
-                        "MÓDULO ATIVO: ATENÇÃO";
-
-                    label.style.color =
-                        "#a78bfa";
-
                 }
-
 
                 else if (
                     modulo ===
-                    'MEMÓRIA'
+                    'bncc'
                 ) {
 
                     pulseSpeed =
                         0.0015;
 
-                    particles
-                        .material
-                        .color
-                        .setHex(
-                            0x7c3aed
-                        );
-
-                    label.innerText =
-                        "MÓDULO ATIVO: MEMÓRIA";
-
-                    label.style.color =
-                        "#9f7aea";
-
                 }
-
 
                 else if (
                     modulo ===
-                    'RACIOCÍNIO'
+                    'planejamento'
                 ) {
 
                     pulseSpeed =
                         0.003;
 
-                    particles
-                        .material
-                        .color
-                        .setHex(
-                            0xa78bfa
-                        );
-
-                    label.innerText =
-                        "MÓDULO ATIVO: RACIOCÍNIO";
-
-                    label.style.color =
-                        "#c4b5fd";
-
                 }
-
 
                 else if (
                     modulo ===
-                    'LEITURA'
+                    'intervencao'
                 ) {
 
                     pulseSpeed =
                         0.002;
-
-                    particles
-                        .material
-                        .color
-                        .setHex(
-                            0x8b5cf6
-                        );
-
-                    label.innerText =
-                        "MÓDULO ATIVO: LEITURA";
-
-                    label.style.color =
-                        "#a78bfa";
 
                 }
 
             };
 
 
-        /* ACESSO */
+        window.fecharModulo =
+            function() {
+
+                document
+                    .querySelectorAll(
+                        '.tool-panel'
+                    )
+                    .forEach(panel => {
+
+                        panel.classList.remove(
+                            'active'
+                        );
+
+                    });
+
+
+                document
+                    .getElementById(
+                        'overlay'
+                    )
+                    .classList.remove(
+                        'active'
+                    );
+
+            };
+
+
+        /* =====================================
+           DIAGNÓSTICO
+        ====================================== */
+
+        window.executarDiagnostico =
+            function() {
+
+                const resultado =
+                    document.getElementById(
+                        'resultadoDiagnostico'
+                    );
+
+
+                const texto =
+                    document.getElementById(
+                        'textoDiagnostico'
+                    );
+
+
+                const barra =
+                    document.getElementById(
+                        'barraDiagnostico'
+                    );
+
+
+                const desempenho =
+                    Math.floor(
+                        Math.random() *
+                        31
+                    ) + 60;
+
+
+                resultado.style.display =
+                    'block';
+
+
+                barra.style.width =
+                    desempenho + '%';
+
+
+                if (desempenho >= 80) {
+
+                    texto.innerHTML =
+                        "Desempenho de " +
+                        desempenho +
+                        "%. A habilidade apresenta evidências de consolidação. Recomenda-se ampliar progressivamente a complexidade das atividades.";
+
+                }
+
+                else {
+
+                    texto.innerHTML =
+                        "Desempenho de " +
+                        desempenho +
+                        "%. A habilidade apresenta aspectos em desenvolvimento. Recomenda-se intervenção pedagógica e nova verificação após as atividades.";
+
+                }
+
+            };
+
+
+        /* =====================================
+           PLANEJAMENTO
+        ====================================== */
+
+        window.gerarPlano =
+            function() {
+
+                const tema =
+                    document.getElementById(
+                        'temaPlano'
+                    ).value ||
+                    "Tema não informado";
+
+
+                const resultado =
+                    document.getElementById(
+                        'resultadoPlano'
+                    );
+
+
+                const texto =
+                    document.getElementById(
+                        'textoPlano'
+                    );
+
+
+                resultado.style.display =
+                    'block';
+
+
+                texto.innerHTML =
+                    "<strong>Tema:</strong> " +
+                    tema +
+                    "<br><br>" +
+
+                    "<strong>Estrutura:</strong> " +
+                    "objetivo de aprendizagem → " +
+                    "habilidade curricular → " +
+                    "metodologia → atividade → " +
+                    "evidência de aprendizagem → avaliação.";
+
+            };
+
+
+        /* =====================================
+           ACESSO
+        ====================================== */
 
         window.validarAcesso =
             function() {
@@ -1195,6 +2072,17 @@
 
                 else {
 
+                    const input =
+                        document
+                            .getElementById(
+                                'idInput'
+                            );
+
+
+                    input.style.borderColor =
+                        "#ff3d68";
+
+
                     if (brain) {
 
                         brain.traverse(
@@ -1218,17 +2106,6 @@
                         );
 
                     }
-
-
-                    const input =
-                        document
-                            .getElementById(
-                                'idInput'
-                            );
-
-
-                    input.style.borderColor =
-                        "#ff3d68";
 
 
                     setTimeout(
@@ -1272,7 +2149,6 @@
             };
 
 
-        /* INTERAÇÃO COM MOUSE */
 
         window.addEventListener(
             'mousemove',
@@ -1297,7 +2173,9 @@
         );
 
 
-        /* ANIMAÇÃO */
+        /* =====================================
+           ANIMAÇÃO
+        ====================================== */
 
         function animate() {
 
@@ -1308,7 +2186,7 @@
 
             particles.rotation.y +=
                 moduloAtual ===
-                'ATENÇÃO'
+                'DIAGNÓSTICO'
                     ? 0.0025
                     : 0.0008;
 
@@ -1358,60 +2236,11 @@
                                 p;
 
 
-                            if (
-                                moduloAtual ===
-                                'ATENÇÃO'
-                            ) {
-
-                                c.material
-                                    .emissive
-                                    .setHex(
-                                        0x8b5cf6
-                                    );
-
-                            }
-
-
-                            else if (
-                                moduloAtual ===
-                                'MEMÓRIA'
-                            ) {
-
-                                c.material
-                                    .emissive
-                                    .setHex(
-                                        0x7c3aed
-                                    );
-
-                            }
-
-
-                            else if (
-                                moduloAtual ===
-                                'RACIOCÍNIO'
-                            ) {
-
-                                c.material
-                                    .emissive
-                                    .setHex(
-                                        0xa78bfa
-                                    );
-
-                            }
-
-
-                            else if (
-                                moduloAtual ===
-                                'LEITURA'
-                            ) {
-
-                                c.material
-                                    .emissive
-                                    .setHex(
-                                        0x8b5cf6
-                                    );
-
-                            }
+                            c.material
+                                .emissive
+                                .setHex(
+                                    0x8b5cf6
+                                );
 
                         }
 
@@ -1432,7 +2261,9 @@
         animate();
 
 
-        /* RESIZE */
+        /* =====================================
+           RESIZE
+        ====================================== */
 
         window.addEventListener(
             'resize',
@@ -1458,4 +2289,3 @@
 
 </body>
 </html>
-```
