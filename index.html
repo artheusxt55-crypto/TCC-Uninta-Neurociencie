@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Laboratório de Aprendizagem — Neuro-UNINTA</title>
+    <title>Neuro-EDU — Laboratório Pedagógico</title>
 
-    <script type="module"
+    <script
+        type="module"
         src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js">
     </script>
 
     <style>
+
         :root {
+
             --primary: #8b5cf6;
             --secondary: #6d28d9;
             --accent: #a78bfa;
+
             --success: #34d399;
             --warning: #f59e0b;
+
             --bg: #090614;
-            --card: rgba(16, 10, 30, 0.90);
+            --card: rgba(16, 10, 30, .90);
+
             --text: #f4f0ff;
             --muted: #9990aa;
+
         }
+
 
         * {
             margin: 0;
@@ -29,62 +39,71 @@
             box-sizing: border-box;
         }
 
+
         body {
+
+            min-height: 100vh;
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+
             background:
+
                 radial-gradient(
                     circle at 70% 40%,
-                    rgba(139, 92, 246, 0.18),
+                    rgba(139, 92, 246, .18),
                     transparent 35%
                 ),
+
                 radial-gradient(
                     circle at 20% 80%,
-                    rgba(109, 40, 217, 0.14),
+                    rgba(109, 40, 217, .14),
                     transparent 35%
                 ),
+
                 linear-gradient(
                     135deg,
                     #090614,
                     #030208
                 );
 
-            color: var(--text);
-            font-family: Inter, Arial, sans-serif;
+            overflow-x: hidden;
 
-            min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            overflow: hidden;
         }
+
 
         /* =========================
            ÁREA DO ALUNO
-        ========================== */
+        ========================= */
 
         .btn-aluno-fixo {
+
             position: fixed;
 
             top: 20px;
             right: 20px;
 
-            padding: 12px 24px;
-
-            background:
-                rgba(139, 92, 246, 0.12);
-
-            border:
-                1px solid rgba(139, 92, 246, 0.45);
-
-            color: white;
+            padding: 12px 22px;
 
             border-radius: 12px;
 
-            font-size: 11px;
-            font-weight: 800;
+            border:
+                1px solid
+                rgba(139,92,246,.45);
+
+            background:
+                rgba(139,92,246,.10);
+
+            color: white;
 
             text-decoration: none;
+
+            font-size: 10px;
+            font-weight: 800;
 
             letter-spacing: .8px;
 
@@ -93,65 +112,94 @@
             z-index: 100;
 
             transition: .3s;
+
         }
+
 
         .btn-aluno-fixo:hover {
-            background: var(--primary);
+
+            background:
+                var(--primary);
+
+            transform:
+                translateY(-2px);
 
             box-shadow:
-                0 0 25px rgba(139, 92, 246, .35);
+                0 0 25px
+                rgba(139,92,246,.35);
 
-            transform: translateY(-2px);
         }
+
 
         /* =========================
            CONTAINER
-        ========================== */
+        ========================= */
 
         .main-container {
-            display: flex;
 
             width: 95%;
             max-width: 1250px;
 
-            gap: 45px;
+            min-height: 100vh;
+
+            margin: auto;
+
+            display: flex;
 
             align-items: center;
+
             justify-content: center;
 
+            gap: 45px;
+
+            position: relative;
+
             z-index: 10;
+
         }
+
 
         /* =========================
            CARD
-        ========================== */
+        ========================= */
 
         .card {
-            width: 400px;
+
+            width: 410px;
 
             padding: 30px;
 
-            background: var(--card);
+            background:
+                var(--card);
 
             border:
-                1px solid rgba(255,255,255,.08);
+                1px solid
+                rgba(255,255,255,.08);
 
             border-radius: 28px;
 
             text-align: center;
 
-            backdrop-filter: blur(20px);
+            backdrop-filter:
+                blur(20px);
 
             box-shadow:
-                0 30px 80px rgba(0,0,0,.55),
-                inset 0 1px rgba(255,255,255,.04);
+
+                0 30px 80px
+                rgba(0,0,0,.55),
+
+                inset 0 1px
+                rgba(255,255,255,.04);
+
         }
+
 
         /* =========================
            MARCA
-        ========================== */
+        ========================= */
 
         .brand {
+
             display: flex;
 
             align-items: center;
@@ -159,10 +207,13 @@
 
             gap: 10px;
 
-            margin-bottom: 18px;
+            margin-bottom: 20px;
+
         }
 
+
         .brand-icon {
+
             width: 30px;
             height: 30px;
 
@@ -180,14 +231,15 @@
                     var(--secondary)
                 );
 
-            position: relative;
-
             box-shadow:
                 0 0 20px
                 rgba(139,92,246,.25);
+
         }
 
+
         .brand-icon::after {
+
             content: "";
 
             width: 10px;
@@ -197,9 +249,12 @@
                 1.5px solid white;
 
             border-radius: 50%;
+
         }
 
+
         .brand span {
+
             font-size: 10px;
 
             font-weight: 800;
@@ -207,196 +262,183 @@
             letter-spacing: 1.5px;
 
             color: #b8afc9;
+
         }
+
 
         /* =========================
-           PAINEL PRINCIPAL
-        ========================== */
+           IA STATUS
+        ========================= */
 
-        .learning-panel {
-            margin-bottom: 15px;
+        .ai-status {
 
-            padding: 14px;
+            display: flex;
 
-            background:
-                rgba(255,255,255,.025);
+            align-items: center;
+            justify-content: center;
 
-            border:
-                1px solid rgba(255,255,255,.06);
+            gap: 7px;
 
-            border-radius: 17px;
-        }
+            margin-bottom: 18px;
 
-        .panel-title {
-            font-size: 9px;
-
-            font-weight: 800;
-
-            color: var(--accent);
-
-            letter-spacing: 1.5px;
-
-            margin-bottom: 10px;
-        }
-
-        .learning-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 6px;
-        }
-
-        .learning-btn {
-            border:
-                1px solid rgba(255,255,255,.06);
-
-            background:
-                rgba(255,255,255,.035);
-
-            color: #aaa2ba;
-
-            border-radius: 9px;
-
-            padding: 11px 3px;
+            color: #8f87a0;
 
             font-size: 8px;
 
-            font-weight: 800;
+            letter-spacing: 1px;
 
-            cursor: pointer;
-
-            transition: .25s;
-
-            letter-spacing: .3px;
         }
 
-        .learning-btn:hover,
-        .learning-btn.active {
+
+        .ai-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
             background:
-                rgba(139,92,246,.17);
-
-            border-color:
-                rgba(139,92,246,.55);
-
-            color: white;
-
-            transform:
-                translateY(-2px);
+                var(--success);
 
             box-shadow:
-                0 5px 18px
-                rgba(109,40,217,.12);
+                0 0 12px
+                rgba(52,211,153,.7);
+
         }
 
-        #status-label {
-            font-size: 7px;
-
-            margin-top: 10px;
-
-            color: #716a7f;
-
-            text-transform: uppercase;
-
-            letter-spacing: .7px;
-        }
 
         /* =========================
            ROBÔ
-        ========================== */
+        ========================= */
 
         .avatar-3d {
+
             width: 100%;
-            height: 160px;
+            height: 150px;
 
             margin-bottom: 5px;
+
+            overflow: hidden;
 
             border-radius: 20px;
 
-            overflow: hidden;
         }
 
-        /* =========================
-           TEXTOS
-        ========================== */
 
         h2 {
+
             font-size: 23px;
 
-            margin-bottom: 5px;
+            margin-bottom: 6px;
 
             letter-spacing: -.5px;
+
         }
 
+
         .subtitle {
-            color: var(--muted);
+
+            color:
+                var(--muted);
 
             margin-bottom: 20px;
 
             font-size: 11px;
 
             line-height: 1.5;
+
         }
+
 
         /* =========================
            INPUT
-        ========================== */
+        ========================= */
 
         input,
-        select {
+        select,
+        textarea {
+
             width: 100%;
 
             padding: 14px;
 
-            background:
-                rgba(255,255,255,.045);
-
-            border:
-                1px solid rgba(255,255,255,.1);
+            margin-bottom: 10px;
 
             border-radius: 11px;
 
-            color: white;
-
-            margin-bottom: 10px;
-
             outline: none;
+
+            border:
+                1px solid
+                rgba(255,255,255,.1);
+
+            background:
+                rgba(255,255,255,.045);
+
+            color: white;
 
             font-size: 12px;
 
             transition: .3s;
+
         }
 
-        input::placeholder {
-            color: #777084;
+
+        textarea {
+
+            min-height: 120px;
+
+            resize: vertical;
+
         }
+
+
+        input::placeholder,
+        textarea::placeholder {
+
+            color:
+                #777084;
+
+        }
+
 
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
+
             border-color:
                 rgba(139,92,246,.7);
 
             box-shadow:
                 0 0 20px
                 rgba(139,92,246,.12);
+
         }
 
+
         select option {
-            background: #160d25;
+
+            background:
+                #160d25;
+
             color: white;
+
         }
+
 
         /* =========================
            BOTÕES
-        ========================== */
+        ========================= */
 
         .btn-neuro {
-            display: block;
 
             width: 100%;
 
-            padding: 17px;
+            padding: 16px;
+
+            border: none;
+
+            border-radius: 12px;
 
             background:
                 linear-gradient(
@@ -407,119 +449,95 @@
 
             color: white;
 
-            border: none;
-
-            border-radius: 12px;
+            font-size: 11px;
 
             font-weight: 800;
 
-            text-transform: uppercase;
-
-            text-decoration: none;
+            letter-spacing: .5px;
 
             cursor: pointer;
 
             transition: .3s;
 
-            font-size: 12px;
-
-            letter-spacing: .5px;
         }
 
+
         .btn-neuro:hover {
+
             transform:
                 translateY(-2px);
 
             box-shadow:
                 0 10px 30px
                 rgba(109,40,217,.28);
+
         }
 
+
         .btn-library {
+
+            display: block;
+
             margin-top: 10px;
 
-            background: transparent;
+            padding: 14px;
 
             border:
                 1px solid
                 rgba(255,255,255,.12);
 
+            background:
+                transparent;
+
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 12px;
+
             font-size: 11px;
 
-            padding: 14px;
+            font-weight: 700;
+
         }
 
+
         .btn-atlas {
+
             display: block;
 
             width: 100%;
 
             padding: 13px;
 
-            background:
-                rgba(139,92,246,.04);
+            margin-top: 10px;
 
-            color: #cfc0f7;
+            border-radius: 12px;
 
             border:
                 1px solid
                 rgba(139,92,246,.3);
 
-            border-radius: 12px;
+            background:
+                rgba(139,92,246,.04);
 
-            font-weight: 700;
+            color: #cfc0f7;
 
             text-decoration: none;
 
-            cursor: pointer;
-
-            transition: .3s;
-
-            margin-top: 10px;
-
             font-size: 10px;
 
-            letter-spacing: .5px;
+            font-weight: 700;
+
         }
 
-        .btn-atlas:hover {
-            background:
-                rgba(139,92,246,.1);
-
-            border-color:
-                rgba(139,92,246,.55);
-
-            transform:
-                translateY(-2px);
-        }
-
-        /* =========================
-           QR
-        ========================== */
-
-        .qr-section img {
-            width: 62px;
-
-            border-radius: 8px;
-
-            margin-top: 14px;
-
-            opacity: .8;
-        }
-
-        .qr-section p {
-            font-size: 8px;
-
-            color: #514b5d;
-
-            margin-top: 5px;
-        }
 
         /* =========================
            CÉREBRO
-        ========================== */
+        ========================= */
 
         #brain-viewport {
+
             flex: 1;
 
             height: 600px;
@@ -527,9 +545,12 @@
             min-width: 500px;
 
             position: relative;
+
         }
 
+
         .brain-label {
+
             position: absolute;
 
             top: 35px;
@@ -552,26 +573,33 @@
             backdrop-filter:
                 blur(10px);
 
-            font-size: 9px;
-
             color: #817893;
+
+            font-size: 9px;
 
             letter-spacing: 1px;
 
+            white-space: nowrap;
+
             z-index: 5;
 
-            white-space: nowrap;
         }
+
 
         .brain-label strong {
-            color: #d9ccf7;
+
+            color:
+                #d9ccf7;
+
         }
 
+
         /* =========================
-           PAINEL FUNCIONAL
-        ========================== */
+           PAINEL
+        ========================= */
 
         .tool-panel {
+
             display: none;
 
             position: fixed;
@@ -580,11 +608,13 @@
             left: 50%;
 
             transform:
-                translate(-50%, -50%);
+                translate(-50%,-50%);
 
-            width: min(650px, 90%);
+            width:
+                min(680px, 92%);
 
-            max-height: 85vh;
+            max-height:
+                88vh;
 
             overflow-y: auto;
 
@@ -608,56 +638,81 @@
 
             z-index: 200;
 
-            text-align: left;
         }
+
 
         .tool-panel.active {
+
             display: block;
-            animation: panelIn .25s ease;
+
+            animation:
+                panelIn .25s ease;
+
         }
 
+
         @keyframes panelIn {
+
             from {
+
                 opacity: 0;
+
                 transform:
-                    translate(-50%, -47%);
+                    translate(-50%,-47%);
+
             }
 
             to {
+
                 opacity: 1;
+
                 transform:
-                    translate(-50%, -50%);
+                    translate(-50%,-50%);
+
             }
+
         }
+
 
         .tool-header {
+
             display: flex;
 
+            align-items: center;
             justify-content: space-between;
 
-            align-items: center;
-
             margin-bottom: 22px;
+
         }
+
 
         .tool-header h3 {
+
             font-size: 20px;
+
         }
 
+
         .tool-header p {
-            color: var(--muted);
+
+            margin-top: 5px;
+
+            color:
+                var(--muted);
 
             font-size: 10px;
 
-            margin-top: 4px;
         }
 
+
         .close-tool {
+
             width: 32px;
             height: 32px;
 
             border:
-                1px solid rgba(255,255,255,.1);
+                1px solid
+                rgba(255,255,255,.1);
 
             background:
                 rgba(255,255,255,.04);
@@ -669,62 +724,139 @@
             cursor: pointer;
 
             font-size: 16px;
+
         }
 
+
+        /* =========================
+           TOOL GRID
+        ========================= */
+
         .tool-grid {
+
             display: grid;
 
             grid-template-columns:
-                repeat(2, 1fr);
+                repeat(2,1fr);
 
             gap: 12px;
+
         }
 
+
         .tool-card {
+
             padding: 16px;
 
             background:
                 rgba(255,255,255,.035);
 
             border:
-                1px solid rgba(255,255,255,.07);
+                1px solid
+                rgba(255,255,255,.07);
 
             border-radius: 14px;
+
         }
+
 
         .tool-card h4 {
+
             font-size: 11px;
 
-            color: var(--accent);
+            color:
+                var(--accent);
 
-            margin-bottom: 7px;
+            margin-bottom: 8px;
 
             letter-spacing: .5px;
+
         }
+
 
         .tool-card p {
+
             font-size: 10px;
 
-            color: #aaa2ba;
+            color:
+                #aaa2ba;
 
             line-height: 1.5;
+
         }
 
+
         .field-label {
+
             display: block;
-
-            font-size: 9px;
-
-            color: #aaa2ba;
 
             margin:
                 4px 0 6px;
+
+            color:
+                #aaa2ba;
+
+            font-size: 9px;
+
         }
 
+
+        /* =========================
+           IA BADGE
+        ========================= */
+
+        .ai-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 6px 9px;
+
+            margin-bottom: 12px;
+
+            border-radius: 7px;
+
+            background:
+                rgba(139,92,246,.12);
+
+            border:
+                1px solid
+                rgba(139,92,246,.25);
+
+            color:
+                #cfc0f7;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .6px;
+
+        }
+
+
+        .ai-badge::before {
+
+            content: "✦";
+
+            color:
+                var(--accent);
+
+        }
+
+
+        /* =========================
+           RESULTADO
+        ========================= */
+
         .result-box {
+
             margin-top: 15px;
 
-            padding: 15px;
+            padding: 16px;
 
             background:
                 rgba(139,92,246,.08);
@@ -734,76 +866,61 @@
                 rgba(139,92,246,.2);
 
             border-radius: 13px;
+
         }
+
 
         .result-box strong {
-            color: var(--accent);
+
+            color:
+                var(--accent);
 
             font-size: 10px;
+
         }
+
 
         .result-box p {
-            color: #c4bbd2;
-
-            font-size: 10px;
-
-            margin-top: 7px;
-
-            line-height: 1.5;
-        }
-
-        .skill-code {
-            display: inline-block;
-
-            padding: 5px 8px;
-
-            margin-bottom: 7px;
-
-            border-radius: 6px;
-
-            background:
-                rgba(139,92,246,.15);
-
-            color: #cfc0f7;
-
-            font-size: 9px;
-
-            font-weight: 800;
-        }
-
-        .progress {
-            height: 5px;
-
-            background:
-                rgba(255,255,255,.07);
-
-            border-radius: 10px;
 
             margin-top: 8px;
 
-            overflow: hidden;
+            color:
+                #c4bbd2;
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
         }
 
-        .progress span {
+
+        .loading {
+
+            display: none;
+
+            margin-top: 15px;
+
+            color:
+                #a78bfa;
+
+            font-size: 10px;
+
+        }
+
+
+        .loading.active {
+
             display: block;
 
-            height: 100%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--secondary),
-                    var(--primary)
-                );
-
-            border-radius: inherit;
         }
+
 
         /* =========================
            OVERLAY
-        ========================== */
+        ========================= */
 
         .overlay {
+
             display: none;
 
             position: fixed;
@@ -817,30 +934,44 @@
                 blur(5px);
 
             z-index: 150;
+
         }
+
 
         .overlay.active {
+
             display: block;
+
         }
 
-        /* =========================
-           RESPONSIVIDADE
-        ========================== */
 
-        @media (max-width: 900px) {
+        /* =========================
+           RESPONSIVO
+        ========================= */
+
+        @media(max-width:900px) {
 
             body {
-                overflow: auto;
+
+                overflow-y: auto;
 
                 padding:
                     80px 0 30px;
+
             }
+
 
             .main-container {
+
+                min-height: auto;
+
                 flex-direction: column;
+
             }
 
+
             #brain-viewport {
+
                 width: 100%;
 
                 min-width: 0;
@@ -848,28 +979,49 @@
                 height: 420px;
 
                 order: -1;
+
             }
+
 
             .card {
+
                 width:
-                    min(400px, 92%);
+                    min(410px,92%);
+
             }
+
         }
 
-        @media (max-width: 550px) {
+
+        @media(max-width:550px) {
 
             .tool-grid {
+
                 grid-template-columns: 1fr;
+
             }
 
-            .learning-btn {
-                font-size: 7px;
+
+            .btn-aluno-fixo {
+
+                top: 12px;
+                right: 12px;
+
             }
+
         }
+
     </style>
+
 </head>
 
+
 <body>
+
+
+    <!-- =========================
+         ÁREA DO ALUNO
+    ========================= -->
 
     <a
         href="aluno.html"
@@ -881,12 +1033,18 @@
 
 
     <!-- =========================
-         INTERFACE PRINCIPAL
-    ========================== -->
+         INTERFACE
+    ========================= -->
 
-    <div class="main-container">
+    <main class="main-container">
 
-        <div class="card">
+
+        <!-- =========================
+             CARD PRINCIPAL
+        ========================= -->
+
+        <section class="card">
+
 
             <div class="brand">
 
@@ -899,61 +1057,16 @@
             </div>
 
 
-            <div class="learning-panel">
+            <div class="ai-status">
 
-                <div class="panel-title">
-                    LABORATÓRIO DE APRENDIZAGEM
-                </div>
+                <span class="ai-dot"></span>
 
-
-                <div class="learning-grid">
-
-                    <button
-                        class="learning-btn active"
-                        onclick="abrirModulo('diagnostico', this)">
-
-                        DIAGNÓSTICO
-
-                    </button>
-
-
-                    <button
-                        class="learning-btn"
-                        onclick="abrirModulo('bncc', this)">
-
-                        BNCC
-
-                    </button>
-
-
-                    <button
-                        class="learning-btn"
-                        onclick="abrirModulo('planejamento', this)">
-
-                        PLANEJAMENTO
-
-                    </button>
-
-
-                    <button
-                        class="learning-btn"
-                        onclick="abrirModulo('intervencao', this)">
-
-                        INTERVENÇÃO
-
-                    </button>
-
-                </div>
-
-
-                <p id="status-label">
-
-                    MÓDULO ATIVO: DIAGNÓSTICO
-
-                </p>
+                AMBIENTE PREPARADO PARA INTELIGÊNCIA ARTIFICIAL
 
             </div>
 
+
+            <!-- ROBÔ -->
 
             <div class="avatar-3d">
 
@@ -965,14 +1078,15 @@
 
 
             <h2>
-                Olá, Mestre Matheus!
+                Laboratório Pedagógico
             </h2>
 
 
             <p class="subtitle">
 
-                Ambiente digital para exploração,
-                avaliação e desenvolvimento da aprendizagem.
+                Um ambiente para apoiar diagnóstico,
+                planejamento, consulta curricular e
+                intervenção pedagógica.
 
             </p>
 
@@ -996,7 +1110,7 @@
 
             <a
                 href="biblioteca.html"
-                class="btn-neuro btn-library">
+                class="btn-library">
 
                 BIBLIOTECA DIGITAL
 
@@ -1012,26 +1126,14 @@
             </a>
 
 
-            <div class="qr-section">
-
-                <img
-                    src="qr-code.png"
-                    alt="QR Code">
-
-                <p>
-                    bit.ly/tcc-uninta
-                </p>
-
-            </div>
-
-        </div>
+        </section>
 
 
         <!-- =========================
-             CÉREBRO 3D
-        ========================== -->
+             CÉREBRO
+        ========================= -->
 
-        <div id="brain-viewport">
+        <section id="brain-viewport">
 
             <div class="brain-label">
 
@@ -1040,14 +1142,15 @@
 
             </div>
 
-        </div>
+        </section>
 
-    </div>
+
+    </main>
 
 
     <!-- =========================
          OVERLAY
-    ========================== -->
+    ========================= -->
 
     <div
         class="overlay"
@@ -1056,26 +1159,30 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          DIAGNÓSTICO
-    ========================== -->
+    ====================================================== -->
 
     <div
         class="tool-panel"
         id="diagnostico">
 
+
         <div class="tool-header">
 
             <div>
+
                 <h3>
                     Diagnóstico da Aprendizagem
                 </h3>
 
                 <p>
-                    Identifique habilidades consolidadas
-                    e habilidades em desenvolvimento.
+                    Estrutura preparada para análise
+                    pedagógica assistida por IA.
                 </p>
+
             </div>
+
 
             <button
                 class="close-tool"
@@ -1088,7 +1195,13 @@
         </div>
 
 
+        <div class="ai-badge">
+            IA PEDAGÓGICA
+        </div>
+
+
         <div class="tool-grid">
+
 
             <div class="tool-card">
 
@@ -1121,11 +1234,25 @@
 
                 <select id="diagComponente">
 
-                    <option>Língua Portuguesa</option>
-                    <option>Matemática</option>
-                    <option>Ciências</option>
-                    <option>História</option>
-                    <option>Geografia</option>
+                    <option>
+                        Língua Portuguesa
+                    </option>
+
+                    <option>
+                        Matemática
+                    </option>
+
+                    <option>
+                        Ciências
+                    </option>
+
+                    <option>
+                        História
+                    </option>
+
+                    <option>
+                        Geografia
+                    </option>
 
                 </select>
 
@@ -1134,52 +1261,33 @@
         </div>
 
 
-        <div class="tool-card" style="margin-top:12px;">
+        <label class="field-label">
+            HABILIDADE / NECESSIDADE OBSERVADA
+        </label>
 
-            <h4>
-                HABILIDADE AVALIADA
-            </h4>
 
-            <span class="skill-code">
-                HABILIDADE BNCC
-            </span>
-
-            <p>
-                Seleção de habilidades para
-                composição do diagnóstico.
-            </p>
-
-            <select id="diagHabilidade">
-
-                <option>
-                    Compreensão e interpretação textual
-                </option>
-
-                <option>
-                    Localização de informações explícitas
-                </option>
-
-                <option>
-                    Inferência de informações
-                </option>
-
-                <option>
-                    Resolução de problemas matemáticos
-                </option>
-
-            </select>
-
-        </div>
+        <textarea
+            id="diagDescricao"
+            placeholder="Descreva o que foi observado no processo de aprendizagem...">
+        </textarea>
 
 
         <button
             class="btn-neuro"
-            style="margin-top:15px;"
             onclick="executarDiagnostico()">
 
-            INICIAR DIAGNÓSTICO
+            ANALISAR COM IA
 
         </button>
+
+
+        <div
+            class="loading"
+            id="loadingDiagnostico">
+
+            Processando análise pedagógica...
+
+        </div>
 
 
         <div
@@ -1188,43 +1296,40 @@
             style="display:none;">
 
             <strong>
-                RESULTADO DA ANÁLISE
+                ANÁLISE PEDAGÓGICA
             </strong>
 
             <p id="textoDiagnostico"></p>
-
-            <div class="progress">
-                <span
-                    id="barraDiagnostico"
-                    style="width:0%">
-                </span>
-            </div>
 
         </div>
 
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          BNCC
-    ========================== -->
+    ====================================================== -->
 
     <div
         class="tool-panel"
         id="bncc">
 
+
         <div class="tool-header">
 
             <div>
+
                 <h3>
-                    Base Nacional Comum Curricular
+                    Consulta Curricular
                 </h3>
 
                 <p>
-                    Consulte e organize habilidades
-                    por etapa e componente.
+                    Pesquisa de habilidades e organização
+                    curricular para futura integração com IA.
                 </p>
+
             </div>
+
 
             <button
                 class="close-tool"
@@ -1234,32 +1339,36 @@
 
             </button>
 
+        </div>
+
+
+        <div class="ai-badge">
+            BASE CURRICULAR + IA
         </div>
 
 
         <input
             type="text"
             id="buscaBNCC"
-            placeholder="Pesquisar habilidade, código ou palavra-chave..."
+            placeholder="Digite uma habilidade ou palavra-chave..."
         >
 
 
         <div class="tool-grid">
 
+
             <div class="tool-card">
 
-                <span class="skill-code">
-                    LÍNGUA PORTUGUESA
-                </span>
-
                 <h4>
-                    HABILIDADE
+                    HABILIDADES
                 </h4>
 
                 <p>
-                    Compreensão de textos,
-                    localização de informações
-                    e construção de sentidos.
+
+                    A interface poderá consultar
+                    uma base estruturada de habilidades
+                    curriculares.
+
                 </p>
 
             </div>
@@ -1267,18 +1376,16 @@
 
             <div class="tool-card">
 
-                <span class="skill-code">
-                    MATEMÁTICA
-                </span>
-
                 <h4>
-                    HABILIDADE
+                    INTEGRAÇÃO COM IA
                 </h4>
 
                 <p>
-                    Resolução e elaboração de
-                    problemas utilizando diferentes
-                    estratégias.
+
+                    A IA poderá utilizar a habilidade
+                    selecionada como contexto para
+                    gerar análises e propostas.
+
                 </p>
 
             </div>
@@ -1286,43 +1393,56 @@
         </div>
 
 
-        <div class="result-box">
+        <button
+            class="btn-neuro"
+            style="margin-top:15px;"
+            onclick="consultarBNCC()">
+
+            CONSULTAR
+
+        </button>
+
+
+        <div
+            class="result-box"
+            id="resultadoBNCC"
+            style="display:none;">
 
             <strong>
-                ORGANIZAÇÃO PEDAGÓGICA
+                RESULTADO
             </strong>
 
-            <p>
-                Cada habilidade poderá ser vinculada
-                a atividades, avaliações, diagnósticos
-                e planos de intervenção.
-            </p>
+            <p id="textoBNCC"></p>
 
         </div>
 
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          PLANEJAMENTO
-    ========================== -->
+    ====================================================== -->
 
     <div
         class="tool-panel"
         id="planejamento">
 
+
         <div class="tool-header">
 
             <div>
+
                 <h3>
                     Planejamento Pedagógico
                 </h3>
 
                 <p>
-                    Estruture uma proposta de aula
-                    baseada em objetivos e habilidades.
+                    Prepare os dados que serão enviados
+                    posteriormente para a IA.
                 </p>
+
             </div>
+
 
             <button
                 class="close-tool"
@@ -1332,6 +1452,11 @@
 
             </button>
 
+        </div>
+
+
+        <div class="ai-badge">
+            GERAÇÃO ASSISTIDA POR IA
         </div>
 
 
@@ -1341,7 +1466,7 @@
 
         <input
             id="temaPlano"
-            placeholder="Ex.: Interpretação textual"
+            placeholder="Ex.: interpretação textual"
         >
 
 
@@ -1349,7 +1474,7 @@
             ANO / SÉRIE
         </label>
 
-        <select>
+        <select id="anoPlano">
 
             <option>1º Ano</option>
             <option>2º Ano</option>
@@ -1365,55 +1490,31 @@
 
 
         <label class="field-label">
-            OBJETIVO DE APRENDIZAGEM
+            OBJETIVO
         </label>
 
-        <input
-            placeholder="Defina o que o aluno deverá desenvolver..."
-        >
-
-
-        <div class="tool-grid">
-
-            <div class="tool-card">
-
-                <h4>
-                    METODOLOGIA
-                </h4>
-
-                <p>
-                    Estratégias, atividades e
-                    organização da experiência
-                    de aprendizagem.
-                </p>
-
-            </div>
-
-
-            <div class="tool-card">
-
-                <h4>
-                    AVALIAÇÃO
-                </h4>
-
-                <p>
-                    Evidências utilizadas para
-                    verificar a aprendizagem.
-                </p>
-
-            </div>
-
-        </div>
+        <textarea
+            id="objetivoPlano"
+            placeholder="O que o aluno deverá desenvolver?">
+        </textarea>
 
 
         <button
             class="btn-neuro"
-            style="margin-top:15px;"
             onclick="gerarPlano()">
 
-            ESTRUTURAR PLANEJAMENTO
+            GERAR PLANEJAMENTO
 
         </button>
+
+
+        <div
+            class="loading"
+            id="loadingPlano">
+
+            Preparando requisição para a IA...
+
+        </div>
 
 
         <div
@@ -1422,7 +1523,7 @@
             style="display:none;">
 
             <strong>
-                ESTRUTURA GERADA
+                PLANEJAMENTO
             </strong>
 
             <p id="textoPlano"></p>
@@ -1432,26 +1533,30 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          INTERVENÇÃO
-    ========================== -->
+    ====================================================== -->
 
     <div
         class="tool-panel"
         id="intervencao">
 
+
         <div class="tool-header">
 
             <div>
+
                 <h3>
                     Intervenção Pedagógica
                 </h3>
 
                 <p>
-                    Planeje ações a partir das
-                    necessidades identificadas.
+                    Estrutura para transformar evidências
+                    de aprendizagem em estratégias.
                 </p>
+
             </div>
+
 
             <button
                 class="close-tool"
@@ -1464,78 +1569,70 @@
         </div>
 
 
-        <div class="tool-grid">
-
-            <div class="tool-card">
-
-                <h4>
-                    HABILIDADE EM DESENVOLVIMENTO
-                </h4>
-
-                <span class="skill-code">
-                    NECESSITA DE REFORÇO
-                </span>
-
-                <p>
-                    Identificação de informações
-                    implícitas e construção de inferências.
-                </p>
-
-            </div>
-
-
-            <div class="tool-card">
-
-                <h4>
-                    DESEMPENHO ATUAL
-                </h4>
-
-                <p>
-                    62% de aproveitamento nas
-                    atividades avaliativas.
-                </p>
-
-                <div class="progress">
-                    <span style="width:62%"></span>
-                </div>
-
-            </div>
-
+        <div class="ai-badge">
+            ESTRATÉGIA PEDAGÓGICA + IA
         </div>
 
 
-        <div class="result-box">
+        <label class="field-label">
+            NECESSIDADE IDENTIFICADA
+        </label>
 
-            <strong>
-                PROPOSTA DE INTERVENÇÃO
-            </strong>
 
-            <p>
-                1. Trabalhar textos curtos.<br>
-                2. Utilizar perguntas orientadoras.<br>
-                3. Propor atividades graduais.<br>
-                4. Registrar novas evidências.<br>
-                5. Realizar reavaliação da habilidade.
-            </p>
+        <textarea
+            id="necessidadeIntervencao"
+            placeholder="Descreva a dificuldade ou necessidade observada...">
+        </textarea>
 
-        </div>
+
+        <label class="field-label">
+            CONTEXTO
+        </label>
+
+
+        <textarea
+            id="contextoIntervencao"
+            placeholder="Informe o contexto da turma ou do estudante...">
+        </textarea>
 
 
         <button
             class="btn-neuro"
-            style="margin-top:15px;"
-            onclick="alert('Plano de intervenção preparado para revisão do professor.')">
+            onclick="gerarIntervencao()">
 
-            PREPARAR INTERVENÇÃO
+            PROPOR INTERVENÇÃO
 
         </button>
+
+
+        <div
+            class="loading"
+            id="loadingIntervencao">
+
+            Preparando análise...
+
+        </div>
+
+
+        <div
+            class="result-box"
+            id="resultadoIntervencao"
+            style="display:none;">
+
+            <strong>
+                PROPOSTA PEDAGÓGICA
+            </strong>
+
+            <p id="textoIntervencao"></p>
+
+        </div>
 
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          THREE.JS
-    ========================== -->
+    ====================================================== -->
 
     <script
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
@@ -1549,13 +1646,15 @@
 
     <script>
 
-        /* =====================================
+
+        /* =====================================================
            THREE.JS
-        ====================================== */
+        ====================================================== */
+
 
         const container =
             document.getElementById(
-                'brain-viewport'
+                "brain-viewport"
             );
 
 
@@ -1566,7 +1665,7 @@
         scene.fog =
             new THREE.FogExp2(
                 0x090614,
-                0.045
+                .045
             );
 
 
@@ -1575,7 +1674,7 @@
                 35,
                 container.clientWidth /
                 container.clientHeight,
-                0.1,
+                .1,
                 1000
             );
 
@@ -1585,8 +1684,10 @@
 
         const renderer =
             new THREE.WebGLRenderer({
+
                 antialias: true,
                 alpha: true
+
             });
 
 
@@ -1609,57 +1710,57 @@
         );
 
 
-        /* =====================================
+        /* =====================================================
            ILUMINAÇÃO
-        ====================================== */
+        ====================================================== */
+
 
         scene.add(
             new THREE.AmbientLight(
                 0xffffff,
-                0.65
+                .65
             )
         );
 
 
-        const pLight =
+        const light =
             new THREE.PointLight(
                 0x9b6cff,
                 1.6
             );
 
 
-        pLight.position.set(
+        light.position.set(
             5,
             5,
             10
         );
 
 
-        scene.add(pLight);
+        scene.add(light);
 
 
-        const secondaryLight =
+        const light2 =
             new THREE.PointLight(
                 0x6d28d9,
                 1
             );
 
 
-        secondaryLight.position.set(
+        light2.position.set(
             -5,
             -2,
             5
         );
 
 
-        scene.add(
-            secondaryLight
-        );
+        scene.add(light2);
 
 
-        /* =====================================
+        /* =====================================================
            PARTÍCULAS
-        ====================================== */
+        ====================================================== */
+
 
         const partGeo =
             new THREE.BufferGeometry();
@@ -1668,7 +1769,7 @@
         const partCount = 1700;
 
 
-        const posArr =
+        const positions =
             new Float32Array(
                 partCount * 3
             );
@@ -1680,16 +1781,16 @@
             i++
         ) {
 
-            posArr[i] =
-                (Math.random() - 0.5) * 15;
+            positions[i] =
+                (Math.random() - .5) * 15;
 
         }
 
 
         partGeo.setAttribute(
-            'position',
+            "position",
             new THREE.BufferAttribute(
-                posArr,
+                positions,
                 3
             )
         );
@@ -1698,13 +1799,13 @@
         const partMat =
             new THREE.PointsMaterial({
 
-                size: 0.035,
+                size: .035,
 
                 color: 0x9b6cff,
 
                 transparent: true,
 
-                opacity: 0.5
+                opacity: .5
 
             });
 
@@ -1719,21 +1820,16 @@
         scene.add(particles);
 
 
-        /* =====================================
+        /* =====================================================
            CÉREBRO
-        ====================================== */
+        ====================================================== */
+
 
         let brain = null;
 
-        let tX = 0;
 
-        let tY = 0;
-
-        let moduloAtual =
-            'DIAGNÓSTICO';
-
-        let pulseSpeed =
-            0.002;
+        let targetX = 0;
+        let targetY = 0;
 
 
         const loader =
@@ -1741,7 +1837,8 @@
 
 
         loader.load(
-            './human-brain.glb',
+
+            "./human-brain.glb",
 
             (gltf) => {
 
@@ -1750,22 +1847,24 @@
 
 
                 brain.traverse(
-                    c => {
+                    object => {
 
-                        if (c.isMesh) {
+                        if (
+                            object.isMesh
+                        ) {
 
-                            c.material =
+                            object.material =
                                 new THREE.MeshStandardMaterial({
 
                                     color: 0x130d24,
 
                                     emissive: 0x8b5cf6,
 
-                                    emissiveIntensity: 0.8,
+                                    emissiveIntensity: .8,
 
-                                    roughness: 0.35,
+                                    roughness: .35,
 
-                                    metalness: 0.4
+                                    metalness: .4
 
                                 });
 
@@ -1788,125 +1887,60 @@
 
             undefined,
 
-            (err) => {
+            error => {
 
                 console.error(
                     "Erro ao carregar cérebro:",
-                    err
+                    error
                 );
 
             }
+
         );
 
 
-        /* =====================================
+        /* =====================================================
            MÓDULOS
-        ====================================== */
+        ====================================================== */
+
 
         window.abrirModulo =
-            function(modulo, elemento) {
-
-                moduloAtual =
-                    modulo.toUpperCase();
-
+            function(nome) {
 
                 document
                     .querySelectorAll(
-                        '.learning-btn'
+                        ".tool-panel"
                     )
-                    .forEach(btn => {
+                    .forEach(
+                        panel =>
+                            panel.classList.remove(
+                                "active"
+                            )
+                    );
 
-                        btn.classList.remove(
-                            'active'
-                        );
 
-                    });
+                const painel =
+                    document.getElementById(
+                        nome
+                    );
 
 
-                elemento.classList.add(
-                    'active'
+                if (!painel)
+                    return;
+
+
+                painel.classList.add(
+                    "active"
                 );
 
 
                 document
-                    .querySelectorAll(
-                        '.tool-panel'
-                    )
-                    .forEach(panel => {
-
-                        panel.classList.remove(
-                            'active'
-                        );
-
-                    });
-
-
-                document
                     .getElementById(
-                        modulo
+                        "overlay"
                     )
                     .classList.add(
-                        'active'
+                        "active"
                     );
-
-
-                document
-                    .getElementById(
-                        'overlay'
-                    )
-                    .classList.add(
-                        'active'
-                    );
-
-
-                document
-                    .getElementById(
-                        'status-label'
-                    )
-                    .innerText =
-                    "MÓDULO ATIVO: " +
-                    modulo.toUpperCase();
-
-
-                if (
-                    modulo ===
-                    'diagnostico'
-                ) {
-
-                    pulseSpeed =
-                        0.004;
-
-                }
-
-                else if (
-                    modulo ===
-                    'bncc'
-                ) {
-
-                    pulseSpeed =
-                        0.0015;
-
-                }
-
-                else if (
-                    modulo ===
-                    'planejamento'
-                ) {
-
-                    pulseSpeed =
-                        0.003;
-
-                }
-
-                else if (
-                    modulo ===
-                    'intervencao'
-                ) {
-
-                    pulseSpeed =
-                        0.002;
-
-                }
 
             };
 
@@ -1916,266 +1950,598 @@
 
                 document
                     .querySelectorAll(
-                        '.tool-panel'
+                        ".tool-panel"
                     )
-                    .forEach(panel => {
-
-                        panel.classList.remove(
-                            'active'
-                        );
-
-                    });
+                    .forEach(
+                        panel =>
+                            panel.classList.remove(
+                                "active"
+                            )
+                    );
 
 
                 document
                     .getElementById(
-                        'overlay'
+                        "overlay"
                     )
                     .classList.remove(
-                        'active'
+                        "active"
                     );
 
             };
 
 
-        /* =====================================
+        /* =====================================================
+           FUTURA API DA IA
+        ====================================================== */
+
+
+        async function requisicaoIA(
+            endpoint,
+            dados
+        ) {
+
+            /*
+                FUTURO:
+
+                const resposta =
+                    await fetch(
+                        "/api/" + endpoint,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(dados)
+                        }
+                    );
+
+                if (!resposta.ok)
+                    throw new Error(
+                        "Erro na API"
+                    );
+
+                return await resposta.json();
+            */
+
+
+            /*
+                POR ENQUANTO:
+
+                A interface apenas demonstra
+                que o ponto de integração existe.
+
+                NÃO existe IA simulada aqui.
+            */
+
+
+            throw new Error(
+                "API de IA ainda não conectada."
+            );
+
+        }
+
+
+        /* =====================================================
            DIAGNÓSTICO
-        ====================================== */
+        ====================================================== */
+
 
         window.executarDiagnostico =
-            function() {
+            async function() {
 
-                const resultado =
+                const ano =
                     document.getElementById(
-                        'resultadoDiagnostico'
+                        "diagAno"
+                    ).value;
+
+
+                const componente =
+                    document.getElementById(
+                        "diagComponente"
+                    ).value;
+
+
+                const descricao =
+                    document.getElementById(
+                        "diagDescricao"
+                    ).value.trim();
+
+
+                if (!descricao) {
+
+                    alert(
+                        "Descreva a necessidade observada."
                     );
 
-
-                const texto =
-                    document.getElementById(
-                        'textoDiagnostico'
-                    );
-
-
-                const barra =
-                    document.getElementById(
-                        'barraDiagnostico'
-                    );
-
-
-                const desempenho =
-                    Math.floor(
-                        Math.random() *
-                        31
-                    ) + 60;
-
-
-                resultado.style.display =
-                    'block';
-
-
-                barra.style.width =
-                    desempenho + '%';
-
-
-                if (desempenho >= 80) {
-
-                    texto.innerHTML =
-                        "Desempenho de " +
-                        desempenho +
-                        "%. A habilidade apresenta evidências de consolidação. Recomenda-se ampliar progressivamente a complexidade das atividades.";
+                    return;
 
                 }
 
-                else {
 
-                    texto.innerHTML =
-                        "Desempenho de " +
-                        desempenho +
-                        "%. A habilidade apresenta aspectos em desenvolvimento. Recomenda-se intervenção pedagógica e nova verificação após as atividades.";
+                const loading =
+                    document.getElementById(
+                        "loadingDiagnostico"
+                    );
+
+
+                loading.classList.add(
+                    "active"
+                );
+
+
+                try {
+
+                    const resposta =
+                        await requisicaoIA(
+                            "diagnostico",
+                            {
+
+                                ano,
+                                componente,
+                                descricao
+
+                            }
+                        );
+
+
+                    document.getElementById(
+                        "resultadoDiagnostico"
+                    ).style.display =
+                        "block";
+
+
+                    document.getElementById(
+                        "textoDiagnostico"
+                    ).innerText =
+                        resposta.resultado;
+
+                }
+
+                catch(error) {
+
+                    console.log(error);
+
+                    mostrarAvisoAPI(
+                        "resultadoDiagnostico",
+                        "A interface está preparada. A API de IA ainda precisa ser conectada ao backend."
+                    );
+
+                }
+
+                finally {
+
+                    loading.classList.remove(
+                        "active"
+                    );
 
                 }
 
             };
 
 
-        /* =====================================
+        /* =====================================================
+           BNCC
+        ====================================================== */
+
+
+        window.consultarBNCC =
+            async function() {
+
+                const busca =
+                    document.getElementById(
+                        "buscaBNCC"
+                    ).value.trim();
+
+
+                if (!busca) {
+
+                    alert(
+                        "Digite algo para pesquisar."
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const resposta =
+                        await requisicaoIA(
+                            "bncc",
+                            {
+                                busca
+                            }
+                        );
+
+
+                    document.getElementById(
+                        "resultadoBNCC"
+                    ).style.display =
+                        "block";
+
+
+                    document.getElementById(
+                        "textoBNCC"
+                    ).innerText =
+                        resposta.resultado;
+
+                }
+
+                catch(error) {
+
+                    console.log(error);
+
+                    mostrarAvisoAPI(
+                        "resultadoBNCC",
+                        "O campo de consulta está pronto para receber a base curricular/API."
+                    );
+
+                }
+
+            };
+
+
+        /* =====================================================
            PLANEJAMENTO
-        ====================================== */
+        ====================================================== */
+
 
         window.gerarPlano =
-            function() {
+            async function() {
 
                 const tema =
                     document.getElementById(
-                        'temaPlano'
-                    ).value ||
-                    "Tema não informado";
+                        "temaPlano"
+                    ).value.trim();
 
 
-                const resultado =
+                const ano =
                     document.getElementById(
-                        'resultadoPlano'
+                        "anoPlano"
+                    ).value;
+
+
+                const objetivo =
+                    document.getElementById(
+                        "objetivoPlano"
+                    ).value.trim();
+
+
+                if (!tema || !objetivo) {
+
+                    alert(
+                        "Informe o tema e o objetivo."
+                    );
+
+                    return;
+
+                }
+
+
+                const loading =
+                    document.getElementById(
+                        "loadingPlano"
                     );
 
 
-                const texto =
+                loading.classList.add(
+                    "active"
+                );
+
+
+                try {
+
+                    const resposta =
+                        await requisicaoIA(
+                            "planejamento",
+                            {
+
+                                tema,
+                                ano,
+                                objetivo
+
+                            }
+                        );
+
+
                     document.getElementById(
-                        'textoPlano'
+                        "resultadoPlano"
+                    ).style.display =
+                        "block";
+
+
+                    document.getElementById(
+                        "textoPlano"
+                    ).innerText =
+                        resposta.resultado;
+
+                }
+
+                catch(error) {
+
+                    console.log(error);
+
+                    mostrarAvisoAPI(
+                        "resultadoPlano",
+                        "O formulário já está estruturado para enviar tema, série e objetivo ao modelo de IA."
                     );
 
+                }
 
-                resultado.style.display =
-                    'block';
+                finally {
 
+                    loading.classList.remove(
+                        "active"
+                    );
 
-                texto.innerHTML =
-                    "<strong>Tema:</strong> " +
-                    tema +
-                    "<br><br>" +
-
-                    "<strong>Estrutura:</strong> " +
-                    "objetivo de aprendizagem → " +
-                    "habilidade curricular → " +
-                    "metodologia → atividade → " +
-                    "evidência de aprendizagem → avaliação.";
+                }
 
             };
 
 
-        /* =====================================
+        /* =====================================================
+           INTERVENÇÃO
+        ====================================================== */
+
+
+        window.gerarIntervencao =
+            async function() {
+
+                const necessidade =
+                    document.getElementById(
+                        "necessidadeIntervencao"
+                    ).value.trim();
+
+
+                const contexto =
+                    document.getElementById(
+                        "contextoIntervencao"
+                    ).value.trim();
+
+
+                if (!necessidade) {
+
+                    alert(
+                        "Informe a necessidade identificada."
+                    );
+
+                    return;
+
+                }
+
+
+                const loading =
+                    document.getElementById(
+                        "loadingIntervencao"
+                    );
+
+
+                loading.classList.add(
+                    "active"
+                );
+
+
+                try {
+
+                    const resposta =
+                        await requisicaoIA(
+                            "intervencao",
+                            {
+
+                                necessidade,
+                                contexto
+
+                            }
+                        );
+
+
+                    document.getElementById(
+                        "resultadoIntervencao"
+                    ).style.display =
+                        "block";
+
+
+                    document.getElementById(
+                        "textoIntervencao"
+                    ).innerText =
+                        resposta.resultado;
+
+                }
+
+                catch(error) {
+
+                    console.log(error);
+
+                    mostrarAvisoAPI(
+                        "resultadoIntervencao",
+                        "O módulo está preparado para receber uma proposta de intervenção gerada pela IA."
+                    );
+
+                }
+
+                finally {
+
+                    loading.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            };
+
+
+        /* =====================================================
+           AVISO TEMPORÁRIO
+        ====================================================== */
+
+
+        function mostrarAvisoAPI(
+            id,
+            mensagem
+        ) {
+
+            const box =
+                document.getElementById(
+                    id
+                );
+
+
+            box.style.display =
+                "block";
+
+
+            const p =
+                box.querySelector("p");
+
+
+            p.innerText =
+                mensagem;
+
+        }
+
+
+        /* =====================================================
            ACESSO
-        ====================================== */
+        ====================================================== */
+
 
         window.validarAcesso =
             function() {
 
-                const val =
-                    document
-                        .getElementById(
-                            'idInput'
-                        )
-                        .value
-                        .toUpperCase()
-                        .trim();
+                const input =
+                    document.getElementById(
+                        "idInput"
+                    );
+
+
+                const valor =
+                    input.value
+                        .trim()
+                        .toUpperCase();
 
 
                 if (
-                    val === "MATH001" ||
-                    val.startsWith("PAC")
+                    valor === "MATH001" ||
+                    valor.startsWith("PAC")
                 ) {
 
                     window.location.href =
                         "aluno.html";
 
+                    return;
+
                 }
 
-                else {
 
-                    const input =
-                        document
-                            .getElementById(
-                                'idInput'
-                            );
+                input.style.borderColor =
+                    "#ff3d68";
 
 
-                    input.style.borderColor =
-                        "#ff3d68";
+                if (brain) {
 
+                    brain.traverse(
+                        object => {
 
-                    if (brain) {
+                            if (
+                                object.isMesh
+                            ) {
 
-                        brain.traverse(
-                            c => {
+                                object.material
+                                    .emissive
+                                    .setHex(
+                                        0xff3d68
+                                    );
 
-                                if (c.isMesh) {
-
-                                    c.material
-                                        .emissive
-                                        .setHex(
-                                            0xff3d68
-                                        );
-
-                                    c.material
-                                        .emissiveIntensity =
-                                        3;
-
-                                }
-
-                            }
-                        );
-
-                    }
-
-
-                    setTimeout(
-                        () => {
-
-                            input.style
-                                .borderColor =
-                                "rgba(255,255,255,.1)";
-
-
-                            if (brain) {
-
-                                brain.traverse(
-                                    c => {
-
-                                        if (c.isMesh) {
-
-                                            c.material
-                                                .emissive
-                                                .setHex(
-                                                    0x8b5cf6
-                                                );
-
-                                            c.material
-                                                .emissiveIntensity =
-                                                0.8;
-
-                                        }
-
-                                    }
-                                );
+                                object.material
+                                    .emissiveIntensity =
+                                    3;
 
                             }
 
-                        },
-                        700
+                        }
                     );
 
                 }
 
+
+                setTimeout(
+                    () => {
+
+                        input.style.borderColor =
+                            "rgba(255,255,255,.1)";
+
+
+                        if (brain) {
+
+                            brain.traverse(
+                                object => {
+
+                                    if (
+                                        object.isMesh
+                                    ) {
+
+                                        object.material
+                                            .emissive
+                                            .setHex(
+                                                0x8b5cf6
+                                            );
+
+                                        object.material
+                                            .emissiveIntensity =
+                                            .8;
+
+                                    }
+
+                                }
+                            );
+
+                        }
+
+                    },
+                    700
+                );
+
             };
 
 
+        /* =====================================================
+           MOUSE
+        ====================================================== */
+
 
         window.addEventListener(
-            'mousemove',
-            (e) => {
+            "mousemove",
+            event => {
 
-                tX =
+                targetX =
                     (
-                        e.clientX /
+                        event.clientX /
                         window.innerWidth -
-                        0.5
-                    ) * 0.2;
+                        .5
+                    ) * .2;
 
 
-                tY =
+                targetY =
                     (
-                        e.clientY /
+                        event.clientY /
                         window.innerHeight -
-                        0.5
-                    ) * 0.2;
+                        .5
+                    ) * .2;
 
             }
         );
 
 
-        /* =====================================
+        /* =====================================================
            ANIMAÇÃO
-        ====================================== */
+        ====================================================== */
+
 
         function animate() {
 
@@ -2185,62 +2551,52 @@
 
 
             particles.rotation.y +=
-                moduloAtual ===
-                'DIAGNÓSTICO'
-                    ? 0.0025
-                    : 0.0008;
+                .001;
 
 
             particles.rotation.x +=
-                0.0002;
+                .0002;
 
 
             if (brain) {
 
                 brain.rotation.y +=
-                    0.003;
+                    .003;
 
 
                 brain.rotation.x +=
-                    0.05 *
+                    .05 *
                     (
-                        tY -
+                        targetY -
                         brain.rotation.x
                     );
 
 
                 brain.rotation.z +=
-                    0.05 *
+                    .05 *
                     (
-                        tX -
+                        targetX -
                         brain.rotation.z
                     );
 
 
-                const p =
-                    0.65 +
+                const pulse =
+                    .65 +
                     Math.sin(
-                        Date.now() *
-                        pulseSpeed
-                    ) *
-                    0.25;
+                        Date.now() * .002
+                    ) * .25;
 
 
                 brain.traverse(
-                    c => {
+                    object => {
 
-                        if (c.isMesh) {
+                        if (
+                            object.isMesh
+                        ) {
 
-                            c.material
+                            object.material
                                 .emissiveIntensity =
-                                p;
-
-
-                            c.material
-                                .emissive
-                                .setHex(
-                                    0x8b5cf6
-                                );
+                                pulse;
 
                         }
 
@@ -2261,12 +2617,13 @@
         animate();
 
 
-        /* =====================================
+        /* =====================================================
            RESIZE
-        ====================================== */
+        ====================================================== */
+
 
         window.addEventListener(
-            'resize',
+            "resize",
             () => {
 
                 camera.aspect =
@@ -2285,7 +2642,29 @@
             }
         );
 
+
+        /* =====================================================
+           ESC
+        ====================================================== */
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    fecharModulo();
+
+                }
+
+            }
+        );
+
     </script>
 
 </body>
+
 </html>
