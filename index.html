@@ -1,250 +1,1318 @@
+Sim. Vou manter a **estrutura do seu código antigo** — card central, robô Spline, cérebro 3D, partículas, ID, área do aluno, biblioteca e Neuro-Mapper — mas mudar o conceito para uma **plataforma pedagógica de alto nível**.
+
+Também vou remover o “diagnóstico TDAH/TEA” e transformar o painel em módulos pedagógicos: **Atenção, Memória, Raciocínio e Leitura**.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratório Neuro-UNINTA</title>
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js"></script>
-    
+
+    <title>Laboratório de Aprendizagem — Neuro-UNINTA</title>
+
+    <script type="module"
+        src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js">
+    </script>
+
     <style>
-        :root { --primary: #e30613; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4f7cff;
+            --secondary: #7c5cff;
+            --accent: #00d4ff;
+            --success: #35d07f;
+            --bg: #06101f;
+            --card: rgba(10, 20, 38, 0.88);
+            --text: #eaf2ff;
+            --muted: #8c9ab3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: radial-gradient(circle at center, #0a192f 0%, #000000 100%);
-            color: #e6edf3; font-family: 'Inter', sans-serif;
-            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-        .main-container { display: flex; width: 95%; max-width: 1200px; gap: 50px; align-items: center; justify-content: center; z-index: 10; }
-        .card {
-            background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px; border-radius: 28px; text-align: center; width: 380px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-        
-        .avatar-3d { 
-            width: 100%; 
-            height: 180px; 
-            margin-bottom: 10px;
-            border-radius: 20px;
+            background:
+                radial-gradient(circle at 70% 40%, rgba(79,124,255,0.15), transparent 35%),
+                radial-gradient(circle at 20% 80%, rgba(124,92,255,0.12), transparent 35%),
+                linear-gradient(135deg, #06101f, #02050b);
+
+            color: var(--text);
+            font-family: Inter, Arial, sans-serif;
+
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             overflow: hidden;
         }
 
-        /* Novo estilo do painel de diagnóstico dentro do card */
-        .diag-mini-panel {
+        /* =========================
+           BOTÃO ÁREA DO ALUNO
+        ========================== */
+
+        .btn-aluno-fixo {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+
+            width: auto;
+            padding: 12px 24px;
+
+            background: rgba(79,124,255,0.15);
+            border: 1px solid rgba(79,124,255,0.5);
+
+            color: white;
+            border-radius: 12px;
+
+            font-size: 11px;
+            font-weight: 800;
+
+            text-decoration: none;
+            letter-spacing: .5px;
+
+            backdrop-filter: blur(10px);
+
+            z-index: 100;
+
+            transition: .3s;
+        }
+
+        .btn-aluno-fixo:hover {
+            background: var(--primary);
+            box-shadow: 0 0 25px rgba(79,124,255,.4);
+            transform: translateY(-2px);
+        }
+
+        /* =========================
+           CONTAINER
+        ========================== */
+
+        .main-container {
+            display: flex;
+
+            width: 95%;
+            max-width: 1250px;
+
+            gap: 45px;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 10;
+        }
+
+        /* =========================
+           CARD PRINCIPAL
+        ========================== */
+
+        .card {
+            width: 400px;
+
+            padding: 30px;
+
+            background: var(--card);
+
+            border: 1px solid rgba(255,255,255,.08);
+
+            border-radius: 28px;
+
+            text-align: center;
+
+            backdrop-filter: blur(20px);
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,.55),
+                inset 0 1px rgba(255,255,255,.05);
+        }
+
+        /* =========================
+           CABEÇALHO
+        ========================== */
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            margin-bottom: 18px;
+        }
+
+        .brand-icon {
+            width: 30px;
+            height: 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--secondary)
+            );
+
+            font-size: 15px;
+
+            box-shadow: 0 0 20px rgba(79,124,255,.3);
+        }
+
+        .brand span {
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+
+            color: #aebbd1;
+        }
+
+        /* =========================
+           PAINEL PEDAGÓGICO
+        ========================== */
+
+        .learning-panel {
             margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+            padding: 14px;
+
+            background: rgba(255,255,255,.025);
+
+            border: 1px solid rgba(255,255,255,.06);
+
+            border-radius: 17px;
         }
-        .diag-grid { display: flex; gap: 5px; margin-top: 8px; }
-        .diag-mini-btn {
-            flex: 1; padding: 8px 2px; font-size: 8px; border-radius: 6px;
-            border: none; color: white; cursor: pointer; font-weight: bold;
-            background: #222; transition: 0.3s;
+
+        .panel-title {
+            font-size: 9px;
+
+            font-weight: 800;
+
+            color: var(--accent);
+
+            letter-spacing: 1.5px;
+
+            margin-bottom: 10px;
         }
-        .diag-mini-btn:hover { background: #333; }
+
+        .learning-grid {
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 6px;
+        }
+
+        .learning-btn {
+            border: 1px solid rgba(255,255,255,.06);
+
+            background: rgba(255,255,255,.04);
+
+            color: #b7c2d4;
+
+            border-radius: 9px;
+
+            padding: 9px 3px;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition: .25s;
+        }
+
+        .learning-btn:hover,
+        .learning-btn.active {
+            background: rgba(79,124,255,.18);
+
+            border-color: rgba(79,124,255,.5);
+
+            color: white;
+
+            transform: translateY(-2px);
+        }
+
+        .learning-icon {
+            display: block;
+
+            font-size: 16px;
+
+            margin-bottom: 4px;
+        }
+
+        #status-label {
+            font-size: 7px;
+
+            margin-top: 10px;
+
+            color: #71809a;
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+        }
+
+        /* =========================
+           ROBÔ SPLINE
+        ========================== */
+
+        .avatar-3d {
+            width: 100%;
+            height: 160px;
+
+            margin-bottom: 5px;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        /* =========================
+           TEXTOS
+        ========================== */
+
+        h2 {
+            font-size: 23px;
+
+            margin-bottom: 5px;
+
+            letter-spacing: -.5px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+
+            margin-bottom: 20px;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        /* =========================
+           INPUT
+        ========================== */
 
         input {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: white; margin-bottom: 15px; text-align: center; outline: none; font-size: 16px;
-        }
-        .btn-neuro {
-            display: block; width: 100%; padding: 18px; background: var(--primary);
-            color: white; border: none; border-radius: 12px; font-weight: 800;
-            text-transform: uppercase; text-decoration: none; cursor: pointer; transition: 0.3s;
-        }
-        .btn-neuro:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--primary); }
-        .btn-aluno-fixo { position: fixed; top: 20px; right: 20px; width: auto; padding: 12px 25px; font-size: 12px; z-index: 100; }
-        
-        .btn-atlas {
-            display: block; width: 100%; padding: 14px; background: transparent;
-            color: white; border: 1px solid var(--primary); border-radius: 12px; font-weight: 700;
-            text-transform: uppercase; text-decoration: none; cursor: pointer; transition: 0.3s;
-            margin-top: 12px; font-size: 11px;
-        }
-        .btn-atlas:hover { background: rgba(227, 6, 19, 0.1); transform: scale(1.02); }
+            width: 100%;
 
-        #brain-viewport { flex: 1; height: 600px; min-width: 500px; }
-        .qr-section img { width: 70px; border-radius: 8px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.1); }
+            padding: 15px;
+
+            background: rgba(255,255,255,.045);
+
+            border: 1px solid rgba(255,255,255,.1);
+
+            border-radius: 11px;
+
+            color: white;
+
+            margin-bottom: 12px;
+
+            text-align: center;
+
+            outline: none;
+
+            font-size: 14px;
+
+            transition: .3s;
+        }
+
+        input:focus {
+            border-color: rgba(79,124,255,.7);
+
+            box-shadow: 0 0 20px rgba(79,124,255,.1);
+        }
+
+        /* =========================
+           BOTÕES
+        ========================== */
+
+        .btn-neuro {
+            display: block;
+
+            width: 100%;
+
+            padding: 17px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--secondary)
+            );
+
+            color: white;
+
+            border: none;
+
+            border-radius: 12px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition: .3s;
+
+            font-size: 12px;
+
+            letter-spacing: .4px;
+        }
+
+        .btn-neuro:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 30px rgba(79,124,255,.25);
+        }
+
+        .btn-library {
+            margin-top: 10px;
+
+            background: transparent;
+
+            border: 1px solid rgba(255,255,255,.12);
+
+            font-size: 11px;
+
+            padding: 14px;
+        }
+
+        .btn-library:hover {
+            background: rgba(255,255,255,.04);
+        }
+
+        .btn-atlas {
+            display: block;
+
+            width: 100%;
+
+            padding: 13px;
+
+            background: rgba(0,212,255,.04);
+
+            color: #b9ecff;
+
+            border: 1px solid rgba(0,212,255,.25);
+
+            border-radius: 12px;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition: .3s;
+
+            margin-top: 10px;
+
+            font-size: 10px;
+
+            letter-spacing: .5px;
+        }
+
+        .btn-atlas:hover {
+            background: rgba(0,212,255,.1);
+
+            transform: translateY(-2px);
+        }
+
+        /* =========================
+           QR
+        ========================== */
+
+        .qr-section img {
+            width: 62px;
+
+            border-radius: 8px;
+
+            margin-top: 14px;
+
+            opacity: .8;
+        }
+
+        .qr-section p {
+            font-size: 8px;
+
+            color: #526078;
+
+            margin-top: 5px;
+        }
+
+        /* =========================
+           CÉREBRO 3D
+        ========================== */
+
+        #brain-viewport {
+            flex: 1;
+
+            height: 600px;
+
+            min-width: 500px;
+
+            position: relative;
+        }
+
+        .brain-label {
+            position: absolute;
+
+            top: 35px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            padding: 8px 14px;
+
+            background: rgba(6,16,31,.65);
+
+            border: 1px solid rgba(255,255,255,.08);
+
+            border-radius: 20px;
+
+            backdrop-filter: blur(10px);
+
+            font-size: 9px;
+
+            color: #91a1ba;
+
+            letter-spacing: 1px;
+
+            z-index: 5;
+
+            white-space: nowrap;
+        }
+
+        .brain-label strong {
+            color: #dce8ff;
+        }
+
+        /* =========================
+           RESPONSIVIDADE
+        ========================== */
+
+        @media (max-width: 900px) {
+
+            body {
+                overflow: auto;
+
+                padding: 80px 0 30px;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #brain-viewport {
+                width: 100%;
+
+                min-width: 0;
+
+                height: 420px;
+
+                order: -1;
+            }
+
+            .card {
+                width: min(400px, 92%);
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <a href="aluno.html" class="btn-neuro btn-aluno-fixo">ÁREA DO ALUNO</a>
+    <a href="aluno.html" class="btn-aluno-fixo">
+        ÁREA DO ALUNO
+    </a>
 
     <div class="main-container">
+
+        <!-- =========================
+             CARD
+        ========================== -->
+
         <div class="card">
-            <div class="diag-mini-panel">
-                <p style="font-size: 8px; color: var(--primary); font-weight: 800; letter-spacing: 1px;">MODO DE DIAGNÓSTICO</p>
-                <div class="diag-grid">
-                    <button class="diag-mini-btn" onclick="simular('NORMAL')">PADRÃO</button>
-                    <button class="diag-mini-btn" style="border-bottom: 2px solid #ffaa00;" onclick="simular('TDAH')">TDAH</button>
-                    <button class="diag-mini-btn" style="border-bottom: 2px solid #0088ff;" onclick="simular('TEA')">TEA</button>
-                </div>
-                <p id="status-label" style="font-size: 7px; margin-top: 8px; color: #666; text-transform: uppercase;">MONITORAMENTO ATIVO</p>
+
+            <div class="brand">
+                <div class="brand-icon">🧠</div>
+                <span>NEURO-EDUCA • UNINTA</span>
             </div>
+
+            <!-- PAINEL PEDAGÓGICO -->
+
+            <div class="learning-panel">
+
+                <div class="panel-title">
+                    LABORATÓRIO DE APRENDIZAGEM
+                </div>
+
+                <div class="learning-grid">
+
+                    <button
+                        class="learning-btn active"
+                        onclick="selecionarModulo('ATENÇÃO', this)">
+                        <span class="learning-icon">🎯</span>
+                        ATENÇÃO
+                    </button>
+
+                    <button
+                        class="learning-btn"
+                        onclick="selecionarModulo('MEMÓRIA', this)">
+                        <span class="learning-icon">🧠</span>
+                        MEMÓRIA
+                    </button>
+
+                    <button
+                        class="learning-btn"
+                        onclick="selecionarModulo('RACIOCÍNIO', this)">
+                        <span class="learning-icon">🔎</span>
+                        RACIOCÍNIO
+                    </button>
+
+                    <button
+                        class="learning-btn"
+                        onclick="selecionarModulo('LEITURA', this)">
+                        <span class="learning-icon">📖</span>
+                        LEITURA
+                    </button>
+
+                </div>
+
+                <p id="status-label">
+                    MÓDULO ATIVO: ATENÇÃO
+                </p>
+
+            </div>
+
+            <!-- ROBÔ -->
 
             <div class="avatar-3d">
-                <spline-viewer url="genkub_greeting_robot.spline"></spline-viewer>
+
+                <spline-viewer
+                    url="genkub_greeting_robot.spline">
+                </spline-viewer>
+
             </div>
 
-            <h2 style="font-size: 22px; margin-bottom: 5px;">Olá, Mestre Matheus!</h2>
-            <p style="color:#888; margin-bottom:20px; font-size: 11px;">Laboratório Digital de Neurociência - UNINTA</p>
-            
-            <input type="text" id="idInput" placeholder="DIGITE SEU ID" autocomplete="off">
-            
-            <button class="btn-neuro" onclick="validarAcesso()">ACESSAR LABORATÓRIO</button>
+            <h2>
+                Olá, Mestre Matheus!
+            </h2>
 
-            <a href="biblioteca.html" class="btn-neuro" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; font-size: 13px; padding: 14px;">
+            <p class="subtitle">
+                Ambiente digital para exploração,
+                avaliação e desenvolvimento da aprendizagem.
+            </p>
+
+            <!-- LOGIN -->
+
+            <input
+                type="text"
+                id="idInput"
+                placeholder="DIGITE SEU ID"
+                autocomplete="off"
+            >
+
+            <button
+                class="btn-neuro"
+                onclick="validarAcesso()">
+
+                ACESSAR LABORATÓRIO
+
+            </button>
+
+            <!-- BIBLIOTECA -->
+
+            <a
+                href="biblioteca.html"
+                class="btn-neuro btn-library">
+
                 📚 BIBLIOTECA DIGITAL
+
             </a>
-            
-            <a href="atlas.html" class="btn-atlas">EXPLORAR NEURO-MAPPER 3D</a>
+
+            <!-- ATLAS -->
+
+            <a
+                href="atlas.html"
+                class="btn-atlas">
+
+                🧩 EXPLORAR MAPA DA APRENDIZAGEM 3D
+
+            </a>
+
+            <!-- QR -->
 
             <div class="qr-section">
-                <img src="qr-code.png" alt="QR Code">
-                <p style="font-size: 9px; color: #444; margin-top: 5px;">bit.ly/tcc-uninta</p>
+
+                <img
+                    src="qr-code.png"
+                    alt="QR Code">
+
+                <p>
+                    bit.ly/tcc-uninta
+                </p>
+
             </div>
+
         </div>
-        <div id="brain-viewport"></div>
+
+
+        <!-- =========================
+             CÉREBRO 3D
+        ========================== -->
+
+        <div id="brain-viewport">
+
+            <div class="brain-label">
+                SISTEMA <strong>NEURO-EDUCA</strong>
+            </div>
+
+        </div>
+
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+    <!-- THREE.JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-    <script>
-        const container = document.getElementById('brain-viewport');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0a192f, 0.05);
 
-        const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+    <script>
+
+        /* =====================================
+           CONFIGURAÇÃO THREE.JS
+        ====================================== */
+
+        const container =
+            document.getElementById('brain-viewport');
+
+        const scene =
+            new THREE.Scene();
+
+        scene.fog =
+            new THREE.FogExp2(0x06101f, 0.045);
+
+
+        const camera =
+            new THREE.PerspectiveCamera(
+                35,
+                container.clientWidth /
+                container.clientHeight,
+                0.1,
+                1000
+            );
+
         camera.position.z = 8;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const pLight = new THREE.PointLight(0xffffff, 1.2);
-        pLight.position.set(5, 5, 10);
+        const renderer =
+            new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+
+        renderer.setSize(
+            container.clientWidth,
+            container.clientHeight
+        );
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio, 2)
+        );
+
+        container.appendChild(
+            renderer.domElement
+        );
+
+
+        /* =====================================
+           ILUMINAÇÃO
+        ====================================== */
+
+        scene.add(
+            new THREE.AmbientLight(
+                0xffffff,
+                0.65
+            )
+        );
+
+
+        const pLight =
+            new THREE.PointLight(
+                0x8db5ff,
+                1.6
+            );
+
+        pLight.position.set(
+            5,
+            5,
+            10
+        );
+
         scene.add(pLight);
 
-        // Sistema de Partículas (Sinapses)
-        const partGeo = new THREE.BufferGeometry();
-        const partCount = 1500;
-        const posArr = new Float32Array(partCount * 3);
-        for(let i=0; i < partCount * 3; i++) posArr[i] = (Math.random() - 0.5) * 15;
-        partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-        const partMat = new THREE.PointsMaterial({ size: 0.04, color: 0xffffff, transparent: true, opacity: 0.4 });
-        const particles = new THREE.Points(partGeo, partMat);
+
+        const secondaryLight =
+            new THREE.PointLight(
+                0x7c5cff,
+                1
+            );
+
+        secondaryLight.position.set(
+            -5,
+            -2,
+            5
+        );
+
+        scene.add(secondaryLight);
+
+
+        /* =====================================
+           PARTÍCULAS
+        ====================================== */
+
+        const partGeo =
+            new THREE.BufferGeometry();
+
+        const partCount = 1700;
+
+        const posArr =
+            new Float32Array(
+                partCount * 3
+            );
+
+
+        for (
+            let i = 0;
+            i < partCount * 3;
+            i++
+        ) {
+
+            posArr[i] =
+                (Math.random() - 0.5) * 15;
+
+        }
+
+
+        partGeo.setAttribute(
+            'position',
+            new THREE.BufferAttribute(
+                posArr,
+                3
+            )
+        );
+
+
+        const partMat =
+            new THREE.PointsMaterial({
+
+                size: 0.035,
+
+                color: 0x8db5ff,
+
+                transparent: true,
+
+                opacity: 0.5
+
+            });
+
+
+        const particles =
+            new THREE.Points(
+                partGeo,
+                partMat
+            );
+
+
         scene.add(particles);
 
+
+        /* =====================================
+           CÉREBRO
+        ====================================== */
+
         let brain = null;
-        let tX = 0, tY = 0;
-        let modoAtual = 'NORMAL';
+
+        let tX = 0;
+
+        let tY = 0;
+
+        let moduloAtual = 'ATENÇÃO';
+
         let pulseSpeed = 0.002;
-        let erroAtivo = false;
 
-        // 2. Carregamento do Cérebro (human-brain.glb)
-        const loader = new THREE.GLTFLoader();
-        loader.load('./human-brain.glb', (gltf) => {
-            brain = gltf.scene;
-            brain.traverse(c => {
-                if (c.isMesh) {
-                    c.material = new THREE.MeshStandardMaterial({
-                        color: 0x110000, 
-                        emissive: 0xe30613, 
-                        emissiveIntensity: 0.8, 
-                        roughness: 0.3, 
-                        metalness: 0.5
+
+        const loader =
+            new THREE.GLTFLoader();
+
+
+        loader.load(
+            './human-brain.glb',
+
+            (gltf) => {
+
+                brain =
+                    gltf.scene;
+
+
+                brain.traverse(
+                    c => {
+
+                        if (c.isMesh) {
+
+                            c.material =
+                                new THREE.MeshStandardMaterial({
+
+                                    color: 0x101a32,
+
+                                    emissive: 0x4f7cff,
+
+                                    emissiveIntensity: 0.8,
+
+                                    roughness: 0.35,
+
+                                    metalness: 0.4
+
+                                });
+
+                        }
+
+                    }
+                );
+
+
+                brain.scale.set(
+                    1.15,
+                    1.15,
+                    1.15
+                );
+
+
+                scene.add(brain);
+
+            },
+
+            undefined,
+
+            (err) => {
+
+                console.error(
+                    "Erro ao carregar cérebro:",
+                    err
+                );
+
+            }
+        );
+
+
+        /* =====================================
+           MÓDULOS PEDAGÓGICOS
+        ====================================== */
+
+        window.selecionarModulo =
+            function(modulo, elemento) {
+
+                moduloAtual =
+                    modulo;
+
+
+                document
+                    .querySelectorAll(
+                        '.learning-btn'
+                    )
+                    .forEach(btn => {
+
+                        btn.classList.remove(
+                            'active'
+                        );
+
                     });
+
+
+                elemento.classList.add(
+                    'active'
+                );
+
+
+                const label =
+                    document.getElementById(
+                        'status-label'
+                    );
+
+
+                if (modulo === 'ATENÇÃO') {
+
+                    pulseSpeed = 0.004;
+
+                    particles.material
+                        .color
+                        .setHex(0x4f7cff);
+
+                    label.innerText =
+                        "MÓDULO ATIVO: ATENÇÃO";
+
+                    label.style.color =
+                        "#6f9bff";
+
                 }
-            });
-            scene.add(brain);
-        }, undefined, (err) => {
-            console.error("Erro ao carregar o cérebro:", err);
-        });
 
-        // 3. Funções de Simulação (TDAH/TEA)
-        window.simular = function(modo) {
-            modoAtual = modo;
-            const label = document.getElementById('status-label');
-            if(modo === 'TDAH') {
-                pulseSpeed = 0.008;
-                particles.material.color.setHex(0xffaa00);
-                label.innerText = "STATUS: INSTABILIDADE DOPAMINÉRGICA";
-                label.style.color = "#ffaa00";
-            } else if (modo === 'TEA') {
-                pulseSpeed = 0.0008;
-                particles.material.color.setHex(0x0088ff);
-                label.innerText = "STATUS: HIPERCONECTIVIDADE LOCAL";
-                label.style.color = "#0088ff";
-            } else {
-                pulseSpeed = 0.002;
-                particles.material.color.setHex(0xffffff);
-                label.innerText = "STATUS: PADRÃO ESTÁVEL";
-                label.style.color = "#666";
-            }
-        }
 
-        // 4. Validação e Redirecionamento
-        window.validarAcesso = function() {
-            const val = document.getElementById('idInput').value.toUpperCase();
-            if (val === "MATH001" || val.startsWith("PAC")) { 
-                window.location.href = "aluno.html"; 
-            } else { 
-                erroAtivo = true;
-                if(brain) {
-                    brain.traverse(c => { if (c.isMesh) { c.material.emissive.setHex(0xff0000); c.material.emissiveIntensity = 5; } });
+                else if (modulo === 'MEMÓRIA') {
+
+                    pulseSpeed = 0.0015;
+
+                    particles.material
+                        .color
+                        .setHex(0x7c5cff);
+
+                    label.innerText =
+                        "MÓDULO ATIVO: MEMÓRIA";
+
+                    label.style.color =
+                        "#9b86ff";
+
                 }
-                setTimeout(() => { 
-                    erroAtivo = false; 
-                    if(brain) brain.traverse(c => { if (c.isMesh) c.material.emissive.setHex(0xe30613); });
-                }, 500); 
-            }
-        }
 
-        window.addEventListener('mousemove', (e) => {
-            tX = (e.clientX / window.innerWidth - 0.5) * 0.2;
-            tY = (e.clientY / window.innerHeight - 0.5) * 0.2;
-        });
+
+                else if (modulo === 'RACIOCÍNIO') {
+
+                    pulseSpeed = 0.003;
+
+                    particles.material
+                        .color
+                        .setHex(0x00d4ff);
+
+                    label.innerText =
+                        "MÓDULO ATIVO: RACIOCÍNIO";
+
+                    label.style.color =
+                        "#00d4ff";
+
+                }
+
+
+                else if (modulo === 'LEITURA') {
+
+                    pulseSpeed = 0.002;
+
+                    particles.material
+                        .color
+                        .setHex(0x35d07f);
+
+                    label.innerText =
+                        "MÓDULO ATIVO: LEITURA";
+
+                    label.style.color =
+                        "#35d07f";
+
+                }
+
+            };
+
+
+        /* =====================================
+           ACESSO
+        ====================================== */
+
+        window.validarAcesso =
+            function() {
+
+                const val =
+                    document
+                        .getElementById('idInput')
+                        .value
+                        .toUpperCase()
+                        .trim();
+
+
+                if (
+                    val === "MATH001" ||
+                    val.startsWith("PAC")
+                ) {
+
+                    window.location.href =
+                        "aluno.html";
+
+                }
+
+                else {
+
+                    if (brain) {
+
+                        brain.traverse(
+                            c => {
+
+                                if (c.isMesh) {
+
+                                    c.material
+                                        .emissive
+                                        .setHex(
+                                            0xff3d5a
+                                        );
+
+                                    c.material
+                                        .emissiveIntensity =
+                                            3;
+
+                                }
+
+                            }
+                        );
+
+                    }
+
+
+                    const input =
+                        document
+                            .getElementById(
+                                'idInput'
+                            );
+
+
+                    input.style.borderColor =
+                        "#ff3d5a";
+
+
+                    setTimeout(
+                        () => {
+
+                            input.style
+                                .borderColor =
+                                "rgba(255,255,255,.1)";
+
+
+                            if (brain) {
+
+                                brain.traverse(
+                                    c => {
+
+                                        if (c.isMesh) {
+
+                                            c.material
+                                                .emissive
+                                                .setHex(
+                                                    0x4f7cff
+                                                );
+
+                                            c.material
+                                                .emissiveIntensity =
+                                                    0.8;
+
+                                        }
+
+                                    }
+                                );
+
+                            }
+
+                        },
+                        700
+                    );
+
+                }
+
+            };
+
+
+        /* =====================================
+           INTERAÇÃO COM MOUSE
+        ====================================== */
+
+        window.addEventListener(
+            'mousemove',
+            (e) => {
+
+                tX =
+                    (
+                        e.clientX /
+                        window.innerWidth -
+                        0.5
+                    ) * 0.2;
+
+
+                tY =
+                    (
+                        e.clientY /
+                        window.innerHeight -
+                        0.5
+                    ) * 0.2;
+
+            }
+        );
+
+
+        /* =====================================
+           ANIMAÇÃO
+        ====================================== */
 
         function animate() {
-            requestAnimationFrame(animate);
-            particles.rotation.y += (modoAtual === 'TDAH' ? 0.005 : 0.0007);
-            
+
+            requestAnimationFrame(
+                animate
+            );
+
+
+            particles.rotation.y +=
+                moduloAtual === 'ATENÇÃO'
+                    ? 0.0025
+                    : 0.0008;
+
+
+            particles.rotation.x +=
+                0.0002;
+
+
             if (brain) {
-                brain.rotation.y += 0.004;
-                brain.rotation.x += 0.05 * (tY - brain.rotation.x);
-                brain.rotation.z += 0.05 * (tX - brain.rotation.z);
 
-                if (erroAtivo) {
-                    brain.position.x = (Math.random() - 0.5) * 0.2;
-                } else {
-                    brain.position.set(0, 0, 0);
-                }
+                brain.rotation.y +=
+                    0.003;
 
-                let p = 0.7 + Math.sin(Date.now() * pulseSpeed) * 0.3;
-                brain.traverse(c => {
-                    if (c.isMesh && !erroAtivo) {
-                        c.material.emissiveIntensity = p;
-                        if(modoAtual === 'TDAH') c.material.emissive.setHex(0xffaa00);
-                        else if(modoAtual === 'TEA') c.material.emissive.setHex(0x0088ff);
-                        else c.material.emissive.setHex(0xe30613);
+
+                brain.rotation.x +=
+                    0.05 *
+                    (
+                        tY -
+                        brain.rotation.x
+                    );
+
+
+                brain.rotation.z +=
+                    0.05 *
+                    (
+                        tX -
+                        brain.rotation.z
+                    );
+
+
+                const p =
+                    0.65 +
+                    Math.sin(
+                        Date.now() *
+                        pulseSpeed
+                    ) *
+                    0.25;
+
+
+                brain.traverse(
+                    c => {
+
+                        if (c.isMesh) {
+
+                            c.material
+                                .emissiveIntensity =
+                                p;
+
+
+                            if (
+                                moduloAtual ===
+                                'ATENÇÃO'
+                            ) {
+
+                                c.material
+                                    .emissive
+                                    .setHex(
+                                        0x4f7cff
+                                    );
+
+                            }
+
+                            else if (
+                                moduloAtual ===
+                                'MEMÓRIA'
+                            ) {
+
+                                c.material
+                                    .emissive
+                                    .setHex(
+                                        0x7c5cff
+                                    );
+
+                            }
+
+                            else if (
+                                moduloAtual ===
+                                'RACIOCÍNIO'
+                            ) {
+
+                                c.material
+                                    .emissive
+                                    .setHex(
+                                        0x00d4ff
+                                    );
+
+                            }
+
+                            else if (
+                                moduloAtual ===
+                                'LEITURA'
+                            ) {
+
+                                c.material
+                                    .emissive
+                                    .setHex(
+                                        0x35d07f
+                                    );
+
+                            }
+
+                        }
+
                     }
-                });
+                );
+
             }
-            renderer.render(scene, camera);
+
+
+            renderer.render(
+                scene,
+                camera
+            );
+
         }
+
+
         animate();
 
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
+
+        /* =====================================
+           RESIZE
+        ====================================== */
+
+        window.addEventListener(
+            'resize',
+            () => {
+
+                camera.aspect =
+                    container.clientWidth /
+                    container.clientHeight;
+
+
+                camera.updateProjectionMatrix();
+
+
+                renderer.setSize(
+                    container.clientWidth,
+                    container.clientHeight
+                );
+
+            }
+        );
+
     </script>
+
+</body>
+</html>
+```
