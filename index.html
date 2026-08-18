@@ -13,14 +13,14 @@
 
     <style>
         :root {
-            --primary: #4f7cff;
-            --secondary: #7c5cff;
-            --accent: #00d4ff;
-            --success: #35d07f;
-            --bg: #06101f;
-            --card: rgba(10, 20, 38, 0.88);
-            --text: #eaf2ff;
-            --muted: #8c9ab3;
+            --primary: #8b5cf6;
+            --secondary: #6d28d9;
+            --accent: #a78bfa;
+            --success: #34d399;
+            --bg: #090614;
+            --card: rgba(16, 10, 30, 0.88);
+            --text: #f4f0ff;
+            --muted: #9990aa;
         }
 
         * {
@@ -31,44 +31,64 @@
 
         body {
             background:
-                radial-gradient(circle at 70% 40%, rgba(79,124,255,0.15), transparent 35%),
-                radial-gradient(circle at 20% 80%, rgba(124,92,255,0.12), transparent 35%),
-                linear-gradient(135deg, #06101f, #02050b);
+                radial-gradient(
+                    circle at 70% 40%,
+                    rgba(139, 92, 246, 0.18),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 20% 80%,
+                    rgba(109, 40, 217, 0.14),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #090614,
+                    #030208
+                );
 
             color: var(--text);
-            font-family: Inter, Arial, sans-serif;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
 
             min-height: 100vh;
+
             display: flex;
             align-items: center;
             justify-content: center;
 
             overflow: hidden;
         }
-
-        /* =========================
-           BOTÃO ÁREA DO ALUNO
-        ========================== */
-
         .btn-aluno-fixo {
             position: fixed;
+
             top: 20px;
             right: 20px;
 
             width: auto;
+
             padding: 12px 24px;
 
-            background: rgba(79,124,255,0.15);
-            border: 1px solid rgba(79,124,255,0.5);
+            background:
+                rgba(139, 92, 246, 0.12);
+
+            border:
+                1px solid rgba(139, 92, 246, 0.45);
 
             color: white;
+
             border-radius: 12px;
 
             font-size: 11px;
+
             font-weight: 800;
 
             text-decoration: none;
-            letter-spacing: .5px;
+
+            letter-spacing: .8px;
 
             backdrop-filter: blur(10px);
 
@@ -79,7 +99,10 @@
 
         .btn-aluno-fixo:hover {
             background: var(--primary);
-            box-shadow: 0 0 25px rgba(79,124,255,.4);
+
+            box-shadow:
+                0 0 25px rgba(139, 92, 246, .35);
+
             transform: translateY(-2px);
         }
 
@@ -91,11 +114,13 @@
             display: flex;
 
             width: 95%;
+
             max-width: 1250px;
 
             gap: 45px;
 
             align-items: center;
+
             justify-content: center;
 
             z-index: 10;
@@ -110,9 +135,11 @@
 
             padding: 30px;
 
-            background: var(--card);
+            background:
+                var(--card);
 
-            border: 1px solid rgba(255,255,255,.08);
+            border:
+                1px solid rgba(255,255,255,.08);
 
             border-radius: 28px;
 
@@ -122,7 +149,7 @@
 
             box-shadow:
                 0 30px 80px rgba(0,0,0,.55),
-                inset 0 1px rgba(255,255,255,.05);
+                inset 0 1px rgba(255,255,255,.04);
         }
 
         /* =========================
@@ -131,10 +158,12 @@
 
         .brand {
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            gap: 8px;
+            gap: 10px;
 
             margin-bottom: 18px;
         }
@@ -144,29 +173,50 @@
             height: 30px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                var(--secondary)
-            );
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
 
-            font-size: 15px;
+            font-size: 0;
 
-            box-shadow: 0 0 20px rgba(79,124,255,.3);
+            box-shadow:
+                0 0 20px
+                rgba(139,92,246,.25);
+
+            position: relative;
+        }
+
+        .brand-icon::after {
+            content: "";
+
+            width: 10px;
+            height: 10px;
+
+            border:
+                1.5px solid white;
+
+            border-radius: 50%;
+
+            opacity: .9;
         }
 
         .brand span {
             font-size: 10px;
+
             font-weight: 800;
 
             letter-spacing: 1.5px;
 
-            color: #aebbd1;
+            color: #b8afc9;
         }
 
         /* =========================
@@ -178,9 +228,11 @@
 
             padding: 14px;
 
-            background: rgba(255,255,255,.025);
+            background:
+                rgba(255,255,255,.025);
 
-            border: 1px solid rgba(255,255,255,.06);
+            border:
+                1px solid rgba(255,255,255,.06);
 
             border-radius: 17px;
         }
@@ -200,21 +252,24 @@
         .learning-grid {
             display: grid;
 
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns:
+                repeat(4, 1fr);
 
             gap: 6px;
         }
 
         .learning-btn {
-            border: 1px solid rgba(255,255,255,.06);
+            border:
+                1px solid rgba(255,255,255,.06);
 
-            background: rgba(255,255,255,.04);
+            background:
+                rgba(255,255,255,.035);
 
-            color: #b7c2d4;
+            color: #aaa2ba;
 
             border-radius: 9px;
 
-            padding: 9px 3px;
+            padding: 11px 3px;
 
             font-size: 8px;
 
@@ -223,25 +278,30 @@
             cursor: pointer;
 
             transition: .25s;
+
+            letter-spacing: .3px;
         }
 
         .learning-btn:hover,
         .learning-btn.active {
-            background: rgba(79,124,255,.18);
+            background:
+                rgba(139,92,246,.17);
 
-            border-color: rgba(79,124,255,.5);
+            border-color:
+                rgba(139,92,246,.55);
 
             color: white;
 
-            transform: translateY(-2px);
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 5px 18px
+                rgba(109,40,217,.12);
         }
 
         .learning-icon {
-            display: block;
-
-            font-size: 16px;
-
-            margin-bottom: 4px;
+            display: none;
         }
 
         #status-label {
@@ -249,11 +309,11 @@
 
             margin-top: 10px;
 
-            color: #71809a;
+            color: #716a7f;
 
             text-transform: uppercase;
 
-            letter-spacing: .5px;
+            letter-spacing: .7px;
         }
 
         /* =========================
@@ -262,6 +322,7 @@
 
         .avatar-3d {
             width: 100%;
+
             height: 160px;
 
             margin-bottom: 5px;
@@ -302,9 +363,11 @@
 
             padding: 15px;
 
-            background: rgba(255,255,255,.045);
+            background:
+                rgba(255,255,255,.045);
 
-            border: 1px solid rgba(255,255,255,.1);
+            border:
+                1px solid rgba(255,255,255,.1);
 
             border-radius: 11px;
 
@@ -322,9 +385,12 @@
         }
 
         input:focus {
-            border-color: rgba(79,124,255,.7);
+            border-color:
+                rgba(139,92,246,.7);
 
-            box-shadow: 0 0 20px rgba(79,124,255,.1);
+            box-shadow:
+                0 0 20px
+                rgba(139,92,246,.12);
         }
 
         /* =========================
@@ -338,11 +404,12 @@
 
             padding: 17px;
 
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                var(--secondary)
-            );
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
 
             color: white;
 
@@ -362,22 +429,27 @@
 
             font-size: 12px;
 
-            letter-spacing: .4px;
+            letter-spacing: .5px;
         }
 
         .btn-neuro:hover {
-            transform: translateY(-2px);
+            transform:
+                translateY(-2px);
 
             box-shadow:
-                0 10px 30px rgba(79,124,255,.25);
+                0 10px 30px
+                rgba(109,40,217,.28);
         }
 
         .btn-library {
             margin-top: 10px;
 
-            background: transparent;
+            background:
+                transparent;
 
-            border: 1px solid rgba(255,255,255,.12);
+            border:
+                1px solid
+                rgba(255,255,255,.12);
 
             font-size: 11px;
 
@@ -385,7 +457,11 @@
         }
 
         .btn-library:hover {
-            background: rgba(255,255,255,.04);
+            background:
+                rgba(139,92,246,.06);
+
+            border-color:
+                rgba(139,92,246,.35);
         }
 
         .btn-atlas {
@@ -395,11 +471,14 @@
 
             padding: 13px;
 
-            background: rgba(0,212,255,.04);
+            background:
+                rgba(139,92,246,.04);
 
-            color: #b9ecff;
+            color: #cfc0f7;
 
-            border: 1px solid rgba(0,212,255,.25);
+            border:
+                1px solid
+                rgba(139,92,246,.3);
 
             border-radius: 12px;
 
@@ -419,9 +498,14 @@
         }
 
         .btn-atlas:hover {
-            background: rgba(0,212,255,.1);
+            background:
+                rgba(139,92,246,.1);
 
-            transform: translateY(-2px);
+            border-color:
+                rgba(139,92,246,.55);
+
+            transform:
+                translateY(-2px);
         }
 
         /* =========================
@@ -441,7 +525,7 @@
         .qr-section p {
             font-size: 8px;
 
-            color: #526078;
+            color: #514b5d;
 
             margin-top: 5px;
         }
@@ -464,23 +548,29 @@
             position: absolute;
 
             top: 35px;
+
             left: 50%;
 
-            transform: translateX(-50%);
+            transform:
+                translateX(-50%);
 
             padding: 8px 14px;
 
-            background: rgba(6,16,31,.65);
+            background:
+                rgba(9,6,20,.65);
 
-            border: 1px solid rgba(255,255,255,.08);
+            border:
+                1px solid
+                rgba(139,92,246,.2);
 
             border-radius: 20px;
 
-            backdrop-filter: blur(10px);
+            backdrop-filter:
+                blur(10px);
 
             font-size: 9px;
 
-            color: #91a1ba;
+            color: #817893;
 
             letter-spacing: 1px;
 
@@ -490,7 +580,7 @@
         }
 
         .brain-label strong {
-            color: #dce8ff;
+            color: #d9ccf7;
         }
 
         /* =========================
@@ -502,7 +592,8 @@
             body {
                 overflow: auto;
 
-                padding: 80px 0 30px;
+                padding:
+                    80px 0 30px;
             }
 
             .main-container {
@@ -520,7 +611,8 @@
             }
 
             .card {
-                width: min(400px, 92%);
+                width:
+                    min(400px, 92%);
             }
         }
     </style>
@@ -528,24 +620,28 @@
 
 <body>
 
-    <a href="aluno.html" class="btn-aluno-fixo">
+    <a
+        href="aluno.html"
+        class="btn-aluno-fixo">
+
         ÁREA DO ALUNO
+
     </a>
 
     <div class="main-container">
 
-        <!-- =========================
-             CARD
-        ========================== -->
-
         <div class="card">
 
             <div class="brand">
-                <div class="brand-icon">🧠</div>
-                <span>NEURO-EDUCA • UNINTA</span>
+
+                <div class="brand-icon"></div>
+
+                <span>
+                    NEURO-EDUCA • UNINTA
+                </span>
+
             </div>
 
-            <!-- PAINEL PEDAGÓGICO -->
 
             <div class="learning-panel">
 
@@ -553,45 +649,55 @@
                     LABORATÓRIO DE APRENDIZAGEM
                 </div>
 
+
                 <div class="learning-grid">
 
                     <button
                         class="learning-btn active"
                         onclick="selecionarModulo('ATENÇÃO', this)">
-                        <span class="learning-icon">🎯</span>
+
                         ATENÇÃO
+
                     </button>
+
 
                     <button
                         class="learning-btn"
                         onclick="selecionarModulo('MEMÓRIA', this)">
-                        <span class="learning-icon">🧠</span>
+
                         MEMÓRIA
+
                     </button>
+
 
                     <button
                         class="learning-btn"
                         onclick="selecionarModulo('RACIOCÍNIO', this)">
-                        <span class="learning-icon">🔎</span>
+
                         RACIOCÍNIO
+
                     </button>
+
 
                     <button
                         class="learning-btn"
                         onclick="selecionarModulo('LEITURA', this)">
-                        <span class="learning-icon">📖</span>
+
                         LEITURA
+
                     </button>
 
                 </div>
 
+
                 <p id="status-label">
+
                     MÓDULO ATIVO: ATENÇÃO
+
                 </p>
 
             </div>
 
-            <!-- ROBÔ -->
 
             <div class="avatar-3d">
 
@@ -601,16 +707,19 @@
 
             </div>
 
+
             <h2>
                 Olá, Mestre Matheus!
             </h2>
 
+
             <p class="subtitle">
+
                 Ambiente digital para exploração,
                 avaliação e desenvolvimento da aprendizagem.
+
             </p>
 
-            <!-- LOGIN -->
 
             <input
                 type="text"
@@ -618,6 +727,7 @@
                 placeholder="DIGITE SEU ID"
                 autocomplete="off"
             >
+
 
             <button
                 class="btn-neuro"
@@ -627,27 +737,24 @@
 
             </button>
 
-            <!-- BIBLIOTECA -->
 
             <a
                 href="biblioteca.html"
                 class="btn-neuro btn-library">
 
-                📚 BIBLIOTECA DIGITAL
+                BIBLIOTECA DIGITAL
 
             </a>
 
-            <!-- ATLAS -->
 
             <a
                 href="atlas.html"
                 class="btn-atlas">
 
-                🧩 EXPLORAR MAPA DA APRENDIZAGEM 3D
+                EXPLORAR MAPA DA APRENDIZAGEM 3D
 
             </a>
 
-            <!-- QR -->
 
             <div class="qr-section">
 
@@ -664,14 +771,13 @@
         </div>
 
 
-        <!-- =========================
-             CÉREBRO 3D
-        ========================== -->
-
         <div id="brain-viewport">
 
             <div class="brain-label">
-                SISTEMA <strong>NEURO-EDUCA</strong>
+
+                SISTEMA
+                <strong>NEURO-EDUCA</strong>
+
             </div>
 
         </div>
@@ -679,27 +785,33 @@
     </div>
 
 
-    <!-- THREE.JS -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
+    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js">
+    </script>
 
 
     <script>
 
-        /* =====================================
-           CONFIGURAÇÃO THREE.JS
-        ====================================== */
-
         const container =
-            document.getElementById('brain-viewport');
+            document.getElementById(
+                'brain-viewport'
+            );
+
 
         const scene =
             new THREE.Scene();
 
+
         scene.fog =
-            new THREE.FogExp2(0x06101f, 0.045);
+            new THREE.FogExp2(
+                0x090614,
+                0.045
+            );
 
 
         const camera =
@@ -711,6 +823,7 @@
                 1000
             );
 
+
         camera.position.z = 8;
 
 
@@ -720,23 +833,27 @@
                 alpha: true
             });
 
+
         renderer.setSize(
             container.clientWidth,
             container.clientHeight
         );
 
+
         renderer.setPixelRatio(
-            Math.min(window.devicePixelRatio, 2)
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
         );
+
 
         container.appendChild(
             renderer.domElement
         );
 
 
-        /* =====================================
-           ILUMINAÇÃO
-        ====================================== */
+        /* ILUMINAÇÃO */
 
         scene.add(
             new THREE.AmbientLight(
@@ -748,9 +865,10 @@
 
         const pLight =
             new THREE.PointLight(
-                0x8db5ff,
+                0x9b6cff,
                 1.6
             );
+
 
         pLight.position.set(
             5,
@@ -758,14 +876,16 @@
             10
         );
 
+
         scene.add(pLight);
 
 
         const secondaryLight =
             new THREE.PointLight(
-                0x7c5cff,
+                0x6d28d9,
                 1
             );
+
 
         secondaryLight.position.set(
             -5,
@@ -773,17 +893,20 @@
             5
         );
 
-        scene.add(secondaryLight);
+
+        scene.add(
+            secondaryLight
+        );
 
 
-        /* =====================================
-           PARTÍCULAS
-        ====================================== */
+        /* PARTÍCULAS */
 
         const partGeo =
             new THREE.BufferGeometry();
 
+
         const partCount = 1700;
+
 
         const posArr =
             new Float32Array(
@@ -817,7 +940,7 @@
 
                 size: 0.035,
 
-                color: 0x8db5ff,
+                color: 0x9b6cff,
 
                 transparent: true,
 
@@ -836,9 +959,7 @@
         scene.add(particles);
 
 
-        /* =====================================
-           CÉREBRO
-        ====================================== */
+        /* CÉREBRO */
 
         let brain = null;
 
@@ -846,9 +967,11 @@
 
         let tY = 0;
 
-        let moduloAtual = 'ATENÇÃO';
+        let moduloAtual =
+            'ATENÇÃO';
 
-        let pulseSpeed = 0.002;
+        let pulseSpeed =
+            0.002;
 
 
         const loader =
@@ -872,9 +995,9 @@
                             c.material =
                                 new THREE.MeshStandardMaterial({
 
-                                    color: 0x101a32,
+                                    color: 0x130d24,
 
-                                    emissive: 0x4f7cff,
+                                    emissive: 0x8b5cf6,
 
                                     emissiveIntensity: 0.8,
 
@@ -914,9 +1037,7 @@
         );
 
 
-        /* =====================================
-           MÓDULOS PEDAGÓGICOS
-        ====================================== */
+        /* MÓDULOS PEDAGÓGICOS */
 
         window.selecionarModulo =
             function(modulo, elemento) {
@@ -949,86 +1070,114 @@
                     );
 
 
-                if (modulo === 'ATENÇÃO') {
+                if (
+                    modulo ===
+                    'ATENÇÃO'
+                ) {
 
-                    pulseSpeed = 0.004;
+                    pulseSpeed =
+                        0.004;
 
-                    particles.material
+                    particles
+                        .material
                         .color
-                        .setHex(0x4f7cff);
+                        .setHex(
+                            0x8b5cf6
+                        );
 
                     label.innerText =
                         "MÓDULO ATIVO: ATENÇÃO";
 
                     label.style.color =
-                        "#6f9bff";
+                        "#a78bfa";
 
                 }
 
 
-                else if (modulo === 'MEMÓRIA') {
+                else if (
+                    modulo ===
+                    'MEMÓRIA'
+                ) {
 
-                    pulseSpeed = 0.0015;
+                    pulseSpeed =
+                        0.0015;
 
-                    particles.material
+                    particles
+                        .material
                         .color
-                        .setHex(0x7c5cff);
+                        .setHex(
+                            0x7c3aed
+                        );
 
                     label.innerText =
                         "MÓDULO ATIVO: MEMÓRIA";
 
                     label.style.color =
-                        "#9b86ff";
+                        "#9f7aea";
 
                 }
 
 
-                else if (modulo === 'RACIOCÍNIO') {
+                else if (
+                    modulo ===
+                    'RACIOCÍNIO'
+                ) {
 
-                    pulseSpeed = 0.003;
+                    pulseSpeed =
+                        0.003;
 
-                    particles.material
+                    particles
+                        .material
                         .color
-                        .setHex(0x00d4ff);
+                        .setHex(
+                            0xa78bfa
+                        );
 
                     label.innerText =
                         "MÓDULO ATIVO: RACIOCÍNIO";
 
                     label.style.color =
-                        "#00d4ff";
+                        "#c4b5fd";
 
                 }
 
 
-                else if (modulo === 'LEITURA') {
+                else if (
+                    modulo ===
+                    'LEITURA'
+                ) {
 
-                    pulseSpeed = 0.002;
+                    pulseSpeed =
+                        0.002;
 
-                    particles.material
+                    particles
+                        .material
                         .color
-                        .setHex(0x35d07f);
+                        .setHex(
+                            0x8b5cf6
+                        );
 
                     label.innerText =
                         "MÓDULO ATIVO: LEITURA";
 
                     label.style.color =
-                        "#35d07f";
+                        "#a78bfa";
 
                 }
 
             };
 
 
-        /* =====================================
-           ACESSO
-        ====================================== */
+        /* ACESSO */
 
         window.validarAcesso =
             function() {
 
                 const val =
                     document
-                        .getElementById('idInput')
+                        .getElementById(
+                            'idInput'
+                        )
                         .value
                         .toUpperCase()
                         .trim();
@@ -1056,12 +1205,12 @@
                                     c.material
                                         .emissive
                                         .setHex(
-                                            0xff3d5a
+                                            0xff3d68
                                         );
 
                                     c.material
                                         .emissiveIntensity =
-                                            3;
+                                        3;
 
                                 }
 
@@ -1079,7 +1228,7 @@
 
 
                     input.style.borderColor =
-                        "#ff3d5a";
+                        "#ff3d68";
 
 
                     setTimeout(
@@ -1100,12 +1249,12 @@
                                             c.material
                                                 .emissive
                                                 .setHex(
-                                                    0x4f7cff
+                                                    0x8b5cf6
                                                 );
 
                                             c.material
                                                 .emissiveIntensity =
-                                                    0.8;
+                                                0.8;
 
                                         }
 
@@ -1123,9 +1272,7 @@
             };
 
 
-        /* =====================================
-           INTERAÇÃO COM MOUSE
-        ====================================== */
+        /* INTERAÇÃO COM MOUSE */
 
         window.addEventListener(
             'mousemove',
@@ -1150,9 +1297,7 @@
         );
 
 
-        /* =====================================
-           ANIMAÇÃO
-        ====================================== */
+        /* ANIMAÇÃO */
 
         function animate() {
 
@@ -1162,7 +1307,8 @@
 
 
             particles.rotation.y +=
-                moduloAtual === 'ATENÇÃO'
+                moduloAtual ===
+                'ATENÇÃO'
                     ? 0.0025
                     : 0.0008;
 
@@ -1220,10 +1366,11 @@
                                 c.material
                                     .emissive
                                     .setHex(
-                                        0x4f7cff
+                                        0x8b5cf6
                                     );
 
                             }
+
 
                             else if (
                                 moduloAtual ===
@@ -1233,10 +1380,11 @@
                                 c.material
                                     .emissive
                                     .setHex(
-                                        0x7c5cff
+                                        0x7c3aed
                                     );
 
                             }
+
 
                             else if (
                                 moduloAtual ===
@@ -1246,10 +1394,11 @@
                                 c.material
                                     .emissive
                                     .setHex(
-                                        0x00d4ff
+                                        0xa78bfa
                                     );
 
                             }
+
 
                             else if (
                                 moduloAtual ===
@@ -1259,7 +1408,7 @@
                                 c.material
                                     .emissive
                                     .setHex(
-                                        0x35d07f
+                                        0x8b5cf6
                                     );
 
                             }
@@ -1283,9 +1432,7 @@
         animate();
 
 
-        /* =====================================
-           RESIZE
-        ====================================== */
+        /* RESIZE */
 
         window.addEventListener(
             'resize',
