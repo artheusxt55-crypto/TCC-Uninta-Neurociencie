@@ -16,20 +16,15 @@
     <style>
 
         :root {
-
             --primary: #8b5cf6;
             --secondary: #6d28d9;
             --accent: #a78bfa;
-
             --success: #34d399;
             --warning: #f59e0b;
-
             --bg: #090614;
             --card: rgba(16, 10, 30, .90);
-
             --text: #f4f0ff;
             --muted: #9990aa;
-
         }
 
 
@@ -595,6 +590,36 @@
 
 
         /* =========================
+           LOADING MODELO 3D
+        ========================= */
+
+        #model-loading {
+
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            color:
+                #a78bfa;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
+
+            opacity: .7;
+
+            z-index: 4;
+
+            white-space: nowrap;
+
+        }
+
+
+        /* =========================
            PAINEL
         ========================= */
 
@@ -1139,6 +1164,13 @@
 
                 SISTEMA
                 <strong>NEURO-EDUCA</strong>
+
+            </div>
+
+
+            <div id="model-loading">
+
+                CARREGANDO MODELO 3D...
 
             </div>
 
@@ -1821,7 +1853,7 @@
 
 
         /* =====================================================
-           MODELO 3D — SUPABASE
+           MODELO 3D — CORUJA DO SUPABASE
         ====================================================== */
 
 
@@ -1837,7 +1869,7 @@
 
 
         const modelURL =
-            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Meshy_AI_The_Scholar_Owl_0818171248_texture.glb";
+            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Coruja_0818171248_texture-v1.glb";
 
 
         loader.load(
@@ -1851,15 +1883,15 @@
 
 
                 /*
-                    Mantemos os materiais originais
-                    do GLB para preservar as texturas.
+                    Mantém os materiais e texturas
+                    originais do arquivo GLB.
                 */
 
 
                 model.scale.set(
-                    1.15,
-                    1.15,
-                    1.15
+                    1.35,
+                    1.35,
+                    1.35
                 );
 
 
@@ -1871,6 +1903,20 @@
 
 
                 scene.add(model);
+
+
+                const loading =
+                    document.getElementById(
+                        "model-loading"
+                    );
+
+
+                if (loading) {
+
+                    loading.style.display =
+                        "none";
+
+                }
 
 
                 console.log(
@@ -1885,13 +1931,17 @@
                     progress.total > 0
                 ) {
 
-                    console.log(
-                        "Carregando modelo:",
+                    const porcentagem =
                         Math.round(
                             progress.loaded /
                             progress.total *
                             100
-                        ) + "%"
+                        );
+
+
+                    console.log(
+                        "Carregando modelo:",
+                        porcentagem + "%"
                     );
 
                 }
@@ -1904,6 +1954,20 @@
                     "Erro ao carregar modelo 3D:",
                     error
                 );
+
+
+                const loading =
+                    document.getElementById(
+                        "model-loading"
+                    );
+
+
+                if (loading) {
+
+                    loading.innerText =
+                        "ERRO AO CARREGAR MODELO 3D";
+
+                }
 
             }
 
@@ -2584,10 +2648,6 @@
                         model.rotation.z
                     );
 
-
-                /*
-                    Efeito de movimento suave.
-                */
 
                 const float =
                     Math.sin(
