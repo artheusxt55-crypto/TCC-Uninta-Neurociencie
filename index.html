@@ -10,31 +10,44 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Neuro-EDU — Laboratório Pedagógico</title>
+    <title>
+        Neuro-EDU — Laboratório Pedagógico
+    </title>
+
+
+    <!-- =====================================================
+         SPLINE
+    ====================================================== -->
 
     <script
         type="module"
         src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js">
     </script>
 
+
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
+
     <style>
 
         :root {
 
-            --purple: #7656d6;
-            --purple-light: #a98df4;
-            --purple-dark: #4d3697;
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --secondary: #6d28d9;
 
-            --white: #ffffff;
-            --text: #f5f2fb;
-            --muted: #aaa3b8;
+            --bg: #07050d;
+            --bg-card: rgba(13, 9, 23, .86);
 
-            --bg: #08070d;
-            --panel: rgba(12, 10, 19, .82);
+            --text: #f6f2ff;
+            --muted: #9b94a8;
 
-            --border: rgba(255,255,255,.10);
+            --border:
+                rgba(255,255,255,.085);
 
-            --success: #58d6a0;
+            --purple-border:
+                rgba(139,92,246,.28);
 
         }
 
@@ -60,8 +73,6 @@
 
             min-height: 100vh;
 
-            background: var(--bg);
-
             color: var(--text);
 
             font-family:
@@ -70,13 +81,16 @@
                 Arial,
                 sans-serif;
 
+            background:
+                var(--bg);
+
             overflow-x: hidden;
 
         }
 
 
         /* =====================================================
-           BACKGROUND
+           FUNDO DOS VÍDEOS
         ====================================================== */
 
         .video-background {
@@ -85,11 +99,15 @@
 
             inset: 0;
 
-            z-index: 0;
+            width: 100%;
+            height: 100%;
 
             overflow: hidden;
 
-            background: #05040a;
+            z-index: 0;
+
+            background:
+                #050309;
 
         }
 
@@ -107,15 +125,20 @@
 
             opacity: 0;
 
-            transform: scale(1.04);
-
-            transition:
-                opacity 1.8s cubic-bezier(.22,1,.36,1),
-                transform 8s ease;
+            transform:
+                scale(1.035);
 
             filter:
-                saturate(.78)
-                brightness(.62);
+                brightness(.50)
+                saturate(.72)
+                contrast(1.05);
+
+            transition:
+                opacity 1.4s ease,
+                transform 8s ease,
+                filter 1.4s ease;
+
+            pointer-events: none;
 
         }
 
@@ -124,7 +147,13 @@
 
             opacity: 1;
 
-            transform: scale(1);
+            transform:
+                scale(1.055);
+
+            filter:
+                brightness(.56)
+                saturate(.78)
+                contrast(1.05);
 
         }
 
@@ -132,15 +161,15 @@
         .bg-video.transitioning {
 
             filter:
-                saturate(.7)
-                brightness(.52)
+                brightness(.42)
+                saturate(.65)
                 blur(3px);
 
         }
 
 
         /* =====================================================
-           CINEMATIC OVERLAY
+           OVERLAY CINEMATOGRÁFICO
         ====================================================== */
 
         .video-overlay {
@@ -157,21 +186,25 @@
 
                 linear-gradient(
                     90deg,
-                    rgba(5,4,10,.96) 0%,
-                    rgba(7,5,14,.91) 28%,
-                    rgba(7,5,14,.58) 58%,
-                    rgba(7,5,14,.34) 100%
+                    rgba(4,2,9,.93) 0%,
+                    rgba(7,4,15,.78) 30%,
+                    rgba(7,4,15,.40) 63%,
+                    rgba(4,2,9,.70) 100%
                 ),
 
                 linear-gradient(
                     180deg,
-                    rgba(3,2,8,.50) 0%,
-                    rgba(3,2,8,.14) 45%,
-                    rgba(3,2,8,.68) 100%
+                    rgba(3,2,8,.45) 0%,
+                    rgba(3,2,8,.18) 45%,
+                    rgba(3,2,8,.70) 100%
                 );
 
         }
 
+
+        /* =====================================================
+           LUZ AMBIENTAL
+        ====================================================== */
 
         .video-purple-glow {
 
@@ -186,653 +219,851 @@
             background:
 
                 radial-gradient(
-                    circle at 75% 45%,
-                    rgba(118,86,214,.15),
-                    transparent 36%
+                    circle at 72% 38%,
+                    rgba(139,92,246,.12),
+                    transparent 34%
                 ),
 
                 radial-gradient(
-                    circle at 18% 80%,
-                    rgba(118,86,214,.08),
-                    transparent 35%
+                    circle at 15% 80%,
+                    rgba(109,40,217,.09),
+                    transparent 32%
                 );
+
+            mix-blend-mode:
+                screen;
 
         }
 
 
         /* =====================================================
-           TOP NAV
+           GRADE ARQUITETÔNICA
         ====================================================== */
 
-        .topbar {
+        .architectural-grid {
 
             position: fixed;
 
-            top: 0;
-            left: 0;
-            right: 0;
+            inset: 0;
 
-            height: 78px;
+            z-index: 3;
 
-            display: flex;
+            pointer-events: none;
 
-            align-items: center;
+            opacity: .16;
 
-            justify-content: space-between;
+            background-image:
 
-            padding:
-                0 48px;
-
-            z-index: 100;
-
-            border-bottom:
-                1px solid
-                rgba(255,255,255,.055);
-
-            background:
                 linear-gradient(
-                    180deg,
-                    rgba(5,4,10,.76),
-                    rgba(5,4,10,.12)
+                    rgba(255,255,255,.035) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.035) 1px,
+                    transparent 1px
                 );
 
-            backdrop-filter:
-                blur(12px);
+            background-size:
+                90px 90px;
 
-        }
-
-
-        .institution {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 13px;
-
-        }
-
-
-        .institution-mark {
-
-            width: 35px;
-            height: 35px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 9px;
-
-            background:
+            mask-image:
                 linear-gradient(
-                    145deg,
-                    var(--purple-light),
-                    var(--purple-dark)
+                    to bottom,
+                    transparent,
+                    black 20%,
+                    black 80%,
+                    transparent
                 );
-
-            box-shadow:
-                0 8px 28px
-                rgba(118,86,214,.25);
-
-        }
-
-
-        .institution-mark::before {
-
-            content: "";
-
-            width: 12px;
-            height: 12px;
-
-            border:
-                1.5px solid
-                white;
-
-            border-radius: 50%;
-
-        }
-
-
-        .institution-name {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 2px;
-
-        }
-
-
-        .institution-name strong {
-
-            font-size: 11px;
-
-            letter-spacing: 2px;
-
-            font-weight: 800;
-
-        }
-
-
-        .institution-name span {
-
-            color: #81798d;
-
-            font-size: 8px;
-
-            letter-spacing: 1.2px;
-
-        }
-
-
-        .top-navigation {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-        }
-
-
-        .nav-link {
-
-            padding:
-                10px 15px;
-
-            border-radius: 9px;
-
-            color: #c1bbc9;
-
-            text-decoration: none;
-
-            font-size: 9px;
-
-            font-weight: 700;
-
-            letter-spacing: .7px;
-
-            transition: .3s;
-
-        }
-
-
-        .nav-link:hover {
-
-            color: white;
-
-            background:
-                rgba(255,255,255,.06);
-
-        }
-
-
-        .nav-primary {
-
-            color: white;
-
-            border:
-                1px solid
-                rgba(169,141,244,.38);
-
-            background:
-                rgba(118,86,214,.13);
-
-        }
-
-
-        .nav-primary:hover {
-
-            background:
-                var(--purple);
-
-            border-color:
-                var(--purple);
-
-            transform:
-                translateY(-1px);
 
         }
 
 
         /* =====================================================
-           MAIN
+           LINHA VERTICAL DISCRETA
+        ====================================================== */
+
+        .side-line {
+
+            position: fixed;
+
+            left: 32px;
+
+            top: 15%;
+
+            bottom: 15%;
+
+            width: 1px;
+
+            background:
+                linear-gradient(
+                    transparent,
+                    rgba(167,139,250,.30),
+                    transparent
+                );
+
+            z-index: 5;
+
+            pointer-events: none;
+
+        }
+
+
+        .side-line::after {
+
+            content: "";
+
+            position: absolute;
+
+            top: 32%;
+
+            left: -2px;
+
+            width: 5px;
+
+            height: 5px;
+
+            border-radius: 50%;
+
+            background:
+                var(--primary-light);
+
+            box-shadow:
+                0 0 14px
+                rgba(167,139,250,.7);
+
+        }
+
+
+        /* =====================================================
+           GRAIN
+        ====================================================== */
+
+        .grain {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 6;
+
+            pointer-events: none;
+
+            opacity: .035;
+
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+
+        }
+
+
+        /* =====================================================
+           PARTÍCULAS
+        ====================================================== */
+
+        #particles-layer {
+
+            position: fixed;
+
+            inset: 0;
+
+            pointer-events: none;
+
+            z-index: 7;
+
+        }
+
+
+        /* =====================================================
+           ÁREA DO ALUNO
+        ====================================================== */
+
+        .btn-aluno-fixo {
+
+            position: fixed;
+
+            top: 24px;
+
+            right: 28px;
+
+            padding:
+                11px 18px;
+
+            border:
+                1px solid
+                rgba(167,139,250,.32);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(10,6,18,.55);
+
+            color:
+                #eee9f8;
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                1.2px;
+
+            backdrop-filter:
+                blur(16px);
+
+            z-index:
+                100;
+
+            transition:
+                .3s ease;
+
+        }
+
+
+        .btn-aluno-fixo::before {
+
+            content: "";
+
+            display: inline-block;
+
+            width: 5px;
+
+            height: 5px;
+
+            margin-right: 8px;
+
+            border-radius: 50%;
+
+            background:
+                var(--primary-light);
+
+            box-shadow:
+                0 0 10px
+                rgba(167,139,250,.7);
+
+        }
+
+
+        .btn-aluno-fixo:hover {
+
+            background:
+                rgba(139,92,246,.16);
+
+            border-color:
+                rgba(167,139,250,.6);
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        /* =====================================================
+           CONTAINER PRINCIPAL
         ====================================================== */
 
         .main-container {
 
-            position: relative;
+            width:
+                min(94%,
+                1380px);
 
-            z-index: 10;
+            min-height:
+                100vh;
 
-            min-height: 100vh;
+            margin:
+                auto;
 
-            max-width: 1380px;
+            display:
+                flex;
 
-            width: 100%;
+            align-items:
+                center;
 
-            margin: auto;
+            justify-content:
+                space-between;
+
+            gap:
+                60px;
+
+            position:
+                relative;
+
+            z-index:
+                20;
 
             padding:
-                110px 55px 60px;
-
-            display: grid;
-
-            grid-template-columns:
-                470px 1fr;
-
-            align-items: center;
-
-            gap: 50px;
+                50px 20px;
 
         }
 
 
         /* =====================================================
-           LEFT CONTENT
+           MARCADOR SUPERIOR
         ====================================================== */
 
-        .hero-content {
+        .institution-marker {
 
-            position: relative;
+            position:
+                absolute;
 
-            animation:
-                contentIn 1s
-                cubic-bezier(.22,1,.36,1)
-                both;
+            top:
+                35px;
 
-        }
+            left:
+                20px;
 
+            display:
+                flex;
 
-        @keyframes contentIn {
+            align-items:
+                center;
 
-            from {
-
-                opacity: 0;
-
-                transform:
-                    translateY(25px);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform:
-                    translateY(0);
-
-            }
-
-        }
-
-
-        .eyebrow {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            margin-bottom: 22px;
+            gap:
+                10px;
 
             color:
-                #a99fb7;
-
-            font-size: 9px;
-
-            font-weight: 800;
-
-            letter-spacing: 2.4px;
-
-        }
-
-
-        .eyebrow-line {
-
-            width: 28px;
-
-            height: 1px;
-
-            background:
-                var(--purple-light);
-
-        }
-
-
-        .hero-title {
-
-            max-width: 470px;
+                rgba(220,213,234,.58);
 
             font-size:
-                clamp(40px,4.2vw,62px);
-
-            line-height: .99;
+                8px;
 
             letter-spacing:
-                -2.8px;
+                1.7px;
 
-            font-weight: 650;
-
-            margin-bottom: 19px;
-
-        }
-
-
-        .hero-title span {
-
-            display: block;
-
-            color:
-                #bca8ee;
+            text-transform:
+                uppercase;
 
         }
 
 
-        .hero-description {
+        .institution-marker span {
 
-            max-width: 430px;
+            width:
+                24px;
 
-            color:
-                #aaa3b1;
+            height:
+                1px;
 
-            font-size: 13px;
-
-            line-height: 1.75;
-
-            margin-bottom: 30px;
+            background:
+                rgba(167,139,250,.55);
 
         }
 
 
         /* =====================================================
-           LOGIN PANEL
+           CARD PRINCIPAL
         ====================================================== */
 
-        .login-panel {
+        .card {
 
-            width: 100%;
+            position:
+                relative;
 
-            max-width: 420px;
-
-            padding: 24px;
-
-            border-radius: 18px;
-
-            background:
-                rgba(10,8,16,.78);
-
-            border:
-                1px solid
-                rgba(255,255,255,.09);
-
-            box-shadow:
-                0 28px 70px
-                rgba(0,0,0,.38),
-
-                inset 0 1px
-                rgba(255,255,255,.035);
-
-            backdrop-filter:
-                blur(22px);
-
-            transition:
-                transform .35s ease,
-                border-color .35s ease,
-                box-shadow .35s ease;
-
-        }
-
-
-        .login-panel:hover {
-
-            transform:
-                translateY(-3px);
-
-            border-color:
-                rgba(169,141,244,.20);
-
-            box-shadow:
-                0 35px 80px
-                rgba(0,0,0,.45),
-
-                0 0 50px
-                rgba(118,86,214,.08);
-
-        }
-
-
-        .login-heading {
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            margin-bottom: 18px;
-
-        }
-
-
-        .login-heading div {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 4px;
-
-        }
-
-
-        .login-heading strong {
-
-            font-size: 13px;
-
-            font-weight: 750;
-
-        }
-
-
-        .login-heading span {
-
-            font-size: 9px;
-
-            color:
-                #837c8c;
-
-        }
-
-
-        .status {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 6px;
-
-            font-size: 8px;
-
-            color:
-                #85808d;
-
-        }
-
-
-        .status-dot {
-
-            width: 6px;
-            height: 6px;
-
-            border-radius: 50%;
-
-            background:
-                var(--success);
-
-            box-shadow:
-                0 0 10px
-                rgba(88,214,160,.6);
-
-        }
-
-
-        .input-wrapper {
-
-            position: relative;
-
-            margin-bottom: 10px;
-
-        }
-
-
-        .input-wrapper label {
-
-            position: absolute;
-
-            top: -6px;
-
-            left: 12px;
+            width:
+                430px;
 
             padding:
-                0 5px;
-
-            background:
-                #100c18;
-
-            color:
-                #80768f;
-
-            font-size: 7px;
-
-            font-weight: 800;
-
-            letter-spacing: 1px;
-
-        }
-
-
-        input {
-
-            width: 100%;
-
-            height: 48px;
-
-            padding:
-                0 15px;
-
-            border-radius: 10px;
-
-            outline: none;
-
-            border:
-                1px solid
-                rgba(255,255,255,.10);
-
-            background:
-                rgba(255,255,255,.035);
-
-            color: white;
-
-            font-size: 11px;
-
-            transition: .3s;
-
-        }
-
-
-        input::placeholder {
-
-            color:
-                #625d68;
-
-        }
-
-
-        input:focus {
-
-            border-color:
-                rgba(169,141,244,.65);
-
-            background:
-                rgba(118,86,214,.045);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(118,86,214,.08);
-
-        }
-
-
-        .btn-neuro {
-
-            position: relative;
-
-            width: 100%;
-
-            height: 48px;
-
-            border: none;
-
-            border-radius: 10px;
+                34px;
 
             background:
                 linear-gradient(
-                    135deg,
-                    #8665df,
-                    #6246b3
+                    145deg,
+                    rgba(20,13,33,.92),
+                    rgba(8,5,15,.90)
                 );
 
-            color: white;
+            border:
+                1px solid
+                var(--border);
 
-            font-size: 9px;
+            border-radius:
+                26px;
 
-            font-weight: 850;
+            backdrop-filter:
+                blur(24px);
 
-            letter-spacing: 1.1px;
+            box-shadow:
 
-            cursor: pointer;
+                0 40px 100px
+                rgba(0,0,0,.52),
 
-            overflow: hidden;
+                0 0 0 1px
+                rgba(139,92,246,.025),
 
-            transition:
-                transform .25s ease,
-                box-shadow .25s ease;
+                inset 0 1px
+                rgba(255,255,255,.045);
+
+            overflow:
+                hidden;
 
         }
 
 
-        .btn-neuro::before {
+        .card::before {
 
             content: "";
 
-            position: absolute;
+            position:
+                absolute;
 
             top: 0;
-            left: -100%;
 
-            width: 60%;
-            height: 100%;
+            left: 12%;
+
+            width: 76%;
+
+            height: 1px;
 
             background:
                 linear-gradient(
                     90deg,
                     transparent,
-                    rgba(255,255,255,.17),
+                    rgba(167,139,250,.55),
                     transparent
                 );
 
-            transform:
-                skewX(-20deg);
+        }
+
+
+        .card::after {
+
+            content: "";
+
+            position:
+                absolute;
+
+            width:
+                160px;
+
+            height:
+                160px;
+
+            right:
+                -100px;
+
+            top:
+                -100px;
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(139,92,246,.08);
+
+            filter:
+                blur(30px);
+
+            pointer-events:
+                none;
+
+        }
+
+
+        /* =====================================================
+           MARCA
+        ====================================================== */
+
+        .brand {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                11px;
+
+            margin-bottom:
+                22px;
+
+        }
+
+
+        .brand-icon {
+
+            width:
+                34px;
+
+            height:
+                34px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                9px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+
+            box-shadow:
+                0 8px 25px
+                rgba(109,40,217,.28);
+
+        }
+
+
+        .brand-icon::after {
+
+            content:
+                "";
+
+            width:
+                11px;
+
+            height:
+                11px;
+
+            border:
+                1.5px solid
+                white;
+
+            border-radius:
+                50%;
+
+            opacity:
+                .9;
+
+        }
+
+
+        .brand span {
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                1.8px;
+
+            color:
+                #d1c9df;
+
+        }
+
+
+        /* =====================================================
+           MICRO STATUS
+        ====================================================== */
+
+        .system-status {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            margin-bottom:
+                15px;
+
+            color:
+                #777080;
+
+            font-size:
+                8px;
+
+            font-weight:
+                700;
+
+            letter-spacing:
+                1.1px;
+
+        }
+
+
+        .system-dot {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                #7cdbb1;
+
+            box-shadow:
+                0 0 12px
+                rgba(124,219,177,.55);
+
+        }
+
+
+        /* =====================================================
+           CORUJA
+        ====================================================== */
+
+        .avatar-3d {
+
+            width:
+                100%;
+
+            height:
+                150px;
+
+            margin-bottom:
+                2px;
+
+            overflow:
+                hidden;
+
+            border-radius:
+                18px;
+
+            position:
+                relative;
+
+        }
+
+
+        .avatar-3d::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                15%;
+
+            right:
+                15%;
+
+            bottom:
+                0;
+
+            height:
+                1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(167,139,250,.25),
+                    transparent
+                );
+
+        }
+
+
+        .avatar-3d spline-viewer {
+
+            width:
+                100%;
+
+            height:
+                100%;
+
+        }
+
+
+        /* =====================================================
+           TÍTULO
+        ====================================================== */
+
+        h2 {
+
+            font-size:
+                25px;
+
+            line-height:
+                1.1;
+
+            letter-spacing:
+                -.7px;
+
+            margin-bottom:
+                8px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .subtitle {
+
+            color:
+                var(--muted);
+
+            margin-bottom:
+                23px;
+
+            font-size:
+                11px;
+
+            line-height:
+                1.65;
+
+        }
+
+
+        /* =====================================================
+           INPUT
+        ====================================================== */
+
+        input,
+        select,
+        textarea {
+
+            width:
+                100%;
+
+            padding:
+                14px;
+
+            margin-bottom:
+                10px;
+
+            border-radius:
+                11px;
+
+            outline:
+                none;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            background:
+                rgba(255,255,255,.035);
+
+            color:
+                white;
+
+            font-size:
+                12px;
 
             transition:
-                left .7s ease;
+                .3s ease;
+
+        }
+
+
+        textarea {
+
+            min-height:
+                120px;
+
+            resize:
+                vertical;
+
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+
+            color:
+                #716b7b;
+
+        }
+
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+
+            border-color:
+                rgba(139,92,246,.65);
+
+            background:
+                rgba(139,92,246,.045);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(139,92,246,.055);
+
+        }
+
+
+        select option {
+
+            background:
+                #160d25;
+
+            color:
+                white;
+
+        }
+
+
+        /* =====================================================
+           BOTÃO PRINCIPAL
+        ====================================================== */
+
+        .btn-neuro {
+
+            width:
+                100%;
+
+            padding:
+                15px;
+
+            border:
+                1px solid
+                rgba(167,139,250,.18);
+
+            border-radius:
+                11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b5cf6,
+                    #6d28d9
+                );
+
+            color:
+                white;
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                .8px;
+
+            cursor:
+                pointer;
+
+            transition:
+                .3s ease;
+
+            box-shadow:
+                0 8px 25px
+                rgba(109,40,217,.18);
 
         }
 
@@ -843,46 +1074,34 @@
                 translateY(-2px);
 
             box-shadow:
-                0 12px 30px
-                rgba(100,70,180,.32);
+                0 13px 35px
+                rgba(109,40,217,.32);
 
         }
 
 
-        .btn-neuro:hover::before {
+        .btn-neuro:active {
 
-            left: 140%;
-
-        }
-
-
-        .secondary-actions {
-
-            display: grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap: 9px;
-
-            margin-top: 9px;
+            transform:
+                translateY(0);
 
         }
 
 
-        .secondary-button {
+        /* =====================================================
+           BOTÕES SECUNDÁRIOS
+        ====================================================== */
 
-            min-height: 43px;
+        .btn-library {
 
-            display: flex;
+            display:
+                block;
 
-            align-items: center;
+            margin-top:
+                10px;
 
-            justify-content: center;
-
-            padding: 10px;
-
-            border-radius: 10px;
+            padding:
+                13px;
 
             border:
                 1px solid
@@ -892,299 +1111,201 @@
                 rgba(255,255,255,.025);
 
             color:
-                #d0cbd5;
+                #e5deef;
 
-            text-decoration: none;
+            text-decoration:
+                none;
 
-            font-size: 8px;
+            border-radius:
+                11px;
 
-            font-weight: 750;
+            font-size:
+                10px;
 
-            letter-spacing: .5px;
+            font-weight:
+                700;
 
-            transition: .3s;
+            transition:
+                .3s;
 
         }
 
 
-        .secondary-button:hover {
-
-            color: white;
-
-            background:
-                rgba(118,86,214,.10);
+        .btn-library:hover {
 
             border-color:
-                rgba(169,141,244,.28);
+                rgba(255,255,255,.18);
 
-            transform:
-                translateY(-1px);
+            background:
+                rgba(255,255,255,.055);
 
         }
 
 
-        .login-footer {
+        .btn-atlas {
 
-            margin-top: 17px;
+            display:
+                block;
 
-            padding-top: 14px;
+            width:
+                100%;
 
-            border-top:
+            padding:
+                12px;
+
+            margin-top:
+                10px;
+
+            border-radius:
+                11px;
+
+            border:
                 1px solid
-                rgba(255,255,255,.06);
+                rgba(139,92,246,.22);
+
+            background:
+                rgba(139,92,246,.035);
 
             color:
-                #696370;
+                #bfb1d8;
 
-            font-size: 8px;
+            text-decoration:
+                none;
 
-            line-height: 1.5;
+            font-size:
+                9px;
+
+            font-weight:
+                700;
+
+            transition:
+                .3s;
+
+        }
+
+
+        .btn-atlas:hover {
+
+            background:
+                rgba(139,92,246,.09);
+
+            border-color:
+                rgba(139,92,246,.42);
+
+            color:
+                #ddd2f0;
 
         }
 
 
         /* =====================================================
-           3D AREA
+           ÁREA 3D
         ====================================================== */
-
-        .visual-area {
-
-            position: relative;
-
-            min-height: 650px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            animation:
-                visualIn 1.3s
-                .15s
-                cubic-bezier(.22,1,.36,1)
-                both;
-
-        }
-
-
-        @keyframes visualIn {
-
-            from {
-
-                opacity: 0;
-
-                transform:
-                    scale(.94);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform:
-                    scale(1);
-
-            }
-
-        }
-
 
         #brain-viewport {
 
-            width: 100%;
+            flex:
+                1;
 
-            height: 650px;
+            height:
+                620px;
 
-            position: relative;
+            min-width:
+                500px;
+
+            position:
+                relative;
 
         }
 
 
         #brain-viewport canvas {
 
-            display: block;
+            display:
+                block;
 
-            width: 100%;
+            width:
+                100%;
 
-            height: 100%;
+            height:
+                100%;
 
         }
 
 
-        .visual-caption {
+        .brain-label {
 
-            position: absolute;
+            position:
+                absolute;
 
-            left: 50%;
+            top:
+                45px;
 
-            bottom: 54px;
+            left:
+                50%;
 
             transform:
                 translateX(-50%);
 
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
             padding:
-                9px 15px;
+                8px 14px;
+
+            background:
+                rgba(9,6,20,.45);
 
             border:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(139,92,246,.16);
 
-            background:
-                rgba(8,6,13,.48);
-
-            border-radius: 30px;
+            border-radius:
+                20px;
 
             backdrop-filter:
-                blur(15px);
-
-            white-space: nowrap;
+                blur(12px);
 
             color:
-                #8f879b;
+                #777080;
 
-            font-size: 8px;
+            font-size:
+                8px;
 
-            letter-spacing: 1.5px;
+            letter-spacing:
+                1.4px;
+
+            white-space:
+                nowrap;
+
+            z-index:
+                5;
 
         }
 
 
-        .visual-caption strong {
+        .brain-label strong {
 
             color:
-                #cfc4e5;
-
-        }
-
-
-        .caption-dot {
-
-            width: 4px;
-            height: 4px;
-
-            border-radius: 50%;
-
-            background:
-                var(--purple-light);
+                #cfc3e3;
 
         }
 
 
         /* =====================================================
-           DECORATIVE LINE
+           PAINÉIS
         ====================================================== */
-
-        .visual-line {
-
-            position: absolute;
-
-            width: 1px;
-
-            height: 130px;
-
-            left: 8%;
-
-            top: 18%;
-
-            background:
-                linear-gradient(
-                    transparent,
-                    rgba(169,141,244,.35),
-                    transparent
-                );
-
-        }
-
-
-        .visual-line::after {
-
-            content: "";
-
-            position: absolute;
-
-            width: 4px;
-            height: 4px;
-
-            left: -1.5px;
-            top: 45%;
-
-            border-radius: 50%;
-
-            background:
-                var(--purple-light);
-
-            box-shadow:
-                0 0 15px
-                var(--purple-light);
-
-        }
-
-
-        /* =====================================================
-           PARTICLES
-        ====================================================== */
-
-        #particles-layer {
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 4;
-
-            pointer-events: none;
-
-        }
-
-
-        /* =====================================================
-           TOOL OVERLAY
-        ====================================================== */
-
-        .overlay {
-
-            display: none;
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 150;
-
-            background:
-                rgba(0,0,0,.66);
-
-            backdrop-filter:
-                blur(7px);
-
-        }
-
-
-        .overlay.active {
-
-            display: block;
-
-        }
-
 
         .tool-panel {
 
-            display: none;
+            display:
+                none;
 
-            position: fixed;
+            position:
+                fixed;
 
-            z-index: 200;
+            top:
+                50%;
 
-            top: 50%;
-            left: 50%;
+            left:
+                50%;
 
             transform:
                 translate(-50%,-50%);
@@ -1195,36 +1316,42 @@
             max-height:
                 88vh;
 
-            overflow-y: auto;
+            overflow-y:
+                auto;
 
-            padding: 30px;
-
-            border-radius: 18px;
+            padding:
+                28px;
 
             background:
-                rgba(13,10,20,.97);
+                rgba(12,7,24,.97);
 
             border:
                 1px solid
-                rgba(169,141,244,.25);
+                rgba(139,92,246,.30);
+
+            border-radius:
+                22px;
 
             box-shadow:
-                0 40px 120px
+                0 35px 100px
                 rgba(0,0,0,.75);
 
             backdrop-filter:
-                blur(30px);
+                blur(25px);
+
+            z-index:
+                200;
 
         }
 
 
         .tool-panel.active {
 
-            display: block;
+            display:
+                block;
 
             animation:
-                panelIn .3s
-                cubic-bezier(.22,1,.36,1);
+                panelIn .25s ease;
 
         }
 
@@ -1233,21 +1360,21 @@
 
             from {
 
-                opacity: 0;
+                opacity:
+                    0;
 
                 transform:
-                    translate(-50%,-46%)
-                    scale(.97);
+                    translate(-50%,-47%);
 
             }
 
             to {
 
-                opacity: 1;
+                opacity:
+                    1;
 
                 transform:
-                    translate(-50%,-50%)
-                    scale(1);
+                    translate(-50%,-50%);
 
             }
 
@@ -1256,234 +1383,235 @@
 
         .tool-header {
 
-            display: flex;
+            display:
+                flex;
 
-            justify-content: space-between;
+            align-items:
+                center;
 
-            gap: 20px;
+            justify-content:
+                space-between;
 
-            margin-bottom: 22px;
+            margin-bottom:
+                22px;
 
         }
 
 
         .tool-header h3 {
 
-            font-size: 20px;
-
-            letter-spacing: -.5px;
+            font-size:
+                20px;
 
         }
 
 
         .tool-header p {
 
-            margin-top: 6px;
+            margin-top:
+                5px;
 
             color:
-                #8e8796;
+                var(--muted);
 
-            font-size: 10px;
+            font-size:
+                10px;
 
         }
 
 
         .close-tool {
 
-            flex-shrink: 0;
+            width:
+                32px;
 
-            width: 34px;
-            height: 34px;
+            height:
+                32px;
 
             border:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(255,255,255,.1);
 
             background:
-                rgba(255,255,255,.035);
+                rgba(255,255,255,.04);
 
-            color: white;
+            color:
+                white;
 
-            border-radius: 8px;
+            border-radius:
+                8px;
 
-            cursor: pointer;
+            cursor:
+                pointer;
 
-            transition: .25s;
+            font-size:
+                16px;
 
         }
 
 
-        .close-tool:hover {
-
-            background:
-                rgba(255,255,255,.09);
-
-        }
-
+        /* =====================================================
+           GRID
+        ====================================================== */
 
         .tool-grid {
 
-            display: grid;
+            display:
+                grid;
 
             grid-template-columns:
                 repeat(2,1fr);
 
-            gap: 12px;
-
-            margin-bottom: 15px;
+            gap:
+                12px;
 
         }
 
 
         .tool-card {
 
-            padding: 15px;
+            padding:
+                16px;
+
+            background:
+                rgba(255,255,255,.035);
 
             border:
                 1px solid
                 rgba(255,255,255,.07);
 
-            background:
-                rgba(255,255,255,.025);
-
-            border-radius: 12px;
+            border-radius:
+                14px;
 
         }
 
 
         .tool-card h4 {
 
+            font-size:
+                11px;
+
             color:
-                var(--purple-light);
+                var(--primary-light);
 
-            font-size: 9px;
+            margin-bottom:
+                8px;
 
-            letter-spacing: .8px;
-
-            margin-bottom: 7px;
+            letter-spacing:
+                .5px;
 
         }
 
 
         .tool-card p {
 
+            font-size:
+                10px;
+
             color:
-                #9c95a4;
+                #aaa2ba;
 
-            font-size: 10px;
-
-            line-height: 1.55;
+            line-height:
+                1.5;
 
         }
 
 
         .field-label {
 
-            display: block;
+            display:
+                block;
 
             margin:
-                7px 0 6px;
+                4px 0 6px;
 
             color:
-                #938b9d;
+                #aaa2ba;
 
-            font-size: 8px;
-
-            font-weight: 800;
-
-            letter-spacing: 1px;
+            font-size:
+                9px;
 
         }
 
 
-        select,
-        textarea {
-
-            width: 100%;
-
-            padding: 13px;
-
-            border-radius: 10px;
-
-            outline: none;
-
-            border:
-                1px solid
-                rgba(255,255,255,.09);
-
-            background:
-                rgba(255,255,255,.035);
-
-            color: white;
-
-            font-size: 11px;
-
-            margin-bottom: 10px;
-
-        }
-
-
-        textarea {
-
-            min-height: 110px;
-
-            resize: vertical;
-
-        }
-
-
-        select option {
-
-            background:
-                #150e20;
-
-        }
-
+        /* =====================================================
+           BADGE
+        ====================================================== */
 
         .ai-badge {
 
-            display: inline-flex;
+            display:
+                inline-flex;
 
-            margin-bottom: 14px;
+            align-items:
+                center;
+
+            gap:
+                6px;
 
             padding:
                 6px 9px;
 
-            border-radius: 7px;
+            margin-bottom:
+                12px;
+
+            border-radius:
+                7px;
+
+            background:
+                rgba(139,92,246,.10);
 
             border:
                 1px solid
-                rgba(169,141,244,.18);
-
-            background:
-                rgba(118,86,214,.08);
+                rgba(139,92,246,.20);
 
             color:
-                #b7a7d9;
+                #cfc0f7;
 
-            font-size: 7px;
+            font-size:
+                8px;
 
-            font-weight: 800;
+            font-weight:
+                800;
 
-            letter-spacing: .8px;
+            letter-spacing:
+                .6px;
 
         }
 
 
+        .ai-badge::before {
+
+            content:
+                "✦";
+
+            color:
+                var(--primary-light);
+
+        }
+
+
+        /* =====================================================
+           RESULTADO
+        ====================================================== */
+
         .result-box {
 
-            margin-top: 15px;
+            margin-top:
+                15px;
 
-            padding: 16px;
+            padding:
+                16px;
+
+            background:
+                rgba(139,92,246,.07);
 
             border:
                 1px solid
-                rgba(169,141,244,.16);
+                rgba(139,92,246,.18);
 
-            background:
-                rgba(118,86,214,.06);
-
-            border-radius: 12px;
+            border-radius:
+                13px;
 
         }
 
@@ -1491,168 +1619,190 @@
         .result-box strong {
 
             color:
-                var(--purple-light);
+                var(--primary-light);
 
-            font-size: 9px;
+            font-size:
+                10px;
 
         }
 
 
         .result-box p {
 
-            margin-top: 8px;
+            margin-top:
+                8px;
 
             color:
-                #bcb4c5;
+                #c4bbd2;
 
-            font-size: 10px;
+            font-size:
+                10px;
 
-            line-height: 1.6;
+            line-height:
+                1.6;
 
         }
 
 
         .loading {
 
-            display: none;
+            display:
+                none;
 
-            margin-top: 12px;
+            margin-top:
+                15px;
 
             color:
-                var(--purple-light);
+                #a78bfa;
 
-            font-size: 9px;
+            font-size:
+                10px;
 
         }
 
 
         .loading.active {
 
-            display: block;
+            display:
+                block;
 
         }
 
 
         /* =====================================================
-           RESPONSIVE
+           OVERLAY
         ====================================================== */
 
-        @media(max-width:1000px) {
+        .overlay {
+
+            display:
+                none;
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            background:
+                rgba(0,0,0,.68);
+
+            backdrop-filter:
+                blur(6px);
+
+            z-index:
+                150;
+
+        }
+
+
+        .overlay.active {
+
+            display:
+                block;
+
+        }
+
+
+        /* =====================================================
+           RESPONSIVO
+        ====================================================== */
+
+        @media(max-width:900px) {
+
+            body {
+
+                overflow-y:
+                    auto;
+
+                padding:
+                    80px 0 30px;
+
+            }
+
 
             .main-container {
 
-                grid-template-columns: 1fr;
+                min-height:
+                    auto;
 
-                padding:
-                    110px 30px 50px;
+                flex-direction:
+                    column;
 
-            }
-
-
-            .hero-content {
-
-                max-width: 650px;
-
-                margin: auto;
+                gap:
+                    15px;
 
             }
 
 
-            .hero-description {
+            .institution-marker {
 
-                max-width: 550px;
-
-            }
-
-
-            .visual-area {
-
-                min-height: 520px;
+                display:
+                    none;
 
             }
 
 
             #brain-viewport {
 
-                height: 520px;
+                width:
+                    100%;
+
+                min-width:
+                    0;
+
+                height:
+                    420px;
+
+                order:
+                    -1;
+
+            }
+
+
+            .card {
+
+                width:
+                    min(430px,92%);
+
+            }
+
+
+            .side-line {
+
+                display:
+                    none;
 
             }
 
         }
 
 
-        @media(max-width:650px) {
-
-            .topbar {
-
-                height: 65px;
-
-                padding:
-                    0 18px;
-
-            }
-
-
-            .top-navigation .nav-link {
-
-                display: none;
-
-            }
-
-
-            .main-container {
-
-                padding:
-                    95px 18px 35px;
-
-            }
-
-
-            .hero-title {
-
-                font-size: 42px;
-
-            }
-
-
-            .login-panel {
-
-                max-width: none;
-
-            }
-
-
-            .visual-area {
-
-                min-height: 420px;
-
-            }
-
-
-            #brain-viewport {
-
-                height: 420px;
-
-            }
-
-
-            .visual-caption {
-
-                bottom: 20px;
-
-            }
-
+        @media(max-width:550px) {
 
             .tool-grid {
 
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr;
 
             }
 
 
-            .tool-panel {
+            .btn-aluno-fixo {
 
-                padding: 22px;
+                top:
+                    12px;
+
+                right:
+                    12px;
+
+            }
+
+
+            .card {
+
+                padding:
+                    25px;
 
             }
 
@@ -1667,10 +1817,13 @@
 
 
     <!-- =====================================================
-         VÍDEOS
+         VÍDEOS DE FUNDO
     ====================================================== -->
 
     <div class="video-background">
+
+
+        <!-- 1 — ATHENAS + LIVRO -->
 
         <video
             id="video1"
@@ -1682,6 +1835,8 @@
         </video>
 
 
+        <!-- 2 — MÃOS -->
+
         <video
             id="video2"
             class="bg-video"
@@ -1692,6 +1847,8 @@
         </video>
 
 
+        <!-- 3 — CUBO -->
+
         <video
             id="video3"
             class="bg-video"
@@ -1701,216 +1858,158 @@
             preload="auto">
         </video>
 
+
     </div>
 
+
+    <!-- =====================================================
+         CAMADAS VISUAIS
+    ====================================================== -->
 
     <div class="video-overlay"></div>
 
     <div class="video-purple-glow"></div>
 
+    <div class="architectural-grid"></div>
+
+    <div class="side-line"></div>
+
+    <div class="grain"></div>
+
     <div id="particles-layer"></div>
 
 
     <!-- =====================================================
-         HEADER
+         ÁREA DO ALUNO
     ====================================================== -->
 
-    <header class="topbar">
+    <a
+        href="aluno.html"
+        class="btn-aluno-fixo">
 
-        <div class="institution">
+        ÁREA DO ALUNO
 
-            <div class="institution-mark"></div>
+    </a>
 
-            <div class="institution-name">
 
-                <strong>
-                    NEURO-EDUCA
-                </strong>
+    <!-- =====================================================
+         INTERFACE PRINCIPAL
+    ====================================================== -->
 
-                <span>
-                    LABORATÓRIO PEDAGÓGICO
-                </span>
+    <main class="main-container">
 
-            </div>
+
+        <div class="institution-marker">
+
+            <span></span>
+
+            LABORATÓRIO DE PESQUISA E PRÁTICAS PEDAGÓGICAS
 
         </div>
 
 
-        <nav class="top-navigation">
+        <!-- =================================================
+             CARD
+        ================================================== -->
+
+        <section class="card">
+
+
+            <div class="brand">
+
+                <div class="brand-icon"></div>
+
+                <span>
+                    NEURO-EDUCA • UNINTA
+                </span>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="system-dot"></span>
+
+                SISTEMA OPERACIONAL
+
+            </div>
+
+
+            <!-- =================================================
+                 CORUJA
+            ================================================== -->
+
+            <div class="avatar-3d">
+
+                <spline-viewer
+                    url="genkub_greeting_robot.spline">
+                </spline-viewer>
+
+            </div>
+
+
+            <h2>
+                Laboratório Pedagógico
+            </h2>
+
+
+            <p class="subtitle">
+
+                Um ambiente para diagnóstico,
+                planejamento, consulta curricular
+                e intervenção pedagógica.
+
+            </p>
+
+
+            <input
+                type="text"
+                id="idInput"
+                placeholder="DIGITE SEU ID"
+                autocomplete="off"
+            >
+
+
+            <button
+                class="btn-neuro"
+                onclick="validarAcesso()">
+
+                ACESSAR LABORATÓRIO
+
+            </button>
+
 
             <a
                 href="biblioteca.html"
-                class="nav-link">
+                class="btn-library">
 
-                BIBLIOTECA
+                BIBLIOTECA DIGITAL
 
             </a>
 
 
             <a
                 href="atlas.html"
-                class="nav-link">
+                class="btn-atlas">
 
-                MAPA 3D
-
-            </a>
-
-
-            <a
-                href="aluno.html"
-                class="nav-link nav-primary">
-
-                ÁREA DO ALUNO
+                EXPLORAR MAPA DA APRENDIZAGEM 3D
 
             </a>
 
-        </nav>
-
-    </header>
-
-
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
-    <main class="main-container">
-
-
-        <section class="hero-content">
-
-
-            <div class="eyebrow">
-
-                <span class="eyebrow-line"></span>
-
-                LABORATÓRIO PEDAGÓGICO
-
-            </div>
-
-
-            <h1 class="hero-title">
-
-                Tecnologia a serviço da
-                <span>aprendizagem.</span>
-
-            </h1>
-
-
-            <p class="hero-description">
-
-                Um espaço digital desenvolvido para
-                apoiar professores na análise,
-                planejamento e construção de
-                estratégias pedagógicas.
-
-            </p>
-
-
-            <div class="login-panel">
-
-
-                <div class="login-heading">
-
-                    <div>
-
-                        <strong>
-                            Acesso institucional
-                        </strong>
-
-                        <span>
-                            Entre para acessar o laboratório
-                        </span>
-
-                    </div>
-
-
-                    <div class="status">
-
-                        <span class="status-dot"></span>
-
-                        ONLINE
-
-                    </div>
-
-                </div>
-
-
-                <div class="input-wrapper">
-
-                    <label>
-                        IDENTIFICAÇÃO
-                    </label>
-
-                    <input
-                        type="text"
-                        id="idInput"
-                        placeholder="Digite seu ID"
-                        autocomplete="off"
-                    >
-
-                </div>
-
-
-                <button
-                    class="btn-neuro"
-                    onclick="validarAcesso()">
-
-                    ACESSAR LABORATÓRIO
-
-                </button>
-
-
-                <div class="secondary-actions">
-
-                    <a
-                        href="biblioteca.html"
-                        class="secondary-button">
-
-                        BIBLIOTECA DIGITAL
-
-                    </a>
-
-
-                    <a
-                        href="atlas.html"
-                        class="secondary-button">
-
-                        MAPA DA APRENDIZAGEM
-
-                    </a>
-
-                </div>
-
-
-                <div class="login-footer">
-
-                    Ambiente destinado ao desenvolvimento
-                    e apoio de práticas pedagógicas.
-
-                </div>
-
-            </div>
 
         </section>
 
 
         <!-- =================================================
-             VISUAL 3D
+             MODELO 3D
         ================================================== -->
 
-        <section class="visual-area">
-
-            <div class="visual-line"></div>
+        <section id="brain-viewport">
 
 
-            <div id="brain-viewport"></div>
+            <div class="brain-label">
 
-
-            <div class="visual-caption">
-
-                <span class="caption-dot"></span>
-
-                MODELO INTERATIVO
+                SISTEMA
 
                 <strong>
                     NEURO-EDUCA
@@ -1918,7 +2017,9 @@
 
             </div>
 
+
         </section>
+
 
     </main>
 
@@ -1942,6 +2043,7 @@
         class="tool-panel"
         id="diagnostico">
 
+
         <div class="tool-header">
 
             <div>
@@ -1951,11 +2053,12 @@
                 </h3>
 
                 <p>
-                    Estruture informações para análise
-                    pedagógica.
+                    Estrutura preparada para análise
+                    pedagógica assistida.
                 </p>
 
             </div>
+
 
             <button
                 class="close-tool"
@@ -1969,11 +2072,12 @@
 
 
         <div class="ai-badge">
-            ANÁLISE PEDAGÓGICA
+            IA PEDAGÓGICA
         </div>
 
 
         <div class="tool-grid">
+
 
             <div class="tool-card">
 
@@ -2034,13 +2138,15 @@
 
 
         <label class="field-label">
+
             HABILIDADE / NECESSIDADE OBSERVADA
+
         </label>
 
 
         <textarea
             id="diagDescricao"
-            placeholder="Descreva o que foi observado..."
+            placeholder="Descreva o que foi observado no processo de aprendizagem..."
         ></textarea>
 
 
@@ -2057,7 +2163,7 @@
             class="loading"
             id="loadingDiagnostico">
 
-            Processando análise...
+            Processando análise pedagógica...
 
         </div>
 
@@ -2068,7 +2174,7 @@
             style="display:none;">
 
             <strong>
-                ANÁLISE
+                ANÁLISE PEDAGÓGICA
             </strong>
 
             <p id="textoDiagnostico"></p>
@@ -2086,6 +2192,7 @@
         class="tool-panel"
         id="bncc">
 
+
         <div class="tool-header">
 
             <div>
@@ -2100,6 +2207,7 @@
                 </p>
 
             </div>
+
 
             <button
                 class="close-tool"
@@ -2126,6 +2234,7 @@
 
         <div class="tool-grid">
 
+
             <div class="tool-card">
 
                 <h4>
@@ -2133,8 +2242,10 @@
                 </h4>
 
                 <p>
-                    Consulte habilidades curriculares
-                    organizadas por etapa e componente.
+
+                    Consulta estruturada de habilidades
+                    e competências curriculares.
+
                 </p>
 
             </div>
@@ -2143,12 +2254,14 @@
             <div class="tool-card">
 
                 <h4>
-                    CONTEXTO
+                    CONTEXTO PEDAGÓGICO
                 </h4>
 
                 <p>
+
                     Utilize a habilidade selecionada
-                    como referência para suas atividades.
+                    como referência para suas análises.
+
                 </p>
 
             </div>
@@ -2158,6 +2271,7 @@
 
         <button
             class="btn-neuro"
+            style="margin-top:15px;"
             onclick="consultarBNCC()">
 
             CONSULTAR
@@ -2189,6 +2303,7 @@
         class="tool-panel"
         id="planejamento">
 
+
         <div class="tool-header">
 
             <div>
@@ -2198,11 +2313,12 @@
                 </h3>
 
                 <p>
-                    Organize os elementos essenciais
-                    de uma proposta pedagógica.
+                    Estruture objetivos e estratégias
+                    para sua prática pedagógica.
                 </p>
 
             </div>
+
 
             <button
                 class="close-tool"
@@ -2216,13 +2332,14 @@
 
 
         <div class="ai-badge">
-            PLANEJAMENTO
+            PLANEJAMENTO ASSISTIDO
         </div>
 
 
         <label class="field-label">
             TEMA
         </label>
+
 
         <input
             id="temaPlano"
@@ -2233,6 +2350,7 @@
         <label class="field-label">
             ANO / SÉRIE
         </label>
+
 
         <select id="anoPlano">
 
@@ -2253,9 +2371,10 @@
             OBJETIVO
         </label>
 
+
         <textarea
             id="objetivoPlano"
-            placeholder="O que o estudante deverá desenvolver?"
+            placeholder="O que o aluno deverá desenvolver?"
         ></textarea>
 
 
@@ -2301,6 +2420,7 @@
         class="tool-panel"
         id="intervencao">
 
+
         <div class="tool-header">
 
             <div>
@@ -2311,10 +2431,11 @@
 
                 <p>
                     Transforme evidências de aprendizagem
-                    em estratégias.
+                    em estratégias pedagógicas.
                 </p>
 
             </div>
+
 
             <button
                 class="close-tool"
@@ -2339,7 +2460,7 @@
 
         <textarea
             id="necessidadeIntervencao"
-            placeholder="Descreva a dificuldade observada..."
+            placeholder="Descreva a dificuldade ou necessidade observada..."
         ></textarea>
 
 
@@ -2350,7 +2471,7 @@
 
         <textarea
             id="contextoIntervencao"
-            placeholder="Informe o contexto da turma ou estudante..."
+            placeholder="Informe o contexto da turma ou do estudante..."
         ></textarea>
 
 
@@ -2396,98 +2517,217 @@
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
     </script>
 
+
     <script
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js">
     </script>
 
 
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
     <script>
+
 
         /* =====================================================
            SISTEMA DE VÍDEOS
+           
+           IMPORTANTE:
+           A troca agora acontece pelo evento "ended".
+           
+           Não usamos mais setTimeout para controlar
+           a duração dos vídeos.
         ====================================================== */
+
 
         const videos = [
 
             document.getElementById("video1"),
+
             document.getElementById("video2"),
+
             document.getElementById("video3")
-
-        ];
-
-
-        /*
-         * Tempo de permanência de cada vídeo.
-         *
-         * 7s Athena
-         * 10s mãos/livro
-         * 10s cubo
-         */
-
-        const videoDurations = [
-
-            7000,
-            10000,
-            10000
 
         ];
 
 
         let currentVideo = 0;
 
-        let videoTimer = null;
+        let videoSequenceStarted = false;
 
-        let transitionRunning = false;
-
-
-        videos.forEach(video => {
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload = "auto";
-
-        });
+        let videoTransitioning = false;
 
 
-        /*
-         * Loop interno.
-         *
-         * Isso impede que um vídeo curto termine
-         * e fique congelado enquanto aguardamos
-         * a próxima transição.
-         */
-
-        videos.forEach(video => {
-
-            video.loop = true;
-
-        });
+        const FADE_DURATION = 1400;
 
 
-        /*
-         * Inicia Athena.
-         */
+        videos.forEach(
 
-        videos[0].currentTime = 0;
+            video => {
 
-        videos[0].play().catch(() => {});
+                video.muted = true;
+
+                video.playsInline = true;
+
+                video.preload = "auto";
+
+                /*
+                 * Não usar loop.
+                 *
+                 * O JavaScript controla
+                 * a sequência.
+                 */
+
+                video.loop = false;
+
+            }
+
+        );
 
 
         /*
-         * Troca com crossfade.
+         * Inicia o primeiro vídeo.
          */
 
-        function trocarVideo(nextIndex) {
+        async function iniciarPrimeiroVideo() {
 
-            if (transitionRunning)
-                return;
+            try {
 
+                videos[0].currentTime = 0;
+
+                await videos[0].play();
+
+                videoSequenceStarted = true;
+
+            }
+
+            catch(error) {
+
+                console.warn(
+                    "Autoplay bloqueado.",
+                    error
+                );
+
+                /*
+                 * O navegador pode exigir
+                 * interação do usuário.
+                 */
+
+                document.addEventListener(
+                    "click",
+                    iniciarPrimeiroVideo,
+                    {
+                        once: true
+                    }
+                );
+
+            }
+
+        }
+
+
+        iniciarPrimeiroVideo();
+
+
+        /*
+         * Quando QUALQUER vídeo termina,
+         * avançamos para o próximo.
+         */
+
+        videos.forEach(
+
+            (video, index) => {
+
+                video.addEventListener(
+
+                    "ended",
+
+                    () => {
+
+                        /*
+                         * Só reage se esse for
+                         * realmente o vídeo atual.
+                         */
+
+                        if (
+                            index !== currentVideo
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const nextIndex =
+                            (
+                                currentVideo + 1
+                            ) %
+                            videos.length;
+
+
+                        trocarVideo(
+                            nextIndex
+                        );
+
+                    }
+
+                );
+
+
+                /*
+                 * Caso o vídeo apresente erro,
+                 * não deixa a sequência travar.
+                 */
+
+                video.addEventListener(
+
+                    "error",
+
+                    () => {
+
+                        console.warn(
+                            "Erro no vídeo:",
+                            video.src
+                        );
+
+
+                        if (
+                            index === currentVideo
+                        ) {
+
+                            const nextIndex =
+                                (
+                                    currentVideo + 1
+                                ) %
+                                videos.length;
+
+
+                            trocarVideo(
+                                nextIndex
+                            );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+        );
+
+
+        /*
+         * Crossfade real.
+         */
+
+        async function trocarVideo(
+            nextIndex
+        ) {
 
             if (
-                nextIndex < 0 ||
-                nextIndex >= videos.length
+                videoTransitioning
             ) {
 
                 return;
@@ -2495,7 +2735,17 @@
             }
 
 
-            transitionRunning = true;
+            if (
+                nextIndex === currentVideo
+            ) {
+
+                return;
+
+            }
+
+
+            videoTransitioning =
+                true;
 
 
             const atual =
@@ -2507,7 +2757,7 @@
 
 
             /*
-             * Prepara o próximo vídeo.
+             * Prepara o próximo.
              */
 
             proximo.pause();
@@ -2521,191 +2771,106 @@
 
 
             /*
-             * Inicia antes de ficar visível.
+             * Tenta iniciar ANTES
+             * de mostrar.
              */
 
-            proximo.play()
-                .catch(() => {});
+            try {
+
+                await proximo.play();
+
+            }
+
+            catch(error) {
+
+                console.warn(
+                    "Não foi possível iniciar o próximo vídeo.",
+                    error
+                );
+
+                videoTransitioning =
+                    false;
+
+                return;
+
+            }
 
 
-            requestAnimationFrame(() => {
+            /*
+             * Crossfade.
+             */
 
-                requestAnimationFrame(() => {
+            requestAnimationFrame(
+
+                () => {
 
                     proximo.classList.add(
                         "active"
                     );
 
-                });
+                }
 
-            });
+            );
 
 
             /*
-             * Depois do fade:
-             * remove o anterior.
+             * Mantém os dois visíveis
+             * durante o fade.
              */
 
-            setTimeout(() => {
+            setTimeout(
 
-                atual.classList.remove(
-                    "active"
-                );
-
-                atual.classList.remove(
-                    "transitioning"
-                );
-
-                proximo.classList.remove(
-                    "transitioning"
-                );
-
-
-                /*
-                 * Pausa o anterior.
-                 */
-
-                atual.pause();
-
-
-                currentVideo =
-                    nextIndex;
-
-
-                transitionRunning =
-                    false;
-
-
-                /*
-                 * Agenda o próximo.
-                 */
-
-                iniciarTimerVideo();
-
-            }, 1800);
-
-        }
-
-
-        /*
-         * Timer individual.
-         */
-
-        function iniciarTimerVideo() {
-
-            clearTimeout(
-                videoTimer
-            );
-
-
-            videoTimer = setTimeout(() => {
-
-                const proximo =
-                    currentVideo + 1;
-
-
-                /*
-                 * Ao chegar no cubo,
-                 * permanece nele.
-                 */
-
-                if (
-                    proximo >= videos.length
-                ) {
-
-                    return;
-
-                }
-
-
-                trocarVideo(
-                    proximo
-                );
-
-            },
-            videoDurations[currentVideo]);
-
-        }
-
-
-        /*
-         * Começa a sequência.
-         */
-
-        iniciarTimerVideo();
-
-
-        /*
-         * Se o navegador pausar o vídeo atual,
-         * tenta continuar automaticamente.
-         */
-
-        videos.forEach(video => {
-
-            video.addEventListener(
-                "pause",
                 () => {
 
-                    if (
-                        video ===
-                        videos[currentVideo] &&
-                        !transitionRunning
-                    ) {
+                    atual.classList.remove(
+                        "active"
+                    );
 
-                        setTimeout(() => {
 
-                            if (
-                                video ===
-                                videos[currentVideo]
-                            ) {
+                    atual.classList.remove(
+                        "transitioning"
+                    );
 
-                                video.play()
-                                    .catch(() => {});
 
-                            }
+                    proximo.classList.remove(
+                        "transitioning"
+                    );
 
-                        }, 150);
 
-                    }
+                    /*
+                     * Pausa o vídeo antigo.
+                     *
+                     * Isso é importante:
+                     * evita processamento desnecessário
+                     * e evita que ele continue tocando
+                     * escondido.
+                     */
 
-                }
+                    atual.pause();
+
+                    atual.currentTime = 0;
+
+
+                    currentVideo =
+                        nextIndex;
+
+
+                    videoTransitioning =
+                        false;
+
+                },
+
+                FADE_DURATION
+
             );
 
-        });
-
-
-        /*
-         * Se algum vídeo tiver terminado apesar do loop,
-         * reinicia.
-         */
-
-        videos.forEach(video => {
-
-            video.addEventListener(
-                "ended",
-                () => {
-
-                    if (
-                        video ===
-                        videos[currentVideo]
-                    ) {
-
-                        video.currentTime = 0;
-
-                        video.play()
-                            .catch(() => {});
-
-                    }
-
-                }
-            );
-
-        });
+        }
 
 
         /* =====================================================
            THREE.JS
         ====================================================== */
+
 
         const container =
             document.getElementById(
@@ -2719,7 +2884,7 @@
 
         scene.fog =
             new THREE.FogExp2(
-                0x09070f,
+                0x090614,
                 .045
             );
 
@@ -2733,20 +2898,24 @@
                 container.clientHeight,
 
                 .1,
+
                 1000
 
             );
 
 
-        camera.position.z = 8;
+        camera.position.z =
+            8;
 
 
         const renderer =
             new THREE.WebGLRenderer({
 
-                antialias: true,
+                antialias:
+                    true,
 
-                alpha: true
+                alpha:
+                    true
 
             });
 
@@ -2754,6 +2923,7 @@
         renderer.setSize(
 
             container.clientWidth,
+
             container.clientHeight
 
         );
@@ -2762,8 +2932,11 @@
         renderer.setPixelRatio(
 
             Math.min(
+
                 window.devicePixelRatio,
+
                 2
+
             )
 
         );
@@ -2775,14 +2948,18 @@
 
 
         /* =====================================================
-           LUZES
+           ILUMINAÇÃO
         ====================================================== */
+
 
         scene.add(
 
             new THREE.AmbientLight(
+
                 0xffffff,
-                .82
+
+                .8
+
             )
 
         );
@@ -2790,63 +2967,88 @@
 
         const light =
             new THREE.PointLight(
+
                 0xffffff,
-                1.7
+
+                1.8
+
             );
 
 
         light.position.set(
+
             5,
             5,
             10
+
         );
 
 
-        scene.add(light);
+        scene.add(
+            light
+        );
 
 
         const light2 =
             new THREE.PointLight(
-                0x7656d6,
-                .85
+
+                0x8b5cf6,
+
+                .8
+
             );
 
 
         light2.position.set(
+
             -5,
             -2,
             5
+
         );
 
 
-        scene.add(light2);
+        scene.add(
+            light2
+        );
 
 
         /* =====================================================
            PARTÍCULAS
         ====================================================== */
 
+
         const partGeo =
             new THREE.BufferGeometry();
 
 
-        const partCount = 1100;
+        const partCount =
+            1300;
 
 
         const positions =
             new Float32Array(
+
                 partCount * 3
+
             );
 
 
         for (
+
             let i = 0;
+
             i < partCount * 3;
+
             i++
+
         ) {
 
             positions[i] =
-                (Math.random() - .5) * 15;
+                (
+                    Math.random() -
+                    .5
+                ) * 15;
 
         }
 
@@ -2856,8 +3058,11 @@
             "position",
 
             new THREE.BufferAttribute(
+
                 positions,
+
                 3
+
             )
 
         );
@@ -2866,41 +3071,59 @@
         const partMat =
             new THREE.PointsMaterial({
 
-                size: .028,
+                size:
+                    .03,
 
-                color: 0xa98df4,
+                color:
+                    0x9b6cff,
 
-                transparent: true,
+                transparent:
+                    true,
 
-                opacity: .35
+                opacity:
+                    .38
 
             });
 
 
         const particles =
             new THREE.Points(
+
                 partGeo,
+
                 partMat
+
             );
 
 
-        scene.add(particles);
+        scene.add(
+            particles
+        );
 
 
         /* =====================================================
-           CORUJA
+           MODELO 3D — CORUJA
         ====================================================== */
 
-        let brain = null;
+
+        let brain =
+            null;
 
 
-        let targetX = 0;
+        let targetX =
+            0;
 
-        let targetY = 0;
 
-        let mouseX = 0;
+        let targetY =
+            0;
 
-        let mouseY = 0;
+
+        let mouseX =
+            0;
+
+
+        let mouseY =
+            0;
 
 
         const modelURL =
@@ -2915,10 +3138,11 @@
 
             modelURL,
 
-            gltf => {
+
+            (gltf) => {
 
                 console.log(
-                    "Corujafinal.glb carregado."
+                    "Corujafinal.glb carregado com sucesso."
                 );
 
 
@@ -2927,6 +3151,7 @@
 
 
                 brain.traverse(
+
                     object => {
 
                         if (
@@ -2942,27 +3167,34 @@
                         }
 
                     }
+
                 );
 
 
                 brain.scale.set(
+
                     .01,
                     .01,
                     .01
+
                 );
 
 
                 brain.position.set(
+
                     0,
                     -.8,
                     0
+
                 );
 
 
                 brain.rotation.set(
+
                     0,
                     -.35,
                     0
+
                 );
 
 
@@ -2971,15 +3203,23 @@
                 );
 
 
+                brain.userData.finalScale =
+                    1.45;
+
+
                 iniciarEntradaCoruja();
 
             },
 
-            xhr => {
 
-                if (xhr.total) {
+            (xhr) => {
+
+                if (
+                    xhr.total
+                ) {
 
                     const progresso =
+
                         (
                             xhr.loaded /
                             xhr.total
@@ -2987,19 +3227,26 @@
 
 
                     console.log(
-                        "Coruja:",
+
+                        "Carregando Corujafinal.glb:",
+
                         progresso.toFixed(0) + "%"
+
                     );
 
                 }
 
             },
 
-            error => {
+
+            (error) => {
 
                 console.error(
-                    "Erro ao carregar coruja:",
+
+                    "ERRO AO CARREGAR Corujafinal.glb:",
+
                     error
+
                 );
 
             }
@@ -3008,12 +3255,16 @@
 
 
         /* =====================================================
-           ENTRADA
+           ENTRADA DA CORUJA
         ====================================================== */
 
-        let entradaInicio = null;
 
-        let entradaFinalizada = false;
+        let entradaInicio =
+            null;
+
+
+        let entradaFinalizada =
+            false;
 
 
         function iniciarEntradaCoruja() {
@@ -3042,7 +3293,7 @@
 
 
             const duracao =
-                1800;
+                1700;
 
 
             const tempo =
@@ -3052,16 +3303,24 @@
 
             const progresso =
                 Math.min(
-                    tempo / duracao,
+
+                    tempo /
+                    duracao,
+
                     1
+
                 );
 
 
             const ease =
                 1 -
                 Math.pow(
-                    1 - progresso,
+
+                    1 -
+                    progresso,
+
                     4
+
                 );
 
 
@@ -3070,27 +3329,32 @@
 
 
             brain.scale.set(
+
                 escala,
                 escala,
                 escala
+
             );
 
 
             brain.position.y =
+
                 -.8 +
                 (.8 * ease);
 
 
             brain.rotation.y =
+
                 -.35 +
                 (.35 * ease);
 
 
             brain.rotation.z =
+
                 Math.sin(
                     progresso *
                     Math.PI
-                ) * .025;
+                ) * .035;
 
 
             if (
@@ -3103,7 +3367,8 @@
                 entradaInicio =
                     null;
 
-                brain.position.y = 0;
+                brain.position.y =
+                    0;
 
             }
 
@@ -3114,20 +3379,29 @@
            MOUSE
         ====================================================== */
 
+
         window.addEventListener(
+
             "mousemove",
+
             event => {
 
                 mouseX =
-                    event.clientX /
-                    window.innerWidth -
-                    .5;
+
+                    (
+                        event.clientX /
+                        window.innerWidth -
+                        .5
+                    );
 
 
                 mouseY =
-                    event.clientY /
-                    window.innerHeight -
-                    .5;
+
+                    (
+                        event.clientY /
+                        window.innerHeight -
+                        .5
+                    );
 
 
                 targetX =
@@ -3138,12 +3412,14 @@
                     mouseY * .10;
 
             }
+
         );
 
 
         /* =====================================================
            MÓDULOS
         ====================================================== */
+
 
         window.abrirModulo =
             function(nome) {
@@ -3152,13 +3428,15 @@
                     .querySelectorAll(
                         ".tool-panel"
                     )
-                    .forEach(panel => {
+                    .forEach(
 
-                        panel.classList.remove(
-                            "active"
-                        );
+                        panel =>
 
-                    });
+                            panel.classList.remove(
+                                "active"
+                            )
+
+                    );
 
 
                 const painel =
@@ -3167,7 +3445,9 @@
                     );
 
 
-                if (!painel)
+                if (
+                    !painel
+                )
                     return;
 
 
@@ -3194,13 +3474,15 @@
                     .querySelectorAll(
                         ".tool-panel"
                     )
-                    .forEach(panel => {
+                    .forEach(
 
-                        panel.classList.remove(
-                            "active"
-                        );
+                        panel =>
 
-                    });
+                            panel.classList.remove(
+                                "active"
+                            )
+
+                    );
 
 
                 document
@@ -3218,13 +3500,19 @@
            API
         ====================================================== */
 
+
         async function requisicaoIA(
+
             endpoint,
+
             dados
+
         ) {
 
             throw new Error(
+
                 "API ainda não conectada."
+
             );
 
         }
@@ -3233,6 +3521,7 @@
         /* =====================================================
            DIAGNÓSTICO
         ====================================================== */
+
 
         window.executarDiagnostico =
             async function() {
@@ -3255,7 +3544,9 @@
                     ).value.trim();
 
 
-                if (!descricao) {
+                if (
+                    !descricao
+                ) {
 
                     alert(
                         "Descreva a necessidade observada."
@@ -3308,11 +3599,16 @@
 
                 catch(error) {
 
+                    console.log(
+                        error
+                    );
+
+
                     mostrarAvisoAPI(
 
                         "resultadoDiagnostico",
 
-                        "O módulo está pronto para receber a conexão com o backend."
+                        "A interface está preparada. A API ainda precisa ser conectada ao backend."
 
                     );
 
@@ -3333,6 +3629,7 @@
            BNCC
         ====================================================== */
 
+
         window.consultarBNCC =
             async function() {
 
@@ -3342,7 +3639,9 @@
                     ).value.trim();
 
 
-                if (!busca) {
+                if (
+                    !busca
+                ) {
 
                     alert(
                         "Digite algo para pesquisar."
@@ -3382,11 +3681,16 @@
 
                 catch(error) {
 
+                    console.log(
+                        error
+                    );
+
+
                     mostrarAvisoAPI(
 
                         "resultadoBNCC",
 
-                        "A consulta está preparada para receber a base curricular."
+                        "O campo de consulta está pronto para receber a base curricular."
 
                     );
 
@@ -3398,6 +3702,7 @@
         /* =====================================================
            PLANEJAMENTO
         ====================================================== */
+
 
         window.gerarPlano =
             async function() {
@@ -3420,7 +3725,10 @@
                     ).value.trim();
 
 
-                if (!tema || !objetivo) {
+                if (
+                    !tema ||
+                    !objetivo
+                ) {
 
                     alert(
                         "Informe o tema e o objetivo."
@@ -3473,11 +3781,16 @@
 
                 catch(error) {
 
+                    console.log(
+                        error
+                    );
+
+
                     mostrarAvisoAPI(
 
                         "resultadoPlano",
 
-                        "O formulário está preparado para receber a conexão com o backend."
+                        "O formulário está estruturado para receber o planejamento gerado pelo backend."
 
                     );
 
@@ -3498,6 +3811,7 @@
            INTERVENÇÃO
         ====================================================== */
 
+
         window.gerarIntervencao =
             async function() {
 
@@ -3513,7 +3827,9 @@
                     ).value.trim();
 
 
-                if (!necessidade) {
+                if (
+                    !necessidade
+                ) {
 
                     alert(
                         "Informe a necessidade identificada."
@@ -3565,11 +3881,16 @@
 
                 catch(error) {
 
+                    console.log(
+                        error
+                    );
+
+
                     mostrarAvisoAPI(
 
                         "resultadoIntervencao",
 
-                        "O módulo está pronto para receber a conexão com o backend."
+                        "O módulo está preparado para receber uma proposta de intervenção."
 
                     );
 
@@ -3590,9 +3911,13 @@
            AVISO
         ====================================================== */
 
+
         function mostrarAvisoAPI(
+
             id,
+
             mensagem
+
         ) {
 
             const box =
@@ -3601,7 +3926,9 @@
                 );
 
 
-            if (!box)
+            if (
+                !box
+            )
                 return;
 
 
@@ -3610,19 +3937,27 @@
 
 
             const p =
-                box.querySelector("p");
+                box.querySelector(
+                    "p"
+                );
 
 
-            if (p)
+            if (
+                p
+            ) {
+
                 p.innerText =
                     mensagem;
+
+            }
 
         }
 
 
         /* =====================================================
-           LOGIN
+           ACESSO
         ====================================================== */
+
 
         window.validarAcesso =
             function() {
@@ -3641,9 +3976,14 @@
 
                 if (
 
-                    valor === "MATH001" ||
+                    valor ===
+                    "MATH001"
 
-                    valor.startsWith("PAC")
+                    ||
+
+                    valor.startsWith(
+                        "PAC"
+                    )
 
                 ) {
 
@@ -3656,12 +3996,15 @@
 
 
                 input.style.borderColor =
-                    "#d64c69";
+                    "#ff3d68";
 
 
-                if (brain) {
+                if (
+                    brain
+                ) {
 
                     brain.traverse(
+
                         object => {
 
                             if (
@@ -3672,60 +4015,68 @@
 
                             ) {
 
-                                object.material.emissive
-                                    .setHex(
-                                        0xd64c69
-                                    );
+                                object.material.emissive.setHex(
+                                    0xff3d68
+                                );
 
-                                object.material
-                                    .emissiveIntensity =
-                                    .25;
+
+                                object.material.emissiveIntensity =
+                                    .35;
 
                             }
 
                         }
+
                     );
 
                 }
 
 
-                setTimeout(() => {
+                setTimeout(
 
-                    input.style.borderColor =
-                        "rgba(255,255,255,.10)";
+                    () => {
+
+                        input.style.borderColor =
+                            "rgba(255,255,255,.09)";
 
 
-                    if (brain) {
+                        if (
+                            brain
+                        ) {
 
-                        brain.traverse(
-                            object => {
+                            brain.traverse(
 
-                                if (
+                                object => {
 
-                                    object.isMesh &&
-                                    object.material &&
-                                    object.material.emissive
+                                    if (
 
-                                ) {
+                                        object.isMesh &&
+                                        object.material &&
+                                        object.material.emissive
 
-                                    object.material
-                                        .emissive
-                                        .setHex(
+                                    ) {
+
+                                        object.material.emissive.setHex(
                                             0x000000
                                         );
 
-                                    object.material
-                                        .emissiveIntensity =
-                                        0;
+
+                                        object.material.emissiveIntensity =
+                                            0;
+
+                                    }
 
                                 }
 
-                            }
-                        );
+                            );
 
-                    }
+                        }
 
-                }, 700);
+                    },
+
+                    700
+
+                );
 
             };
 
@@ -3733,6 +4084,7 @@
         /* =====================================================
            ANIMAÇÃO
         ====================================================== */
+
 
         function animate() {
 
@@ -3745,6 +4097,10 @@
                 performance.now();
 
 
+            /* -------------------------------------------------
+               PARTÍCULAS
+            ------------------------------------------------- */
+
             particles.rotation.y +=
                 .0007;
 
@@ -3753,9 +4109,16 @@
                 .0001;
 
 
+            /* -------------------------------------------------
+               ENTRADA DA CORUJA
+            ------------------------------------------------- */
+
             if (
+
                 brain &&
+
                 !entradaFinalizada
+
             ) {
 
                 animarEntradaCoruja(
@@ -3765,20 +4128,33 @@
             }
 
 
+            /* -------------------------------------------------
+               MOVIMENTO NORMAL
+            ------------------------------------------------- */
+
             if (
+
                 brain &&
+
                 entradaFinalizada
+
             ) {
 
-                brain.position.y =
+                const flutuar =
+
                     Math.sin(
-                        agora * .0013
-                    ) * .035;
+                        agora * .0014
+                    ) * .045;
+
+
+                brain.position.y =
+                    flutuar;
 
 
                 brain.rotation.y +=
 
                     .035 *
+
                     (
                         targetX -
                         brain.rotation.y
@@ -3788,6 +4164,7 @@
                 brain.rotation.x +=
 
                     .025 *
+
                     (
                         targetY -
                         brain.rotation.x
@@ -3797,15 +4174,18 @@
                 brain.rotation.z =
 
                     Math.sin(
-                        agora * .0008
-                    ) * .018;
+                        agora * .0009
+                    ) * .025;
 
             }
 
 
             renderer.render(
+
                 scene,
+
                 camera
+
             );
 
         }
@@ -3818,8 +4198,11 @@
            RESIZE
         ====================================================== */
 
+
         window.addEventListener(
+
             "resize",
+
             () => {
 
                 const width =
@@ -3831,18 +4214,23 @@
 
 
                 camera.aspect =
-                    width / height;
+                    width /
+                    height;
 
 
                 camera.updateProjectionMatrix();
 
 
                 renderer.setSize(
+
                     width,
+
                     height
+
                 );
 
             }
+
         );
 
 
@@ -3850,12 +4238,16 @@
            ESC
         ====================================================== */
 
+
         document.addEventListener(
+
             "keydown",
+
             event => {
 
                 if (
-                    event.key === "Escape"
+                    event.key ===
+                    "Escape"
                 ) {
 
                     fecharModulo();
@@ -3863,9 +4255,12 @@
                 }
 
             }
+
         );
 
+
     </script>
+
 
 </body>
 
