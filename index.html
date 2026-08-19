@@ -14,6 +14,7 @@
         Neuro-EDU — Laboratório Pedagógico
     </title>
 
+
     <!-- =====================================================
          SPLINE
     ====================================================== -->
@@ -52,7 +53,6 @@
 
             margin: 0;
             padding: 0;
-
             box-sizing: border-box;
 
         }
@@ -126,8 +126,7 @@
 
             letter-spacing: .8px;
 
-            backdrop-filter:
-                blur(10px);
+            backdrop-filter: blur(10px);
 
             z-index: 100;
 
@@ -335,7 +334,7 @@
 
 
         /* =====================================================
-           ROBÔ / SPLINE
+           ROBÔ
         ====================================================== */
 
         .avatar-3d {
@@ -356,6 +355,7 @@
         .avatar-3d spline-viewer {
 
             width: 100%;
+
             height: 100%;
 
         }
@@ -1710,6 +1710,7 @@
 
     <script>
 
+
         /* =====================================================
            THREE.JS
         ====================================================== */
@@ -1734,14 +1735,22 @@
         const camera =
             new THREE.PerspectiveCamera(
                 35,
+
                 container.clientWidth /
                 container.clientHeight,
+
                 .1,
+
                 1000
+
             );
 
 
-        camera.position.z = 8;
+        camera.position.set(
+            0,
+            0,
+            8
+        );
 
 
         const renderer =
@@ -1766,14 +1775,15 @@
         renderer.setPixelRatio(
 
             Math.min(
-
                 window.devicePixelRatio,
-
                 2
-
             )
 
         );
+
+
+        renderer.outputEncoding =
+            THREE.sRGBEncoding;
 
 
         container.appendChild(
@@ -1789,7 +1799,7 @@
 
             new THREE.AmbientLight(
                 0xffffff,
-                .65
+                0.8
             )
 
         );
@@ -1798,7 +1808,7 @@
         const light =
             new THREE.PointLight(
                 0x9b6cff,
-                1.6
+                2
             );
 
 
@@ -1815,7 +1825,7 @@
         const light2 =
             new THREE.PointLight(
                 0x6d28d9,
-                1
+                1.5
             );
 
 
@@ -1829,6 +1839,23 @@
         scene.add(light2);
 
 
+        const light3 =
+            new THREE.PointLight(
+                0xffffff,
+                1
+            );
+
+
+        light3.position.set(
+            0,
+            5,
+            5
+        );
+
+
+        scene.add(light3);
+
+
         /* =====================================================
            PARTÍCULAS
         ====================================================== */
@@ -1837,7 +1864,8 @@
             new THREE.BufferGeometry();
 
 
-        const partCount = 1700;
+        const partCount =
+            1700;
 
 
         const positions =
@@ -1867,11 +1895,8 @@
             "position",
 
             new THREE.BufferAttribute(
-
                 positions,
-
                 3
-
             )
 
         );
@@ -1905,7 +1930,7 @@
 
 
         /* =====================================================
-           MODELO 3D — CORUJAFINAL-V1.GLB
+           MODELO 3D — CORUJA
         ====================================================== */
 
         let brain = null;
@@ -1918,9 +1943,6 @@
 
         /*
          * URL PÚBLICA DO SUPABASE
-         *
-         * O modelo não depende mais de estar na mesma
-         * pasta do HTML.
          */
 
         const modelURL =
@@ -1943,7 +1965,19 @@
             (gltf) => {
 
                 console.log(
-                    "Corujafinal-v1.glb carregado com sucesso."
+                    "================================="
+                );
+
+                console.log(
+                    "CORUJA CARREGADA COM SUCESSO"
+                );
+
+                console.log(
+                    gltf
+                );
+
+                console.log(
+                    "================================="
                 );
 
 
@@ -1952,37 +1986,23 @@
 
 
                 /*
-                 * MATERIAIS
+                 * PRESERVA OS MATERIAIS
+                 * E TEXTURAS ORIGINAIS
                  */
 
                 brain.traverse(
 
-                    object => {
+                    (object) => {
 
                         if (
                             object.isMesh
                         ) {
 
-                            /*
-                             * Mantém o material original
-                             * do GLB quando possível.
-                             */
+                            object.castShadow =
+                                true;
 
-                            if (
-                                object.material
-                            ) {
-
-                                object.material
-                                    .emissive
-                                    .setHex(
-                                        0x8b5cf6
-                                    );
-
-                                object.material
-                                    .emissiveIntensity =
-                                    .35;
-
-                            }
+                            object.receiveShadow =
+                                true;
 
                         }
 
@@ -1992,43 +2012,109 @@
 
 
                 /*
-                 * ESCALA
+                 * CALCULA O TAMANHO
                  */
 
-                brain.scale.set(
+                const box =
+                    new THREE.Box3()
+                        .setFromObject(
+                            brain
+                        );
 
-                    1.45,
 
-                    1.45,
+                const size =
+                    box.getSize(
+                        new THREE.Vector3()
+                    );
 
-                    1.45
 
+                const center =
+                    box.getCenter(
+                        new THREE.Vector3()
+                    );
+
+
+                console.log(
+                    "Tamanho do modelo:",
+                    size
+                );
+
+
+                console.log(
+                    "Centro do modelo:",
+                    center
                 );
 
 
                 /*
-                 * POSIÇÃO
+                 * CENTRALIZA
                  */
 
-                brain.position.set(
+                brain.position.x -=
+                    center.x;
 
-                    0,
 
-                    0,
+                brain.position.y -=
+                    center.y;
 
-                    0
 
-                );
+                brain.position.z -=
+                    center.z;
 
 
                 /*
-                 * ADICIONA À CENA
+                 * ESCALA AUTOMÁTICA
+                 */
+
+                const maxDimension =
+                    Math.max(
+
+                        size.x,
+                        size.y,
+                        size.z
+
+                    );
+
+
+                if (
+                    maxDimension > 0
+                ) {
+
+                    const escala =
+                        4 / maxDimension;
+
+
+                    brain.scale.set(
+
+                        escala,
+                        escala,
+                        escala
+
+                    );
+
+                }
+
+
+                /*
+                 * POSIÇÃO FINAL
+                 */
+
+                brain.position.y =
+                    -0.3;
+
+
+                /*
+                 * ADICIONA NA CENA
                  */
 
                 scene.add(
                     brain
                 );
 
+
+                console.log(
+                    "CORUJA ADICIONADA À CENA"
+                );
 
             },
 
@@ -2052,7 +2138,7 @@
 
                     console.log(
 
-                        "Carregando Corujafinal-v1.glb:",
+                        "Carregando coruja:",
 
                         progresso.toFixed(0) + "%"
 
@@ -2070,19 +2156,27 @@
             (error) => {
 
                 console.error(
-
-                    "ERRO AO CARREGAR Corujafinal-v1.glb:",
-
-                    error
-
+                    "================================="
                 );
 
                 console.error(
+                    "ERRO AO CARREGAR A CORUJA"
+                );
 
-                    "URL utilizada:",
+                console.error(
+                    error
+                );
 
+                console.error(
+                    "Verifique a URL pública do Supabase."
+                );
+
+                console.error(
                     modelURL
+                );
 
+                console.error(
+                    "================================="
                 );
 
             }
@@ -2103,11 +2197,13 @@
                     )
                     .forEach(
 
-                        panel =>
+                        panel => {
 
                             panel.classList.remove(
                                 "active"
-                            )
+                            );
+
+                        }
 
                     );
 
@@ -2147,11 +2243,13 @@
                     )
                     .forEach(
 
-                        panel =>
+                        panel => {
 
                             panel.classList.remove(
                                 "active"
-                            )
+                            );
+
+                        }
 
                     );
 
@@ -2178,40 +2276,6 @@
             dados
 
         ) {
-
-            /*
-             * FUTURA API
-             *
-             * Quando o backend estiver pronto,
-             * substitua este bloco pela chamada fetch.
-             */
-
-            /*
-            const resposta =
-                await fetch(
-                    "/api/" + endpoint,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(dados)
-                    }
-                );
-
-            if (!resposta.ok)
-
-                throw new Error(
-                    "Erro na API"
-                );
-
-            return await resposta.json();
-            */
-
 
             throw new Error(
                 "API de IA ainda não conectada."
@@ -2277,9 +2341,7 @@
                             {
 
                                 ano,
-
                                 componente,
-
                                 descricao
 
                             }
@@ -2288,17 +2350,13 @@
 
 
                     document.getElementById(
-
                         "resultadoDiagnostico"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoDiagnostico"
-
                     ).innerText =
                         resposta.resultado;
 
@@ -2364,26 +2422,20 @@
                             "bncc",
 
                             {
-
                                 busca
-
                             }
 
                         );
 
 
                     document.getElementById(
-
                         "resultadoBNCC"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoBNCC"
-
                     ).innerText =
                         resposta.resultado;
 
@@ -2465,9 +2517,7 @@
                             {
 
                                 tema,
-
                                 ano,
-
                                 objetivo
 
                             }
@@ -2476,17 +2526,13 @@
 
 
                     document.getElementById(
-
                         "resultadoPlano"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoPlano"
-
                     ).innerText =
                         resposta.resultado;
 
@@ -2529,26 +2575,20 @@
 
                 const necessidade =
                     document.getElementById(
-
                         "necessidadeIntervencao"
-
                     ).value.trim();
 
 
                 const contexto =
                     document.getElementById(
-
                         "contextoIntervencao"
-
                     ).value.trim();
 
 
                 if (!necessidade) {
 
                     alert(
-
                         "Informe a necessidade identificada."
-
                     );
 
                     return;
@@ -2558,9 +2598,7 @@
 
                 const loading =
                     document.getElementById(
-
                         "loadingIntervencao"
-
                     );
 
 
@@ -2579,7 +2617,6 @@
                             {
 
                                 necessidade,
-
                                 contexto
 
                             }
@@ -2588,17 +2625,13 @@
 
 
                     document.getElementById(
-
                         "resultadoIntervencao"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoIntervencao"
-
                     ).innerText =
                         resposta.resultado;
 
@@ -2633,7 +2666,7 @@
 
 
         /* =====================================================
-           AVISO
+           AVISO TEMPORÁRIO
         ====================================================== */
 
         function mostrarAvisoAPI(
@@ -2659,7 +2692,9 @@
 
 
             const p =
-                box.querySelector("p");
+                box.querySelector(
+                    "p"
+                );
 
 
             if (p) {
@@ -2719,24 +2754,19 @@
 
                             if (
                                 object.isMesh &&
-                                object.material
+                                object.material &&
+                                object.material.emissive
                             ) {
 
-                                if (
-                                    object.material.emissive
-                                ) {
+                                object.material.emissive
+                                    .setHex(
+                                        0xff3d68
+                                    );
 
-                                    object.material
-                                        .emissive
-                                        .setHex(
-                                            0xff3d68
-                                        );
-
-                                }
 
                                 object.material
                                     .emissiveIntensity =
-                                    3;
+                                    1.5;
 
                             }
 
@@ -2753,42 +2783,6 @@
 
                         input.style.borderColor =
                             "rgba(255,255,255,.1)";
-
-
-                        if (brain) {
-
-                            brain.traverse(
-
-                                object => {
-
-                                    if (
-                                        object.isMesh &&
-                                        object.material
-                                    ) {
-
-                                        if (
-                                            object.material.emissive
-                                        ) {
-
-                                            object.material
-                                                .emissive
-                                                .setHex(
-                                                    0x8b5cf6
-                                                );
-
-                                        }
-
-                                        object.material
-                                            .emissiveIntensity =
-                                            .35;
-
-                                    }
-
-                                }
-
-                            );
-
-                        }
 
                     },
 
@@ -2814,9 +2808,7 @@
                     (
 
                         event.clientX /
-
                         window.innerWidth -
-
                         .5
 
                     ) * .2;
@@ -2827,9 +2819,7 @@
                     (
 
                         event.clientY /
-
                         window.innerHeight -
-
                         .5
 
                     ) * .2;
@@ -2869,78 +2859,28 @@
 
 
                 /*
-                 * MOVIMENTO COM MOUSE
+                 * MOVIMENTO DO MOUSE
                  */
 
                 brain.rotation.x +=
-
-                    .05 *
-
                     (
-
                         targetY -
-
                         brain.rotation.x
-
-                    );
+                    ) * .05;
 
 
                 brain.rotation.z +=
-
-                    .05 *
-
                     (
-
                         targetX -
-
                         brain.rotation.z
-
-                    );
-
-
-                /*
-                 * PULSAÇÃO
-                 */
-
-                const pulse =
-
-                    .65 +
-
-                    Math.sin(
-
-                        Date.now() * .002
-
-                    ) * .25;
-
-
-                brain.traverse(
-
-                    object => {
-
-                        if (
-                            object.isMesh &&
-                            object.material
-                        ) {
-
-                            object.material
-                                .emissiveIntensity =
-                                pulse;
-
-                        }
-
-                    }
-
-                );
+                    ) * .05;
 
             }
 
 
             renderer.render(
-
                 scene,
-
                 camera
-
             );
 
         }
@@ -2967,6 +2907,12 @@
                     container.clientHeight;
 
 
+                if (
+                    height === 0
+                )
+                    return;
+
+
                 camera.aspect =
                     width / height;
 
@@ -2977,7 +2923,6 @@
                 renderer.setSize(
 
                     width,
-
                     height
 
                 );
@@ -2998,9 +2943,7 @@
             event => {
 
                 if (
-
                     event.key === "Escape"
-
                 ) {
 
                     fecharModulo();
