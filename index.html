@@ -533,7 +533,7 @@
 
 
         /* =========================
-           CÉREBRO
+           MODELO 3D
         ========================= */
 
         #brain-viewport {
@@ -1130,7 +1130,7 @@
 
 
         <!-- =========================
-             CÉREBRO
+             MODELO 3D
         ========================= -->
 
         <section id="brain-viewport">
@@ -1821,11 +1821,11 @@
 
 
         /* =====================================================
-           CÉREBRO
+           MODELO 3D — SUPABASE
         ====================================================== */
 
 
-        let brain = null;
+        let model = null;
 
 
         let targetX = 0;
@@ -1836,61 +1836,72 @@
             new THREE.GLTFLoader();
 
 
+        const modelURL =
+            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Meshy_AI_The_Scholar_Owl_0818171248_texture.glb";
+
+
         loader.load(
 
-            "./human-brain.glb",
+            modelURL,
 
             (gltf) => {
 
-                brain =
+                model =
                     gltf.scene;
 
 
-                brain.traverse(
-                    object => {
-
-                        if (
-                            object.isMesh
-                        ) {
-
-                            object.material =
-                                new THREE.MeshStandardMaterial({
-
-                                    color: 0x130d24,
-
-                                    emissive: 0x8b5cf6,
-
-                                    emissiveIntensity: .8,
-
-                                    roughness: .35,
-
-                                    metalness: .4
-
-                                });
-
-                        }
-
-                    }
-                );
+                /*
+                    Mantemos os materiais originais
+                    do GLB para preservar as texturas.
+                */
 
 
-                brain.scale.set(
+                model.scale.set(
                     1.15,
                     1.15,
                     1.15
                 );
 
 
-                scene.add(brain);
+                model.position.set(
+                    0,
+                    0,
+                    0
+                );
+
+
+                scene.add(model);
+
+
+                console.log(
+                    "Modelo 3D carregado com sucesso."
+                );
 
             },
 
-            undefined,
+            (progress) => {
 
-            error => {
+                if (
+                    progress.total > 0
+                ) {
+
+                    console.log(
+                        "Carregando modelo:",
+                        Math.round(
+                            progress.loaded /
+                            progress.total *
+                            100
+                        ) + "%"
+                    );
+
+                }
+
+            },
+
+            (error) => {
 
                 console.error(
-                    "Erro ao carregar cérebro:",
+                    "Erro ao carregar modelo 3D:",
                     error
                 );
 
@@ -2006,16 +2017,6 @@
                     );
 
                 return await resposta.json();
-            */
-
-
-            /*
-                POR ENQUANTO:
-
-                A interface apenas demonstra
-                que o ponto de integração existe.
-
-                NÃO existe IA simulada aqui.
             */
 
 
@@ -2443,13 +2444,15 @@
                     "#ff3d68";
 
 
-                if (brain) {
+                if (model) {
 
-                    brain.traverse(
+                    model.traverse(
                         object => {
 
                             if (
-                                object.isMesh
+                                object.isMesh &&
+                                object.material &&
+                                object.material.emissive
                             ) {
 
                                 object.material
@@ -2477,13 +2480,15 @@
                             "rgba(255,255,255,.1)";
 
 
-                        if (brain) {
+                        if (model) {
 
-                            brain.traverse(
+                            model.traverse(
                                 object => {
 
                                     if (
-                                        object.isMesh
+                                        object.isMesh &&
+                                        object.material &&
+                                        object.material.emissive
                                     ) {
 
                                         object.material
@@ -2558,50 +2563,40 @@
                 .0002;
 
 
-            if (brain) {
+            if (model) {
 
-                brain.rotation.y +=
+                model.rotation.y +=
                     .003;
 
 
-                brain.rotation.x +=
+                model.rotation.x +=
                     .05 *
                     (
                         targetY -
-                        brain.rotation.x
+                        model.rotation.x
                     );
 
 
-                brain.rotation.z +=
+                model.rotation.z +=
                     .05 *
                     (
                         targetX -
-                        brain.rotation.z
+                        model.rotation.z
                     );
 
 
-                const pulse =
-                    .65 +
+                /*
+                    Efeito de movimento suave.
+                */
+
+                const float =
                     Math.sin(
-                        Date.now() * .002
-                    ) * .25;
+                        Date.now() * .0015
+                    ) * .003;
 
 
-                brain.traverse(
-                    object => {
-
-                        if (
-                            object.isMesh
-                        ) {
-
-                            object.material
-                                .emissiveIntensity =
-                                pulse;
-
-                        }
-
-                    }
-                );
+                model.position.y =
+                    float;
 
             }
 
