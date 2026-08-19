@@ -14,7 +14,6 @@
         Neuro-EDU — Laboratório Pedagógico
     </title>
 
-
     <!-- =====================================================
          SPLINE
     ====================================================== -->
@@ -53,6 +52,7 @@
 
             margin: 0;
             padding: 0;
+
             box-sizing: border-box;
 
         }
@@ -126,7 +126,8 @@
 
             letter-spacing: .8px;
 
-            backdrop-filter: blur(10px);
+            backdrop-filter:
+                blur(10px);
 
             z-index: 100;
 
@@ -1091,10 +1092,6 @@
     <main class="main-container">
 
 
-        <!-- =================================================
-             CARD PRINCIPAL
-        ================================================== -->
-
         <section class="card">
 
 
@@ -1118,7 +1115,7 @@
             </div>
 
 
-            <!-- ROBÔ SPLINE -->
+            <!-- ROBÔ -->
 
             <div class="avatar-3d">
 
@@ -1182,7 +1179,7 @@
 
 
         <!-- =================================================
-             MODELO 3D — CORUJA
+             MODELO 3D
         ================================================== -->
 
         <section id="brain-viewport">
@@ -1317,9 +1314,7 @@
 
 
         <label class="field-label">
-
             HABILIDADE / NECESSIDADE OBSERVADA
-
         </label>
 
 
@@ -1710,7 +1705,6 @@
 
     <script>
 
-
         /* =====================================================
            THREE.JS
         ====================================================== */
@@ -1735,22 +1729,14 @@
         const camera =
             new THREE.PerspectiveCamera(
                 35,
-
                 container.clientWidth /
                 container.clientHeight,
-
                 .1,
-
                 1000
-
             );
 
 
-        camera.position.set(
-            0,
-            0,
-            8
-        );
+        camera.position.z = 8;
 
 
         const renderer =
@@ -1775,15 +1761,14 @@
         renderer.setPixelRatio(
 
             Math.min(
+
                 window.devicePixelRatio,
+
                 2
+
             )
 
         );
-
-
-        renderer.outputEncoding =
-            THREE.sRGBEncoding;
 
 
         container.appendChild(
@@ -1799,7 +1784,7 @@
 
             new THREE.AmbientLight(
                 0xffffff,
-                0.8
+                .65
             )
 
         );
@@ -1808,7 +1793,7 @@
         const light =
             new THREE.PointLight(
                 0x9b6cff,
-                2
+                1.6
             );
 
 
@@ -1825,7 +1810,7 @@
         const light2 =
             new THREE.PointLight(
                 0x6d28d9,
-                1.5
+                1
             );
 
 
@@ -1839,23 +1824,6 @@
         scene.add(light2);
 
 
-        const light3 =
-            new THREE.PointLight(
-                0xffffff,
-                1
-            );
-
-
-        light3.position.set(
-            0,
-            5,
-            5
-        );
-
-
-        scene.add(light3);
-
-
         /* =====================================================
            PARTÍCULAS
         ====================================================== */
@@ -1864,8 +1832,7 @@
             new THREE.BufferGeometry();
 
 
-        const partCount =
-            1700;
+        const partCount = 1700;
 
 
         const positions =
@@ -1895,8 +1862,11 @@
             "position",
 
             new THREE.BufferAttribute(
+
                 positions,
+
                 3
+
             )
 
         );
@@ -1943,10 +1913,18 @@
 
         /*
          * URL PÚBLICA DO SUPABASE
+         *
+         * NÃO é mais arquivo local.
          */
 
         const modelURL =
-            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal-v1.glb";
+            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
+
+
+        console.log(
+            "URL DO MODELO:",
+            modelURL
+        );
 
 
         const loader =
@@ -1965,19 +1943,8 @@
             (gltf) => {
 
                 console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "CORUJA CARREGADA COM SUCESSO"
-                );
-
-                console.log(
+                    "✓ CORUJA CARREGADA COM SUCESSO",
                     gltf
-                );
-
-                console.log(
-                    "================================="
                 );
 
 
@@ -1986,13 +1953,68 @@
 
 
                 /*
-                 * PRESERVA OS MATERIAIS
-                 * E TEXTURAS ORIGINAIS
+                 * CENTRALIZA O MODELO
+                 */
+
+                const box =
+                    new THREE.Box3()
+                        .setFromObject(brain);
+
+
+                const center =
+                    box.getCenter(
+                        new THREE.Vector3()
+                    );
+
+
+                brain.position.sub(
+                    center
+                );
+
+
+                /*
+                 * DIMENSIONAMENTO AUTOMÁTICO
+                 *
+                 * Isso evita que a coruja fique
+                 * gigantesca ou minúscula.
+                 */
+
+                const tamanho =
+                    box.getSize(
+                        new THREE.Vector3()
+                    );
+
+
+                const maiorDimensao =
+                    Math.max(
+                        tamanho.x,
+                        tamanho.y,
+                        tamanho.z
+                    );
+
+
+                if (maiorDimensao > 0) {
+
+                    const escala =
+                        3.5 / maiorDimensao;
+
+                    brain.scale.setScalar(
+                        escala
+                    );
+
+                }
+
+
+                /*
+                 * MATERIAL
+                 *
+                 * Mantém a aparência do GLB
+                 * quando possível.
                  */
 
                 brain.traverse(
 
-                    (object) => {
+                    object => {
 
                         if (
                             object.isMesh
@@ -2004,6 +2026,15 @@
                             object.receiveShadow =
                                 true;
 
+                            /*
+                             * Não substituímos
+                             * automaticamente o material
+                             * original do GLB.
+                             *
+                             * Isso evita destruir
+                             * texturas da coruja.
+                             */
+
                         }
 
                     }
@@ -2012,99 +2043,20 @@
 
 
                 /*
-                 * CALCULA O TAMANHO
+                 * POSIÇÃO
                  */
 
-                const box =
-                    new THREE.Box3()
-                        .setFromObject(
-                            brain
-                        );
+                brain.position.set(
 
+                    0,
+                    0,
+                    0
 
-                const size =
-                    box.getSize(
-                        new THREE.Vector3()
-                    );
-
-
-                const center =
-                    box.getCenter(
-                        new THREE.Vector3()
-                    );
-
-
-                console.log(
-                    "Tamanho do modelo:",
-                    size
-                );
-
-
-                console.log(
-                    "Centro do modelo:",
-                    center
                 );
 
 
                 /*
-                 * CENTRALIZA
-                 */
-
-                brain.position.x -=
-                    center.x;
-
-
-                brain.position.y -=
-                    center.y;
-
-
-                brain.position.z -=
-                    center.z;
-
-
-                /*
-                 * ESCALA AUTOMÁTICA
-                 */
-
-                const maxDimension =
-                    Math.max(
-
-                        size.x,
-                        size.y,
-                        size.z
-
-                    );
-
-
-                if (
-                    maxDimension > 0
-                ) {
-
-                    const escala =
-                        4 / maxDimension;
-
-
-                    brain.scale.set(
-
-                        escala,
-                        escala,
-                        escala
-
-                    );
-
-                }
-
-
-                /*
-                 * POSIÇÃO FINAL
-                 */
-
-                brain.position.y =
-                    -0.3;
-
-
-                /*
-                 * ADICIONA NA CENA
+                 * ADICIONA À CENA
                  */
 
                 scene.add(
@@ -2112,9 +2064,14 @@
                 );
 
 
+                /*
+                 * LOG PARA DEBUG
+                 */
+
                 console.log(
-                    "CORUJA ADICIONADA À CENA"
+                    "✓ Modelo adicionado à cena."
                 );
+
 
             },
 
@@ -2138,8 +2095,7 @@
 
                     console.log(
 
-                        "Carregando coruja:",
-
+                        "Carregando Coruja:",
                         progresso.toFixed(0) + "%"
 
                     );
@@ -2156,27 +2112,13 @@
             (error) => {
 
                 console.error(
-                    "================================="
-                );
-
-                console.error(
-                    "ERRO AO CARREGAR A CORUJA"
-                );
-
-                console.error(
+                    "❌ ERRO AO CARREGAR A CORUJA:",
                     error
                 );
 
                 console.error(
-                    "Verifique a URL pública do Supabase."
-                );
-
-                console.error(
+                    "URL:",
                     modelURL
-                );
-
-                console.error(
-                    "================================="
                 );
 
             }
@@ -2197,13 +2139,11 @@
                     )
                     .forEach(
 
-                        panel => {
+                        panel =>
 
                             panel.classList.remove(
                                 "active"
-                            );
-
-                        }
+                            )
 
                     );
 
@@ -2243,13 +2183,11 @@
                     )
                     .forEach(
 
-                        panel => {
+                        panel =>
 
                             panel.classList.remove(
                                 "active"
-                            );
-
-                        }
+                            )
 
                     );
 
@@ -2276,6 +2214,40 @@
             dados
 
         ) {
+
+            /*
+             * FUTURA API
+             *
+             * Quando o backend estiver pronto,
+             * substitua este bloco pela chamada fetch.
+             */
+
+            /*
+            const resposta =
+                await fetch(
+                    "/api/" + endpoint,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(dados)
+                    }
+                );
+
+            if (!resposta.ok)
+
+                throw new Error(
+                    "Erro na API"
+                );
+
+            return await resposta.json();
+            */
+
 
             throw new Error(
                 "API de IA ainda não conectada."
@@ -2341,7 +2313,9 @@
                             {
 
                                 ano,
+
                                 componente,
+
                                 descricao
 
                             }
@@ -2350,13 +2324,17 @@
 
 
                     document.getElementById(
+
                         "resultadoDiagnostico"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
+
                         "textoDiagnostico"
+
                     ).innerText =
                         resposta.resultado;
 
@@ -2422,20 +2400,26 @@
                             "bncc",
 
                             {
+
                                 busca
+
                             }
 
                         );
 
 
                     document.getElementById(
+
                         "resultadoBNCC"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
+
                         "textoBNCC"
+
                     ).innerText =
                         resposta.resultado;
 
@@ -2517,7 +2501,9 @@
                             {
 
                                 tema,
+
                                 ano,
+
                                 objetivo
 
                             }
@@ -2526,13 +2512,17 @@
 
 
                     document.getElementById(
+
                         "resultadoPlano"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
+
                         "textoPlano"
+
                     ).innerText =
                         resposta.resultado;
 
@@ -2575,20 +2565,26 @@
 
                 const necessidade =
                     document.getElementById(
+
                         "necessidadeIntervencao"
+
                     ).value.trim();
 
 
                 const contexto =
                     document.getElementById(
+
                         "contextoIntervencao"
+
                     ).value.trim();
 
 
                 if (!necessidade) {
 
                     alert(
+
                         "Informe a necessidade identificada."
+
                     );
 
                     return;
@@ -2598,7 +2594,9 @@
 
                 const loading =
                     document.getElementById(
+
                         "loadingIntervencao"
+
                     );
 
 
@@ -2617,6 +2615,7 @@
                             {
 
                                 necessidade,
+
                                 contexto
 
                             }
@@ -2625,13 +2624,17 @@
 
 
                     document.getElementById(
+
                         "resultadoIntervencao"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
+
                         "textoIntervencao"
+
                     ).innerText =
                         resposta.resultado;
 
@@ -2692,9 +2695,7 @@
 
 
             const p =
-                box.querySelector(
-                    "p"
-                );
+                box.querySelector("p");
 
 
             if (p) {
@@ -2758,7 +2759,8 @@
                                 object.material.emissive
                             ) {
 
-                                object.material.emissive
+                                object.material
+                                    .emissive
                                     .setHex(
                                         0xff3d68
                                     );
@@ -2766,7 +2768,7 @@
 
                                 object.material
                                     .emissiveIntensity =
-                                    1.5;
+                                    3;
 
                             }
 
@@ -2783,6 +2785,38 @@
 
                         input.style.borderColor =
                             "rgba(255,255,255,.1)";
+
+
+                        if (brain) {
+
+                            brain.traverse(
+
+                                object => {
+
+                                    if (
+                                        object.isMesh &&
+                                        object.material &&
+                                        object.material.emissive
+                                    ) {
+
+                                        object.material
+                                            .emissive
+                                            .setHex(
+                                                0x8b5cf6
+                                            );
+
+
+                                        object.material
+                                            .emissiveIntensity =
+                                            .8;
+
+                                    }
+
+                                }
+
+                            );
+
+                        }
 
                     },
 
@@ -2808,7 +2842,9 @@
                     (
 
                         event.clientX /
+
                         window.innerWidth -
+
                         .5
 
                     ) * .2;
@@ -2819,7 +2855,9 @@
                     (
 
                         event.clientY /
+
                         window.innerHeight -
+
                         .5
 
                     ) * .2;
@@ -2851,7 +2889,7 @@
             if (brain) {
 
                 /*
-                 * ROTAÇÃO CONTÍNUA
+                 * ROTAÇÃO
                  */
 
                 brain.rotation.y +=
@@ -2859,28 +2897,86 @@
 
 
                 /*
-                 * MOVIMENTO DO MOUSE
+                 * MOVIMENTO COM MOUSE
                  */
 
                 brain.rotation.x +=
+
+                    .05 *
+
                     (
+
                         targetY -
+
                         brain.rotation.x
-                    ) * .05;
+
+                    );
 
 
                 brain.rotation.z +=
+
+                    .05 *
+
                     (
+
                         targetX -
+
                         brain.rotation.z
-                    ) * .05;
+
+                    );
+
+
+                /*
+                 * PULSAÇÃO
+                 *
+                 * Só altera materiais
+                 * que possuem emissive.
+                 */
+
+                const pulse =
+
+                    .65 +
+
+                    Math.sin(
+
+                        Date.now() * .002
+
+                    ) * .25;
+
+
+                brain.traverse(
+
+                    object => {
+
+                        if (
+
+                            object.isMesh &&
+
+                            object.material &&
+
+                            object.material.emissive
+
+                        ) {
+
+                            object.material
+                                .emissiveIntensity =
+                                pulse;
+
+                        }
+
+                    }
+
+                );
 
             }
 
 
             renderer.render(
+
                 scene,
+
                 camera
+
             );
 
         }
@@ -2907,12 +3003,6 @@
                     container.clientHeight;
 
 
-                if (
-                    height === 0
-                )
-                    return;
-
-
                 camera.aspect =
                     width / height;
 
@@ -2923,6 +3013,7 @@
                 renderer.setSize(
 
                     width,
+
                     height
 
                 );
@@ -2943,7 +3034,9 @@
             event => {
 
                 if (
+
                     event.key === "Escape"
+
                 ) {
 
                     fecharModulo();
