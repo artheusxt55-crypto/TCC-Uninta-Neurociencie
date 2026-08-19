@@ -26,7 +26,7 @@
 
 
     <!-- =====================================================
-         ESTILOS
+         CSS
     ====================================================== -->
 
     <style>
@@ -39,7 +39,6 @@
 
             --success: #34d399;
             --warning: #f59e0b;
-            --danger: #ff3d68;
 
             --bg: #090614;
             --card: rgba(16, 10, 30, .90);
@@ -56,13 +55,6 @@
             padding: 0;
 
             box-sizing: border-box;
-
-        }
-
-
-        html {
-
-            scroll-behavior: smooth;
 
         }
 
@@ -99,16 +91,6 @@
                 );
 
             overflow-x: hidden;
-
-        }
-
-
-        button,
-        input,
-        select,
-        textarea {
-
-            font-family: inherit;
 
         }
 
@@ -171,7 +153,7 @@
 
 
         /* =====================================================
-           CONTAINER PRINCIPAL
+           CONTAINER
         ====================================================== */
 
         .main-container {
@@ -200,7 +182,7 @@
 
 
         /* =====================================================
-           CARD PRINCIPAL
+           CARD
         ====================================================== */
 
         .card {
@@ -268,7 +250,6 @@
             border-radius: 8px;
 
             background:
-
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -276,7 +257,6 @@
                 );
 
             box-shadow:
-
                 0 0 20px
                 rgba(139,92,246,.25);
 
@@ -313,7 +293,7 @@
 
 
         /* =====================================================
-           STATUS IA
+           IA STATUS
         ====================================================== */
 
         .ai-status {
@@ -349,7 +329,6 @@
                 var(--success);
 
             box-shadow:
-
                 0 0 12px
                 rgba(52,211,153,.7);
 
@@ -357,7 +336,7 @@
 
 
         /* =====================================================
-           ROBÔ SPLINE
+           ROBÔ
         ====================================================== */
 
         .avatar-3d {
@@ -410,7 +389,7 @@
 
 
         /* =====================================================
-           INPUTS
+           INPUT
         ====================================================== */
 
         input,
@@ -469,7 +448,6 @@
                 rgba(139,92,246,.7);
 
             box-shadow:
-
                 0 0 20px
                 rgba(139,92,246,.12);
 
@@ -487,7 +465,7 @@
 
 
         /* =====================================================
-           BOTÃO PRINCIPAL
+           BOTÕES
         ====================================================== */
 
         .btn-neuro {
@@ -501,7 +479,6 @@
             border-radius: 12px;
 
             background:
-
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -529,24 +506,11 @@
                 translateY(-2px);
 
             box-shadow:
-
                 0 10px 30px
                 rgba(109,40,217,.28);
 
         }
 
-
-        .btn-neuro:active {
-
-            transform:
-                translateY(0);
-
-        }
-
-
-        /* =====================================================
-           BIBLIOTECA
-        ====================================================== */
 
         .btn-library {
 
@@ -573,25 +537,8 @@
 
             font-weight: 700;
 
-            transition: .3s;
-
         }
 
-
-        .btn-library:hover {
-
-            background:
-                rgba(255,255,255,.05);
-
-            border-color:
-                rgba(139,92,246,.35);
-
-        }
-
-
-        /* =====================================================
-           ATLAS
-        ====================================================== */
 
         .btn-atlas {
 
@@ -620,21 +567,11 @@
 
             font-weight: 700;
 
-            transition: .3s;
-
-        }
-
-
-        .btn-atlas:hover {
-
-            background:
-                rgba(139,92,246,.12);
-
         }
 
 
         /* =====================================================
-           VIEWPORT 3D
+           MODELO 3D
         ====================================================== */
 
         #brain-viewport {
@@ -708,7 +645,7 @@
 
 
         /* =====================================================
-           PAINÉIS
+           PAINEL
         ====================================================== */
 
         .tool-panel {
@@ -1007,14 +944,8 @@
 
             line-height: 1.6;
 
-            white-space: pre-line;
-
         }
 
-
-        /* =====================================================
-           LOADING
-        ====================================================== */
 
         .loading {
 
@@ -1132,15 +1063,6 @@
 
             }
 
-
-            .tool-panel {
-
-                padding: 20px;
-
-                max-height: 90vh;
-
-            }
-
         }
 
     </style>
@@ -1165,14 +1087,14 @@
 
 
     <!-- =====================================================
-         INTERFACE PRINCIPAL
+         INTERFACE
     ====================================================== -->
 
     <main class="main-container">
 
 
         <!-- =================================================
-             CARD
+             CARD PRINCIPAL
         ================================================== -->
 
         <section class="card">
@@ -1270,7 +1192,10 @@
             <div class="brain-label">
 
                 SISTEMA
-                <strong>NEURO-EDUCA</strong>
+
+                <strong>
+                    NEURO-EDUCA
+                </strong>
 
             </div>
 
@@ -1402,7 +1327,8 @@
 
         <textarea
             id="diagDescricao"
-            placeholder="Descreva o que foi observado no processo de aprendizagem..."></textarea>
+            placeholder="Descreva o que foi observado no processo de aprendizagem..."
+        ></textarea>
 
 
         <button
@@ -1631,7 +1557,8 @@
 
         <textarea
             id="objetivoPlano"
-            placeholder="O que o aluno deverá desenvolver?"></textarea>
+            placeholder="O que o aluno deverá desenvolver?"
+        ></textarea>
 
 
         <button
@@ -1710,27 +1637,25 @@
 
 
         <label class="field-label">
-
             NECESSIDADE IDENTIFICADA
-
         </label>
 
 
         <textarea
             id="necessidadeIntervencao"
-            placeholder="Descreva a dificuldade ou necessidade observada..."></textarea>
+            placeholder="Descreva a dificuldade ou necessidade observada..."
+        ></textarea>
 
 
         <label class="field-label">
-
             CONTEXTO
-
         </label>
 
 
         <textarea
             id="contextoIntervencao"
-            placeholder="Informe o contexto da turma ou do estudante..."></textarea>
+            placeholder="Informe o contexto da turma ou do estudante..."
+        ></textarea>
 
 
         <button
@@ -1781,15 +1706,11 @@
     </script>
 
 
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
     <script>
-
-        /* =====================================================
-           CONFIGURAÇÃO
-        ====================================================== */
-
-        const MODEL_URL =
-            "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Coruja_0818171248_texture-v1.glb";
-
 
         /* =====================================================
            THREE.JS
@@ -1822,11 +1743,7 @@
             );
 
 
-        camera.position.set(
-            0,
-            0,
-            8
-        );
+        camera.position.z = 8;
 
 
         const renderer =
@@ -1834,10 +1751,7 @@
 
                 antialias: true,
 
-                alpha: true,
-
-                powerPreference:
-                    "high-performance"
+                alpha: true
 
             });
 
@@ -1854,19 +1768,14 @@
         renderer.setPixelRatio(
 
             Math.min(
+
                 window.devicePixelRatio,
+
                 2
+
             )
 
         );
-
-
-        renderer.outputEncoding =
-            THREE.sRGBEncoding;
-
-
-        renderer.shadowMap.enabled =
-            false;
 
 
         container.appendChild(
@@ -1922,23 +1831,6 @@
         scene.add(light2);
 
 
-        const light3 =
-            new THREE.PointLight(
-                0xffffff,
-                .45
-            );
-
-
-        light3.position.set(
-            0,
-            4,
-            6
-        );
-
-
-        scene.add(light3);
-
-
         /* =====================================================
            PARTÍCULAS
         ====================================================== */
@@ -1947,7 +1839,7 @@
             new THREE.BufferGeometry();
 
 
-        const partCount = 1200;
+        const partCount = 1700;
 
 
         const positions =
@@ -1957,9 +1849,13 @@
 
 
         for (
+
             let i = 0;
+
             i < partCount * 3;
+
             i++
+
         ) {
 
             positions[i] =
@@ -1973,8 +1869,11 @@
             "position",
 
             new THREE.BufferAttribute(
+
                 positions,
+
                 3
+
             )
 
         );
@@ -1989,17 +1888,18 @@
 
                 transparent: true,
 
-                opacity: .5,
-
-                depthWrite: false
+                opacity: .5
 
             });
 
 
         const particles =
             new THREE.Points(
+
                 partGeo,
+
                 partMat
+
             );
 
 
@@ -2007,7 +1907,7 @@
 
 
         /* =====================================================
-           MODELO 3D
+           MODELO 3D — CORUJAFINAL-V1.GLB
         ====================================================== */
 
         let brain = null;
@@ -2018,9 +1918,17 @@
         let targetY = 0;
 
 
-        let baseRotationX = 0;
+        /*
+         * =====================================================
+         * NOVO MODELO
+         *
+         * O arquivo Corujafinal-v1.glb está na mesma
+         * pasta deste HTML.
+         * =====================================================
+         */
 
-        let baseRotationZ = 0;
+        const modelURL =
+            "./Corujafinal-v1.glb";
 
 
         const loader =
@@ -2029,13 +1937,17 @@
 
         loader.load(
 
-            MODEL_URL,
+            modelURL,
 
 
-            function(gltf) {
+            /* =================================================
+               SUCESSO
+            ================================================== */
+
+            (gltf) => {
 
                 console.log(
-                    "Modelo 3D carregado com sucesso."
+                    "Corujafinal-v1.glb carregado com sucesso."
                 );
 
 
@@ -2044,30 +1956,36 @@
 
 
                 /*
-                 * NÃO substituímos o material original.
-                 *
-                 * Isso é importante porque o GLB possui
-                 * textura própria.
+                 * MATERIAL
                  */
 
                 brain.traverse(
 
-                    function(object) {
+                    object => {
 
                         if (
                             object.isMesh
                         ) {
 
-                            object.frustumCulled =
-                                true;
+                            object.material =
+                                new THREE.MeshStandardMaterial({
 
+                                    color:
+                                        0x130d24,
 
-                            object.castShadow =
-                                false;
+                                    emissive:
+                                        0x8b5cf6,
 
+                                    emissiveIntensity:
+                                        .8,
 
-                            object.receiveShadow =
-                                false;
+                                    roughness:
+                                        .35,
+
+                                    metalness:
+                                        .4
+
+                                });
 
                         }
 
@@ -2076,99 +1994,53 @@
                 );
 
 
-                /* =================================================
-                   CENTRALIZAÇÃO AUTOMÁTICA
-                ================================================== */
+                /*
+                 * ESCALA
+                 */
 
-                const box =
-                    new THREE.Box3()
-                        .setFromObject(
-                            brain
-                        );
+                brain.scale.set(
 
+                    1.45,
 
-                const center =
-                    box.getCenter(
-                        new THREE.Vector3()
-                    );
+                    1.45,
 
+                    1.45
 
-                const size =
-                    box.getSize(
-                        new THREE.Vector3()
-                    );
-
-
-                brain.position.sub(
-                    center
                 );
 
 
                 /*
-                 * Ajusta automaticamente o tamanho
-                 * do modelo para caber na viewport.
+                 * POSIÇÃO
                  */
-
-                const maxDimension =
-                    Math.max(
-                        size.x,
-                        size.y,
-                        size.z
-                    );
-
-
-                if (
-                    maxDimension > 0
-                ) {
-
-                    const scale =
-                        3.8 /
-                        maxDimension;
-
-
-                    brain.scale.setScalar(
-                        scale
-                    );
-
-                }
-
 
                 brain.position.set(
+
                     0,
+
                     0,
+
                     0
+
                 );
 
 
                 /*
-                 * Rotação inicial
+                 * ADICIONA À CENA
                  */
-
-                brain.rotation.y =
-                    0;
-
-
-                baseRotationX =
-                    brain.rotation.x;
-
-
-                baseRotationZ =
-                    brain.rotation.z;
-
 
                 scene.add(
                     brain
                 );
 
 
-                console.log(
-                    "Modelo posicionado automaticamente."
-                );
-
             },
 
 
-            function(xhr) {
+            /* =================================================
+               PROGRESSO
+            ================================================== */
+
+            (xhr) => {
 
                 if (
                     xhr.total
@@ -2183,10 +2055,9 @@
 
                     console.log(
 
-                        "Carregando modelo:",
+                        "Carregando Corujafinal-v1.glb:",
 
-                        progresso.toFixed(0) +
-                        "%"
+                        progresso.toFixed(0) + "%"
 
                     );
 
@@ -2195,40 +2066,29 @@
             },
 
 
-            function(error) {
+            /* =================================================
+               ERRO
+            ================================================== */
+
+            (error) => {
 
                 console.error(
-                    "Erro ao carregar modelo 3D:",
+
+                    "ERRO AO CARREGAR Corujafinal-v1.glb:",
+
                     error
+
                 );
 
-                mostrarErroModelo();
+                console.error(
+
+                    "Verifique se o arquivo está na mesma pasta do HTML."
+
+                );
 
             }
 
         );
-
-
-        /* =====================================================
-           ERRO DO MODELO
-        ====================================================== */
-
-        function mostrarErroModelo() {
-
-            const label =
-                document.querySelector(
-                    ".brain-label"
-                );
-
-
-            if (!label)
-                return;
-
-
-            label.innerHTML =
-                "SISTEMA <strong>NEURO-EDUCA</strong>";
-
-        }
 
 
         /* =====================================================
@@ -2244,13 +2104,11 @@
                     )
                     .forEach(
 
-                        function(panel) {
+                        panel =>
 
                             panel.classList.remove(
                                 "active"
-                            );
-
-                        }
+                            )
 
                     );
 
@@ -2270,19 +2128,13 @@
                 );
 
 
-                const overlay =
-                    document.getElementById(
+                document
+                    .getElementById(
                         "overlay"
-                    );
-
-
-                if (overlay) {
-
-                    overlay.classList.add(
+                    )
+                    .classList.add(
                         "active"
                     );
-
-                }
 
             };
 
@@ -2296,87 +2148,75 @@
                     )
                     .forEach(
 
-                        function(panel) {
+                        panel =>
 
                             panel.classList.remove(
                                 "active"
-                            );
-
-                        }
+                            )
 
                     );
 
 
-                const overlay =
-                    document.getElementById(
+                document
+                    .getElementById(
                         "overlay"
-                    );
-
-
-                if (overlay) {
-
-                    overlay.classList.remove(
+                    )
+                    .classList.remove(
                         "active"
                     );
-
-                }
 
             };
 
 
         /* =====================================================
-           API DA IA
+           API IA
         ====================================================== */
 
         async function requisicaoIA(
+
             endpoint,
+
             dados
+
         ) {
 
             /*
-             * IMPORTANTE:
+             * FUTURA API
              *
-             * A URL abaixo é o local esperado
-             * para seu backend.
-             *
-             * Não coloque a chave da IA diretamente
-             * neste HTML.
+             * Quando o backend estiver pronto,
+             * substitua este bloco pela chamada fetch.
              */
 
+            /*
             const resposta =
                 await fetch(
                     "/api/" + endpoint,
                     {
-
                         method: "POST",
 
                         headers: {
-
                             "Content-Type":
                                 "application/json"
-
                         },
 
                         body:
-                            JSON.stringify(
-                                dados
-                            )
-
+                            JSON.stringify(dados)
                     }
                 );
 
-
-            if (!resposta.ok) {
+            if (!resposta.ok)
 
                 throw new Error(
-                    "Erro na API: " +
-                    resposta.status
+                    "Erro na API"
                 );
 
-            }
-
-
             return await resposta.json();
+            */
+
+
+            throw new Error(
+                "API de IA ainda não conectada."
+            );
 
         }
 
@@ -2438,7 +2278,9 @@
                             {
 
                                 ano,
+
                                 componente,
+
                                 descricao
 
                             }
@@ -2447,34 +2289,33 @@
 
 
                     document.getElementById(
+
                         "resultadoDiagnostico"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-                        "textoDiagnostico"
-                    ).innerText =
 
-                        resposta.resultado ||
-                        resposta.message ||
-                        "Análise concluída.";
+                        "textoDiagnostico"
+
+                    ).innerText =
+                        resposta.resultado;
 
                 }
 
 
                 catch(error) {
 
-                    console.error(
-                        error
-                    );
+                    console.log(error);
 
 
                     mostrarAvisoAPI(
 
                         "resultadoDiagnostico",
 
-                        "Não foi possível conectar à API de IA. Verifique se o endpoint /api/diagnostico está configurado."
+                        "A interface está preparada. A API de IA ainda precisa ser conectada ao backend."
 
                     );
 
@@ -2524,41 +2365,42 @@
                             "bncc",
 
                             {
+
                                 busca
+
                             }
 
                         );
 
 
                     document.getElementById(
+
                         "resultadoBNCC"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-                        "textoBNCC"
-                    ).innerText =
 
-                        resposta.resultado ||
-                        resposta.message ||
-                        "Consulta concluída.";
+                        "textoBNCC"
+
+                    ).innerText =
+                        resposta.resultado;
 
                 }
 
 
                 catch(error) {
 
-                    console.error(
-                        error
-                    );
+                    console.log(error);
 
 
                     mostrarAvisoAPI(
 
                         "resultadoBNCC",
 
-                        "Não foi possível conectar à API de consulta curricular."
+                        "O campo de consulta está pronto para receber a base curricular/API."
 
                     );
 
@@ -2592,10 +2434,7 @@
                     ).value.trim();
 
 
-                if (
-                    !tema ||
-                    !objetivo
-                ) {
+                if (!tema || !objetivo) {
 
                     alert(
                         "Informe o tema e o objetivo."
@@ -2627,7 +2466,9 @@
                             {
 
                                 tema,
+
                                 ano,
+
                                 objetivo
 
                             }
@@ -2636,34 +2477,33 @@
 
 
                     document.getElementById(
+
                         "resultadoPlano"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-                        "textoPlano"
-                    ).innerText =
 
-                        resposta.resultado ||
-                        resposta.message ||
-                        "Planejamento gerado.";
+                        "textoPlano"
+
+                    ).innerText =
+                        resposta.resultado;
 
                 }
 
 
                 catch(error) {
 
-                    console.error(
-                        error
-                    );
+                    console.log(error);
 
 
                     mostrarAvisoAPI(
 
                         "resultadoPlano",
 
-                        "Não foi possível conectar à API de planejamento."
+                        "O formulário já está estruturado para enviar tema, série e objetivo ao modelo de IA."
 
                     );
 
@@ -2690,20 +2530,26 @@
 
                 const necessidade =
                     document.getElementById(
+
                         "necessidadeIntervencao"
+
                     ).value.trim();
 
 
                 const contexto =
                     document.getElementById(
+
                         "contextoIntervencao"
+
                     ).value.trim();
 
 
                 if (!necessidade) {
 
                     alert(
+
                         "Informe a necessidade identificada."
+
                     );
 
                     return;
@@ -2713,7 +2559,9 @@
 
                 const loading =
                     document.getElementById(
+
                         "loadingIntervencao"
+
                     );
 
 
@@ -2732,6 +2580,7 @@
                             {
 
                                 necessidade,
+
                                 contexto
 
                             }
@@ -2740,34 +2589,33 @@
 
 
                     document.getElementById(
+
                         "resultadoIntervencao"
+
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-                        "textoIntervencao"
-                    ).innerText =
 
-                        resposta.resultado ||
-                        resposta.message ||
-                        "Intervenção gerada.";
+                        "textoIntervencao"
+
+                    ).innerText =
+                        resposta.resultado;
 
                 }
 
 
                 catch(error) {
 
-                    console.error(
-                        error
-                    );
+                    console.log(error);
 
 
                     mostrarAvisoAPI(
 
                         "resultadoIntervencao",
 
-                        "Não foi possível conectar à API de intervenção pedagógica."
+                        "O módulo está preparado para receber uma proposta de intervenção gerada pela IA."
 
                     );
 
@@ -2786,12 +2634,15 @@
 
 
         /* =====================================================
-           AVISO DA API
+           AVISO TEMPORÁRIO
         ====================================================== */
 
         function mostrarAvisoAPI(
+
             id,
+
             mensagem
+
         ) {
 
             const box =
@@ -2809,9 +2660,7 @@
 
 
             const p =
-                box.querySelector(
-                    "p"
-                );
+                box.querySelector("p");
 
 
             if (p) {
@@ -2837,10 +2686,6 @@
                     );
 
 
-                if (!input)
-                    return;
-
-
                 const valor =
                     input.value
                         .trim()
@@ -2848,8 +2693,11 @@
 
 
                 if (
+
                     valor === "MATH001" ||
+
                     valor.startsWith("PAC")
+
                 ) {
 
                     window.location.href =
@@ -2861,25 +2709,29 @@
 
 
                 input.style.borderColor =
-                    "var(--danger)";
+                    "#ff3d68";
 
 
                 if (brain) {
 
                     brain.traverse(
 
-                        function(object) {
+                        object => {
 
                             if (
-                                object.isMesh &&
-                                object.material &&
-                                object.material.emissive
+                                object.isMesh
                             ) {
 
-                                object.material.emissive
+                                object.material
+                                    .emissive
                                     .setHex(
                                         0xff3d68
                                     );
+
+
+                                object.material
+                                    .emissiveIntensity =
+                                    3;
 
                             }
 
@@ -2892,11 +2744,40 @@
 
                 setTimeout(
 
-                    function() {
+                    () => {
 
                         input.style.borderColor =
                             "rgba(255,255,255,.1)";
 
+
+                        if (brain) {
+
+                            brain.traverse(
+
+                                object => {
+
+                                    if (
+                                        object.isMesh
+                                    ) {
+
+                                        object.material
+                                            .emissive
+                                            .setHex(
+                                                0x8b5cf6
+                                            );
+
+
+                                        object.material
+                                            .emissiveIntensity =
+                                            .8;
+
+                                    }
+
+                                }
+
+                            );
+
+                        }
 
                     },
 
@@ -2908,39 +2789,6 @@
 
 
         /* =====================================================
-           ENTER NO CAMPO DE ID
-        ====================================================== */
-
-        const idInput =
-            document.getElementById(
-                "idInput"
-            );
-
-
-        if (idInput) {
-
-            idInput.addEventListener(
-
-                "keydown",
-
-                function(event) {
-
-                    if (
-                        event.key === "Enter"
-                    ) {
-
-                        validarAcesso();
-
-                    }
-
-                }
-
-            );
-
-        }
-
-
-        /* =====================================================
            MOUSE
         ====================================================== */
 
@@ -2948,23 +2796,31 @@
 
             "mousemove",
 
-            function(event) {
+            event => {
 
                 targetX =
 
                     (
+
                         event.clientX /
+
                         window.innerWidth -
+
                         .5
+
                     ) * .2;
 
 
                 targetY =
 
                     (
+
                         event.clientY /
+
                         window.innerHeight -
+
                         .5
+
                     ) * .2;
 
             }
@@ -3002,45 +2858,77 @@
 
 
                 /*
-                 * Movimento suave pelo mouse.
-                 *
-                 * Não acumula infinitamente
-                 * a rotação X/Z.
+                 * MOVIMENTO COM MOUSE
                  */
-
-                const desiredX =
-                    baseRotationX +
-                    targetY;
-
-
-                const desiredZ =
-                    baseRotationZ +
-                    targetX;
-
 
                 brain.rotation.x +=
 
                     .05 *
+
                     (
-                        desiredX -
+
+                        targetY -
+
                         brain.rotation.x
+
                     );
 
 
                 brain.rotation.z +=
 
                     .05 *
+
                     (
-                        desiredZ -
+
+                        targetX -
+
                         brain.rotation.z
+
                     );
+
+
+                /*
+                 * PULSAÇÃO
+                 */
+
+                const pulse =
+
+                    .65 +
+
+                    Math.sin(
+
+                        Date.now() * .002
+
+                    ) * .25;
+
+
+                brain.traverse(
+
+                    object => {
+
+                        if (
+                            object.isMesh
+                        ) {
+
+                            object.material
+                                .emissiveIntensity =
+                                pulse;
+
+                        }
+
+                    }
+
+                );
 
             }
 
 
             renderer.render(
+
                 scene,
+
                 camera
+
             );
 
         }
@@ -3057,7 +2945,7 @@
 
             "resize",
 
-            function() {
+            () => {
 
                 const width =
                     container.clientWidth;
@@ -3067,36 +2955,18 @@
                     container.clientHeight;
 
 
-                if (
-                    width <= 0 ||
-                    height <= 0
-                ) {
-
-                    return;
-
-                }
-
-
                 camera.aspect =
-                    width /
-                    height;
+                    width / height;
 
 
                 camera.updateProjectionMatrix();
 
 
                 renderer.setSize(
+
                     width,
+
                     height
-                );
-
-
-                renderer.setPixelRatio(
-
-                    Math.min(
-                        window.devicePixelRatio,
-                        2
-                    )
 
                 );
 
@@ -3113,48 +2983,15 @@
 
             "keydown",
 
-            function(event) {
+            event => {
 
                 if (
+
                     event.key === "Escape"
+
                 ) {
 
                     fecharModulo();
-
-                }
-
-            }
-
-        );
-
-
-        /* =====================================================
-           LIMPEZA AO SAIR
-        ====================================================== */
-
-        window.addEventListener(
-
-            "beforeunload",
-
-            function() {
-
-                if (renderer) {
-
-                    renderer.dispose();
-
-                }
-
-
-                if (partGeo) {
-
-                    partGeo.dispose();
-
-                }
-
-
-                if (partMat) {
-
-                    partMat.dispose();
 
                 }
 
