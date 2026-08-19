@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -281,7 +282,7 @@
 
 
         /* =====================================================
-           LINHA VERTICAL DISCRETA
+           LINHA VERTICAL
         ====================================================== */
 
         .side-line {
@@ -764,7 +765,7 @@
 
 
         /* =====================================================
-           MICRO STATUS
+           STATUS
         ====================================================== */
 
         .system-status {
@@ -928,7 +929,7 @@
 
 
         /* =====================================================
-           INPUT
+           INPUTS
         ====================================================== */
 
         input,
@@ -1822,7 +1823,6 @@
 
     <div class="video-background">
 
-
         <!-- 1 — ATHENAS + LIVRO -->
 
         <video
@@ -1857,7 +1857,6 @@
             playsinline
             preload="auto">
         </video>
-
 
     </div>
 
@@ -1898,7 +1897,6 @@
 
     <main class="main-container">
 
-
         <div class="institution-marker">
 
             <span></span>
@@ -1913,7 +1911,6 @@
         ================================================== -->
 
         <section class="card">
-
 
             <div class="brand">
 
@@ -1935,9 +1932,7 @@
             </div>
 
 
-            <!-- =================================================
-                 CORUJA
-            ================================================== -->
+            <!-- CORUJA -->
 
             <div class="avatar-3d">
 
@@ -1996,7 +1991,6 @@
 
             </a>
 
-
         </section>
 
 
@@ -2005,7 +1999,6 @@
         ================================================== -->
 
         <section id="brain-viewport">
-
 
             <div class="brain-label">
 
@@ -2017,9 +2010,7 @@
 
             </div>
 
-
         </section>
-
 
     </main>
 
@@ -2042,7 +2033,6 @@
     <div
         class="tool-panel"
         id="diagnostico">
-
 
         <div class="tool-header">
 
@@ -2077,7 +2067,6 @@
 
 
         <div class="tool-grid">
-
 
             <div class="tool-card">
 
@@ -2138,9 +2127,7 @@
 
 
         <label class="field-label">
-
             HABILIDADE / NECESSIDADE OBSERVADA
-
         </label>
 
 
@@ -2192,7 +2179,6 @@
         class="tool-panel"
         id="bncc">
 
-
         <div class="tool-header">
 
             <div>
@@ -2234,7 +2220,6 @@
 
         <div class="tool-grid">
 
-
             <div class="tool-card">
 
                 <h4>
@@ -2242,10 +2227,8 @@
                 </h4>
 
                 <p>
-
                     Consulta estruturada de habilidades
                     e competências curriculares.
-
                 </p>
 
             </div>
@@ -2258,10 +2241,8 @@
                 </h4>
 
                 <p>
-
                     Utilize a habilidade selecionada
                     como referência para suas análises.
-
                 </p>
 
             </div>
@@ -2302,7 +2283,6 @@
     <div
         class="tool-panel"
         id="planejamento">
-
 
         <div class="tool-header">
 
@@ -2420,7 +2400,6 @@
         class="tool-panel"
         id="intervencao">
 
-
         <div class="tool-header">
 
             <div>
@@ -2517,7 +2496,6 @@
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js">
     </script>
 
-
     <script
         src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js">
     </script>
@@ -2533,11 +2511,15 @@
         /* =====================================================
            SISTEMA DE VÍDEOS
            
-           IMPORTANTE:
-           A troca agora acontece pelo evento "ended".
-           
-           Não usamos mais setTimeout para controlar
-           a duração dos vídeos.
+           FLUXO:
+
+           ATHENAS
+              ↓
+           MÃOS
+              ↓
+           CUBO
+              ↓
+           LOOP INFINITO
         ====================================================== */
 
 
@@ -2554,17 +2536,19 @@
 
         let currentVideo = 0;
 
-        let videoSequenceStarted = false;
-
         let videoTransitioning = false;
-
 
         const FADE_DURATION = 1400;
 
 
+        /* =====================================================
+           CONFIGURAÇÃO DOS VÍDEOS
+        ====================================================== */
+
+
         videos.forEach(
 
-            video => {
+            (video, index) => {
 
                 video.muted = true;
 
@@ -2572,54 +2556,102 @@
 
                 video.preload = "auto";
 
+
                 /*
-                 * Não usar loop.
-                 *
-                 * O JavaScript controla
-                 * a sequência.
+                 * Atenas e mãos:
+                 * apenas uma reprodução.
                  */
 
-                video.loop = false;
+                if (index !== 2) {
+
+                    video.loop = false;
+
+                }
+
+
+                /*
+                 * Cubo:
+                 * loop permanente.
+                 */
+
+                if (index === 2) {
+
+                    video.loop = true;
+
+                }
 
             }
 
         );
 
 
-        /*
-         * Inicia o primeiro vídeo.
-         */
+        /* =====================================================
+           INICIAR PRIMEIRO VÍDEO
+        ====================================================== */
+
 
         async function iniciarPrimeiroVideo() {
 
+            const primeiro =
+                videos[0];
+
+
             try {
 
-                videos[0].currentTime = 0;
+                primeiro.currentTime = 0;
 
-                await videos[0].play();
+                primeiro.classList.add(
+                    "active"
+                );
 
-                videoSequenceStarted = true;
+                await primeiro.play();
 
             }
 
             catch(error) {
 
                 console.warn(
-                    "Autoplay bloqueado.",
+                    "Autoplay bloqueado pelo navegador.",
                     error
                 );
 
+
                 /*
-                 * O navegador pode exigir
-                 * interação do usuário.
+                 * Se o navegador bloquear autoplay,
+                 * o primeiro clique inicia a sequência.
                  */
 
+                const iniciarPorClique =
+                    async () => {
+
+                        try {
+
+                            await primeiro.play();
+
+                        }
+
+                        catch(err) {
+
+                            console.warn(
+                                "Não foi possível iniciar o vídeo.",
+                                err
+                            );
+
+                        }
+
+                    };
+
+
                 document.addEventListener(
+
                     "click",
-                    iniciarPrimeiroVideo,
+
+                    iniciarPorClique,
+
                     {
                         once: true
                     }
+
                 );
 
             }
@@ -2630,10 +2662,10 @@
         iniciarPrimeiroVideo();
 
 
-        /*
-         * Quando QUALQUER vídeo termina,
-         * avançamos para o próximo.
-         */
+        /* =====================================================
+           EVENTO ENDED
+        ====================================================== */
+
 
         videos.forEach(
 
@@ -2646,8 +2678,8 @@
                     () => {
 
                         /*
-                         * Só reage se esse for
-                         * realmente o vídeo atual.
+                         * Ignora eventos de vídeos
+                         * que não estão ativos.
                          */
 
                         if (
@@ -2659,26 +2691,54 @@
                         }
 
 
+                        /*
+                         * O cubo nunca deve sair.
+                         */
+
+                        if (
+                            index === 2
+                        ) {
+
+                            video.currentTime = 0;
+
+                            video.play().catch(
+                                () => {}
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Atenas → Mãos
+                         *
+                         * Mãos → Cubo
+                         */
+
                         const nextIndex =
-                            (
-                                currentVideo + 1
-                            ) %
-                            videos.length;
+                            currentVideo + 1;
 
 
-                        trocarVideo(
-                            nextIndex
-                        );
+                        if (
+                            nextIndex <
+                            videos.length
+                        ) {
+
+                            trocarVideo(
+                                nextIndex
+                            );
+
+                        }
 
                     }
 
                 );
 
 
-                /*
-                 * Caso o vídeo apresente erro,
-                 * não deixa a sequência travar.
-                 */
+                /* =================================================
+                   ERROS
+                ================================================== */
 
                 video.addEventListener(
 
@@ -2692,20 +2752,53 @@
                         );
 
 
+                        /*
+                         * Se o cubo apresentar erro,
+                         * tenta reiniciá-lo.
+                         */
+
                         if (
-                            index === currentVideo
+                            index === 2
+                        ) {
+
+                            video.currentTime = 0;
+
+                            video.play().catch(
+                                () => {}
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Se Atenas ou Mãos falharem,
+                         * pula para o próximo.
+                         */
+
+                        if (
+
+                            index === currentVideo &&
+
+                            !videoTransitioning
+
                         ) {
 
                             const nextIndex =
-                                (
-                                    currentVideo + 1
-                                ) %
-                                videos.length;
+                                currentVideo + 1;
 
 
-                            trocarVideo(
-                                nextIndex
-                            );
+                            if (
+                                nextIndex <
+                                videos.length
+                            ) {
+
+                                trocarVideo(
+                                    nextIndex
+                                );
+
+                            }
 
                         }
 
@@ -2718,16 +2811,38 @@
         );
 
 
-        /*
-         * Crossfade real.
-         */
+        /* =====================================================
+           TROCA DE VÍDEO
+        ====================================================== */
+
 
         async function trocarVideo(
             nextIndex
         ) {
 
+            /*
+             * Bloqueia transições simultâneas.
+             */
+
             if (
                 videoTransitioning
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Índice inválido.
+             */
+
+            if (
+
+                nextIndex < 0 ||
+
+                nextIndex >= videos.length
+
             ) {
 
                 return;
@@ -2756,24 +2871,28 @@
                 videos[nextIndex];
 
 
-            /*
-             * Prepara o próximo.
-             */
+            /* =================================================
+               PREPARA PRÓXIMO
+            ================================================== */
 
             proximo.pause();
 
             proximo.currentTime = 0;
 
+            proximo.classList.remove(
+                "active"
+            );
 
             proximo.classList.add(
                 "transitioning"
             );
 
 
-            /*
-             * Tenta iniciar ANTES
-             * de mostrar.
-             */
+            /* =================================================
+               COMEÇA A TOCAR ANTES DE APARECER
+               
+               Isso elimina o congelamento entre cenas.
+            ================================================== */
 
             try {
 
@@ -2784,7 +2903,7 @@
             catch(error) {
 
                 console.warn(
-                    "Não foi possível iniciar o próximo vídeo.",
+                    "Falha ao iniciar próximo vídeo:",
                     error
                 );
 
@@ -2796,9 +2915,9 @@
             }
 
 
-            /*
-             * Crossfade.
-             */
+            /* =================================================
+               CROSSFADE
+            ================================================== */
 
             requestAnimationFrame(
 
@@ -2813,14 +2932,17 @@
             );
 
 
-            /*
-             * Mantém os dois visíveis
-             * durante o fade.
-             */
+            /* =================================================
+               FINALIZA TRANSIÇÃO
+            ================================================== */
 
             setTimeout(
 
                 () => {
+
+                    /*
+                     * Retira vídeo anterior.
+                     */
 
                     atual.classList.remove(
                         "active"
@@ -2832,24 +2954,45 @@
                     );
 
 
+                    /*
+                     * Pausa vídeo anterior.
+                     */
+
+                    atual.pause();
+
+
+                    /*
+                     * Volta o vídeo anterior para o início.
+                     */
+
+                    try {
+
+                        atual.currentTime = 0;
+
+                    }
+
+                    catch(error) {
+
+                        console.warn(
+                            "Não foi possível resetar vídeo.",
+                            error
+                        );
+
+                    }
+
+
+                    /*
+                     * Limpa estado visual.
+                     */
+
                     proximo.classList.remove(
                         "transitioning"
                     );
 
 
                     /*
-                     * Pausa o vídeo antigo.
-                     *
-                     * Isso é importante:
-                     * evita processamento desnecessário
-                     * e evita que ele continue tocando
-                     * escondido.
+                     * Atualiza vídeo atual.
                      */
-
-                    atual.pause();
-
-                    atual.currentTime = 0;
-
 
                     currentVideo =
                         nextIndex;
@@ -2857,6 +3000,34 @@
 
                     videoTransitioning =
                         false;
+
+
+                    /* =================================================
+                       CUBO
+                    ================================================== */
+
+                    if (
+                        currentVideo === 2
+                    ) {
+
+                        /*
+                         * Garantia absoluta de loop.
+                         */
+
+                        proximo.loop = true;
+
+
+                        if (
+                            proximo.paused
+                        ) {
+
+                            proximo.play().catch(
+                                () => {}
+                            );
+
+                        }
+
+                    }
 
                 },
 
@@ -3283,8 +3454,11 @@
         ) {
 
             if (
+
                 !brain ||
+
                 entradaInicio === null
+
             ) {
 
                 return;
@@ -3447,8 +3621,11 @@
 
                 if (
                     !painel
-                )
+                ) {
+
                     return;
+
+                }
 
 
                 painel.classList.add(
@@ -3597,6 +3774,7 @@
 
                 }
 
+
                 catch(error) {
 
                     console.log(
@@ -3613,6 +3791,7 @@
                     );
 
                 }
+
 
                 finally {
 
@@ -3678,6 +3857,7 @@
                         resposta.resultado;
 
                 }
+
 
                 catch(error) {
 
@@ -3779,6 +3959,7 @@
 
                 }
 
+
                 catch(error) {
 
                     console.log(
@@ -3795,6 +3976,7 @@
                     );
 
                 }
+
 
                 finally {
 
@@ -3879,6 +4061,7 @@
 
                 }
 
+
                 catch(error) {
 
                     console.log(
@@ -3896,6 +4079,7 @@
 
                 }
 
+
                 finally {
 
                     loading.classList.remove(
@@ -3908,7 +4092,7 @@
 
 
         /* =====================================================
-           AVISO
+           AVISO API
         ====================================================== */
 
 
@@ -3928,8 +4112,11 @@
 
             if (
                 !box
-            )
+            ) {
+
                 return;
+
+            }
 
 
             box.style.display =
@@ -4010,7 +4197,9 @@
                             if (
 
                                 object.isMesh &&
+
                                 object.material &&
+
                                 object.material.emissive
 
                             ) {
@@ -4051,7 +4240,9 @@
                                     if (
 
                                         object.isMesh &&
+
                                         object.material &&
+
                                         object.material.emissive
 
                                     ) {
@@ -4097,9 +4288,9 @@
                 performance.now();
 
 
-            /* -------------------------------------------------
+            /* =================================================
                PARTÍCULAS
-            ------------------------------------------------- */
+            ================================================== */
 
             particles.rotation.y +=
                 .0007;
@@ -4109,9 +4300,9 @@
                 .0001;
 
 
-            /* -------------------------------------------------
+            /* =================================================
                ENTRADA DA CORUJA
-            ------------------------------------------------- */
+            ================================================== */
 
             if (
 
@@ -4128,9 +4319,9 @@
             }
 
 
-            /* -------------------------------------------------
+            /* =================================================
                MOVIMENTO NORMAL
-            ------------------------------------------------- */
+            ================================================== */
 
             if (
 
@@ -4258,10 +4449,10 @@
 
         );
 
-
     </script>
 
 
 </body>
 
 </html>
+```
