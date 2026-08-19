@@ -10,9 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        Neuro-EDU — Laboratório Pedagógico
-    </title>
+    <title>Neuro-EDU — Laboratório Pedagógico</title>
 
 
     <!-- =====================================================
@@ -35,16 +33,17 @@
 
             --primary: #8b5cf6;
             --secondary: #6d28d9;
-            --accent: #a78bfa;
+            --accent: #b39cff;
 
             --success: #34d399;
-            --warning: #f59e0b;
+            --danger: #ff4d6d;
 
             --bg: #090614;
-            --card: rgba(16, 10, 30, .90);
+            --card: rgba(11, 7, 22, .84);
 
-            --text: #f4f0ff;
-            --muted: #9990aa;
+            --text: #f6f2ff;
+            --muted: #aaa1bb;
+            --line: rgba(255,255,255,.09);
 
         }
 
@@ -53,15 +52,17 @@
 
             margin: 0;
             padding: 0;
-
             box-sizing: border-box;
 
         }
 
 
-        /* =====================================================
-           BODY
-        ====================================================== */
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
 
         body {
 
@@ -71,6 +72,7 @@
 
             font-family:
                 Inter,
+                "Segoe UI",
                 Arial,
                 sans-serif;
 
@@ -119,15 +121,21 @@
             opacity: 0;
 
             transform:
-                scale(1);
+                scale(1.025);
 
             filter:
-                blur(0px);
+                saturate(.82)
+                contrast(1.03)
+                brightness(.82);
 
             transition:
-                opacity 1.5s ease,
-                transform 10s ease,
-                filter 1.5s ease;
+                opacity 1.8s cubic-bezier(.4,0,.2,1),
+                transform 12s ease,
+                filter 1.8s ease;
+
+            will-change:
+                opacity,
+                transform;
 
         }
 
@@ -137,7 +145,12 @@
             opacity: 1;
 
             transform:
-                scale(1.035);
+                scale(1.045);
+
+            filter:
+                saturate(.88)
+                contrast(1.04)
+                brightness(.9);
 
         }
 
@@ -145,13 +158,15 @@
         .bg-video.transitioning {
 
             filter:
-                blur(5px);
+                blur(3px)
+                saturate(.75)
+                brightness(.78);
 
         }
 
 
         /* =====================================================
-           OVERLAY PROFISSIONAL
+           OVERLAY
         ====================================================== */
 
         .video-overlay {
@@ -168,23 +183,23 @@
 
                 linear-gradient(
                     90deg,
-                    rgba(4,2,10,.82) 0%,
-                    rgba(7,3,16,.52) 42%,
-                    rgba(7,3,16,.34) 70%,
-                    rgba(4,2,10,.66) 100%
+                    rgba(5,2,12,.88) 0%,
+                    rgba(7,3,16,.67) 32%,
+                    rgba(7,3,16,.31) 62%,
+                    rgba(4,2,10,.48) 100%
                 ),
 
                 linear-gradient(
                     180deg,
-                    rgba(5,2,12,.38),
-                    rgba(5,2,12,.52)
+                    rgba(4,2,10,.25),
+                    rgba(4,2,10,.35)
                 );
 
         }
 
 
         /* =====================================================
-           CAMADA ROXA SUTIL
+           LUZ ROXA
         ====================================================== */
 
         .video-purple-glow {
@@ -200,22 +215,92 @@
             background:
 
                 radial-gradient(
-                    circle at 72% 45%,
-                    rgba(139,92,246,.14),
-                    transparent 38%
+                    circle at 73% 42%,
+                    rgba(139,92,246,.16),
+                    transparent 36%
                 ),
 
                 radial-gradient(
-                    circle at 15% 85%,
-                    rgba(109,40,217,.12),
-                    transparent 34%
+                    circle at 8% 92%,
+                    rgba(109,40,217,.10),
+                    transparent 35%
                 );
 
         }
 
 
         /* =====================================================
-           PARTÍCULAS FICAM ACIMA DO VÍDEO
+           LINHAS DECORATIVAS
+        ====================================================== */
+
+        .ambient-line {
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid
+                rgba(139,92,246,.08);
+
+            z-index: 3;
+
+            pointer-events: none;
+
+            animation:
+                ambientFloat 12s ease-in-out infinite;
+
+        }
+
+
+        .ambient-line.one {
+
+            right: -180px;
+            top: -100px;
+
+        }
+
+
+        .ambient-line.two {
+
+            left: -250px;
+            bottom: -200px;
+
+            width: 520px;
+            height: 520px;
+
+            animation-delay:
+                -5s;
+
+        }
+
+
+        @keyframes ambientFloat {
+
+            0%,100% {
+
+                transform:
+                    translateY(0)
+                    rotate(0deg);
+
+            }
+
+            50% {
+
+                transform:
+                    translateY(-18px)
+                    rotate(4deg);
+
+            }
+
+        }
+
+
+        /* =====================================================
+           PARTÍCULAS
         ====================================================== */
 
         #particles-layer {
@@ -239,36 +324,39 @@
 
             position: fixed;
 
-            top: 20px;
-            right: 20px;
+            top: 22px;
+            right: 24px;
 
-            padding: 12px 22px;
+            padding:
+                11px 18px;
 
-            border-radius: 12px;
+            border-radius:
+                10px;
 
             border:
                 1px solid
-                rgba(139,92,246,.45);
+                rgba(139,92,246,.40);
 
             background:
-                rgba(139,92,246,.10);
+                rgba(9,6,20,.48);
 
-            color: white;
+            color: #eee8ff;
 
             text-decoration: none;
 
-            font-size: 10px;
+            font-size: 9px;
 
             font-weight: 800;
 
-            letter-spacing: .8px;
+            letter-spacing: 1px;
 
             backdrop-filter:
-                blur(10px);
+                blur(14px);
 
             z-index: 100;
 
-            transition: .3s;
+            transition:
+                .3s ease;
 
         }
 
@@ -276,27 +364,30 @@
         .btn-aluno-fixo:hover {
 
             background:
-                var(--primary);
+                rgba(139,92,246,.18);
+
+            border-color:
+                rgba(167,139,250,.65);
 
             transform:
                 translateY(-2px);
 
             box-shadow:
-                0 0 25px
-                rgba(139,92,246,.35);
+                0 12px 35px
+                rgba(0,0,0,.28);
 
         }
 
 
         /* =====================================================
-           CONTAINER
+           CONTAINER PRINCIPAL
         ====================================================== */
 
         .main-container {
 
-            width: 95%;
+            width: 94%;
 
-            max-width: 1250px;
+            max-width: 1320px;
 
             min-height: 100vh;
 
@@ -308,7 +399,7 @@
 
             justify-content: center;
 
-            gap: 45px;
+            gap: 50px;
 
             position: relative;
 
@@ -318,36 +409,69 @@
 
 
         /* =====================================================
-           CARD
+           CARD PRINCIPAL
         ====================================================== */
 
         .card {
 
-            width: 410px;
+            width: 420px;
 
-            padding: 30px;
+            padding:
+                34px 34px 30px;
 
             background:
-                rgba(10,6,20,.82);
+                linear-gradient(
+                    145deg,
+                    rgba(16,10,30,.91),
+                    rgba(8,5,17,.84)
+                );
 
             border:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(255,255,255,.10);
 
-            border-radius: 28px;
+            border-radius:
+                26px;
 
-            text-align: center;
+            text-align:
+                left;
 
             backdrop-filter:
-                blur(20px);
+                blur(24px);
 
             box-shadow:
 
-                0 30px 80px
-                rgba(0,0,0,.55),
+                0 35px 90px
+                rgba(0,0,0,.58),
 
                 inset 0 1px
-                rgba(255,255,255,.04);
+                rgba(255,255,255,.045);
+
+            animation:
+                cardEntrance .8s ease both;
+
+        }
+
+
+        @keyframes cardEntrance {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(18px);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+
+            }
 
         }
 
@@ -362,28 +486,25 @@
 
             align-items: center;
 
-            justify-content: center;
+            gap: 11px;
 
-            gap: 10px;
-
-            margin-bottom: 20px;
+            margin-bottom:
+                28px;
 
         }
 
 
         .brand-icon {
 
-            width: 30px;
-
-            height: 30px;
+            width: 34px;
+            height: 34px;
 
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
-            border-radius: 8px;
+            border-radius: 9px;
 
             background:
                 linear-gradient(
@@ -393,8 +514,26 @@
                 );
 
             box-shadow:
-                0 0 20px
-                rgba(139,92,246,.25);
+                0 8px 25px
+                rgba(109,40,217,.28);
+
+            position: relative;
+
+        }
+
+
+        .brand-icon::before {
+
+            content: "";
+
+            width: 12px;
+            height: 12px;
+
+            border:
+                1.5px solid
+                rgba(255,255,255,.9);
+
+            border-radius: 50%;
 
         }
 
@@ -403,109 +542,122 @@
 
             content: "";
 
-            width: 10px;
+            position: absolute;
 
-            height: 10px;
-
-            border:
-                1.5px solid white;
+            width: 5px;
+            height: 5px;
 
             border-radius: 50%;
+
+            background:
+                white;
+
+            opacity: .9;
 
         }
 
 
-        .brand span {
+        .brand-text {
 
-            font-size: 10px;
+            display: flex;
 
-            font-weight: 800;
+            flex-direction: column;
 
-            letter-spacing: 1.5px;
+            gap: 3px;
 
-            color: #b8afc9;
+        }
+
+
+        .brand-text strong {
+
+            font-size: 11px;
+
+            letter-spacing:
+                1.2px;
+
+            color:
+                #f2edff;
+
+        }
+
+
+        .brand-text span {
+
+            font-size: 8px;
+
+            letter-spacing:
+                1.2px;
+
+            color:
+                #81778f;
 
         }
 
 
         /* =====================================================
-           IA STATUS
+           CABEÇALHO
         ====================================================== */
 
-        .ai-status {
+        .eyebrow {
 
             display: flex;
 
             align-items: center;
 
-            justify-content: center;
+            gap: 8px;
 
-            gap: 7px;
+            margin-bottom:
+                12px;
 
-            margin-bottom: 18px;
+            color:
+                #9f91b7;
 
-            color: #8f87a0;
+            font-size:
+                8px;
 
-            font-size: 8px;
+            font-weight:
+                800;
 
-            letter-spacing: 1px;
+            letter-spacing:
+                1.5px;
+
+            text-transform:
+                uppercase;
 
         }
 
 
-        .ai-dot {
+        .eyebrow-line {
 
-            width: 7px;
+            width: 22px;
 
-            height: 7px;
-
-            border-radius: 50%;
+            height: 1px;
 
             background:
-                var(--success);
+                var(--primary);
 
-            box-shadow:
-                0 0 12px
-                rgba(52,211,153,.7);
-
-        }
-
-
-        /* =====================================================
-           ROBÔ
-        ====================================================== */
-
-        .avatar-3d {
-
-            width: 100%;
-
-            height: 150px;
-
-            margin-bottom: 5px;
-
-            overflow: hidden;
-
-            border-radius: 20px;
-
-        }
-
-
-        .avatar-3d spline-viewer {
-
-            width: 100%;
-
-            height: 100%;
+            opacity:
+                .75;
 
         }
 
 
         h2 {
 
-            font-size: 23px;
+            font-size:
+                27px;
 
-            margin-bottom: 6px;
+            line-height:
+                1.12;
 
-            letter-spacing: -.5px;
+            letter-spacing:
+                -.8px;
+
+            margin-bottom:
+                10px;
+
+            font-weight:
+                750;
 
         }
 
@@ -515,18 +667,106 @@
             color:
                 var(--muted);
 
-            margin-bottom: 20px;
+            margin-bottom:
+                20px;
 
-            font-size: 11px;
+            font-size:
+                11px;
 
-            line-height: 1.5;
+            line-height:
+                1.65;
+
+            max-width:
+                330px;
 
         }
 
 
         /* =====================================================
-           INPUT
+           CORUJA
         ====================================================== */
+
+        .avatar-3d {
+
+            width:
+                calc(100% + 30px);
+
+            height:
+                165px;
+
+            margin:
+                -4px -15px 4px;
+
+            overflow:
+                hidden;
+
+            border-radius:
+                20px;
+
+            position:
+                relative;
+
+        }
+
+
+        .avatar-3d::after {
+
+            content: "";
+
+            position: absolute;
+
+            left: 15%;
+            right: 15%;
+            bottom: 3px;
+
+            height: 35px;
+
+            background:
+                radial-gradient(
+                    ellipse,
+                    rgba(139,92,246,.16),
+                    transparent 70%
+                );
+
+            pointer-events:
+                none;
+
+        }
+
+
+        .avatar-3d spline-viewer {
+
+            width: 100%;
+            height: 100%;
+
+        }
+
+
+        /* =====================================================
+           FORMULÁRIO
+        ====================================================== */
+
+        .form-label {
+
+            display: block;
+
+            margin:
+                0 0 7px;
+
+            color:
+                #9e94ac;
+
+            font-size:
+                8px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                1.1px;
+
+        }
+
 
         input,
         select,
@@ -534,35 +774,44 @@
 
             width: 100%;
 
-            padding: 14px;
+            padding:
+                14px;
 
-            margin-bottom: 10px;
+            margin-bottom:
+                10px;
 
-            border-radius: 11px;
+            border-radius:
+                11px;
 
-            outline: none;
+            outline:
+                none;
 
             border:
                 1px solid
-                rgba(255,255,255,.1);
+                rgba(255,255,255,.10);
 
             background:
                 rgba(255,255,255,.045);
 
-            color: white;
+            color:
+                white;
 
-            font-size: 12px;
+            font-size:
+                11px;
 
-            transition: .3s;
+            transition:
+                .3s ease;
 
         }
 
 
         textarea {
 
-            min-height: 120px;
+            min-height:
+                120px;
 
-            resize: vertical;
+            resize:
+                vertical;
 
         }
 
@@ -571,7 +820,7 @@
         textarea::placeholder {
 
             color:
-                #777084;
+                #71697c;
 
         }
 
@@ -581,11 +830,14 @@
         textarea:focus {
 
             border-color:
-                rgba(139,92,246,.7);
+                rgba(139,92,246,.72);
+
+            background:
+                rgba(139,92,246,.055);
 
             box-shadow:
-                0 0 20px
-                rgba(139,92,246,.12);
+                0 0 0 3px
+                rgba(139,92,246,.07);
 
         }
 
@@ -595,43 +847,58 @@
             background:
                 #160d25;
 
-            color: white;
+            color:
+                white;
 
         }
 
 
         /* =====================================================
-           BOTÕES
+           BOTÃO PRINCIPAL
         ====================================================== */
 
         .btn-neuro {
 
-            width: 100%;
+            width:
+                100%;
 
-            padding: 16px;
+            padding:
+                15px;
 
-            border: none;
+            border:
+                none;
 
-            border-radius: 12px;
+            border-radius:
+                11px;
 
             background:
                 linear-gradient(
                     135deg,
-                    var(--primary),
-                    var(--secondary)
+                    #8b5cf6,
+                    #6d28d9
                 );
 
-            color: white;
+            color:
+                white;
 
-            font-size: 11px;
+            font-size:
+                10px;
 
-            font-weight: 800;
+            font-weight:
+                850;
 
-            letter-spacing: .5px;
+            letter-spacing:
+                .8px;
 
-            cursor: pointer;
+            cursor:
+                pointer;
 
-            transition: .3s;
+            transition:
+                .3s ease;
+
+            box-shadow:
+                0 10px 25px
+                rgba(109,40,217,.16);
 
         }
 
@@ -642,66 +909,118 @@
                 translateY(-2px);
 
             box-shadow:
-                0 10px 30px
-                rgba(109,40,217,.28);
+                0 14px 35px
+                rgba(109,40,217,.32);
+
+        }
+
+
+        .btn-neuro:active {
+
+            transform:
+                translateY(0);
+
+        }
+
+
+        /* =====================================================
+           BOTÕES SECUNDÁRIOS
+        ====================================================== */
+
+        .secondary-actions {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                9px;
+
+            margin-top:
+                10px;
+
+        }
+
+
+        .btn-library,
+        .btn-atlas {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            min-height:
+                43px;
+
+            padding:
+                11px;
+
+            border-radius:
+                11px;
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                750;
+
+            transition:
+                .3s ease;
 
         }
 
 
         .btn-library {
 
-            display: block;
-
-            margin-top: 10px;
-
-            padding: 14px;
-
             border:
                 1px solid
-                rgba(255,255,255,.12);
+                rgba(255,255,255,.11);
 
             background:
-                rgba(255,255,255,.025);
+                rgba(255,255,255,.035);
 
-            color: white;
-
-            text-decoration: none;
-
-            border-radius: 12px;
-
-            font-size: 11px;
-
-            font-weight: 700;
+            color:
+                #eee9f7;
 
         }
 
 
         .btn-atlas {
 
-            display: block;
-
-            width: 100%;
-
-            padding: 13px;
-
-            margin-top: 10px;
-
-            border-radius: 12px;
-
             border:
                 1px solid
-                rgba(139,92,246,.3);
+                rgba(139,92,246,.25);
 
             background:
-                rgba(139,92,246,.04);
+                rgba(139,92,246,.055);
 
-            color: #cfc0f7;
+            color:
+                #cfc0f7;
 
-            text-decoration: none;
+        }
 
-            font-size: 10px;
 
-            font-weight: 700;
+        .btn-library:hover,
+        .btn-atlas:hover {
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(139,92,246,.5);
+
+            background:
+                rgba(139,92,246,.10);
 
         }
 
@@ -712,62 +1031,107 @@
 
         #brain-viewport {
 
-            flex: 1;
+            flex:
+                1;
 
-            height: 600px;
+            height:
+                620px;
 
-            min-width: 500px;
+            min-width:
+                500px;
 
-            position: relative;
+            position:
+                relative;
+
+            animation:
+                brainEntrance 1s ease .15s both;
+
+        }
+
+
+        @keyframes brainEntrance {
+
+            from {
+
+                opacity:
+                    0;
+
+                transform:
+                    translateX(25px);
+
+            }
+
+            to {
+
+                opacity:
+                    1;
+
+                transform:
+                    translateX(0);
+
+            }
 
         }
 
 
         #brain-viewport canvas {
 
-            display: block;
+            display:
+                block;
 
-            width: 100%;
+            width:
+                100%;
 
-            height: 100%;
+            height:
+                100%;
 
         }
 
 
         .brain-label {
 
-            position: absolute;
+            position:
+                absolute;
 
-            top: 35px;
+            top:
+                42px;
 
-            left: 50%;
+            left:
+                50%;
 
             transform:
                 translateX(-50%);
 
-            padding: 8px 14px;
+            padding:
+                8px 14px;
 
             background:
-                rgba(9,6,20,.55);
+                rgba(9,6,20,.48);
 
             border:
                 1px solid
-                rgba(139,92,246,.2);
+                rgba(139,92,246,.22);
 
-            border-radius: 20px;
+            border-radius:
+                20px;
 
             backdrop-filter:
                 blur(10px);
 
-            color: #817893;
+            color:
+                #8d849b;
 
-            font-size: 9px;
+            font-size:
+                8px;
 
-            letter-spacing: 1px;
+            letter-spacing:
+                1.4px;
 
-            white-space: nowrap;
+            white-space:
+                nowrap;
 
-            z-index: 5;
+            z-index:
+                5;
 
         }
 
@@ -781,31 +1145,108 @@
 
 
         /* =====================================================
-           PAINEL
+           INDICADOR DOS VÍDEOS
+        ====================================================== */
+
+        .video-indicator {
+
+            position:
+                fixed;
+
+            bottom:
+                24px;
+
+            right:
+                26px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                7px;
+
+            z-index:
+                20;
+
+            opacity:
+                .65;
+
+        }
+
+
+        .video-indicator span {
+
+            width:
+                5px;
+
+            height:
+                5px;
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(255,255,255,.35);
+
+            transition:
+                .4s;
+
+        }
+
+
+        .video-indicator span.active {
+
+            width:
+                18px;
+
+            border-radius:
+                8px;
+
+            background:
+                var(--primary);
+
+            box-shadow:
+                0 0 12px
+                rgba(139,92,246,.5);
+
+        }
+
+
+        /* =====================================================
+           PAINÉIS
         ====================================================== */
 
         .tool-panel {
 
-            display: none;
+            display:
+                none;
 
-            position: fixed;
+            position:
+                fixed;
 
-            top: 50%;
+            top:
+                50%;
 
-            left: 50%;
+            left:
+                50%;
 
             transform:
                 translate(-50%,-50%);
 
             width:
-                min(680px, 92%);
+                min(680px,92%);
 
             max-height:
                 88vh;
 
-            overflow-y: auto;
+            overflow-y:
+                auto;
 
-            padding: 28px;
+            padding:
+                28px;
 
             background:
                 rgba(12,7,24,.97);
@@ -814,7 +1255,8 @@
                 1px solid
                 rgba(139,92,246,.35);
 
-            border-radius: 24px;
+            border-radius:
+                24px;
 
             box-shadow:
                 0 30px 100px
@@ -823,14 +1265,16 @@
             backdrop-filter:
                 blur(25px);
 
-            z-index: 200;
+            z-index:
+                200;
 
         }
 
 
         .tool-panel.active {
 
-            display: block;
+            display:
+                block;
 
             animation:
                 panelIn .25s ease;
@@ -842,7 +1286,8 @@
 
             from {
 
-                opacity: 0;
+                opacity:
+                    0;
 
                 transform:
                     translate(-50%,-47%);
@@ -851,7 +1296,8 @@
 
             to {
 
-                opacity: 1;
+                opacity:
+                    1;
 
                 transform:
                     translate(-50%,-50%);
@@ -863,41 +1309,50 @@
 
         .tool-header {
 
-            display: flex;
+            display:
+                flex;
 
-            align-items: center;
+            align-items:
+                center;
 
-            justify-content: space-between;
+            justify-content:
+                space-between;
 
-            margin-bottom: 22px;
+            margin-bottom:
+                22px;
 
         }
 
 
         .tool-header h3 {
 
-            font-size: 20px;
+            font-size:
+                20px;
 
         }
 
 
         .tool-header p {
 
-            margin-top: 5px;
+            margin-top:
+                5px;
 
             color:
                 var(--muted);
 
-            font-size: 10px;
+            font-size:
+                10px;
 
         }
 
 
         .close-tool {
 
-            width: 32px;
+            width:
+                32px;
 
-            height: 32px;
+            height:
+                32px;
 
             border:
                 1px solid
@@ -906,36 +1361,57 @@
             background:
                 rgba(255,255,255,.04);
 
-            color: white;
+            color:
+                white;
 
-            border-radius: 8px;
+            border-radius:
+                8px;
 
-            cursor: pointer;
+            cursor:
+                pointer;
 
-            font-size: 16px;
+            font-size:
+                16px;
+
+            transition:
+                .25s;
+
+        }
+
+
+        .close-tool:hover {
+
+            background:
+                rgba(255,255,255,.08);
+
+            transform:
+                rotate(90deg);
 
         }
 
 
         /* =====================================================
-           TOOL GRID
+           GRID
         ====================================================== */
 
         .tool-grid {
 
-            display: grid;
+            display:
+                grid;
 
             grid-template-columns:
                 repeat(2,1fr);
 
-            gap: 12px;
+            gap:
+                12px;
 
         }
 
 
         .tool-card {
 
-            padding: 16px;
+            padding:
+                16px;
 
             background:
                 rgba(255,255,255,.035);
@@ -944,40 +1420,47 @@
                 1px solid
                 rgba(255,255,255,.07);
 
-            border-radius: 14px;
+            border-radius:
+                14px;
 
         }
 
 
         .tool-card h4 {
 
-            font-size: 11px;
+            font-size:
+                11px;
 
             color:
                 var(--accent);
 
-            margin-bottom: 8px;
+            margin-bottom:
+                8px;
 
-            letter-spacing: .5px;
+            letter-spacing:
+                .5px;
 
         }
 
 
         .tool-card p {
 
-            font-size: 10px;
+            font-size:
+                10px;
 
             color:
                 #aaa2ba;
 
-            line-height: 1.5;
+            line-height:
+                1.5;
 
         }
 
 
         .field-label {
 
-            display: block;
+            display:
+                block;
 
             margin:
                 4px 0 6px;
@@ -985,51 +1468,62 @@
             color:
                 #aaa2ba;
 
-            font-size: 9px;
+            font-size:
+                9px;
 
         }
 
 
         /* =====================================================
-           IA BADGE
+           BADGE
         ====================================================== */
 
-        .ai-badge {
+        .module-badge {
 
-            display: inline-flex;
+            display:
+                inline-flex;
 
-            align-items: center;
+            align-items:
+                center;
 
-            gap: 6px;
+            gap:
+                6px;
 
-            padding: 6px 9px;
+            padding:
+                6px 9px;
 
-            margin-bottom: 12px;
+            margin-bottom:
+                12px;
 
-            border-radius: 7px;
+            border-radius:
+                7px;
 
             background:
-                rgba(139,92,246,.12);
+                rgba(139,92,246,.09);
 
             border:
                 1px solid
-                rgba(139,92,246,.25);
+                rgba(139,92,246,.22);
 
             color:
                 #cfc0f7;
 
-            font-size: 8px;
+            font-size:
+                8px;
 
-            font-weight: 800;
+            font-weight:
+                800;
 
-            letter-spacing: .6px;
+            letter-spacing:
+                .6px;
 
         }
 
 
-        .ai-badge::before {
+        .module-badge::before {
 
-            content: "✦";
+            content:
+                "•";
 
             color:
                 var(--accent);
@@ -1043,18 +1537,21 @@
 
         .result-box {
 
-            margin-top: 15px;
+            margin-top:
+                15px;
 
-            padding: 16px;
+            padding:
+                16px;
 
             background:
-                rgba(139,92,246,.08);
+                rgba(139,92,246,.07);
 
             border:
                 1px solid
-                rgba(139,92,246,.2);
+                rgba(139,92,246,.19);
 
-            border-radius: 13px;
+            border-radius:
+                13px;
 
         }
 
@@ -1064,42 +1561,50 @@
             color:
                 var(--accent);
 
-            font-size: 10px;
+            font-size:
+                10px;
 
         }
 
 
         .result-box p {
 
-            margin-top: 8px;
+            margin-top:
+                8px;
 
             color:
                 #c4bbd2;
 
-            font-size: 10px;
+            font-size:
+                10px;
 
-            line-height: 1.6;
+            line-height:
+                1.6;
 
         }
 
 
         .loading {
 
-            display: none;
+            display:
+                none;
 
-            margin-top: 15px;
+            margin-top:
+                15px;
 
             color:
                 #a78bfa;
 
-            font-size: 10px;
+            font-size:
+                10px;
 
         }
 
 
         .loading.active {
 
-            display: block;
+            display:
+                block;
 
         }
 
@@ -1110,26 +1615,31 @@
 
         .overlay {
 
-            display: none;
+            display:
+                none;
 
-            position: fixed;
+            position:
+                fixed;
 
-            inset: 0;
+            inset:
+                0;
 
             background:
-                rgba(0,0,0,.65);
+                rgba(0,0,0,.68);
 
             backdrop-filter:
                 blur(5px);
 
-            z-index: 150;
+            z-index:
+                150;
 
         }
 
 
         .overlay.active {
 
-            display: block;
+            display:
+                block;
 
         }
 
@@ -1142,7 +1652,8 @@
 
             body {
 
-                overflow-y: auto;
+                overflow-y:
+                    auto;
 
                 padding:
                     80px 0 30px;
@@ -1152,22 +1663,28 @@
 
             .main-container {
 
-                min-height: auto;
+                min-height:
+                    auto;
 
-                flex-direction: column;
+                flex-direction:
+                    column;
 
             }
 
 
             #brain-viewport {
 
-                width: 100%;
+                width:
+                    100%;
 
-                min-width: 0;
+                min-width:
+                    0;
 
-                height: 420px;
+                height:
+                    430px;
 
-                order: -1;
+                order:
+                    -1;
 
             }
 
@@ -1175,7 +1692,18 @@
             .card {
 
                 width:
-                    min(410px,92%);
+                    min(420px,92%);
+
+            }
+
+
+            .video-indicator {
+
+                bottom:
+                    12px;
+
+                right:
+                    15px;
 
             }
 
@@ -1186,16 +1714,43 @@
 
             .tool-grid {
 
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .secondary-actions {
+
+                grid-template-columns:
+                    1fr;
 
             }
 
 
             .btn-aluno-fixo {
 
-                top: 12px;
+                top:
+                    12px;
 
-                right: 12px;
+                right:
+                    12px;
+
+            }
+
+
+            .card {
+
+                padding:
+                    28px 24px;
+
+            }
+
+
+            h2 {
+
+                font-size:
+                    24px;
 
             }
 
@@ -1211,6 +1766,9 @@
 
     <!-- =====================================================
          VÍDEOS DE FUNDO
+         1 — Athenas / livro
+         2 — mãos mexendo
+         3 — cubo mágico
     ====================================================== -->
 
     <div class="video-background">
@@ -1248,12 +1806,16 @@
 
 
     <!-- =====================================================
-         OVERLAYS
+         CAMADAS VISUAIS
     ====================================================== -->
 
     <div class="video-overlay"></div>
 
     <div class="video-purple-glow"></div>
+
+    <div class="ambient-line one"></div>
+
+    <div class="ambient-line two"></div>
 
 
     <!-- =====================================================
@@ -1277,7 +1839,29 @@
 
 
     <!-- =====================================================
-         INTERFACE
+         INDICADOR DOS VÍDEOS
+    ====================================================== -->
+
+    <div class="video-indicator">
+
+        <span
+            id="indicator1"
+            class="active">
+        </span>
+
+        <span
+            id="indicator2">
+        </span>
+
+        <span
+            id="indicator3">
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         INTERFACE PRINCIPAL
     ====================================================== -->
 
     <main class="main-container">
@@ -1290,33 +1874,34 @@
         <section class="card">
 
 
+            <!-- MARCA -->
+
             <div class="brand">
 
                 <div class="brand-icon"></div>
 
-                <span>
-                    NEURO-EDUCA • UNINTA
-                </span>
+                <div class="brand-text">
+
+                    <strong>
+                        NEURO-EDUCA
+                    </strong>
+
+                    <span>
+                        LABORATÓRIO PEDAGÓGICO
+                    </span>
+
+                </div>
 
             </div>
 
 
-            <div class="ai-status">
+            <!-- CABEÇALHO -->
 
-                <span class="ai-dot"></span>
+            <div class="eyebrow">
 
-                AMBIENTE PREPARADO PARA INTELIGÊNCIA ARTIFICIAL
+                <span class="eyebrow-line"></span>
 
-            </div>
-
-
-            <!-- ROBÔ -->
-
-            <div class="avatar-3d">
-
-                <spline-viewer
-                    url="genkub_greeting_robot.spline">
-                </spline-viewer>
+                ESPAÇO DE APRENDIZAGEM
 
             </div>
 
@@ -1335,10 +1920,32 @@
             </p>
 
 
+            <!-- CORUJA -->
+
+            <div class="avatar-3d">
+
+                <spline-viewer
+                    url="genkub_greeting_robot.spline">
+                </spline-viewer>
+
+            </div>
+
+
+            <!-- LOGIN -->
+
+            <label
+                class="form-label"
+                for="idInput">
+
+                IDENTIFICAÇÃO
+
+            </label>
+
+
             <input
                 type="text"
                 id="idInput"
-                placeholder="DIGITE SEU ID"
+                placeholder="Digite seu ID"
                 autocomplete="off"
             >
 
@@ -1352,22 +1959,28 @@
             </button>
 
 
-            <a
-                href="biblioteca.html"
-                class="btn-library">
+            <!-- AÇÕES -->
 
-                BIBLIOTECA DIGITAL
+            <div class="secondary-actions">
 
-            </a>
+                <a
+                    href="biblioteca.html"
+                    class="btn-library">
+
+                    BIBLIOTECA DIGITAL
+
+                </a>
 
 
-            <a
-                href="atlas.html"
-                class="btn-atlas">
+                <a
+                    href="atlas.html"
+                    class="btn-atlas">
 
-                EXPLORAR MAPA DA APRENDIZAGEM 3D
+                    MAPA DA APRENDIZAGEM 3D
 
-            </a>
+                </a>
+
+            </div>
 
 
         </section>
@@ -1424,8 +2037,7 @@
                 </h3>
 
                 <p>
-                    Estrutura preparada para análise
-                    pedagógica assistida por IA.
+                    Estrutura para análise pedagógica.
                 </p>
 
             </div>
@@ -1442,8 +2054,8 @@
         </div>
 
 
-        <div class="ai-badge">
-            IA PEDAGÓGICA
+        <div class="module-badge">
+            ANÁLISE PEDAGÓGICA
         </div>
 
 
@@ -1525,7 +2137,7 @@
             class="btn-neuro"
             onclick="executarDiagnostico()">
 
-            ANALISAR COM IA
+            ANALISAR
 
         </button>
 
@@ -1573,8 +2185,7 @@
                 </h3>
 
                 <p>
-                    Pesquisa de habilidades e organização
-                    curricular para futura integração com IA.
+                    Pesquisa de habilidades e organização curricular.
                 </p>
 
             </div>
@@ -1591,8 +2202,8 @@
         </div>
 
 
-        <div class="ai-badge">
-            BASE CURRICULAR + IA
+        <div class="module-badge">
+            BASE CURRICULAR
         </div>
 
 
@@ -1614,9 +2225,8 @@
 
                 <p>
 
-                    A interface poderá consultar
-                    uma base estruturada de habilidades
-                    curriculares.
+                    Consulta estruturada de habilidades
+                    e referências curriculares.
 
                 </p>
 
@@ -1626,14 +2236,13 @@
             <div class="tool-card">
 
                 <h4>
-                    INTEGRAÇÃO COM IA
+                    ORGANIZAÇÃO
                 </h4>
 
                 <p>
 
-                    A IA poderá utilizar a habilidade
-                    selecionada como contexto para
-                    gerar análises e propostas.
+                    Relação entre habilidades,
+                    componentes e etapas de ensino.
 
                 </p>
 
@@ -1686,8 +2295,7 @@
                 </h3>
 
                 <p>
-                    Prepare os dados que serão enviados
-                    posteriormente para a IA.
+                    Estruture os elementos da sua proposta de aula.
                 </p>
 
             </div>
@@ -1704,8 +2312,8 @@
         </div>
 
 
-        <div class="ai-badge">
-            GERAÇÃO ASSISTIDA POR IA
+        <div class="module-badge">
+            PLANEJAMENTO
         </div>
 
 
@@ -1764,7 +2372,7 @@
             class="loading"
             id="loadingPlano">
 
-            Preparando requisição para a IA...
+            Preparando planejamento...
 
         </div>
 
@@ -1803,8 +2411,8 @@
                 </h3>
 
                 <p>
-                    Estrutura para transformar evidências
-                    de aprendizagem em estratégias.
+                    Transforme evidências de aprendizagem
+                    em estratégias pedagógicas.
                 </p>
 
             </div>
@@ -1821,8 +2429,8 @@
         </div>
 
 
-        <div class="ai-badge">
-            ESTRATÉGIA PEDAGÓGICA + IA
+        <div class="module-badge">
+            ESTRATÉGIA PEDAGÓGICA
         </div>
 
 
@@ -1919,15 +2527,15 @@
 
 
         /*
-         * Duração visual de cada etapa.
+         * Athenas / livro = 7 segundos
+         * Mãos mexendo = 10 segundos
+         * Cubo = 10 segundos
          */
 
         const videoDurations = [
 
             7000,
-
             10000,
-
             10000
 
         ];
@@ -1937,10 +2545,23 @@
 
         let transitionTimer = null;
 
+        let videoTransitioning = false;
 
-        /*
-         * Prepara todos os vídeos.
-         */
+
+        const indicators = [
+
+            document.getElementById("indicator1"),
+
+            document.getElementById("indicator2"),
+
+            document.getElementById("indicator3")
+
+        ];
+
+
+        /* =====================================================
+           PREPARAÇÃO
+        ====================================================== */
 
         videos.forEach(
 
@@ -1950,13 +2571,15 @@
 
                 video.playsInline = true;
 
+                video.preload = "auto";
+
             }
 
         );
 
 
         /*
-         * Primeiro vídeo começa imediatamente.
+         * O primeiro vídeo começa no início.
          */
 
         videos[0].currentTime = 0;
@@ -1976,19 +2599,53 @@
         );
 
 
-        /*
-         * Crossfade entre vídeos.
-         */
+        /* =====================================================
+           INDICADOR
+        ====================================================== */
+
+        function atualizarIndicador(index) {
+
+            indicators.forEach(
+
+                indicator => {
+
+                    indicator.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            );
+
+
+            if (indicators[index]) {
+
+                indicators[index].classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CROSSFADE
+        ====================================================== */
 
         function trocarVideo(nextIndex) {
 
             if (
+                videoTransitioning ||
                 nextIndex >= videos.length
             ) {
 
-                nextIndex = videos.length - 1;
+                return;
 
             }
+
+
+            videoTransitioning = true;
 
 
             const atual =
@@ -2000,10 +2657,13 @@
 
 
             /*
-             * Pré-posiciona o próximo.
+             * Reinicia o próximo vídeo.
              */
 
+            proximo.pause();
+
             proximo.currentTime = 0;
+
 
             proximo.classList.add(
                 "transitioning"
@@ -2011,7 +2671,8 @@
 
 
             /*
-             * Começa o próximo vídeo.
+             * Começa o próximo
+             * antes de torná-lo visível.
              */
 
             proximo.play().catch(
@@ -2020,15 +2681,23 @@
 
 
             /*
-             * Faz o próximo aparecer.
+             * Próximo vídeo aparece.
              */
 
             requestAnimationFrame(
 
                 () => {
 
-                    proximo.classList.add(
-                        "active"
+                    requestAnimationFrame(
+
+                        () => {
+
+                            proximo.classList.add(
+                                "active"
+                            );
+
+                        }
+
                     );
 
                 }
@@ -2036,9 +2705,13 @@
             );
 
 
+            atualizarIndicador(
+                nextIndex
+            );
+
+
             /*
-             * Depois do crossfade,
-             * remove o vídeo antigo.
+             * Tempo do crossfade.
              */
 
             setTimeout(
@@ -2057,37 +2730,47 @@
                         "transitioning"
                     );
 
+
+                    /*
+                     * Evita que vídeos anteriores
+                     * continuem consumindo recursos.
+                     */
+
+                    atual.pause();
+
+
+                    currentVideo =
+                        nextIndex;
+
+
+                    videoTransitioning =
+                        false;
+
+
+                    /*
+                     * O cubo fica em loop.
+                     */
+
+                    if (
+                        currentVideo === 2
+                    ) {
+
+                        proximo.loop = true;
+
+                    }
+
                 },
 
-                1500
+                1800
 
             );
-
-
-            currentVideo =
-                nextIndex;
-
-
-            /*
-             * Se for o último vídeo,
-             * deixa ele em loop.
-             */
-
-            if (
-                currentVideo ===
-                videos.length - 1
-            ) {
-
-                proximo.loop = true;
-
-            }
 
         }
 
 
-        /*
-         * Agenda cada troca.
-         */
+        /* =====================================================
+           SEQUÊNCIA
+        ====================================================== */
 
         function iniciarSequenciaVideos() {
 
@@ -2096,10 +2779,17 @@
             );
 
 
+            /*
+             * O terceiro vídeo fica em loop.
+             */
+
             if (
                 currentVideo >=
-                videoDurations.length - 1
+                videos.length - 1
             ) {
+
+                videos[currentVideo].loop =
+                    true;
 
                 return;
 
@@ -2117,7 +2807,22 @@
                         );
 
 
-                        iniciarSequenciaVideos();
+                        /*
+                         * A próxima etapa será
+                         * agendada após a troca.
+                         */
+
+                        setTimeout(
+
+                            () => {
+
+                                iniciarSequenciaVideos();
+
+                            },
+
+                            1900
+
+                        );
 
                     },
 
@@ -2133,10 +2838,9 @@
         iniciarSequenciaVideos();
 
 
-        /*
-         * Se o navegador interromper o vídeo,
-         * tentamos continuar.
-         */
+        /* =====================================================
+           RECUPERAÇÃO DE PLAY
+        ====================================================== */
 
         videos.forEach(
 
@@ -2149,8 +2853,14 @@
                     () => {
 
                         if (
+
                             video ===
-                            videos[currentVideo]
+                            videos[currentVideo] &&
+
+                            !videoTransitioning &&
+
+                            !video.ended
+
                         ) {
 
                             setTimeout(
@@ -2164,7 +2874,7 @@
 
                                 },
 
-                                300
+                                400
 
                             );
 
@@ -2215,15 +2925,18 @@
             );
 
 
-        camera.position.z = 8;
+        camera.position.z =
+            8;
 
 
         const renderer =
             new THREE.WebGLRenderer({
 
-                antialias: true,
+                antialias:
+                    true,
 
-                alpha: true
+                alpha:
+                    true
 
             });
 
@@ -2240,11 +2953,8 @@
         renderer.setPixelRatio(
 
             Math.min(
-
                 window.devicePixelRatio,
-
                 2
-
             )
 
         );
@@ -2264,7 +2974,6 @@
             new THREE.AmbientLight(
 
                 0xffffff,
-
                 .8
 
             )
@@ -2276,7 +2985,6 @@
             new THREE.PointLight(
 
                 0xffffff,
-
                 1.8
 
             );
@@ -2291,14 +2999,15 @@
         );
 
 
-        scene.add(light);
+        scene.add(
+            light
+        );
 
 
         const light2 =
             new THREE.PointLight(
 
                 0x8b5cf6,
-
                 .8
 
             );
@@ -2313,7 +3022,9 @@
         );
 
 
-        scene.add(light2);
+        scene.add(
+            light2
+        );
 
 
         /* =====================================================
@@ -2324,7 +3035,8 @@
             new THREE.BufferGeometry();
 
 
-        const partCount = 1700;
+        const partCount =
+            1700;
 
 
         const positions =
@@ -2369,13 +3081,17 @@
         const partMat =
             new THREE.PointsMaterial({
 
-                size: .035,
+                size:
+                    .035,
 
-                color: 0x9b6cff,
+                color:
+                    0x9b6cff,
 
-                transparent: true,
+                transparent:
+                    true,
 
-                opacity: .5
+                opacity:
+                    .5
 
             });
 
@@ -2390,17 +3106,13 @@
             );
 
 
-        scene.add(particles);
-
-
-        /*
-         * As partículas continuam
-         * independentemente dos vídeos.
-         */
+        scene.add(
+            particles
+        );
 
 
         /* =====================================================
-           MODELO 3D — CORUJA
+           CORUJA
         ====================================================== */
 
         let brain = null;
@@ -2448,9 +3160,11 @@
                             object.isMesh
                         ) {
 
-                            object.castShadow = true;
+                            object.castShadow =
+                                true;
 
-                            object.receiveShadow = true;
+                            object.receiveShadow =
+                                true;
 
                         }
 
@@ -2546,9 +3260,12 @@
            ENTRADA DA CORUJA
         ====================================================== */
 
-        let entradaInicio = null;
+        let entradaInicio =
+            null;
 
-        let entradaFinalizada = false;
+
+        let entradaFinalizada =
+            false;
 
 
         function iniciarEntradaCoruja() {
@@ -2588,7 +3305,8 @@
             let progresso =
                 Math.min(
 
-                    tempo / duracao,
+                    tempo /
+                    duracao,
 
                     1
 
@@ -2600,7 +3318,6 @@
                 Math.pow(
 
                     1 - progresso,
-
                     4
 
                 );
@@ -2622,24 +3339,20 @@
             brain.position.y =
 
                 -.8 +
-
                 (.8 * ease);
 
 
             brain.rotation.y =
 
                 -.35 +
-
                 (.35 * ease);
 
 
             brain.rotation.z =
 
                 Math.sin(
-
                     progresso *
                     Math.PI
-
                 ) * .035;
 
 
@@ -2779,7 +3492,7 @@
 
 
         /* =====================================================
-           API IA
+           API
         ====================================================== */
 
         async function requisicaoIA(
@@ -2792,7 +3505,7 @@
 
             throw new Error(
 
-                "API de IA ainda não conectada."
+                "API ainda não conectada."
 
             );
 
@@ -2884,7 +3597,7 @@
 
                         "resultadoDiagnostico",
 
-                        "A interface está preparada. A API de IA ainda precisa ser conectada ao backend."
+                        "A interface está pronta. A API ainda precisa ser conectada ao backend."
 
                     );
 
@@ -2961,7 +3674,7 @@
 
                         "resultadoBNCC",
 
-                        "O campo de consulta está pronto para receber a base curricular/API."
+                        "O campo de consulta está pronto para receber a base curricular."
 
                     );
 
@@ -2995,7 +3708,10 @@
                     ).value.trim();
 
 
-                if (!tema || !objetivo) {
+                if (
+                    !tema ||
+                    !objetivo
+                ) {
 
                     alert(
                         "Informe o tema e o objetivo."
@@ -3055,7 +3771,7 @@
 
                         "resultadoPlano",
 
-                        "O formulário já está estruturado para enviar tema, série e objetivo ao modelo de IA."
+                        "O formulário está estruturado para receber o planejamento pelo backend."
 
                     );
 
@@ -3150,7 +3866,7 @@
 
                         "resultadoIntervencao",
 
-                        "O módulo está preparado para receber uma proposta de intervenção gerada pela IA."
+                        "O módulo está pronto para receber uma proposta de intervenção pelo backend."
 
                     );
 
@@ -3228,9 +3944,12 @@
 
                 if (
 
-                    valor === "MATH001" ||
+                    valor ===
+                    "MATH001" ||
 
-                    valor.startsWith("PAC")
+                    valor.startsWith(
+                        "PAC"
+                    )
 
                 ) {
 
@@ -3243,7 +3962,7 @@
 
 
                 input.style.borderColor =
-                    "#ff3d68";
+                    "var(--danger)";
 
 
                 if (brain) {
@@ -3260,11 +3979,13 @@
 
                             ) {
 
-                                object.material.emissive.setHex(
-                                    0xff3d68
-                                );
+                                object.material.emissive
+                                    .setHex(
+                                        0xff3d68
+                                    );
 
-                                object.material.emissiveIntensity =
+                                object.material
+                                    .emissiveIntensity =
                                     .35;
 
                             }
@@ -3298,11 +4019,14 @@
 
                                     ) {
 
-                                        object.material.emissive.setHex(
-                                            0x000000
-                                        );
+                                        object.material
+                                            .emissive
+                                            .setHex(
+                                                0x000000
+                                            );
 
-                                        object.material.emissiveIntensity =
+                                        object.material
+                                            .emissiveIntensity =
                                             0;
 
                                     }
@@ -3344,7 +4068,6 @@
             particles.rotation.y +=
                 .001;
 
-
             particles.rotation.x +=
                 .0002;
 
@@ -3369,7 +4092,7 @@
 
 
             /* =================================================
-               MOVIMENTO NORMAL
+               MOVIMENTO DA CORUJA
             ================================================== */
 
             if (
@@ -3404,16 +4127,9 @@
                     .035 *
 
                     (
-
                         rotacaoMouseY -
-
                         brain.rotation.y
-
                     );
-
-
-                const inclinacaoAtual =
-                    rotacaoMouseX;
 
 
                 brain.rotation.x +=
@@ -3421,11 +4137,8 @@
                     .025 *
 
                     (
-
-                        inclinacaoAtual -
-
+                        rotacaoMouseX -
                         brain.rotation.x
-
                     );
 
 
@@ -3511,6 +4224,31 @@
             }
 
         );
+
+
+        /* =====================================================
+           ENTER NO LOGIN
+        ====================================================== */
+
+        document
+            .getElementById("idInput")
+            .addEventListener(
+
+                "keydown",
+
+                event => {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        validarAcesso();
+
+                    }
+
+                }
+
+            );
 
     </script>
 
