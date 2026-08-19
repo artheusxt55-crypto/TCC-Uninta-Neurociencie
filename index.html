@@ -43,13 +43,11 @@
             --bg: #090614;
 
             --card:
-                rgba(16, 10, 30, .82);
+                rgba(10, 7, 20, .78);
 
-            --text:
-                #f4f0ff;
+            --text: #f4f0ff;
 
-            --muted:
-                #9990aa;
+            --muted: #aaa1b9;
 
         }
 
@@ -64,13 +62,9 @@
         }
 
 
-        html,
-        body {
-
-            min-height: 100%;
-
-        }
-
+        /* =====================================================
+           BODY
+        ====================================================== */
 
         body {
 
@@ -84,7 +78,7 @@
                 sans-serif;
 
             background:
-                #030208;
+                #05030a;
 
             overflow-x: hidden;
 
@@ -95,7 +89,7 @@
            VÍDEO DE FUNDO
         ====================================================== */
 
-        #background-video {
+        .video-background {
 
             position: fixed;
 
@@ -106,16 +100,16 @@
 
             object-fit: cover;
 
-            z-index: -10;
+            z-index: -5;
 
             pointer-events: none;
 
-            opacity: .22;
+            opacity: .82;
 
             filter:
-                brightness(.45)
-                saturate(.75)
-                contrast(1.08);
+                brightness(.82)
+                contrast(1.08)
+                saturate(1.08);
 
         }
 
@@ -124,36 +118,55 @@
            CAMADA PROFISSIONAL SOBRE O VÍDEO
         ====================================================== */
 
-        body::before {
-
-            content: "";
+        .video-overlay {
 
             position: fixed;
 
             inset: 0;
 
-            z-index: -9;
+            z-index: -4;
+
+            pointer-events: none;
+
+            background:
+
+                linear-gradient(
+                    90deg,
+                    rgba(5,3,10,.72) 0%,
+                    rgba(5,3,10,.34) 42%,
+                    rgba(5,3,10,.18) 70%,
+                    rgba(5,3,10,.48) 100%
+                );
+
+        }
+
+
+        /* =====================================================
+           GLOW ROXO
+        ====================================================== */
+
+        .ambient-light {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: -3;
 
             pointer-events: none;
 
             background:
 
                 radial-gradient(
-                    circle at 70% 40%,
-                    rgba(139,92,246,.22),
-                    transparent 38%
+                    circle at 72% 45%,
+                    rgba(139,92,246,.20),
+                    transparent 32%
                 ),
 
                 radial-gradient(
-                    circle at 20% 80%,
-                    rgba(109,40,217,.18),
-                    transparent 40%
-                ),
-
-                linear-gradient(
-                    135deg,
-                    rgba(5,3,12,.82),
-                    rgba(3,2,8,.94)
+                    circle at 15% 70%,
+                    rgba(109,40,217,.13),
+                    transparent 35%
                 );
 
         }
@@ -163,15 +176,13 @@
            VINHETA
         ====================================================== */
 
-        body::after {
-
-            content: "";
+        .vignette {
 
             position: fixed;
 
             inset: 0;
 
-            z-index: -8;
+            z-index: -2;
 
             pointer-events: none;
 
@@ -180,8 +191,86 @@
                 radial-gradient(
                     ellipse at center,
                     transparent 35%,
-                    rgba(0,0,0,.55) 100%
+                    rgba(0,0,0,.35) 100%
                 );
+
+        }
+
+
+        /* =====================================================
+           PARTÍCULAS HTML
+        ====================================================== */
+
+        .particles {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1;
+
+            pointer-events: none;
+
+            overflow: hidden;
+
+        }
+
+
+        .particle {
+
+            position: absolute;
+
+            width: 2px;
+
+            height: 2px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(183,154,255,.75);
+
+            box-shadow:
+                0 0 10px
+                rgba(139,92,246,.8);
+
+            animation:
+                particleFloat
+                linear infinite;
+
+        }
+
+
+        @keyframes particleFloat {
+
+            from {
+
+                transform:
+                    translateY(110vh);
+
+                opacity: 0;
+
+            }
+
+            15% {
+
+                opacity: .8;
+
+            }
+
+            85% {
+
+                opacity: .7;
+
+            }
+
+            to {
+
+                transform:
+                    translateY(-10vh);
+
+                opacity: 0;
+
+            }
 
         }
 
@@ -206,7 +295,7 @@
                 rgba(139,92,246,.45);
 
             background:
-                rgba(139,92,246,.10);
+                rgba(12,7,25,.45);
 
             color: white;
 
@@ -219,7 +308,7 @@
             letter-spacing: .8px;
 
             backdrop-filter:
-                blur(10px);
+                blur(14px);
 
             z-index: 100;
 
@@ -287,7 +376,7 @@
 
             border:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(255,255,255,.10);
 
             border-radius: 28px;
 
@@ -296,16 +385,13 @@
             backdrop-filter:
                 blur(20px);
 
-            -webkit-backdrop-filter:
-                blur(20px);
-
             box-shadow:
 
                 0 30px 80px
-                rgba(0,0,0,.55),
+                rgba(0,0,0,.60),
 
                 inset 0 1px
-                rgba(255,255,255,.04);
+                rgba(255,255,255,.06);
 
         }
 
@@ -344,7 +430,6 @@
             border-radius: 8px;
 
             background:
-
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -352,7 +437,6 @@
                 );
 
             box-shadow:
-
                 0 0 20px
                 rgba(139,92,246,.25);
 
@@ -383,8 +467,7 @@
 
             letter-spacing: 1.5px;
 
-            color:
-                #b8afc9;
+            color: #c1b7d0;
 
         }
 
@@ -405,8 +488,7 @@
 
             margin-bottom: 18px;
 
-            color:
-                #8f87a0;
+            color: #a29aac;
 
             font-size: 8px;
 
@@ -427,7 +509,6 @@
                 var(--success);
 
             box-shadow:
-
                 0 0 12px
                 rgba(52,211,153,.7);
 
@@ -487,7 +568,7 @@
 
 
         /* =====================================================
-           INPUTS
+           INPUT
         ====================================================== */
 
         input,
@@ -506,10 +587,10 @@
 
             border:
                 1px solid
-                rgba(255,255,255,.1);
+                rgba(255,255,255,.12);
 
             background:
-                rgba(255,255,255,.045);
+                rgba(255,255,255,.055);
 
             color: white;
 
@@ -533,7 +614,7 @@
         textarea::placeholder {
 
             color:
-                #777084;
+                #857c91;
 
         }
 
@@ -546,7 +627,6 @@
                 rgba(139,92,246,.7);
 
             box-shadow:
-
                 0 0 20px
                 rgba(139,92,246,.12);
 
@@ -578,7 +658,6 @@
             border-radius: 12px;
 
             background:
-
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -606,15 +685,14 @@
                 translateY(-2px);
 
             box-shadow:
-
                 0 10px 30px
-                rgba(109,40,217,.28);
+                rgba(109,40,217,.35);
 
         }
 
 
         /* =====================================================
-           BIBLIOTECA
+           BOTÕES SECUNDÁRIOS
         ====================================================== */
 
         .btn-library {
@@ -630,7 +708,7 @@
                 rgba(255,255,255,.12);
 
             background:
-                rgba(255,255,255,.025);
+                rgba(255,255,255,.035);
 
             color: white;
 
@@ -642,25 +720,8 @@
 
             font-weight: 700;
 
-            transition: .3s;
-
         }
 
-
-        .btn-library:hover {
-
-            background:
-                rgba(255,255,255,.07);
-
-            border-color:
-                rgba(255,255,255,.2);
-
-        }
-
-
-        /* =====================================================
-           ATLAS
-        ====================================================== */
 
         .btn-atlas {
 
@@ -679,29 +740,15 @@
                 rgba(139,92,246,.3);
 
             background:
-                rgba(139,92,246,.04);
+                rgba(139,92,246,.06);
 
-            color:
-                #cfc0f7;
+            color: #cfc0f7;
 
             text-decoration: none;
 
             font-size: 10px;
 
             font-weight: 700;
-
-            transition: .3s;
-
-        }
-
-
-        .btn-atlas:hover {
-
-            background:
-                rgba(139,92,246,.12);
-
-            border-color:
-                rgba(139,92,246,.5);
 
         }
 
@@ -748,19 +795,18 @@
             padding: 8px 14px;
 
             background:
-                rgba(9,6,20,.65);
+                rgba(9,6,20,.50);
 
             border:
                 1px solid
-                rgba(139,92,246,.2);
+                rgba(139,92,246,.25);
 
             border-radius: 20px;
 
             backdrop-filter:
-                blur(10px);
+                blur(12px);
 
-            color:
-                #817893;
+            color: #aaa0b9;
 
             font-size: 9px;
 
@@ -776,7 +822,7 @@
         .brain-label strong {
 
             color:
-                #d9ccf7;
+                #e0d4f7;
 
         }
 
@@ -799,7 +845,7 @@
                 translate(-50%,-50%);
 
             width:
-                min(680px,92%);
+                min(680px, 92%);
 
             max-height:
                 88vh;
@@ -809,7 +855,7 @@
             padding: 28px;
 
             background:
-                rgba(12,7,24,.97);
+                rgba(12,7,24,.96);
 
             border:
                 1px solid
@@ -818,14 +864,10 @@
             border-radius: 24px;
 
             box-shadow:
-
                 0 30px 100px
                 rgba(0,0,0,.75);
 
             backdrop-filter:
-                blur(25px);
-
-            -webkit-backdrop-filter:
                 blur(25px);
 
             z-index: 200;
@@ -1204,13 +1246,6 @@
 
             }
 
-
-            #background-video {
-
-                opacity: .16;
-
-            }
-
         }
 
     </style>
@@ -1226,17 +1261,37 @@
     ====================================================== -->
 
     <video
-        id="background-video"
+        class="video-background"
         autoplay
         muted
         loop
-        playsinline>
+        playsinline
+        preload="auto">
 
         <source
             src="athenas.livro.mp4"
             type="video/mp4">
 
     </video>
+
+
+    <!-- CAMADAS VISUAIS -->
+
+    <div class="video-overlay"></div>
+
+    <div class="ambient-light"></div>
+
+    <div class="vignette"></div>
+
+
+    <!-- =====================================================
+         PARTÍCULAS
+    ====================================================== -->
+
+    <div
+        class="particles"
+        id="particles">
+    </div>
 
 
     <!-- =====================================================
@@ -1390,7 +1445,6 @@
         class="tool-panel"
         id="diagnostico">
 
-
         <div class="tool-header">
 
             <div>
@@ -1405,7 +1459,6 @@
                 </p>
 
             </div>
-
 
             <button
                 class="close-tool"
@@ -1424,7 +1477,6 @@
 
 
         <div class="tool-grid">
-
 
             <div class="tool-card">
 
@@ -1539,7 +1591,6 @@
         class="tool-panel"
         id="bncc">
 
-
         <div class="tool-header">
 
             <div>
@@ -1554,7 +1605,6 @@
                 </p>
 
             </div>
-
 
             <button
                 class="close-tool"
@@ -1580,7 +1630,6 @@
 
 
         <div class="tool-grid">
-
 
             <div class="tool-card">
 
@@ -1652,7 +1701,6 @@
         class="tool-panel"
         id="planejamento">
 
-
         <div class="tool-header">
 
             <div>
@@ -1667,7 +1715,6 @@
                 </p>
 
             </div>
-
 
             <button
                 class="close-tool"
@@ -1768,7 +1815,6 @@
     <div
         class="tool-panel"
         id="intervencao">
-
 
         <div class="tool-header">
 
@@ -1880,6 +1926,51 @@
 
 
         /* =====================================================
+           PARTÍCULAS DO FUNDO
+        ====================================================== */
+
+        const particleContainer =
+            document.getElementById("particles");
+
+
+        for (
+            let i = 0;
+            i < 70;
+            i++
+        ) {
+
+            const particle =
+                document.createElement("div");
+
+
+            particle.className =
+                "particle";
+
+
+            particle.style.left =
+                Math.random() * 100 + "%";
+
+
+            particle.style.animationDuration =
+                (8 + Math.random() * 14) + "s";
+
+
+            particle.style.animationDelay =
+                (-Math.random() * 20) + "s";
+
+
+            particle.style.opacity =
+                (.25 + Math.random() * .6);
+
+
+            particleContainer.appendChild(
+                particle
+            );
+
+        }
+
+
+        /* =====================================================
            THREE.JS
         ====================================================== */
 
@@ -1940,11 +2031,8 @@
         renderer.setPixelRatio(
 
             Math.min(
-
                 window.devicePixelRatio,
-
                 2
-
             )
 
         );
@@ -1962,11 +2050,8 @@
         scene.add(
 
             new THREE.AmbientLight(
-
                 0xffffff,
-
                 .8
-
             )
 
         );
@@ -1974,22 +2059,15 @@
 
         const light =
             new THREE.PointLight(
-
                 0xffffff,
-
                 1.8
-
             );
 
 
         light.position.set(
-
             5,
-
             5,
-
             10
-
         );
 
 
@@ -1998,22 +2076,15 @@
 
         const light2 =
             new THREE.PointLight(
-
                 0x8b5cf6,
-
                 .8
-
             );
 
 
         light2.position.set(
-
             -5,
-
             -2,
-
             5
-
         );
 
 
@@ -2021,7 +2092,7 @@
 
 
         /* =====================================================
-           PARTÍCULAS
+           PARTÍCULAS 3D
         ====================================================== */
 
         const partGeo =
@@ -2033,20 +2104,14 @@
 
         const positions =
             new Float32Array(
-
                 partCount * 3
-
             );
 
 
         for (
-
             let i = 0;
-
             i < partCount * 3;
-
             i++
-
         ) {
 
             positions[i] =
@@ -2060,11 +2125,8 @@
             "position",
 
             new THREE.BufferAttribute(
-
                 positions,
-
                 3
-
             )
 
         );
@@ -2098,7 +2160,7 @@
 
 
         /* =====================================================
-           MODELO 3D — CORUJA
+           CORUJA 3D
         ====================================================== */
 
         let brain = null;
@@ -2125,7 +2187,6 @@
         loader.load(
 
             modelURL,
-
 
             (gltf) => {
 
@@ -2160,29 +2221,23 @@
 
 
                 brain.scale.set(
-
-                    .01,
-                    .01,
-                    .01
-
+                    0.01,
+                    0.01,
+                    0.01
                 );
 
 
                 brain.position.set(
-
                     0,
-                    -.8,
+                    -0.8,
                     0
-
                 );
 
 
                 brain.rotation.set(
-
                     0,
-                    -.35,
+                    -0.35,
                     0
-
                 );
 
 
@@ -2199,15 +2254,11 @@
 
             },
 
-
             (xhr) => {
 
-                if (
-                    xhr.total
-                ) {
+                if (xhr.total) {
 
                     const progresso =
-
                         (
                             xhr.loaded /
                             xhr.total
@@ -2215,26 +2266,19 @@
 
 
                     console.log(
-
                         "Carregando Corujafinal.glb:",
-
                         progresso.toFixed(0) + "%"
-
                     );
 
                 }
 
             },
 
-
             (error) => {
 
                 console.error(
-
                     "ERRO AO CARREGAR Corujafinal.glb:",
-
                     error
-
                 );
 
             }
@@ -2243,11 +2287,10 @@
 
 
         /* =====================================================
-           ENTRADA DA CORUJA
+           ENTRADA
         ====================================================== */
 
         let entradaInicio = null;
-
 
         let entradaFinalizada = false;
 
@@ -2277,8 +2320,7 @@
             }
 
 
-            const duracao =
-                1700;
+            const duracao = 1700;
 
 
             const tempo =
@@ -2288,22 +2330,16 @@
 
             let progresso =
                 Math.min(
-
                     tempo / duracao,
-
                     1
-
                 );
 
 
             const ease =
                 1 -
                 Math.pow(
-
                     1 - progresso,
-
                     4
-
                 );
 
 
@@ -2312,33 +2348,25 @@
 
 
             brain.scale.set(
-
                 escala,
                 escala,
                 escala
-
             );
 
 
             brain.position.y =
-
-                -.8 +
+                -0.8 +
                 (.8 * ease);
 
 
             brain.rotation.y =
-
                 -.35 +
                 (.35 * ease);
 
 
             brain.rotation.z =
-
                 Math.sin(
-
-                    progresso *
-                    Math.PI
-
+                    progresso * Math.PI
                 ) * .035;
 
 
@@ -2365,13 +2393,10 @@
         ====================================================== */
 
         window.addEventListener(
-
             "mousemove",
-
             event => {
 
                 mouseX =
-
                     (
                         event.clientX /
                         window.innerWidth -
@@ -2380,7 +2405,6 @@
 
 
                 mouseY =
-
                     (
                         event.clientY /
                         window.innerHeight -
@@ -2396,7 +2420,6 @@
                     mouseY * .10;
 
             }
-
         );
 
 
@@ -2412,13 +2435,10 @@
                         ".tool-panel"
                     )
                     .forEach(
-
                         panel =>
-
                             panel.classList.remove(
                                 "active"
                             )
-
                     );
 
 
@@ -2456,13 +2476,10 @@
                         ".tool-panel"
                     )
                     .forEach(
-
                         panel =>
-
                             panel.classList.remove(
                                 "active"
                             )
-
                     );
 
 
@@ -2478,21 +2495,16 @@
 
 
         /* =====================================================
-           API IA
+           API
         ====================================================== */
 
         async function requisicaoIA(
-
             endpoint,
-
             dados
-
         ) {
 
             throw new Error(
-
                 "API de IA ainda não conectada."
-
             );
 
         }
@@ -2526,9 +2538,7 @@
                 if (!descricao) {
 
                     alert(
-
                         "Descreva a necessidade observada."
-
                     );
 
                     return;
@@ -2551,53 +2561,36 @@
 
                     const resposta =
                         await requisicaoIA(
-
                             "diagnostico",
-
                             {
-
                                 ano,
                                 componente,
                                 descricao
-
                             }
-
                         );
 
 
                     document.getElementById(
-
                         "resultadoDiagnostico"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoDiagnostico"
-
                     ).innerText =
                         resposta.resultado;
 
                 }
 
-
                 catch(error) {
 
-                    console.log(error);
-
-
                     mostrarAvisoAPI(
-
                         "resultadoDiagnostico",
-
                         "A interface está preparada. A API de IA ainda precisa ser conectada ao backend."
-
                     );
 
                 }
-
 
                 finally {
 
@@ -2626,9 +2619,7 @@
                 if (!busca) {
 
                     alert(
-
                         "Digite algo para pesquisar."
-
                     );
 
                     return;
@@ -2640,47 +2631,31 @@
 
                     const resposta =
                         await requisicaoIA(
-
                             "bncc",
-
                             {
-
                                 busca
-
                             }
-
                         );
 
 
                     document.getElementById(
-
                         "resultadoBNCC"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoBNCC"
-
                     ).innerText =
                         resposta.resultado;
 
                 }
 
-
                 catch(error) {
 
-                    console.log(error);
-
-
                     mostrarAvisoAPI(
-
                         "resultadoBNCC",
-
                         "O campo de consulta está pronto para receber a base curricular/API."
-
                     );
 
                 }
@@ -2716,9 +2691,7 @@
                 if (!tema || !objetivo) {
 
                     alert(
-
                         "Informe o tema e o objetivo."
-
                     );
 
                     return;
@@ -2741,53 +2714,36 @@
 
                     const resposta =
                         await requisicaoIA(
-
                             "planejamento",
-
                             {
-
                                 tema,
                                 ano,
                                 objetivo
-
                             }
-
                         );
 
 
                     document.getElementById(
-
                         "resultadoPlano"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoPlano"
-
                     ).innerText =
                         resposta.resultado;
 
                 }
 
-
                 catch(error) {
 
-                    console.log(error);
-
-
                     mostrarAvisoAPI(
-
                         "resultadoPlano",
-
                         "O formulário já está estruturado para enviar tema, série e objetivo ao modelo de IA."
-
                     );
 
                 }
-
 
                 finally {
 
@@ -2809,26 +2765,20 @@
 
                 const necessidade =
                     document.getElementById(
-
                         "necessidadeIntervencao"
-
                     ).value.trim();
 
 
                 const contexto =
                     document.getElementById(
-
                         "contextoIntervencao"
-
                     ).value.trim();
 
 
                 if (!necessidade) {
 
                     alert(
-
                         "Informe a necessidade identificada."
-
                     );
 
                     return;
@@ -2838,9 +2788,7 @@
 
                 const loading =
                     document.getElementById(
-
                         "loadingIntervencao"
-
                     );
 
 
@@ -2853,59 +2801,40 @@
 
                     const resposta =
                         await requisicaoIA(
-
                             "intervencao",
-
                             {
-
                                 necessidade,
                                 contexto
-
                             }
-
                         );
 
 
                     document.getElementById(
-
                         "resultadoIntervencao"
-
                     ).style.display =
                         "block";
 
 
                     document.getElementById(
-
                         "textoIntervencao"
-
                     ).innerText =
                         resposta.resultado;
 
                 }
 
-
                 catch(error) {
 
-                    console.log(error);
-
-
                     mostrarAvisoAPI(
-
                         "resultadoIntervencao",
-
                         "O módulo está preparado para receber uma proposta de intervenção gerada pela IA."
-
                     );
 
                 }
 
-
                 finally {
 
                     loading.classList.remove(
-
                         "active"
-
                     );
 
                 }
@@ -2914,14 +2843,12 @@
 
 
         /* =====================================================
-           AVISO API
+           AVISO
         ====================================================== */
 
         function mostrarAvisoAPI(
-
             id,
             mensagem
-
         ) {
 
             const box =
@@ -2972,11 +2899,8 @@
 
 
                 if (
-
                     valor === "MATH001" ||
-
                     valor.startsWith("PAC")
-
                 ) {
 
                     window.location.href =
@@ -2998,13 +2922,9 @@
                         object => {
 
                             if (
-
                                 object.isMesh &&
-
                                 object.material &&
-
                                 object.material.emissive
-
                             ) {
 
                                 object.material.emissive.setHex(
@@ -3038,13 +2958,9 @@
                                 object => {
 
                                     if (
-
                                         object.isMesh &&
-
                                         object.material &&
-
                                         object.material.emissive
-
                                     ) {
 
                                         object.material.emissive.setHex(
@@ -3086,27 +3002,17 @@
                 performance.now();
 
 
-            /* =================================================
-               PARTÍCULAS
-            ================================================== */
-
             particles.rotation.y +=
                 .001;
+
 
             particles.rotation.x +=
                 .0002;
 
 
-            /* =================================================
-               ENTRADA DA CORUJA
-            ================================================== */
-
             if (
-
                 brain &&
-
                 !entradaFinalizada
-
             ) {
 
                 animarEntradaCoruja(
@@ -3116,20 +3022,12 @@
             }
 
 
-            /* =================================================
-               MOVIMENTO NORMAL
-            ================================================== */
-
             if (
-
                 brain &&
-
                 entradaFinalizada
-
             ) {
 
                 const flutuar =
-
                     Math.sin(
                         agora * .0014
                     ) * .045;
@@ -3139,29 +3037,14 @@
                     flutuar;
 
 
-                const rotacaoMouseY =
-                    targetX;
-
-
-                const rotacaoMouseX =
-                    targetY;
-
-
                 brain.rotation.y +=
 
                     .035 *
 
                     (
-
-                        rotacaoMouseY -
-
+                        targetX -
                         brain.rotation.y
-
                     );
-
-
-                const inclinacaoAtual =
-                    rotacaoMouseX;
 
 
                 brain.rotation.x +=
@@ -3169,16 +3052,12 @@
                     .025 *
 
                     (
-
-                        inclinacaoAtual -
-
+                        targetY -
                         brain.rotation.x
-
                     );
 
 
                 brain.rotation.z =
-
                     Math.sin(
                         agora * .0009
                     ) * .025;
@@ -3187,11 +3066,8 @@
 
 
             renderer.render(
-
                 scene,
-
                 camera
-
             );
 
         }
@@ -3205,9 +3081,7 @@
         ====================================================== */
 
         window.addEventListener(
-
             "resize",
-
             () => {
 
                 const width =
@@ -3226,15 +3100,11 @@
 
 
                 renderer.setSize(
-
                     width,
-
                     height
-
                 );
 
             }
-
         );
 
 
@@ -3243,15 +3113,11 @@
         ====================================================== */
 
         document.addEventListener(
-
             "keydown",
-
             event => {
 
                 if (
-
                     event.key === "Escape"
-
                 ) {
 
                     fecharModulo();
@@ -3259,7 +3125,6 @@
                 }
 
             }
-
         );
 
     </script>
