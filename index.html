@@ -4,34 +4,50 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Neuro-EDU — Laboratório Pedagógico</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Neuro-EDU — Laboratório Pedagógico
+    </title>
+
+    <!-- SPLINE -->
 
     <script
         type="module"
         src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js">
     </script>
 
+
     <style>
 
         :root {
+
             --primary: #8b5cf6;
             --secondary: #6d28d9;
             --accent: #a78bfa;
+
             --success: #34d399;
             --warning: #f59e0b;
+
             --bg: #090614;
             --card: rgba(16, 10, 30, .90);
+
             --text: #f4f0ff;
             --muted: #9990aa;
+
         }
 
 
         * {
+
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+
         }
 
 
@@ -320,6 +336,14 @@
         }
 
 
+        .avatar-3d spline-viewer {
+
+            width: 100%;
+            height: 100%;
+
+        }
+
+
         h2 {
 
             font-size: 23px;
@@ -528,7 +552,7 @@
 
 
         /* =========================
-           MODELO 3D
+           CÉREBRO / MODELO 3D
         ========================= */
 
         #brain-viewport {
@@ -540,6 +564,17 @@
             min-width: 500px;
 
             position: relative;
+
+        }
+
+
+        #brain-viewport canvas {
+
+            display: block;
+
+            width: 100%;
+
+            height: 100%;
 
         }
 
@@ -585,36 +620,6 @@
 
             color:
                 #d9ccf7;
-
-        }
-
-
-        /* =========================
-           LOADING MODELO 3D
-        ========================= */
-
-        #model-loading {
-
-            position: absolute;
-
-            top: 50%;
-            left: 50%;
-
-            transform:
-                translate(-50%, -50%);
-
-            color:
-                #a78bfa;
-
-            font-size: 9px;
-
-            letter-spacing: 1px;
-
-            opacity: .7;
-
-            z-index: 4;
-
-            white-space: nowrap;
 
         }
 
@@ -1164,13 +1169,6 @@
 
                 SISTEMA
                 <strong>NEURO-EDUCA</strong>
-
-            </div>
-
-
-            <div id="model-loading">
-
-                CARREGANDO MODELO 3D...
 
             </div>
 
@@ -1853,23 +1851,27 @@
 
 
         /* =====================================================
-           MODELO 3D — CORUJA DO SUPABASE
+           MODELO 3D — CORUJA SUPABASE
         ====================================================== */
 
 
-        let model = null;
+        let brain = null;
 
 
         let targetX = 0;
         let targetY = 0;
 
 
-        const loader =
-            new THREE.GLTFLoader();
-
+        /*
+         * URL DO MODELO 3D
+         */
 
         const modelURL =
             "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Coruja_0818171248_texture-v1.glb";
+
+
+        const loader =
+            new THREE.GLTFLoader();
 
 
         loader.load(
@@ -1878,75 +1880,112 @@
 
             (gltf) => {
 
-                model =
+                console.log(
+                    "Modelo 3D carregado com sucesso."
+                );
+
+
+                brain =
                     gltf.scene;
 
 
                 /*
-                    Mantém os materiais e texturas
-                    originais do arquivo GLB.
-                */
+                 * MATERIAL
+                 *
+                 * Mantém a estética roxa
+                 * original do laboratório.
+                 */
 
+                brain.traverse(
+                    object => {
 
-                model.scale.set(
-                    1.35,
-                    1.35,
-                    1.35
+                        if (
+                            object.isMesh
+                        ) {
+
+                            object.material =
+                                new THREE.MeshStandardMaterial({
+
+                                    color: 0x130d24,
+
+                                    emissive: 0x8b5cf6,
+
+                                    emissiveIntensity: .8,
+
+                                    roughness: .35,
+
+                                    metalness: .4
+
+                                });
+
+                        }
+
+                    }
                 );
 
 
-                model.position.set(
+                /*
+                 * TAMANHO
+                 *
+                 * Aumentado um pouco.
+                 */
+
+                brain.scale.set(
+                    1.45,
+                    1.45,
+                    1.45
+                );
+
+
+                /*
+                 * POSIÇÃO
+                 *
+                 * Centraliza o modelo.
+                 */
+
+                brain.position.set(
                     0,
                     0,
                     0
                 );
 
 
-                scene.add(model);
-
-
-                const loading =
-                    document.getElementById(
-                        "model-loading"
-                    );
-
-
-                if (loading) {
-
-                    loading.style.display =
-                        "none";
-
-                }
-
-
-                console.log(
-                    "Modelo 3D carregado com sucesso."
+                scene.add(
+                    brain
                 );
+
 
             },
 
-            (progress) => {
+            /*
+             * PROGRESSO
+             */
+
+            (xhr) => {
 
                 if (
-                    progress.total > 0
+                    xhr.total
                 ) {
 
-                    const porcentagem =
-                        Math.round(
-                            progress.loaded /
-                            progress.total *
-                            100
-                        );
+                    const progresso =
+                        (
+                            xhr.loaded /
+                            xhr.total
+                        ) * 100;
 
 
                     console.log(
                         "Carregando modelo:",
-                        porcentagem + "%"
+                        progresso.toFixed(0) + "%"
                     );
 
                 }
 
             },
+
+            /*
+             * ERRO
+             */
 
             (error) => {
 
@@ -1954,20 +1993,6 @@
                     "Erro ao carregar modelo 3D:",
                     error
                 );
-
-
-                const loading =
-                    document.getElementById(
-                        "model-loading"
-                    );
-
-
-                if (loading) {
-
-                    loading.innerText =
-                        "ERRO AO CARREGAR MODELO 3D";
-
-                }
 
             }
 
@@ -2508,15 +2533,13 @@
                     "#ff3d68";
 
 
-                if (model) {
+                if (brain) {
 
-                    model.traverse(
+                    brain.traverse(
                         object => {
 
                             if (
-                                object.isMesh &&
-                                object.material &&
-                                object.material.emissive
+                                object.isMesh
                             ) {
 
                                 object.material
@@ -2544,15 +2567,13 @@
                             "rgba(255,255,255,.1)";
 
 
-                        if (model) {
+                        if (brain) {
 
-                            model.traverse(
+                            brain.traverse(
                                 object => {
 
                                     if (
-                                        object.isMesh &&
-                                        object.material &&
-                                        object.material.emissive
+                                        object.isMesh
                                     ) {
 
                                         object.material
@@ -2627,36 +2648,62 @@
                 .0002;
 
 
-            if (model) {
+            if (brain) {
 
-                model.rotation.y +=
+                /*
+                 * ROTAÇÃO CONTÍNUA
+                 */
+
+                brain.rotation.y +=
                     .003;
 
 
-                model.rotation.x +=
+                /*
+                 * MOVIMENTO COM O MOUSE
+                 */
+
+                brain.rotation.x +=
                     .05 *
                     (
                         targetY -
-                        model.rotation.x
+                        brain.rotation.x
                     );
 
 
-                model.rotation.z +=
+                brain.rotation.z +=
                     .05 *
                     (
                         targetX -
-                        model.rotation.z
+                        brain.rotation.z
                     );
 
 
-                const float =
+                /*
+                 * PULSAÇÃO DA ILUMINAÇÃO
+                 */
+
+                const pulse =
+                    .65 +
                     Math.sin(
-                        Date.now() * .0015
-                    ) * .003;
+                        Date.now() * .002
+                    ) * .25;
 
 
-                model.position.y =
-                    float;
+                brain.traverse(
+                    object => {
+
+                        if (
+                            object.isMesh
+                        ) {
+
+                            object.material
+                                .emissiveIntensity =
+                                pulse;
+
+                        }
+
+                    }
+                );
 
             }
 
