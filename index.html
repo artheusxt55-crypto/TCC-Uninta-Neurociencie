@@ -41,10 +41,15 @@
             --warning: #f59e0b;
 
             --bg: #090614;
-            --card: rgba(16, 10, 30, .90);
 
-            --text: #f4f0ff;
-            --muted: #9990aa;
+            --card:
+                rgba(16, 10, 30, .82);
+
+            --text:
+                #f4f0ff;
+
+            --muted:
+                #9990aa;
 
         }
 
@@ -55,6 +60,14 @@
             padding: 0;
 
             box-sizing: border-box;
+
+        }
+
+
+        html,
+        body {
+
+            min-height: 100%;
 
         }
 
@@ -71,26 +84,104 @@
                 sans-serif;
 
             background:
+                #030208;
+
+            overflow-x: hidden;
+
+        }
+
+
+        /* =====================================================
+           VÍDEO DE FUNDO
+        ====================================================== */
+
+        #background-video {
+
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            z-index: -10;
+
+            pointer-events: none;
+
+            opacity: .22;
+
+            filter:
+                brightness(.45)
+                saturate(.75)
+                contrast(1.08);
+
+        }
+
+
+        /* =====================================================
+           CAMADA PROFISSIONAL SOBRE O VÍDEO
+        ====================================================== */
+
+        body::before {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: -9;
+
+            pointer-events: none;
+
+            background:
 
                 radial-gradient(
                     circle at 70% 40%,
-                    rgba(139, 92, 246, .18),
-                    transparent 35%
+                    rgba(139,92,246,.22),
+                    transparent 38%
                 ),
 
                 radial-gradient(
                     circle at 20% 80%,
-                    rgba(109, 40, 217, .14),
-                    transparent 35%
+                    rgba(109,40,217,.18),
+                    transparent 40%
                 ),
 
                 linear-gradient(
                     135deg,
-                    #090614,
-                    #030208
+                    rgba(5,3,12,.82),
+                    rgba(3,2,8,.94)
                 );
 
-            overflow-x: hidden;
+        }
+
+
+        /* =====================================================
+           VINHETA
+        ====================================================== */
+
+        body::after {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: -8;
+
+            pointer-events: none;
+
+            background:
+
+                radial-gradient(
+                    ellipse at center,
+                    transparent 35%,
+                    rgba(0,0,0,.55) 100%
+                );
 
         }
 
@@ -205,6 +296,9 @@
             backdrop-filter:
                 blur(20px);
 
+            -webkit-backdrop-filter:
+                blur(20px);
+
             box-shadow:
 
                 0 30px 80px
@@ -250,6 +344,7 @@
             border-radius: 8px;
 
             background:
+
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -257,6 +352,7 @@
                 );
 
             box-shadow:
+
                 0 0 20px
                 rgba(139,92,246,.25);
 
@@ -287,7 +383,8 @@
 
             letter-spacing: 1.5px;
 
-            color: #b8afc9;
+            color:
+                #b8afc9;
 
         }
 
@@ -308,7 +405,8 @@
 
             margin-bottom: 18px;
 
-            color: #8f87a0;
+            color:
+                #8f87a0;
 
             font-size: 8px;
 
@@ -329,6 +427,7 @@
                 var(--success);
 
             box-shadow:
+
                 0 0 12px
                 rgba(52,211,153,.7);
 
@@ -357,7 +456,6 @@
         .avatar-3d spline-viewer {
 
             width: 100%;
-
             height: 100%;
 
         }
@@ -389,7 +487,7 @@
 
 
         /* =====================================================
-           INPUT
+           INPUTS
         ====================================================== */
 
         input,
@@ -448,6 +546,7 @@
                 rgba(139,92,246,.7);
 
             box-shadow:
+
                 0 0 20px
                 rgba(139,92,246,.12);
 
@@ -465,7 +564,7 @@
 
 
         /* =====================================================
-           BOTÕES
+           BOTÃO PRINCIPAL
         ====================================================== */
 
         .btn-neuro {
@@ -479,6 +578,7 @@
             border-radius: 12px;
 
             background:
+
                 linear-gradient(
                     135deg,
                     var(--primary),
@@ -506,11 +606,16 @@
                 translateY(-2px);
 
             box-shadow:
+
                 0 10px 30px
                 rgba(109,40,217,.28);
 
         }
 
+
+        /* =====================================================
+           BIBLIOTECA
+        ====================================================== */
 
         .btn-library {
 
@@ -525,7 +630,7 @@
                 rgba(255,255,255,.12);
 
             background:
-                transparent;
+                rgba(255,255,255,.025);
 
             color: white;
 
@@ -537,8 +642,25 @@
 
             font-weight: 700;
 
+            transition: .3s;
+
         }
 
+
+        .btn-library:hover {
+
+            background:
+                rgba(255,255,255,.07);
+
+            border-color:
+                rgba(255,255,255,.2);
+
+        }
+
+
+        /* =====================================================
+           ATLAS
+        ====================================================== */
 
         .btn-atlas {
 
@@ -559,13 +681,27 @@
             background:
                 rgba(139,92,246,.04);
 
-            color: #cfc0f7;
+            color:
+                #cfc0f7;
 
             text-decoration: none;
 
             font-size: 10px;
 
             font-weight: 700;
+
+            transition: .3s;
+
+        }
+
+
+        .btn-atlas:hover {
+
+            background:
+                rgba(139,92,246,.12);
+
+            border-color:
+                rgba(139,92,246,.5);
 
         }
 
@@ -623,7 +759,8 @@
             backdrop-filter:
                 blur(10px);
 
-            color: #817893;
+            color:
+                #817893;
 
             font-size: 9px;
 
@@ -662,7 +799,7 @@
                 translate(-50%,-50%);
 
             width:
-                min(680px, 92%);
+                min(680px,92%);
 
             max-height:
                 88vh;
@@ -681,10 +818,14 @@
             border-radius: 24px;
 
             box-shadow:
+
                 0 30px 100px
                 rgba(0,0,0,.75);
 
             backdrop-filter:
+                blur(25px);
+
+            -webkit-backdrop-filter:
                 blur(25px);
 
             z-index: 200;
@@ -1063,6 +1204,13 @@
 
             }
 
+
+            #background-video {
+
+                opacity: .16;
+
+            }
+
         }
 
     </style>
@@ -1071,6 +1219,24 @@
 
 
 <body>
+
+
+    <!-- =====================================================
+         VÍDEO DE FUNDO
+    ====================================================== -->
+
+    <video
+        id="background-video"
+        autoplay
+        muted
+        loop
+        playsinline>
+
+        <source
+            src="athenas.livros.mp4"
+            type="video/mp4">
+
+    </video>
 
 
     <!-- =====================================================
@@ -1948,10 +2114,6 @@
         let mouseY = 0;
 
 
-        /*
-         * URL PÚBLICA DO SUPABASE
-         */
-
         const modelURL =
             "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
 
@@ -1965,10 +2127,6 @@
             modelURL,
 
 
-            /* =================================================
-               SUCESSO
-            ================================================== */
-
             (gltf) => {
 
                 console.log(
@@ -1980,10 +2138,6 @@
                     gltf.scene;
 
 
-                /* =================================================
-                   PRESERVAR MATERIAL ORIGINAL
-                ================================================== */
-
                 brain.traverse(
 
                     object => {
@@ -1992,21 +2146,11 @@
                             object.isMesh
                         ) {
 
-                            /*
-                             * NÃO substituímos o material.
-                             *
-                             * Isso mantém:
-                             *
-                             * - textura
-                             * - cor
-                             * - detalhes
-                             * - material original
-                             * - aparência do GLB
-                             */
+                            object.castShadow =
+                                true;
 
-                            object.castShadow = true;
-
-                            object.receiveShadow = true;
+                            object.receiveShadow =
+                                true;
 
                         }
 
@@ -2015,46 +2159,28 @@
                 );
 
 
-                /* =================================================
-                   ESCALA
-                ================================================== */
-
                 brain.scale.set(
 
-                    0.01,
-
-                    0.01,
-
-                    0.01
+                    .01,
+                    .01,
+                    .01
 
                 );
 
 
-                /* =================================================
-                   POSIÇÃO INICIAL
-                ================================================== */
-
                 brain.position.set(
 
                     0,
-
-                    -0.8,
-
+                    -.8,
                     0
 
                 );
 
 
-                /* =================================================
-                   ROTAÇÃO INICIAL
-                ================================================== */
-
                 brain.rotation.set(
 
                     0,
-
-                    -0.35,
-
+                    -.35,
                     0
 
                 );
@@ -2065,25 +2191,14 @@
                 );
 
 
-                /*
-                 * ESCALA FINAL
-                 */
+                brain.userData.finalScale =
+                    1.45;
 
-                brain.userData.finalScale = 1.45;
-
-
-                /*
-                 * INICIA ANIMAÇÃO
-                 */
 
                 iniciarEntradaCoruja();
 
             },
 
-
-            /* =================================================
-               PROGRESSO
-            ================================================== */
 
             (xhr) => {
 
@@ -2112,10 +2227,6 @@
             },
 
 
-            /* =================================================
-               ERRO
-            ================================================== */
-
             (error) => {
 
                 console.error(
@@ -2123,12 +2234,6 @@
                     "ERRO AO CARREGAR Corujafinal.glb:",
 
                     error
-
-                );
-
-                console.error(
-
-                    "Verifique a URL pública do Supabase."
 
                 );
 
@@ -2191,10 +2296,6 @@
                 );
 
 
-            /*
-             * EASING
-             */
-
             const ease =
                 1 -
                 Math.pow(
@@ -2206,10 +2307,6 @@
                 );
 
 
-            /* =================================================
-               ESCALA
-            ================================================== */
-
             const escala =
                 1.45 * ease;
 
@@ -2217,39 +2314,23 @@
             brain.scale.set(
 
                 escala,
-
                 escala,
-
                 escala
 
             );
 
 
-            /* =================================================
-               POSIÇÃO
-            ================================================== */
-
             brain.position.y =
 
-                -0.8 +
-
+                -.8 +
                 (.8 * ease);
 
-
-            /* =================================================
-               ROTAÇÃO
-            ================================================== */
 
             brain.rotation.y =
 
                 -.35 +
-
                 (.35 * ease);
 
-
-            /* =================================================
-               PEQUENA INCLINAÇÃO
-            ================================================== */
 
             brain.rotation.z =
 
@@ -2260,10 +2341,6 @@
 
                 ) * .035;
 
-
-            /* =================================================
-               FINAL
-            ================================================== */
 
             if (
                 progresso >= 1
@@ -2480,9 +2557,7 @@
                             {
 
                                 ano,
-
                                 componente,
-
                                 descricao
 
                             }
@@ -2672,9 +2747,7 @@
                             {
 
                                 tema,
-
                                 ano,
-
                                 objetivo
 
                             }
@@ -2786,7 +2859,6 @@
                             {
 
                                 necessidade,
-
                                 contexto
 
                             }
@@ -2842,13 +2914,12 @@
 
 
         /* =====================================================
-           AVISO
+           AVISO API
         ====================================================== */
 
         function mostrarAvisoAPI(
 
             id,
-
             mensagem
 
         ) {
@@ -2922,21 +2993,18 @@
 
                 if (brain) {
 
-                    /*
-                     * Apenas sinalização visual de erro.
-                     *
-                     * Não alteramos permanentemente
-                     * o material original.
-                     */
-
                     brain.traverse(
 
                         object => {
 
                             if (
+
                                 object.isMesh &&
+
                                 object.material &&
+
                                 object.material.emissive
+
                             ) {
 
                                 object.material.emissive.setHex(
@@ -2970,17 +3038,14 @@
                                 object => {
 
                                     if (
-                                        object.isMesh &&
-                                        object.material &&
-                                        object.material.emissive
-                                    ) {
 
-                                        /*
-                                         * Volta o emissive para zero.
-                                         *
-                                         * A textura/cor original
-                                         * continua intacta.
-                                         */
+                                        object.isMesh &&
+
+                                        object.material &&
+
+                                        object.material.emissive
+
+                                    ) {
 
                                         object.material.emissive.setHex(
                                             0x000000
@@ -3028,7 +3093,6 @@
             particles.rotation.y +=
                 .001;
 
-
             particles.rotation.x +=
                 .0002;
 
@@ -3064,10 +3128,6 @@
 
             ) {
 
-                /*
-                 * Flutuação vertical.
-                 */
-
                 const flutuar =
 
                     Math.sin(
@@ -3078,11 +3138,6 @@
                 brain.position.y =
                     flutuar;
 
-
-                /*
-                 * Movimento acompanhando
-                 * o mouse.
-                 */
 
                 const rotacaoMouseY =
                     targetX;
@@ -3105,10 +3160,6 @@
                     );
 
 
-                /*
-                 * Inclinação vertical.
-                 */
-
                 const inclinacaoAtual =
                     rotacaoMouseX;
 
@@ -3125,10 +3176,6 @@
 
                     );
 
-
-                /*
-                 * Pequeno balanço.
-                 */
 
                 brain.rotation.z =
 
