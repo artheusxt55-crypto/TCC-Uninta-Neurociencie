@@ -1736,11 +1736,16 @@
 
         const camera =
             new THREE.PerspectiveCamera(
+
                 35,
+
                 container.clientWidth /
                 container.clientHeight,
+
                 .1,
+
                 1000
+
             );
 
 
@@ -1791,8 +1796,11 @@
         scene.add(
 
             new THREE.AmbientLight(
+
                 0xffffff,
-                .65
+
+                .8
+
             )
 
         );
@@ -1800,15 +1808,22 @@
 
         const light =
             new THREE.PointLight(
-                0x9b6cff,
-                1.6
+
+                0xffffff,
+
+                1.8
+
             );
 
 
         light.position.set(
+
             5,
+
             5,
+
             10
+
         );
 
 
@@ -1817,15 +1832,22 @@
 
         const light2 =
             new THREE.PointLight(
-                0x6d28d9,
-                1
+
+                0x8b5cf6,
+
+                .8
+
             );
 
 
         light2.position.set(
+
             -5,
+
             -2,
+
             5
+
         );
 
 
@@ -1845,7 +1867,9 @@
 
         const positions =
             new Float32Array(
+
                 partCount * 3
+
             );
 
 
@@ -1956,9 +1980,9 @@
                     gltf.scene;
 
 
-                /*
-                 * MATERIAL
-                 */
+                /* =================================================
+                   PRESERVAR MATERIAL ORIGINAL
+                ================================================== */
 
                 brain.traverse(
 
@@ -1968,25 +1992,21 @@
                             object.isMesh
                         ) {
 
-                            object.material =
-                                new THREE.MeshStandardMaterial({
+                            /*
+                             * NÃO substituímos o material.
+                             *
+                             * Isso mantém:
+                             *
+                             * - textura
+                             * - cor
+                             * - detalhes
+                             * - material original
+                             * - aparência do GLB
+                             */
 
-                                    color:
-                                        0x130d24,
+                            object.castShadow = true;
 
-                                    emissive:
-                                        0x8b5cf6,
-
-                                    emissiveIntensity:
-                                        0,
-
-                                    roughness:
-                                        .35,
-
-                                    metalness:
-                                        .4
-
-                                });
+                            object.receiveShadow = true;
 
                         }
 
@@ -1995,9 +2015,9 @@
                 );
 
 
-                /*
-                 * ESCALA
-                 */
+                /* =================================================
+                   ESCALA
+                ================================================== */
 
                 brain.scale.set(
 
@@ -2010,12 +2030,9 @@
                 );
 
 
-                /*
-                 * POSIÇÃO INICIAL
-                 *
-                 * Começa um pouco abaixo
-                 * da posição final.
-                 */
+                /* =================================================
+                   POSIÇÃO INICIAL
+                ================================================== */
 
                 brain.position.set(
 
@@ -2028,9 +2045,9 @@
                 );
 
 
-                /*
-                 * ROTAÇÃO INICIAL
-                 */
+                /* =================================================
+                   ROTAÇÃO INICIAL
+                ================================================== */
 
                 brain.rotation.set(
 
@@ -2049,14 +2066,14 @@
 
 
                 /*
-                 * GUARDA A ESCALA FINAL
+                 * ESCALA FINAL
                  */
 
                 brain.userData.finalScale = 1.45;
 
 
                 /*
-                 * ANIMAÇÃO DE ENTRADA
+                 * INICIA ANIMAÇÃO
                  */
 
                 iniciarEntradaCoruja();
@@ -2075,6 +2092,7 @@
                 ) {
 
                     const progresso =
+
                         (
                             xhr.loaded /
                             xhr.total
@@ -2165,28 +2183,32 @@
 
             let progresso =
                 Math.min(
+
                     tempo / duracao,
+
                     1
+
                 );
 
 
             /*
-             * Easing suave.
+             * EASING
              */
 
             const ease =
                 1 -
                 Math.pow(
+
                     1 - progresso,
+
                     4
+
                 );
 
 
-            /*
-             * ESCALA
-             *
-             * 0 -> 1.45
-             */
+            /* =================================================
+               ESCALA
+            ================================================== */
 
             const escala =
                 1.45 * ease;
@@ -2203,68 +2225,45 @@
             );
 
 
-            /*
-             * POSIÇÃO
-             *
-             * Sobe suavemente.
-             */
+            /* =================================================
+               POSIÇÃO
+            ================================================== */
 
             brain.position.y =
+
                 -0.8 +
+
                 (.8 * ease);
 
 
-            /*
-             * ROTAÇÃO INICIAL
-             */
+            /* =================================================
+               ROTAÇÃO
+            ================================================== */
 
             brain.rotation.y =
+
                 -.35 +
+
                 (.35 * ease);
 
 
-            /*
-             * Pequena inclinação.
-             */
+            /* =================================================
+               PEQUENA INCLINAÇÃO
+            ================================================== */
 
             brain.rotation.z =
+
                 Math.sin(
+
                     progresso *
                     Math.PI
+
                 ) * .035;
 
 
-            /*
-             * BRILHO
-             */
-
-            const brilho =
-                .8 * ease;
-
-
-            brain.traverse(
-
-                object => {
-
-                    if (
-                        object.isMesh &&
-                        object.material
-                    ) {
-
-                        object.material
-                            .emissiveIntensity =
-                            brilho;
-
-                    }
-
-                }
-
-            );
-
-
-            /*
-             * Final da animação.
-             */
+            /* =================================================
+               FINAL
+            ================================================== */
 
             if (
                 progresso >= 1
@@ -2277,7 +2276,7 @@
                     null;
 
                 brain.position.y =
-                    .8 - .8;
+                    0;
 
             }
 
@@ -2295,6 +2294,7 @@
             event => {
 
                 mouseX =
+
                     (
                         event.clientX /
                         window.innerWidth -
@@ -2303,6 +2303,7 @@
 
 
                 mouseY =
+
                     (
                         event.clientY /
                         window.innerHeight -
@@ -2311,13 +2312,11 @@
 
 
                 targetX =
-                    mouseX *
-                    .16;
+                    mouseX * .16;
 
 
                 targetY =
-                    mouseY *
-                    .10;
+                    mouseY * .10;
 
             }
 
@@ -2414,7 +2413,9 @@
         ) {
 
             throw new Error(
+
                 "API de IA ainda não conectada."
+
             );
 
         }
@@ -2448,7 +2449,9 @@
                 if (!descricao) {
 
                     alert(
+
                         "Descreva a necessidade observada."
+
                     );
 
                     return;
@@ -2548,7 +2551,9 @@
                 if (!busca) {
 
                     alert(
+
                         "Digite algo para pesquisar."
+
                     );
 
                     return;
@@ -2636,7 +2641,9 @@
                 if (!tema || !objetivo) {
 
                     alert(
+
                         "Informe o tema e o objetivo."
+
                     );
 
                     return;
@@ -2824,7 +2831,9 @@
                 finally {
 
                     loading.classList.remove(
+
                         "active"
+
                     );
 
                 }
@@ -2913,25 +2922,29 @@
 
                 if (brain) {
 
+                    /*
+                     * Apenas sinalização visual de erro.
+                     *
+                     * Não alteramos permanentemente
+                     * o material original.
+                     */
+
                     brain.traverse(
 
                         object => {
 
                             if (
                                 object.isMesh &&
-                                object.material
+                                object.material &&
+                                object.material.emissive
                             ) {
 
-                                object.material
-                                    .emissive
-                                    .setHex(
-                                        0xff3d68
-                                    );
+                                object.material.emissive.setHex(
+                                    0xff3d68
+                                );
 
-
-                                object.material
-                                    .emissiveIntensity =
-                                    3;
+                                object.material.emissiveIntensity =
+                                    .35;
 
                             }
 
@@ -2958,19 +2971,23 @@
 
                                     if (
                                         object.isMesh &&
-                                        object.material
+                                        object.material &&
+                                        object.material.emissive
                                     ) {
 
-                                        object.material
-                                            .emissive
-                                            .setHex(
-                                                0x8b5cf6
-                                            );
+                                        /*
+                                         * Volta o emissive para zero.
+                                         *
+                                         * A textura/cor original
+                                         * continua intacta.
+                                         */
 
+                                        object.material.emissive.setHex(
+                                            0x000000
+                                        );
 
-                                        object.material
-                                            .emissiveIntensity =
-                                            .8;
+                                        object.material.emissiveIntensity =
+                                            0;
 
                                     }
 
@@ -3004,12 +3021,13 @@
                 performance.now();
 
 
-            /*
-             * Partículas
-             */
+            /* =================================================
+               PARTÍCULAS
+            ================================================== */
 
             particles.rotation.y +=
                 .001;
+
 
             particles.rotation.x +=
                 .0002;
@@ -3020,8 +3038,11 @@
             ================================================== */
 
             if (
+
                 brain &&
+
                 !entradaFinalizada
+
             ) {
 
                 animarEntradaCoruja(
@@ -3036,8 +3057,11 @@
             ================================================== */
 
             if (
+
                 brain &&
+
                 entradaFinalizada
+
             ) {
 
                 /*
@@ -3056,8 +3080,8 @@
 
 
                 /*
-                 * Movimento suave
-                 * acompanhando o mouse.
+                 * Movimento acompanhando
+                 * o mouse.
                  */
 
                 const rotacaoMouseY =
@@ -3075,15 +3099,14 @@
                     (
 
                         rotacaoMouseY -
+
                         brain.rotation.y
 
                     );
 
 
                 /*
-                 * Mantém pequena inclinação
-                 * vertical.
-
+                 * Inclinação vertical.
                  */
 
                 const inclinacaoAtual =
@@ -3097,13 +3120,14 @@
                     (
 
                         inclinacaoAtual -
+
                         brain.rotation.x
 
                     );
 
 
                 /*
-                 * Pequeno balanço natural.
+                 * Pequeno balanço.
                  */
 
                 brain.rotation.z =
