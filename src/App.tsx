@@ -1,4 +1,4 @@
-import "./App.css";
+import "./styles/neuro-edu.css";
 
 import {
     useEffect,
