@@ -1,6 +1,10 @@
 import "./App.css";
 
-import { useEffect, useRef, useState } from "react";
+import {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -22,12 +26,6 @@ type Resultados = {
 };
 
 function App() {
-    /*
-     * =====================================================
-     * REFERÊNCIAS
-     * =====================================================
-     */
-
     const brainViewportRef =
         useRef<HTMLDivElement | null>(null);
 
@@ -37,11 +35,8 @@ function App() {
     const transitioningRef =
         useRef(false);
 
-    /*
-     * =====================================================
-     * ESTADOS
-     * =====================================================
-     */
+    const transitionTimeoutRef =
+        useRef<number | null>(null);
 
     const [currentVideo, setCurrentVideo] =
         useState<VideoIndex>(0);
@@ -79,7 +74,9 @@ function App() {
      * =====================================================
      */
 
-    const openModule = (name: Exclude<ModuleName, null>) => {
+    const openModule = (
+        name: Exclude<ModuleName, null>
+    ) => {
         setActiveModule(name);
     };
 
@@ -96,125 +93,147 @@ function App() {
     useEffect(() => {
         const videos =
             videosRef.current.filter(
-                Boolean
-            ) as HTMLVideoElement[];
+                (
+                    video
+                ): video is HTMLVideoElement =>
+                    video !== null
+            );
 
-        if (videos.length === 0) {
+        if (!videos.length) {
             return;
         }
 
-        videos.forEach((video, index) => {
-            video.muted = true;
-            video.playsInline = true;
-            video.preload = "auto";
-
-            if (index === 2) {
-                video.loop = true;
-            } else {
-                video.loop = false;
+        videos.forEach(
+            (video, index) => {
+                video.muted = true;
+                video.playsInline = true;
+                video.preload = "auto";
+                video.loop = index === 2;
             }
-        });
+        );
 
         const firstVideo = videos[0];
 
-        if (firstVideo) {
-            firstVideo.currentTime = 0;
+        firstVideo.currentTime = 0;
 
-            firstVideo
-                .play()
-                .catch(() => {
-                    console.warn(
-                        "Autoplay bloqueado pelo navegador."
-                    );
-                });
-        }
+        firstVideo
+            .play()
+            .catch(() => {
+                console.warn(
+                    "O navegador bloqueou o autoplay."
+                );
+            });
 
-        const cleanups: (() => void)[] = [];
+        const cleanups: Array<
+            () => void
+        > = [];
 
-        videos.forEach((video, index) => {
-            const handleEnded = () => {
-                /*
-                 * O terceiro vídeo permanece em loop.
-                 */
-                if (index === 2) {
-                    return;
-                }
+        videos.forEach(
+            (video, index) => {
+                const handleEnded =
+                    () => {
+                        if (
+                            index === 2
+                        ) {
+                            return;
+                        }
 
-                /*
-                 * Só faz a transição do vídeo atualmente ativo.
-                 */
-                if (
-                    index !== currentVideo ||
-                    transitioningRef.current
-                ) {
-                    return;
-                }
+                        if (
+                            index !==
+                            currentVideo
+                        ) {
+                            return;
+                        }
 
-                const nextIndex =
-                    (index + 1) as VideoIndex;
+                        if (
+                            transitioningRef.current
+                        ) {
+                            return;
+                        }
 
-                const nextVideo =
-                    videos[nextIndex];
+                        const nextIndex =
+                            (index + 1) as VideoIndex;
 
-                if (!nextVideo) {
-                    return;
-                }
-
-                transitioningRef.current = true;
-
-                nextVideo.currentTime = 0;
-
-                nextVideo
-                    .play()
-                    .then(() => {
-                        nextVideo.classList.add(
-                            "active"
-                        );
-
-                        window.setTimeout(() => {
-                            video.classList.remove(
-                                "active"
-                            );
-
-                            video.pause();
-
-                            try {
-                                video.currentTime = 0;
-                            } catch {
-                                // Ignora erro de reset do vídeo.
-                            }
-
-                            setCurrentVideo(
+                        const nextVideo =
+                            videos[
                                 nextIndex
-                            );
+                            ];
 
-                            transitioningRef.current =
-                                false;
-                        }, 1400);
-                    })
-                    .catch(() => {
+                        if (!nextVideo) {
+                            return;
+                        }
+
                         transitioningRef.current =
-                            false;
-                    });
-            };
+                            true;
 
-            video.addEventListener(
-                "ended",
-                handleEnded
-            );
+                        nextVideo.currentTime =
+                            0;
 
-            cleanups.push(() => {
-                video.removeEventListener(
+                        nextVideo
+                            .play()
+                            .then(() => {
+                                nextVideo.classList.add(
+                                    "active"
+                                );
+
+                                transitionTimeoutRef.current =
+                                    window.setTimeout(
+                                        () => {
+                                            video.classList.remove(
+                                                "active"
+                                            );
+
+                                            video.pause();
+
+                                            video.currentTime =
+                                                0;
+
+                                            setCurrentVideo(
+                                                nextIndex
+                                            );
+
+                                            transitioningRef.current =
+                                                false;
+                                        },
+                                        1400
+                                    );
+                            })
+                            .catch(() => {
+                                transitioningRef.current =
+                                    false;
+                            });
+                    };
+
+                video.addEventListener(
                     "ended",
                     handleEnded
                 );
-            });
-        });
+
+                cleanups.push(
+                    () => {
+                        video.removeEventListener(
+                            "ended",
+                            handleEnded
+                        );
+                    }
+                );
+            }
+        );
 
         return () => {
             cleanups.forEach(
-                (cleanup) => cleanup()
+                (cleanup) =>
+                    cleanup()
             );
+
+            if (
+                transitionTimeoutRef.current !==
+                null
+            ) {
+                window.clearTimeout(
+                    transitionTimeoutRef.current
+                );
+            }
         };
     }, [currentVideo]);
 
@@ -225,13 +244,15 @@ function App() {
      */
 
     useEffect(() => {
-        const handleKeyDown = (
-            event: KeyboardEvent
-        ) => {
-            if (event.key === "Escape") {
-                closeModule();
-            }
-        };
+        const handleKeyDown =
+            (event: KeyboardEvent) => {
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+                    closeModule();
+                }
+            };
 
         document.addEventListener(
             "keydown",
@@ -248,7 +269,7 @@ function App() {
 
     /*
      * =====================================================
-     * THREE.JS + MODELO GLB
+     * THREE.JS
      * =====================================================
      */
 
@@ -260,12 +281,6 @@ function App() {
             return;
         }
 
-        /*
-         * =================================================
-         * CENA
-         * =================================================
-         */
-
         const scene =
             new THREE.Scene();
 
@@ -275,23 +290,13 @@ function App() {
                 0.045
             );
 
-        /*
-         * =================================================
-         * TAMANHO
-         * =================================================
-         */
-
         const width =
-            container.clientWidth || 500;
+            container.clientWidth ||
+            500;
 
         const height =
-            container.clientHeight || 500;
-
-        /*
-         * =================================================
-         * CÂMERA
-         * =================================================
-         */
+            container.clientHeight ||
+            500;
 
         const camera =
             new THREE.PerspectiveCamera(
@@ -302,12 +307,6 @@ function App() {
             );
 
         camera.position.z = 8;
-
-        /*
-         * =================================================
-         * RENDERER
-         * =================================================
-         */
 
         const renderer =
             new THREE.WebGLRenderer({
@@ -436,18 +435,20 @@ function App() {
 
         /*
          * =================================================
-         * MODELO DA CORUJA
+         * MODELO GLB
          * =================================================
          */
 
         let brain:
-            THREE.Object3D | null = null;
+            | THREE.Object3D
+            | null = null;
 
         let targetX = 0;
         let targetY = 0;
 
         let entradaInicio:
-            number | null = null;
+            | number
+            | null = null;
 
         let entradaFinalizada =
             false;
@@ -480,10 +481,6 @@ function App() {
                     }
                 );
 
-                /*
-                 * Escala inicial pequena
-                 * para criar a animação de entrada.
-                 */
                 brain.scale.set(
                     0.01,
                     0.01,
@@ -569,9 +566,6 @@ function App() {
                     animate
                 );
 
-            /*
-             * Movimento das partículas.
-             */
             particles.rotation.y +=
                 0.0007;
 
@@ -579,9 +573,7 @@ function App() {
                 0.0001;
 
             /*
-             * =============================================
-             * ENTRADA DA CORUJA
-             * =============================================
+             * Entrada da coruja
              */
 
             if (
@@ -589,7 +581,8 @@ function App() {
                 !entradaFinalizada &&
                 entradaInicio !== null
             ) {
-                const duracao = 1700;
+                const duracao =
+                    1700;
 
                 const tempo =
                     now -
@@ -653,9 +646,7 @@ function App() {
             }
 
             /*
-             * =============================================
-             * FLUTUAÇÃO + MOVIMENTO COM MOUSE
-             * =============================================
+             * Flutuação e mouse
              */
 
             if (
@@ -804,9 +795,8 @@ function App() {
             setResultado(
                 (prev) => ({
                     ...prev,
-
                     diagnostico:
-                        "A interface está preparada. A API ainda precisa ser conectada ao backend.",
+                        "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
                 })
             );
         };
@@ -832,9 +822,8 @@ function App() {
             setResultado(
                 (prev) => ({
                     ...prev,
-
                     bncc:
-                        "O campo de consulta está pronto para receber a base curricular.",
+                        "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
                 })
             );
         };
@@ -861,9 +850,8 @@ function App() {
             setResultado(
                 (prev) => ({
                     ...prev,
-
                     planejamento:
-                        "O formulário está estruturado para receber o planejamento gerado pelo backend.",
+                        "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
                 })
             );
         };
@@ -889,16 +877,15 @@ function App() {
             setResultado(
                 (prev) => ({
                     ...prev,
-
                     intervencao:
-                        "O módulo está preparado para receber uma proposta de intervenção.",
+                        "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
                 })
             );
         };
 
     /*
      * =====================================================
-     * ACESSO DO ALUNO
+     * ACESSO
      * =====================================================
      */
 
@@ -911,7 +898,7 @@ function App() {
 
             if (
                 valor ===
-                "MATH001" ||
+                    "MATH001" ||
                 valor.startsWith(
                     "PAC"
                 )
@@ -935,9 +922,7 @@ function App() {
 
     return (
         <>
-            {/* =================================================
-                VÍDEOS
-            ================================================= */}
+            {/* VÍDEOS */}
 
             <div className="video-background">
                 <video
@@ -970,7 +955,7 @@ function App() {
                             ? "active"
                             : ""
                     }`}
-                    src="/maos mexendo.mp4"
+                    src="/maos%20mexendo.mp4"
                     muted
                     playsInline
                     preload="auto"
@@ -996,9 +981,7 @@ function App() {
                 />
             </div>
 
-            {/* =================================================
-                CAMADAS VISUAIS
-            ================================================= */}
+            {/* CAMADAS */}
 
             <div className="video-overlay" />
 
@@ -1012,9 +995,7 @@ function App() {
 
             <div id="particles-layer" />
 
-            {/* =================================================
-                ÁREA DO ALUNO
-            ================================================= */}
+            {/* ÁREA DO ALUNO */}
 
             <a
                 href="/aluno.html"
@@ -1023,9 +1004,7 @@ function App() {
                 ÁREA DO ALUNO
             </a>
 
-            {/* =================================================
-                CONTEÚDO PRINCIPAL
-            ================================================= */}
+            {/* CONTEÚDO */}
 
             <main className="main-container">
                 <div className="institution-marker">
@@ -1035,10 +1014,6 @@ function App() {
                 </div>
 
                 <section className="card">
-                    {/* =========================================
-                        MARCA
-                    ========================================= */}
-
                     <div className="brand">
                         <div className="brand-icon" />
 
@@ -1047,29 +1022,19 @@ function App() {
                         </span>
                     </div>
 
-                    {/* =========================================
-                        STATUS
-                    ========================================= */}
-
                     <div className="system-status">
                         <span className="system-dot" />
 
                         SISTEMA OPERACIONAL
                     </div>
 
-                    {/* =========================================
-                        SPLINE
-                    ========================================= */}
+                    {/* SPLINE */}
 
                     <div className="avatar-3d">
                         <spline-viewer
                             url="/genkub_greeting_robot.spline"
                         />
                     </div>
-
-                    {/* =========================================
-                        TÍTULO
-                    ========================================= */}
 
                     <h2>
                         Laboratório Pedagógico
@@ -1081,9 +1046,7 @@ function App() {
                         e intervenção pedagógica.
                     </p>
 
-                    {/* =========================================
-                        ID
-                    ========================================= */}
+                    {/* ID */}
 
                     <input
                         type="text"
@@ -1091,8 +1054,7 @@ function App() {
                         value={idInput}
                         onChange={(event) =>
                             setIdInput(
-                                event.target
-                                    .value
+                                event.target.value
                             )
                         }
                         placeholder="DIGITE SEU ID"
@@ -1108,20 +1070,12 @@ function App() {
                         ACESSAR LABORATÓRIO
                     </button>
 
-                    {/* =========================================
-                        BIBLIOTECA
-                    ========================================= */}
-
                     <a
                         href="/biblioteca.html"
                         className="btn-library"
                     >
                         BIBLIOTECA DIGITAL
                     </a>
-
-                    {/* =========================================
-                        ATLAS
-                    ========================================= */}
 
                     <a
                         href="/atlas.html"
@@ -1130,12 +1084,11 @@ function App() {
                         EXPLORAR MAPA DA APRENDIZAGEM 3D
                     </a>
 
-                    {/* =========================================
-                        MÓDULOS
-                    ========================================= */}
+                    {/* MÓDULOS */}
 
                     <div className="tool-grid">
                         <button
+                            type="button"
                             className="tool-card"
                             onClick={() =>
                                 openModule(
@@ -1153,6 +1106,7 @@ function App() {
                         </button>
 
                         <button
+                            type="button"
                             className="tool-card"
                             onClick={() =>
                                 openModule(
@@ -1170,6 +1124,7 @@ function App() {
                         </button>
 
                         <button
+                            type="button"
                             className="tool-card"
                             onClick={() =>
                                 openModule(
@@ -1187,6 +1142,7 @@ function App() {
                         </button>
 
                         <button
+                            type="button"
                             className="tool-card"
                             onClick={() =>
                                 openModule(
@@ -1205,9 +1161,7 @@ function App() {
                     </div>
                 </section>
 
-                {/* =============================================
-                    THREE.JS
-                ============================================= */}
+                {/* THREE.JS */}
 
                 <section
                     id="brain-viewport"
@@ -1225,9 +1179,7 @@ function App() {
                 </section>
             </main>
 
-            {/* =================================================
-                OVERLAY
-            ================================================= */}
+            {/* OVERLAY */}
 
             <div
                 className={`overlay ${
@@ -1235,7 +1187,6 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                id="overlay"
                 onClick={
                     closeModule
                 }
@@ -1252,7 +1203,6 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                id="diagnostico"
             >
                 <div className="tool-header">
                     <div>
@@ -1267,6 +1217,7 @@ function App() {
                     </div>
 
                     <button
+                        type="button"
                         className="close-tool"
                         onClick={
                             closeModule
@@ -1286,7 +1237,7 @@ function App() {
                             ANO / SÉRIE
                         </label>
 
-                        <select id="diagAno">
+                        <select>
                             {Array.from(
                                 {
                                     length: 9,
@@ -1314,7 +1265,7 @@ function App() {
                             COMPONENTE
                         </label>
 
-                        <select id="diagComponente">
+                        <select>
                             <option>
                                 Língua Portuguesa
                             </option>
@@ -1343,20 +1294,19 @@ function App() {
                 </label>
 
                 <textarea
-                    id="diagDescricao"
                     value={
                         diagDescricao
                     }
                     onChange={(event) =>
                         setDiagDescricao(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="Descreva o que foi observado no processo de aprendizagem..."
                 />
 
                 <button
+                    type="button"
                     className="btn-neuro"
                     onClick={
                         executarDiagnostico
@@ -1366,10 +1316,7 @@ function App() {
                 </button>
 
                 {resultado.diagnostico && (
-                    <div
-                        className="result-box"
-                        id="resultadoDiagnostico"
-                    >
+                    <div className="result-box">
                         <strong>
                             ANÁLISE PEDAGÓGICA
                         </strong>
@@ -1394,7 +1341,6 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                id="bncc"
             >
                 <div className="tool-header">
                     <div>
@@ -1409,6 +1355,7 @@ function App() {
                     </div>
 
                     <button
+                        type="button"
                         className="close-tool"
                         onClick={
                             closeModule
@@ -1424,12 +1371,10 @@ function App() {
 
                 <input
                     type="text"
-                    id="buscaBNCC"
                     value={buscaBNCC}
                     onChange={(event) =>
                         setBuscaBNCC(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="Digite uma habilidade ou palavra-chave..."
@@ -1460,6 +1405,7 @@ function App() {
                 </div>
 
                 <button
+                    type="button"
                     className="btn-neuro"
                     onClick={
                         consultarBNCC
@@ -1494,7 +1440,6 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                id="planejamento"
             >
                 <div className="tool-header">
                     <div>
@@ -1509,6 +1454,7 @@ function App() {
                     </div>
 
                     <button
+                        type="button"
                         className="close-tool"
                         onClick={
                             closeModule
@@ -1527,12 +1473,10 @@ function App() {
                 </label>
 
                 <input
-                    id="temaPlano"
                     value={temaPlano}
                     onChange={(event) =>
                         setTemaPlano(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="Ex.: interpretação textual"
@@ -1542,7 +1486,7 @@ function App() {
                     ANO / SÉRIE
                 </label>
 
-                <select id="anoPlano">
+                <select>
                     {Array.from(
                         {
                             length: 9,
@@ -1569,20 +1513,19 @@ function App() {
                 </label>
 
                 <textarea
-                    id="objetivoPlano"
                     value={
                         objetivoPlano
                     }
                     onChange={(event) =>
                         setObjetivoPlano(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="O que o aluno deverá desenvolver?"
                 />
 
                 <button
+                    type="button"
                     className="btn-neuro"
                     onClick={
                         gerarPlano
@@ -1617,7 +1560,6 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                id="intervencao"
             >
                 <div className="tool-header">
                     <div>
@@ -1632,6 +1574,7 @@ function App() {
                     </div>
 
                     <button
+                        type="button"
                         className="close-tool"
                         onClick={
                             closeModule
@@ -1650,14 +1593,12 @@ function App() {
                 </label>
 
                 <textarea
-                    id="necessidadeIntervencao"
                     value={
                         necessidadeIntervencao
                     }
                     onChange={(event) =>
                         setNecessidadeIntervencao(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="Descreva a dificuldade ou necessidade observada..."
@@ -1668,20 +1609,19 @@ function App() {
                 </label>
 
                 <textarea
-                    id="contextoIntervencao"
                     value={
                         contextoIntervencao
                     }
                     onChange={(event) =>
                         setContextoIntervencao(
-                            event.target
-                                .value
+                            event.target.value
                         )
                     }
                     placeholder="Informe o contexto da turma ou do estudante..."
                 />
 
                 <button
+                    type="button"
                     className="btn-neuro"
                     onClick={
                         gerarIntervencao
