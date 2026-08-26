@@ -1,29 +1,85 @@
+import "./App.css";
+
 import { useEffect, useRef, useState } from "react";
+
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 type VideoIndex = 0 | 1 | 2;
 
+type ModuleName =
+    | "diagnostico"
+    | "bncc"
+    | "planejamento"
+    | "intervencao"
+    | null;
+
+type Resultados = {
+    diagnostico?: string;
+    bncc?: string;
+    planejamento?: string;
+    intervencao?: string;
+};
+
 function App() {
-    const brainViewportRef = useRef<HTMLDivElement | null>(null);
+    /*
+     * =====================================================
+     * REFERÊNCIAS
+     * =====================================================
+     */
 
-    const [currentVideo, setCurrentVideo] = useState<VideoIndex>(0);
-    const [activeModule, setActiveModule] = useState<string | null>(null);
-    const [idInput, setIdInput] = useState("");
+    const brainViewportRef =
+        useRef<HTMLDivElement | null>(null);
 
-    const [diagDescricao, setDiagDescricao] = useState("");
-    const [buscaBNCC, setBuscaBNCC] = useState("");
-    const [temaPlano, setTemaPlano] = useState("");
-    const [objetivoPlano, setObjetivoPlano] = useState("");
+    const videosRef =
+        useRef<(HTMLVideoElement | null)[]>([]);
+
+    const transitioningRef =
+        useRef(false);
+
+    /*
+     * =====================================================
+     * ESTADOS
+     * =====================================================
+     */
+
+    const [currentVideo, setCurrentVideo] =
+        useState<VideoIndex>(0);
+
+    const [activeModule, setActiveModule] =
+        useState<ModuleName>(null);
+
+    const [idInput, setIdInput] =
+        useState("");
+
+    const [diagDescricao, setDiagDescricao] =
+        useState("");
+
+    const [buscaBNCC, setBuscaBNCC] =
+        useState("");
+
+    const [temaPlano, setTemaPlano] =
+        useState("");
+
+    const [objetivoPlano, setObjetivoPlano] =
+        useState("");
+
     const [necessidadeIntervencao, setNecessidadeIntervencao] =
         useState("");
+
     const [contextoIntervencao, setContextoIntervencao] =
         useState("");
 
-    const [resultado, setResultado] = useState<Record<string, string>>({});
+    const [resultado, setResultado] =
+        useState<Resultados>({});
 
-    const videosRef = useRef<(HTMLVideoElement | null)[]>([]);
-    const transitioningRef = useRef(false);
+    /*
+     * =====================================================
+     * MÓDULOS
+     * =====================================================
+     */
 
-    const openModule = (name: string) => {
+    const openModule = (name: Exclude<ModuleName, null>) => {
         setActiveModule(name);
     };
 
@@ -38,86 +94,116 @@ function App() {
      */
 
     useEffect(() => {
-        const videos = videosRef.current.filter(
-            Boolean
-        ) as HTMLVideoElement[];
+        const videos =
+            videosRef.current.filter(
+                Boolean
+            ) as HTMLVideoElement[];
 
-        if (!videos.length) return;
+        if (videos.length === 0) {
+            return;
+        }
 
         videos.forEach((video, index) => {
             video.muted = true;
             video.playsInline = true;
             video.preload = "auto";
-            video.loop = index === 2;
+
+            if (index === 2) {
+                video.loop = true;
+            } else {
+                video.loop = false;
+            }
         });
 
         const firstVideo = videos[0];
 
-        firstVideo.currentTime = 0;
+        if (firstVideo) {
+            firstVideo.currentTime = 0;
 
-        firstVideo.play().catch(() => {
-            console.warn(
-                "Autoplay bloqueado. O navegador exige interação do usuário."
-            );
-        });
+            firstVideo
+                .play()
+                .catch(() => {
+                    console.warn(
+                        "Autoplay bloqueado pelo navegador."
+                    );
+                });
+        }
 
-        const handlers: (() => void)[] = [];
+        const cleanups: (() => void)[] = [];
 
         videos.forEach((video, index) => {
             const handleEnded = () => {
+                /*
+                 * O terceiro vídeo permanece em loop.
+                 */
                 if (index === 2) {
-                    video.currentTime = 0;
-                    video.play().catch(() => {});
                     return;
                 }
 
+                /*
+                 * Só faz a transição do vídeo atualmente ativo.
+                 */
                 if (
-                    index === currentVideo &&
-                    index < 2 &&
-                    !transitioningRef.current
+                    index !== currentVideo ||
+                    transitioningRef.current
                 ) {
-                    const nextIndex = (index + 1) as VideoIndex;
-
-                    const nextVideo = videos[nextIndex];
-
-                    if (!nextVideo) return;
-
-                    transitioningRef.current = true;
-
-                    nextVideo.currentTime = 0;
-
-                    nextVideo
-                        .play()
-                        .then(() => {
-                            nextVideo.classList.add("active");
-
-                            setTimeout(() => {
-                                video.classList.remove("active");
-
-                                video.pause();
-
-                                try {
-                                    video.currentTime = 0;
-                                } catch {}
-
-                                nextVideo.classList.remove(
-                                    "transitioning"
-                                );
-
-                                setCurrentVideo(nextIndex);
-
-                                transitioningRef.current = false;
-                            }, 1400);
-                        })
-                        .catch(() => {
-                            transitioningRef.current = false;
-                        });
+                    return;
                 }
+
+                const nextIndex =
+                    (index + 1) as VideoIndex;
+
+                const nextVideo =
+                    videos[nextIndex];
+
+                if (!nextVideo) {
+                    return;
+                }
+
+                transitioningRef.current = true;
+
+                nextVideo.currentTime = 0;
+
+                nextVideo
+                    .play()
+                    .then(() => {
+                        nextVideo.classList.add(
+                            "active"
+                        );
+
+                        window.setTimeout(() => {
+                            video.classList.remove(
+                                "active"
+                            );
+
+                            video.pause();
+
+                            try {
+                                video.currentTime = 0;
+                            } catch {
+                                // Ignora erro de reset do vídeo.
+                            }
+
+                            setCurrentVideo(
+                                nextIndex
+                            );
+
+                            transitioningRef.current =
+                                false;
+                        }, 1400);
+                    })
+                    .catch(() => {
+                        transitioningRef.current =
+                            false;
+                    });
             };
 
-            video.addEventListener("ended", handleEnded);
+            video.addEventListener(
+                "ended",
+                handleEnded
+            );
 
-            handlers.push(() => {
+            cleanups.push(() => {
                 video.removeEventListener(
                     "ended",
                     handleEnded
@@ -126,18 +212,22 @@ function App() {
         });
 
         return () => {
-            handlers.forEach((remove) => remove());
+            cleanups.forEach(
+                (cleanup) => cleanup()
+            );
         };
     }, [currentVideo]);
 
     /*
      * =====================================================
-     * ESC
+     * TECLA ESC
      * =====================================================
      */
 
     useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
+        const handleKeyDown = (
+            event: KeyboardEvent
+        ) => {
             if (event.key === "Escape") {
                 closeModule();
             }
@@ -158,35 +248,23 @@ function App() {
 
     /*
      * =====================================================
-     * THREE.JS
+     * THREE.JS + MODELO GLB
      * =====================================================
      */
 
     useEffect(() => {
-        const container = brainViewportRef.current;
+        const container =
+            brainViewportRef.current;
 
-        if (!container) return;
-
-        const THREE = (window as any).THREE;
-
-        if (!THREE) {
-            console.warn(
-                "Three.js ainda não está disponível."
-            );
-
+        if (!container) {
             return;
         }
 
-        const GLTFLoader =
-            THREE.GLTFLoader;
-
-        if (!GLTFLoader) {
-            console.warn(
-                "GLTFLoader ainda não está disponível."
-            );
-
-            return;
-        }
+        /*
+         * =================================================
+         * CENA
+         * =================================================
+         */
 
         const scene =
             new THREE.Scene();
@@ -197,11 +275,23 @@ function App() {
                 0.045
             );
 
+        /*
+         * =================================================
+         * TAMANHO
+         * =================================================
+         */
+
         const width =
             container.clientWidth || 500;
 
         const height =
             container.clientHeight || 500;
+
+        /*
+         * =================================================
+         * CÂMERA
+         * =================================================
+         */
 
         const camera =
             new THREE.PerspectiveCamera(
@@ -212,6 +302,12 @@ function App() {
             );
 
         camera.position.z = 8;
+
+        /*
+         * =================================================
+         * RENDERER
+         * =================================================
+         */
 
         const renderer =
             new THREE.WebGLRenderer({
@@ -231,51 +327,65 @@ function App() {
             )
         );
 
+        renderer.outputColorSpace =
+            THREE.SRGBColorSpace;
+
         container.appendChild(
             renderer.domElement
         );
 
         /*
+         * =================================================
          * ILUMINAÇÃO
+         * =================================================
          */
 
-        scene.add(
+        const ambientLight =
             new THREE.AmbientLight(
                 0xffffff,
                 0.8
-            )
+            );
+
+        scene.add(
+            ambientLight
         );
 
-        const light =
+        const mainLight =
             new THREE.PointLight(
                 0xffffff,
                 1.8
             );
 
-        light.position.set(
+        mainLight.position.set(
             5,
             5,
             10
         );
 
-        scene.add(light);
+        scene.add(
+            mainLight
+        );
 
-        const light2 =
+        const purpleLight =
             new THREE.PointLight(
                 0x8b5cf6,
                 0.8
             );
 
-        light2.position.set(
+        purpleLight.position.set(
             -5,
             -2,
             5
         );
 
-        scene.add(light2);
+        scene.add(
+            purpleLight
+        );
 
         /*
+         * =================================================
          * PARTÍCULAS
+         * =================================================
          */
 
         const partGeo =
@@ -294,7 +404,8 @@ function App() {
             i++
         ) {
             positions[i] =
-                (Math.random() - 0.5) * 15;
+                (Math.random() - 0.5) *
+                15;
         }
 
         partGeo.setAttribute(
@@ -319,24 +430,27 @@ function App() {
                 partMat
             );
 
-        scene.add(particles);
+        scene.add(
+            particles
+        );
 
         /*
-         * CORUJA
+         * =================================================
+         * MODELO DA CORUJA
+         * =================================================
          */
 
-        let brain: any = null;
+        let brain:
+            THREE.Object3D | null = null;
 
         let targetX = 0;
         let targetY = 0;
 
-        let mouseX = 0;
-        let mouseY = 0;
-
         let entradaInicio:
             number | null = null;
 
-        let entradaFinalizada = false;
+        let entradaFinalizada =
+            false;
 
         const modelURL =
             "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
@@ -347,18 +461,29 @@ function App() {
         loader.load(
             modelURL,
 
-            (gltf: any) => {
-                brain = gltf.scene;
+            (gltf) => {
+                brain =
+                    gltf.scene;
 
                 brain.traverse(
-                    (object: any) => {
-                        if (object.isMesh) {
-                            object.castShadow = true;
-                            object.receiveShadow = true;
+                    (object) => {
+                        if (
+                            object instanceof
+                            THREE.Mesh
+                        ) {
+                            object.castShadow =
+                                true;
+
+                            object.receiveShadow =
+                                true;
                         }
                     }
                 );
 
+                /*
+                 * Escala inicial pequena
+                 * para criar a animação de entrada.
+                 */
                 brain.scale.set(
                     0.01,
                     0.01,
@@ -377,17 +502,20 @@ function App() {
                     0
                 );
 
-                scene.add(brain);
+                scene.add(
+                    brain
+                );
 
                 entradaInicio =
                     performance.now();
 
-                entradaFinalizada = false;
+                entradaFinalizada =
+                    false;
             },
 
             undefined,
 
-            (error: any) => {
+            (error) => {
                 console.error(
                     "Erro ao carregar Corujafinal.glb:",
                     error
@@ -395,14 +523,20 @@ function App() {
             }
         );
 
+        /*
+         * =================================================
+         * MOUSE
+         * =================================================
+         */
+
         const handleMouseMove =
             (event: MouseEvent) => {
-                mouseX =
+                const mouseX =
                     event.clientX /
                         window.innerWidth -
                     0.5;
 
-                mouseY =
+                const mouseY =
                     event.clientY /
                         window.innerHeight -
                     0.5;
@@ -419,117 +553,163 @@ function App() {
             handleMouseMove
         );
 
-        let animationFrame =
-            0;
+        /*
+         * =================================================
+         * ANIMAÇÃO
+         * =================================================
+         */
 
-        const animate =
-            (now: number) => {
-                animationFrame =
-                    requestAnimationFrame(
-                        animate
-                    );
+        let animationFrame = 0;
 
-                particles.rotation.y +=
-                    0.0007;
-
-                particles.rotation.x +=
-                    0.0001;
-
-                if (
-                    brain &&
-                    !entradaFinalizada &&
-                    entradaInicio !== null
-                ) {
-                    const duracao = 1700;
-
-                    const tempo =
-                        now -
-                        entradaInicio;
-
-                    const progresso =
-                        Math.min(
-                            tempo / duracao,
-                            1
-                        );
-
-                    const ease =
-                        1 -
-                        Math.pow(
-                            1 - progresso,
-                            4
-                        );
-
-                    const escala =
-                        1.45 * ease;
-
-                    brain.scale.set(
-                        escala,
-                        escala,
-                        escala
-                    );
-
-                    brain.position.y =
-                        -0.8 +
-                        0.8 * ease;
-
-                    brain.rotation.y =
-                        -0.35 +
-                        0.35 * ease;
-
-                    brain.rotation.z =
-                        Math.sin(
-                            progresso *
-                                Math.PI
-                        ) * 0.035;
-
-                    if (progresso >= 1) {
-                        entradaFinalizada =
-                            true;
-
-                        entradaInicio = null;
-
-                        brain.position.y = 0;
-                    }
-                }
-
-                if (
-                    brain &&
-                    entradaFinalizada
-                ) {
-                    const flutuar =
-                        Math.sin(
-                            now * 0.0014
-                        ) * 0.045;
-
-                    brain.position.y =
-                        flutuar;
-
-                    brain.rotation.y +=
-                        0.035 *
-                        (targetX -
-                            brain.rotation.y);
-
-                    brain.rotation.x +=
-                        0.025 *
-                        (targetY -
-                            brain.rotation.x);
-
-                    brain.rotation.z =
-                        Math.sin(
-                            now * 0.0009
-                        ) * 0.025;
-                }
-
-                renderer.render(
-                    scene,
-                    camera
+        const animate = (
+            now: number
+        ) => {
+            animationFrame =
+                requestAnimationFrame(
+                    animate
                 );
-            };
+
+            /*
+             * Movimento das partículas.
+             */
+            particles.rotation.y +=
+                0.0007;
+
+            particles.rotation.x +=
+                0.0001;
+
+            /*
+             * =============================================
+             * ENTRADA DA CORUJA
+             * =============================================
+             */
+
+            if (
+                brain &&
+                !entradaFinalizada &&
+                entradaInicio !== null
+            ) {
+                const duracao = 1700;
+
+                const tempo =
+                    now -
+                    entradaInicio;
+
+                const progresso =
+                    Math.min(
+                        tempo /
+                            duracao,
+                        1
+                    );
+
+                const ease =
+                    1 -
+                    Math.pow(
+                        1 -
+                            progresso,
+                        4
+                    );
+
+                const escala =
+                    1.45 *
+                    ease;
+
+                brain.scale.set(
+                    escala,
+                    escala,
+                    escala
+                );
+
+                brain.position.y =
+                    -0.8 +
+                    0.8 *
+                        ease;
+
+                brain.rotation.y =
+                    -0.35 +
+                    0.35 *
+                        ease;
+
+                brain.rotation.z =
+                    Math.sin(
+                        progresso *
+                            Math.PI
+                    ) *
+                    0.035;
+
+                if (
+                    progresso >=
+                    1
+                ) {
+                    entradaFinalizada =
+                        true;
+
+                    entradaInicio =
+                        null;
+
+                    brain.position.y =
+                        0;
+                }
+            }
+
+            /*
+             * =============================================
+             * FLUTUAÇÃO + MOVIMENTO COM MOUSE
+             * =============================================
+             */
+
+            if (
+                brain &&
+                entradaFinalizada
+            ) {
+                const flutuar =
+                    Math.sin(
+                        now *
+                            0.0014
+                    ) *
+                    0.045;
+
+                brain.position.y =
+                    flutuar;
+
+                brain.rotation.y +=
+                    0.035 *
+                    (
+                        targetX -
+                        brain.rotation.y
+                    );
+
+                brain.rotation.x +=
+                    0.025 *
+                    (
+                        targetY -
+                        brain.rotation.x
+                    );
+
+                brain.rotation.z =
+                    Math.sin(
+                        now *
+                            0.0009
+                    ) *
+                    0.025;
+            }
+
+            renderer.render(
+                scene,
+                camera
+            );
+        };
 
         animationFrame =
             requestAnimationFrame(
                 animate
             );
+
+        /*
+         * =================================================
+         * RESPONSIVIDADE
+         * =================================================
+         */
 
         const handleResize = () => {
             const newWidth =
@@ -562,6 +742,12 @@ function App() {
             handleResize
         );
 
+        /*
+         * =================================================
+         * CLEANUP
+         * =================================================
+         */
+
         return () => {
             cancelAnimationFrame(
                 animationFrame
@@ -578,7 +764,8 @@ function App() {
             );
 
             if (
-                renderer.domElement.parentNode ===
+                renderer.domElement
+                    .parentNode ===
                 container
             ) {
                 container.removeChild(
@@ -591,110 +778,166 @@ function App() {
             partGeo.dispose();
 
             partMat.dispose();
+
+            scene.clear();
         };
     }, []);
 
     /*
      * =====================================================
-     * FUNÇÕES DOS MÓDULOS
+     * DIAGNÓSTICO
      * =====================================================
      */
 
-    const executarDiagnostico = () => {
-        if (!diagDescricao.trim()) {
-            alert(
-                "Descreva a necessidade observada."
+    const executarDiagnostico =
+        () => {
+            if (
+                !diagDescricao.trim()
+            ) {
+                alert(
+                    "Descreva a necessidade observada."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (prev) => ({
+                    ...prev,
+
+                    diagnostico:
+                        "A interface está preparada. A API ainda precisa ser conectada ao backend.",
+                })
             );
-            return;
-        }
-
-        setResultado((prev) => ({
-            ...prev,
-            diagnostico:
-                "A interface está preparada. A API ainda precisa ser conectada ao backend.",
-        }));
-    };
-
-    const consultarBNCC = () => {
-        if (!buscaBNCC.trim()) {
-            alert(
-                "Digite algo para pesquisar."
-            );
-            return;
-        }
-
-        setResultado((prev) => ({
-            ...prev,
-            bncc:
-                "O campo de consulta está pronto para receber a base curricular.",
-        }));
-    };
-
-    const gerarPlano = () => {
-        if (
-            !temaPlano.trim() ||
-            !objetivoPlano.trim()
-        ) {
-            alert(
-                "Informe o tema e o objetivo."
-            );
-            return;
-        }
-
-        setResultado((prev) => ({
-            ...prev,
-            planejamento:
-                "O formulário está estruturado para receber o planejamento gerado pelo backend.",
-        }));
-    };
-
-    const gerarIntervencao = () => {
-        if (
-            !necessidadeIntervencao.trim()
-        ) {
-            alert(
-                "Informe a necessidade identificada."
-            );
-            return;
-        }
-
-        setResultado((prev) => ({
-            ...prev,
-            intervencao:
-                "O módulo está preparado para receber uma proposta de intervenção.",
-        }));
-    };
+        };
 
     /*
      * =====================================================
-     * ACESSO
+     * BNCC
      * =====================================================
      */
 
-    const validarAcesso = () => {
-        const valor =
-            idInput.trim().toUpperCase();
+    const consultarBNCC =
+        () => {
+            if (
+                !buscaBNCC.trim()
+            ) {
+                alert(
+                    "Digite algo para pesquisar."
+                );
 
-        if (
-            valor === "MATH001" ||
-            valor.startsWith("PAC")
-        ) {
-            window.location.href =
-                "aluno.html";
+                return;
+            }
 
-            return;
-        }
+            setResultado(
+                (prev) => ({
+                    ...prev,
 
-        alert(
-            "ID de acesso inválido."
-        );
-    };
+                    bncc:
+                        "O campo de consulta está pronto para receber a base curricular.",
+                })
+            );
+        };
+
+    /*
+     * =====================================================
+     * PLANEJAMENTO
+     * =====================================================
+     */
+
+    const gerarPlano =
+        () => {
+            if (
+                !temaPlano.trim() ||
+                !objetivoPlano.trim()
+            ) {
+                alert(
+                    "Informe o tema e o objetivo."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (prev) => ({
+                    ...prev,
+
+                    planejamento:
+                        "O formulário está estruturado para receber o planejamento gerado pelo backend.",
+                })
+            );
+        };
+
+    /*
+     * =====================================================
+     * INTERVENÇÃO
+     * =====================================================
+     */
+
+    const gerarIntervencao =
+        () => {
+            if (
+                !necessidadeIntervencao.trim()
+            ) {
+                alert(
+                    "Informe a necessidade identificada."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (prev) => ({
+                    ...prev,
+
+                    intervencao:
+                        "O módulo está preparado para receber uma proposta de intervenção.",
+                })
+            );
+        };
+
+    /*
+     * =====================================================
+     * ACESSO DO ALUNO
+     * =====================================================
+     */
+
+    const validarAcesso =
+        () => {
+            const valor =
+                idInput
+                    .trim()
+                    .toUpperCase();
+
+            if (
+                valor ===
+                "MATH001" ||
+                valor.startsWith(
+                    "PAC"
+                )
+            ) {
+                window.location.href =
+                    "/aluno.html";
+
+                return;
+            }
+
+            alert(
+                "ID de acesso inválido."
+            );
+        };
+
+    /*
+     * =====================================================
+     * JSX
+     * =====================================================
+     */
 
     return (
         <>
-            {/* =====================================================
+            {/* =================================================
                 VÍDEOS
-            ====================================================== */}
+            ================================================= */}
 
             <div className="video-background">
                 <video
@@ -704,7 +947,8 @@ function App() {
                     }}
                     id="video1"
                     className={`bg-video ${
-                        currentVideo === 0
+                        currentVideo ===
+                        0
                             ? "active"
                             : ""
                     }`}
@@ -721,7 +965,8 @@ function App() {
                     }}
                     id="video2"
                     className={`bg-video ${
-                        currentVideo === 1
+                        currentVideo ===
+                        1
                             ? "active"
                             : ""
                     }`}
@@ -738,7 +983,8 @@ function App() {
                     }}
                     id="video3"
                     className={`bg-video ${
-                        currentVideo === 2
+                        currentVideo ===
+                        2
                             ? "active"
                             : ""
                     }`}
@@ -750,9 +996,9 @@ function App() {
                 />
             </div>
 
-            {/* =====================================================
-                CAMADAS
-            ====================================================== */}
+            {/* =================================================
+                CAMADAS VISUAIS
+            ================================================= */}
 
             <div className="video-overlay" />
 
@@ -766,28 +1012,33 @@ function App() {
 
             <div id="particles-layer" />
 
-            {/* =====================================================
+            {/* =================================================
                 ÁREA DO ALUNO
-            ====================================================== */}
+            ================================================= */}
 
             <a
-                href="aluno.html"
+                href="/aluno.html"
                 className="btn-aluno-fixo"
             >
                 ÁREA DO ALUNO
             </a>
 
-            {/* =====================================================
-                INTERFACE
-            ====================================================== */}
+            {/* =================================================
+                CONTEÚDO PRINCIPAL
+            ================================================= */}
 
             <main className="main-container">
                 <div className="institution-marker">
                     <span />
+
                     LABORATÓRIO DE PESQUISA E PRÁTICAS PEDAGÓGICAS
                 </div>
 
                 <section className="card">
+                    {/* =========================================
+                        MARCA
+                    ========================================= */}
+
                     <div className="brand">
                         <div className="brand-icon" />
 
@@ -796,17 +1047,29 @@ function App() {
                         </span>
                     </div>
 
+                    {/* =========================================
+                        STATUS
+                    ========================================= */}
+
                     <div className="system-status">
                         <span className="system-dot" />
 
                         SISTEMA OPERACIONAL
                     </div>
 
+                    {/* =========================================
+                        SPLINE
+                    ========================================= */}
+
                     <div className="avatar-3d">
                         <spline-viewer
-                            url="genkub_greeting_robot.spline"
+                            url="/genkub_greeting_robot.spline"
                         />
                     </div>
+
+                    {/* =========================================
+                        TÍTULO
+                    ========================================= */}
 
                     <h2>
                         Laboratório Pedagógico
@@ -818,13 +1081,18 @@ function App() {
                         e intervenção pedagógica.
                     </p>
 
+                    {/* =========================================
+                        ID
+                    ========================================= */}
+
                     <input
                         type="text"
                         id="idInput"
                         value={idInput}
                         onChange={(event) =>
                             setIdInput(
-                                event.target.value
+                                event.target
+                                    .value
                             )
                         }
                         placeholder="DIGITE SEU ID"
@@ -840,23 +1108,31 @@ function App() {
                         ACESSAR LABORATÓRIO
                     </button>
 
+                    {/* =========================================
+                        BIBLIOTECA
+                    ========================================= */}
+
                     <a
-                        href="biblioteca.html"
+                        href="/biblioteca.html"
                         className="btn-library"
                     >
                         BIBLIOTECA DIGITAL
                     </a>
 
+                    {/* =========================================
+                        ATLAS
+                    ========================================= */}
+
                     <a
-                        href="atlas.html"
+                        href="/atlas.html"
                         className="btn-atlas"
                     >
                         EXPLORAR MAPA DA APRENDIZAGEM 3D
                     </a>
 
-                    {/* =================================================
-                        BOTÕES DOS MÓDULOS
-                    ================================================== */}
+                    {/* =========================================
+                        MÓDULOS
+                    ========================================= */}
 
                     <div className="tool-grid">
                         <button
@@ -929,9 +1205,9 @@ function App() {
                     </div>
                 </section>
 
-                {/* =================================================
+                {/* =============================================
                     THREE.JS
-                ================================================== */}
+                ============================================= */}
 
                 <section
                     id="brain-viewport"
@@ -949,9 +1225,9 @@ function App() {
                 </section>
             </main>
 
-            {/* =====================================================
+            {/* =================================================
                 OVERLAY
-            ====================================================== */}
+            ================================================= */}
 
             <div
                 className={`overlay ${
@@ -965,9 +1241,9 @@ function App() {
                 }
             />
 
-            {/* =====================================================
+            {/* =================================================
                 DIAGNÓSTICO
-            ====================================================== */}
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -1015,11 +1291,18 @@ function App() {
                                 {
                                     length: 9,
                                 },
-                                (_, index) => (
+                                (
+                                    _,
+                                    index
+                                ) => (
                                     <option
-                                        key={index}
+                                        key={
+                                            index
+                                        }
                                     >
-                                        {index + 1}º Ano
+                                        {index +
+                                            1}
+                                        º Ano
                                     </option>
                                 )
                             )}
@@ -1066,7 +1349,8 @@ function App() {
                     }
                     onChange={(event) =>
                         setDiagDescricao(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="Descreva o que foi observado no processo de aprendizagem..."
@@ -1099,9 +1383,9 @@ function App() {
                 )}
             </div>
 
-            {/* =====================================================
+            {/* =================================================
                 BNCC
-            ====================================================== */}
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -1144,7 +1428,8 @@ function App() {
                     value={buscaBNCC}
                     onChange={(event) =>
                         setBuscaBNCC(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="Digite uma habilidade ou palavra-chave..."
@@ -1190,15 +1475,17 @@ function App() {
                         </strong>
 
                         <p>
-                            {resultado.bncc}
+                            {
+                                resultado.bncc
+                            }
                         </p>
                     </div>
                 )}
             </div>
 
-            {/* =====================================================
+            {/* =================================================
                 PLANEJAMENTO
-            ====================================================== */}
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -1244,7 +1531,8 @@ function App() {
                     value={temaPlano}
                     onChange={(event) =>
                         setTemaPlano(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="Ex.: interpretação textual"
@@ -1259,11 +1547,18 @@ function App() {
                         {
                             length: 9,
                         },
-                        (_, index) => (
+                        (
+                            _,
+                            index
+                        ) => (
                             <option
-                                key={index}
+                                key={
+                                    index
+                                }
                             >
-                                {index + 1}º Ano
+                                {index +
+                                    1}
+                                º Ano
                             </option>
                         )
                     )}
@@ -1280,7 +1575,8 @@ function App() {
                     }
                     onChange={(event) =>
                         setObjetivoPlano(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="O que o aluno deverá desenvolver?"
@@ -1310,9 +1606,9 @@ function App() {
                 )}
             </div>
 
-            {/* =====================================================
+            {/* =================================================
                 INTERVENÇÃO
-            ====================================================== */}
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -1360,7 +1656,8 @@ function App() {
                     }
                     onChange={(event) =>
                         setNecessidadeIntervencao(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="Descreva a dificuldade ou necessidade observada..."
@@ -1377,7 +1674,8 @@ function App() {
                     }
                     onChange={(event) =>
                         setContextoIntervencao(
-                            event.target.value
+                            event.target
+                                .value
                         )
                     }
                     placeholder="Informe o contexto da turma ou do estudante..."
