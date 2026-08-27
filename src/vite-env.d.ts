@@ -1,4 +1,3 @@
-
 /// <reference types="vite/client" />
 
 import type {
@@ -8,7 +7,7 @@ import type {
 
 declare module "*.css";
 
-declare global {
+declare module "react" {
     namespace JSX {
         interface IntrinsicElements {
             "spline-viewer": DetailedHTMLProps<
@@ -20,5 +19,3 @@ declare global {
         }
     }
 }
-
-export {};
