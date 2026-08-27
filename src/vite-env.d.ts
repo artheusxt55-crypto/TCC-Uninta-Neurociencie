@@ -1,4 +1,9 @@
-import type { DetailedHTMLProps, HTMLAttributes } from "react";
+
+
+import type {
+    DetailedHTMLProps,
+    HTMLAttributes
+} from "react";
 
 declare global {
     namespace JSX {
