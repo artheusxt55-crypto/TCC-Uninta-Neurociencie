@@ -1,9 +1,12 @@
 
+/// <reference types="vite/client" />
 
 import type {
     DetailedHTMLProps,
     HTMLAttributes
 } from "react";
+
+declare module "*.css";
 
 declare global {
     namespace JSX {
