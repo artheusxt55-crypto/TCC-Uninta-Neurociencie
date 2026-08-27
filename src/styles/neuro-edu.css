@@ -1,5 +1,11 @@
+/* ============================================================
+   EDUCHUB
+   VISUAL SYSTEM — EDITORIAL / SCIENTIFIC / DIGITAL
+   ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+@import url(
+    'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap'
+);
 
 
 /* ============================================================
@@ -8,98 +14,137 @@
 
 :root {
 
-    /* ---------- CORES ---------- */
+    /* ========================================================
+       PALETA
+       ======================================================== */
 
     --ink:
-        oklch(13% 0.035 250);
+        oklch(11% 0.035 252);
 
     --ink-deep:
-        oklch(9% 0.035 255);
+        oklch(7% 0.028 258);
+
+    --ink-soft:
+        oklch(16% 0.045 250);
+
 
     --blue:
-        oklch(57% 0.20 255);
+        oklch(57% 0.205 257);
 
-    --blue-bright:
-        oklch(70% 0.19 245);
+    --blue-light:
+        oklch(72% 0.175 242);
 
     --cyan:
-        oklch(73% 0.16 190);
+        oklch(75% 0.145 190);
 
     --teal:
-        oklch(52% 0.13 175);
+        oklch(55% 0.135 174);
 
     --coral:
-        oklch(69% 0.17 30);
+        oklch(69% 0.175 28);
 
     --amber:
-        oklch(79% 0.15 82);
+        oklch(82% 0.145 82);
+
 
     --paper:
-        oklch(95% 0.025 245);
+        oklch(96% 0.018 245);
 
     --paper-soft:
-        oklch(86% 0.035 245);
+        oklch(87% 0.025 245);
 
     --muted:
-        oklch(70% 0.035 245);
+        oklch(70% 0.035 247);
+
+    --muted-dark:
+        oklch(61% 0.032 247);
 
 
-    /* ---------- SUPERFÍCIES ---------- */
+    /* ========================================================
+       SUPERFÍCIES
+       ======================================================== */
 
     --surface:
-        oklch(17% 0.045 250 / .94);
+        oklch(15% 0.045 252 / .94);
 
-    --surface-strong:
-        oklch(20% 0.055 250 / .97);
+    --surface-raised:
+        oklch(18% 0.05 250 / .97);
 
     --surface-soft:
-        oklch(22% 0.045 250 / .72);
+        oklch(21% 0.05 250 / .70);
 
 
-    /* ---------- BORDAS ---------- */
+    /* ========================================================
+       LINHAS
+       ======================================================== */
 
     --line:
-        oklch(82% 0.03 245 / .13);
+        oklch(86% 0.025 245 / .12);
+
+    --line-strong:
+        oklch(78% 0.08 245 / .22);
 
     --line-blue:
-        oklch(70% 0.15 250 / .28);
+        oklch(70% 0.16 250 / .34);
 
 
-    /* ---------- SOMBRAS ---------- */
-
-    --shadow:
-        0 30px 90px
-        oklch(3% 0.025 250 / .62);
-
-    --shadow-small:
-        0 12px 35px
-        oklch(3% 0.025 250 / .38);
-
-
-    /* ---------- TIPOGRAFIA ---------- */
+    /* ========================================================
+       TIPOGRAFIA
+       ======================================================== */
 
     --font-display:
-        "IBM Plex Serif",
-        Georgia,
+        "Playfair Display",
         serif;
 
     --font-body:
-        "IBM Plex Sans",
+        "Manrope",
         sans-serif;
 
     --font-mono:
-        "IBM Plex Mono",
+        "DM Mono",
         monospace;
 
 
-    /* ---------- RADIUS ---------- */
+    /* ========================================================
+       SOMBRAS
+       ======================================================== */
 
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
+    --shadow-xl:
+        0 45px 120px
+        oklch(3% 0.025 255 / .68);
+
+    --shadow-lg:
+        0 28px 75px
+        oklch(3% 0.025 255 / .48);
+
+    --shadow-md:
+        0 14px 38px
+        oklch(3% 0.025 255 / .34);
 
 
-    /* ---------- TRANSIÇÃO ---------- */
+    /* ========================================================
+       RAIO
+       ======================================================== */
+
+    --radius-xs:
+        6px;
+
+    --radius-sm:
+        10px;
+
+    --radius-md:
+        16px;
+
+    --radius-lg:
+        24px;
+
+    --radius-xl:
+        30px;
+
+
+    /* ========================================================
+       MOVIMENTO
+       ======================================================== */
 
     --ease:
         cubic-bezier(.22,.61,.36,1);
@@ -112,20 +157,30 @@
    ============================================================ */
 
 * {
+
     margin: 0;
     padding: 0;
+
     box-sizing: border-box;
+
 }
 
 
 html {
-    scroll-behavior: smooth;
+
+    scroll-behavior:
+        smooth;
+
+    font-size:
+        16px;
+
 }
 
 
 body {
 
-    min-height: 100vh;
+    min-height:
+        100vh;
 
     color:
         var(--paper);
@@ -134,13 +189,16 @@ body {
         var(--font-body);
 
     background:
-        var(--ink);
+        var(--ink-deep);
 
     overflow-x:
         hidden;
 
     -webkit-font-smoothing:
         antialiased;
+
+    text-rendering:
+        optimizeLegibility;
 
 }
 
@@ -161,66 +219,115 @@ body {
 
 
 /* ============================================================
+   FUNDO BASE
+   ============================================================ */
+
+body::before {
+
+    content:
+        "";
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        -10;
+
+    pointer-events:
+        none;
+
+    background:
+
+        radial-gradient(
+            circle at 72% 18%,
+            oklch(34% .13 255 / .26),
+            transparent 31%
+        ),
+
+        radial-gradient(
+            circle at 14% 84%,
+            oklch(30% .11 184 / .22),
+            transparent 29%
+        ),
+
+        radial-gradient(
+            circle at 54% 105%,
+            oklch(34% .10 28 / .11),
+            transparent 27%
+        ),
+
+        var(--ink-deep);
+
+}
+
+
+/* ============================================================
    FUNDO DE VÍDEO
    ============================================================ */
 
 .video-background {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
 
-    overflow: hidden;
+    height:
+        100%;
 
-    z-index: 0;
+    overflow:
+        hidden;
+
+    z-index:
+        0;
 
     background:
-
-        radial-gradient(
-            circle at 70% 30%,
-            oklch(30% .10 250),
-            transparent 38%
-        ),
-
-        radial-gradient(
-            circle at 20% 80%,
-            oklch(25% .10 185),
-            transparent 35%
-        ),
-
-        var(--ink);
+        var(--ink-deep);
 
 }
 
 
 .bg-video {
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: 0;
+    inset:
+        0;
 
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
 
-    object-fit: cover;
+    height:
+        100%;
 
-    opacity: 0;
+    object-fit:
+        cover;
+
+    opacity:
+        0;
 
     transform:
         scale(1.025);
 
     filter:
-        brightness(.46)
-        saturate(.88)
-        contrast(1.04);
+        brightness(.42)
+        saturate(.82)
+        contrast(1.08);
 
     transition:
 
-        opacity 1.5s var(--ease),
-        transform 8s var(--ease),
+        opacity 1.6s var(--ease),
+
+        transform 9s var(--ease),
+
         filter 1.5s var(--ease);
 
     pointer-events:
@@ -231,15 +338,16 @@ body {
 
 .bg-video.active {
 
-    opacity: 1;
+    opacity:
+        1;
 
     transform:
         scale(1.045);
 
     filter:
-        brightness(.53)
-        saturate(1)
-        contrast(1.05);
+        brightness(.50)
+        saturate(.95)
+        contrast(1.07);
 
 }
 
@@ -247,42 +355,53 @@ body {
 .bg-video.transitioning {
 
     filter:
-        brightness(.36)
-        saturate(.75)
+        brightness(.34)
+        saturate(.70)
         blur(2px);
 
 }
 
 
 /* ============================================================
-   OVERLAY
+   OVERLAY CINEMATOGRÁFICO
    ============================================================ */
 
 .video-overlay {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 1;
+    z-index:
+        1;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
     background:
 
         linear-gradient(
             90deg,
-            oklch(8% .035 250 / .94) 0%,
-            oklch(10% .04 250 / .78) 35%,
-            oklch(10% .04 250 / .25) 70%,
-            oklch(8% .035 250 / .72) 100%
+
+            oklch(6% .035 255 / .96) 0%,
+
+            oklch(8% .04 252 / .82) 30%,
+
+            oklch(9% .04 250 / .36) 62%,
+
+            oklch(7% .035 255 / .82) 100%
         ),
 
         linear-gradient(
             180deg,
-            oklch(7% .035 250 / .45),
-            transparent 48%,
-            oklch(7% .035 250 / .72)
+
+            oklch(5% .03 255 / .52),
+
+            transparent 45%,
+
+            oklch(5% .03 255 / .78)
         );
 
 }
@@ -294,32 +413,36 @@ body {
 
 .video-purple-glow {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 2;
+    z-index:
+        2;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
     background:
 
         radial-gradient(
-            circle at 76% 34%,
-            oklch(62% .20 250 / .13),
-            transparent 30%
+            circle at 76% 32%,
+            oklch(62% .20 255 / .13),
+            transparent 29%
         ),
 
         radial-gradient(
-            circle at 18% 78%,
-            oklch(60% .15 185 / .11),
-            transparent 30%
-        ),
-
-        radial-gradient(
-            circle at 50% 100%,
-            oklch(70% .15 30 / .06),
+            circle at 16% 78%,
+            oklch(62% .16 185 / .11),
             transparent 28%
+        ),
+
+        radial-gradient(
+            circle at 55% 100%,
+            oklch(72% .17 30 / .055),
+            transparent 25%
         );
 
     mix-blend-mode:
@@ -329,45 +452,49 @@ body {
 
 
 /* ============================================================
-   GRADE
+   GRADE ARQUITETÔNICA
    ============================================================ */
 
 .architectural-grid {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 3;
+    z-index:
+        3;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
     opacity:
-        .10;
+        .085;
 
     background-image:
 
         linear-gradient(
-            oklch(90% .03 245 / .06) 1px,
+            oklch(90% .025 245 / .055) 1px,
             transparent 1px
         ),
 
         linear-gradient(
             90deg,
-            oklch(90% .03 245 / .06) 1px,
+            oklch(90% .025 245 / .055) 1px,
             transparent 1px
         );
 
     background-size:
-        76px 76px;
+        78px 78px;
 
     mask-image:
 
         linear-gradient(
             to bottom,
             transparent,
-            black 18%,
-            black 82%,
+            black 16%,
+            black 84%,
             transparent
         );
 
@@ -380,52 +507,67 @@ body {
 
 .side-line {
 
-    position: fixed;
+    position:
+        fixed;
 
-    left: 34px;
+    left:
+        34px;
 
-    top: 14%;
+    top:
+        14%;
 
-    bottom: 14%;
+    bottom:
+        14%;
 
-    width: 1px;
+    width:
+        1px;
 
     background:
 
         linear-gradient(
             transparent,
-            oklch(70% .15 250 / .32),
-            oklch(70% .13 185 / .20),
+            oklch(72% .17 250 / .36),
+            oklch(72% .14 185 / .20),
             transparent
         );
 
-    z-index: 5;
+    z-index:
+        5;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
 }
 
 
 .side-line::after {
 
-    content: "";
+    content:
+        "";
 
-    position: absolute;
+    position:
+        absolute;
 
-    top: 27%;
+    top:
+        27%;
 
-    left: -3px;
+    left:
+        -3px;
 
-    width: 7px;
+    width:
+        7px;
 
-    height: 7px;
+    height:
+        7px;
 
-    border-radius: 50%;
+    border-radius:
+        50%;
 
     background:
         var(--cyan);
 
     box-shadow:
+
         0 0 18px
         oklch(73% .16 190 / .65);
 
@@ -438,16 +580,20 @@ body {
 
 .grain {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 6;
+    z-index:
+        6;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
     opacity:
-        .025;
+        .018;
 
     background-image:
 
@@ -462,13 +608,17 @@ body {
 
 #particles-layer {
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
-    z-index: 7;
+    z-index:
+        7;
 
 }
 
@@ -479,30 +629,36 @@ body {
 
 .btn-aluno-fixo {
 
-    position: fixed;
+    position:
+        fixed;
 
-    top: 25px;
+    top:
+        25px;
 
-    right: 28px;
+    right:
+        28px;
 
-    display: inline-flex;
+    display:
+        inline-flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    gap: 9px;
+    gap:
+        9px;
 
     padding:
-        10px 15px;
+        11px 16px;
 
     border:
         1px solid
         var(--line);
 
     border-radius:
-        var(--radius-sm);
+        999px;
 
     background:
-        oklch(14% .04 250 / .72);
+        oklch(10% .035 250 / .68);
 
     color:
         var(--paper);
@@ -517,13 +673,13 @@ body {
         9px;
 
     font-weight:
-        600;
+        500;
 
     letter-spacing:
-        .08em;
+        .07em;
 
     backdrop-filter:
-        blur(14px);
+        blur(16px);
 
     z-index:
         100;
@@ -552,6 +708,7 @@ body {
         var(--cyan);
 
     box-shadow:
+
         0 0 12px
         oklch(73% .16 190 / .75);
 
@@ -564,7 +721,7 @@ body {
         var(--line-blue);
 
     background:
-        oklch(18% .055 250 / .85);
+        oklch(18% .055 250 / .84);
 
     transform:
         translateY(-2px);
@@ -573,13 +730,13 @@ body {
 
 
 /* ============================================================
-   CONTAINER
+   CONTAINER PRINCIPAL
    ============================================================ */
 
 .main-container {
 
     width:
-        min(94%, 1400px);
+        min(94%, 1440px);
 
     min-height:
         100vh;
@@ -597,7 +754,7 @@ body {
         space-between;
 
     gap:
-        clamp(40px, 7vw, 100px);
+        clamp(45px, 7vw, 110px);
 
     position:
         relative;
@@ -606,13 +763,13 @@ body {
         20;
 
     padding:
-        70px 20px;
+        clamp(70px, 8vh, 100px) 20px;
 
 }
 
 
 /* ============================================================
-   MARCADOR
+   MARCADOR INSTITUCIONAL
    ============================================================ */
 
 .institution-marker {
@@ -636,7 +793,7 @@ body {
         10px;
 
     color:
-        oklch(80% .04 245 / .62);
+        oklch(82% .035 245 / .58);
 
     font-family:
         var(--font-mono);
@@ -656,7 +813,7 @@ body {
 .institution-marker span {
 
     width:
-        28px;
+        30px;
 
     height:
         1px;
@@ -681,18 +838,23 @@ body {
     position:
         relative;
 
+    flex:
+        0 0 440px;
+
     width:
         440px;
 
     padding:
-        36px;
+        38px;
 
     background:
 
         linear-gradient(
             145deg,
-            oklch(20% .055 250 / .96),
-            oklch(12% .045 250 / .94)
+
+            oklch(19% .06 252 / .97),
+
+            oklch(10% .04 258 / .96)
         );
 
     border:
@@ -700,13 +862,13 @@ body {
         var(--line);
 
     border-radius:
-        var(--radius-lg);
+        var(--radius-xl);
 
     backdrop-filter:
         blur(22px);
 
     box-shadow:
-        var(--shadow);
+        var(--shadow-xl);
 
     overflow:
         hidden;
@@ -714,7 +876,7 @@ body {
 }
 
 
-/* detalhe cromático superior */
+/* linha cromática */
 
 .card::before {
 
@@ -740,16 +902,20 @@ body {
 
         linear-gradient(
             90deg,
-            var(--cyan),
-            var(--blue),
-            var(--coral),
-            var(--amber)
+
+            var(--cyan) 0%,
+
+            var(--blue) 34%,
+
+            var(--coral) 68%,
+
+            var(--amber) 100%
         );
 
 }
 
 
-/* brilho interno */
+/* luz interna */
 
 .card::after {
 
@@ -760,25 +926,25 @@ body {
         absolute;
 
     width:
-        260px;
+        300px;
 
     height:
-        260px;
+        300px;
 
     right:
-        -180px;
+        -210px;
 
     top:
-        -160px;
+        -190px;
 
     border-radius:
         50%;
 
     background:
-        oklch(65% .20 250 / .10);
+        oklch(65% .21 250 / .11);
 
     filter:
-        blur(40px);
+        blur(45px);
 
     pointer-events:
         none;
@@ -802,7 +968,7 @@ body {
         12px;
 
     margin-bottom:
-        22px;
+        24px;
 
 }
 
@@ -810,10 +976,13 @@ body {
 .brand-icon {
 
     width:
-        36px;
+        38px;
 
     height:
-        36px;
+        38px;
+
+    flex:
+        0 0 38px;
 
     display:
         flex;
@@ -825,19 +994,22 @@ body {
         center;
 
     border-radius:
-        10px;
+        11px;
 
     background:
 
         linear-gradient(
             135deg,
+
             var(--blue),
+
             var(--cyan)
         );
 
     box-shadow:
-        0 10px 30px
-        oklch(40% .18 250 / .32);
+
+        0 12px 32px
+        oklch(40% .18 250 / .30);
 
 }
 
@@ -875,10 +1047,10 @@ body {
         10px;
 
     font-weight:
-        600;
+        500;
 
     letter-spacing:
-        .16em;
+        .17em;
 
     color:
         var(--paper);
@@ -914,7 +1086,7 @@ body {
         8px;
 
     font-weight:
-        500;
+        400;
 
     letter-spacing:
         .10em;
@@ -937,6 +1109,7 @@ body {
         var(--cyan);
 
     box-shadow:
+
         0 0 14px
         oklch(73% .16 190 / .55);
 
@@ -953,10 +1126,10 @@ body {
         100%;
 
     height:
-        155px;
+        165px;
 
     margin-bottom:
-        3px;
+        4px;
 
     overflow:
         hidden;
@@ -971,7 +1144,9 @@ body {
 
         radial-gradient(
             circle at center,
-            oklch(35% .10 250 / .22),
+
+            oklch(38% .12 250 / .22),
+
             transparent 68%
         );
 
@@ -987,10 +1162,10 @@ body {
         absolute;
 
     left:
-        10%;
+        9%;
 
     right:
-        10%;
+        9%;
 
     bottom:
         0;
@@ -1002,9 +1177,13 @@ body {
 
         linear-gradient(
             90deg,
+
             transparent,
+
             var(--cyan),
+
             var(--blue),
+
             transparent
         );
 
@@ -1031,20 +1210,23 @@ body {
 
 h2 {
 
+    max-width:
+        390px;
+
     font-family:
         var(--font-display);
 
     font-size:
-        clamp(27px, 3vw, 34px);
+        clamp(30px, 3.1vw, 40px);
 
     line-height:
-        1.02;
+        .99;
 
     letter-spacing:
         -.035em;
 
     margin-bottom:
-        10px;
+        12px;
 
     font-weight:
         500;
@@ -1052,13 +1234,20 @@ h2 {
 }
 
 
+/* ============================================================
+   SUBTÍTULO
+   ============================================================ */
+
 .subtitle {
+
+    max-width:
+        390px;
 
     color:
         var(--muted);
 
     margin-bottom:
-        24px;
+        26px;
 
     font-family:
         var(--font-body);
@@ -1100,7 +1289,7 @@ textarea {
         var(--line);
 
     background:
-        oklch(11% .035 250 / .72);
+        oklch(9% .032 250 / .72);
 
     color:
         var(--paper);
@@ -1113,6 +1302,16 @@ textarea {
 
     transition:
         .25s var(--ease);
+
+}
+
+
+input:hover,
+select:hover,
+textarea:hover {
+
+    border-color:
+        var(--line-strong);
 
 }
 
@@ -1132,7 +1331,7 @@ input::placeholder,
 textarea::placeholder {
 
     color:
-        oklch(68% .035 245 / .48);
+        oklch(70% .035 245 / .45);
 
 }
 
@@ -1145,14 +1344,14 @@ textarea:focus {
         var(--cyan);
 
     background:
-        oklch(14% .045 250 / .92);
+        oklch(14% .045 250 / .94);
 
     box-shadow:
 
         0 0 0 3px
-        oklch(73% .16 190 / .07),
+        oklch(73% .16 190 / .065),
 
-        0 8px 30px
+        0 10px 32px
         oklch(10% .04 250 / .28);
 
 }
@@ -1178,8 +1377,11 @@ select option {
     width:
         100%;
 
+    min-height:
+        48px;
+
     padding:
-        15px 18px;
+        14px 18px;
 
     border:
         0;
@@ -1190,9 +1392,12 @@ select option {
     background:
 
         linear-gradient(
-            100deg,
+            105deg,
+
             var(--blue),
-            oklch(64% .19 225),
+
+            oklch(64% .19 230),
+
             var(--cyan)
         );
 
@@ -1206,7 +1411,7 @@ select option {
         9px;
 
     font-weight:
-        600;
+        500;
 
     letter-spacing:
         .08em;
@@ -1218,8 +1423,9 @@ select option {
         .3s var(--ease);
 
     box-shadow:
-        0 14px 30px
-        oklch(40% .18 250 / .24);
+
+        0 14px 34px
+        oklch(40% .18 250 / .25);
 
 }
 
@@ -1230,8 +1436,9 @@ select option {
         translateY(-2px);
 
     box-shadow:
-        0 18px 38px
-        oklch(40% .18 250 / .36);
+
+        0 18px 42px
+        oklch(40% .18 250 / .38);
 
 }
 
@@ -1245,13 +1452,16 @@ select option {
 
 
 /* ============================================================
-   BOTÕES SECUNDÁRIOS
+   BOTÃO BIBLIOTECA
    ============================================================ */
 
 .btn-library {
 
     display:
         block;
+
+    width:
+        100%;
 
     margin-top:
         10px;
@@ -1264,7 +1474,7 @@ select option {
         var(--line);
 
     background:
-        oklch(17% .045 250 / .58);
+        oklch(17% .045 250 / .55);
 
     color:
         var(--paper);
@@ -1296,16 +1506,20 @@ select option {
 .btn-library:hover {
 
     border-color:
-        oklch(73% .16 190 / .35);
+        oklch(73% .16 190 / .36);
 
     background:
-        oklch(21% .06 190 / .20);
+        oklch(21% .06 190 / .18);
 
     transform:
         translateY(-1px);
 
 }
 
+
+/* ============================================================
+   BOTÃO ATLAS
+   ============================================================ */
 
 .btn-atlas {
 
@@ -1332,7 +1546,7 @@ select option {
         oklch(69% .17 30 / .045);
 
     color:
-        oklch(80% .08 55);
+        oklch(82% .08 55);
 
     text-decoration:
         none;
@@ -1373,13 +1587,16 @@ select option {
 #brain-viewport {
 
     flex:
-        1;
+        1 1 auto;
+
+    width:
+        100%;
 
     height:
-        620px;
+        clamp(500px, 72vh, 700px);
 
     min-width:
-        500px;
+        0;
 
     position:
         relative;
@@ -1419,7 +1636,7 @@ select option {
         8px 13px;
 
     background:
-        oklch(12% .04 250 / .58);
+        oklch(11% .035 250 / .55);
 
     border:
         1px solid
@@ -1482,7 +1699,7 @@ select option {
         translate(-50%, -50%);
 
     width:
-        min(720px, 92%);
+        min(720px, 92vw);
 
     max-height:
         88vh;
@@ -1491,14 +1708,16 @@ select option {
         auto;
 
     padding:
-        30px;
+        clamp(22px, 3vw, 32px);
 
     background:
 
         linear-gradient(
             145deg,
-            oklch(20% .055 250 / .98),
-            oklch(11% .04 250 / .98)
+
+            oklch(19% .055 252 / .985),
+
+            oklch(9% .035 258 / .985)
         );
 
     border:
@@ -1506,14 +1725,13 @@ select option {
         var(--line-blue);
 
     border-radius:
-        var(--radius-lg);
+        var(--radius-xl);
 
     box-shadow:
-        0 40px 110px
-        oklch(3% .025 250 / .78);
+        var(--shadow-xl);
 
     backdrop-filter:
-        blur(26px);
+        blur(25px);
 
     z-index:
         200;
@@ -1558,7 +1776,7 @@ select option {
 
 
 /* ============================================================
-   CABEÇALHO DO PAINEL
+   CABEÇALHO DOS PAINÉIS
    ============================================================ */
 
 .tool-header {
@@ -1567,13 +1785,16 @@ select option {
         flex;
 
     align-items:
-        center;
+        flex-start;
 
     justify-content:
         space-between;
 
+    gap:
+        20px;
+
     margin-bottom:
-        22px;
+        24px;
 
 }
 
@@ -1584,7 +1805,10 @@ select option {
         var(--font-display);
 
     font-size:
-        24px;
+        clamp(23px, 3vw, 30px);
+
+    line-height:
+        1;
 
     font-weight:
         500;
@@ -1595,7 +1819,7 @@ select option {
 .tool-header p {
 
     margin-top:
-        5px;
+        7px;
 
     color:
         var(--muted);
@@ -1606,16 +1830,22 @@ select option {
     font-size:
         9px;
 
+    line-height:
+        1.5;
+
 }
 
 
 .close-tool {
 
     width:
-        34px;
+        36px;
 
     height:
-        34px;
+        36px;
+
+    flex:
+        0 0 36px;
 
     border:
         1px solid
@@ -1637,7 +1867,7 @@ select option {
         16px;
 
     transition:
-        .2s;
+        .2s var(--ease);
 
 }
 
@@ -1666,7 +1896,7 @@ select option {
         grid;
 
     grid-template-columns:
-        repeat(2, 1fr);
+        repeat(2, minmax(0, 1fr));
 
     gap:
         12px;
@@ -1679,11 +1909,14 @@ select option {
     position:
         relative;
 
+    min-width:
+        0;
+
     padding:
         18px;
 
     background:
-        oklch(18% .045 250 / .62);
+        oklch(18% .045 250 / .60);
 
     border:
         1px solid
@@ -1725,7 +1958,9 @@ select option {
 
         linear-gradient(
             180deg,
+
             var(--cyan),
+
             var(--blue)
         );
 
@@ -1744,7 +1979,7 @@ select option {
         var(--line-blue);
 
     background:
-        oklch(21% .055 250 / .75);
+        oklch(21% .055 250 / .74);
 
 }
 
@@ -1778,7 +2013,7 @@ select option {
         var(--muted);
 
     line-height:
-        1.6;
+        1.65;
 
 }
 
@@ -1847,7 +2082,7 @@ select option {
         8px;
 
     font-weight:
-        600;
+        500;
 
     letter-spacing:
         .06em;
@@ -1885,8 +2120,10 @@ select option {
 
         linear-gradient(
             135deg,
+
             oklch(57% .20 255 / .08),
-            oklch(73% .16 190 / .06)
+
+            oklch(73% .16 190 / .055)
         );
 
     border:
@@ -2012,7 +2249,7 @@ select option {
 ::-webkit-scrollbar-track {
 
     background:
-        oklch(10% .035 250);
+        oklch(9% .03 250);
 
 }
 
@@ -2033,29 +2270,108 @@ select option {
 
 
 /* ============================================================
-   RESPONSIVO
+   TABLET — 1200px
    ============================================================ */
 
-@media(max-width: 1000px) {
+@media (max-width: 1200px) {
 
     .main-container {
 
         gap:
-            30px;
+            40px;
+
+        width:
+            min(95%, 1120px);
 
     }
 
+
+    .card {
+
+        flex-basis:
+            410px;
+
+        width:
+            410px;
+
+        padding:
+            32px;
+
+    }
+
+
     #brain-viewport {
 
-        min-width:
-            430px;
+        height:
+            590px;
 
     }
 
 }
 
 
-@media(max-width: 900px) {
+/* ============================================================
+   TABLET — 1024px
+   ============================================================ */
+
+@media (max-width: 1024px) {
+
+    .main-container {
+
+        width:
+            min(94%, 980px);
+
+        gap:
+            25px;
+
+    }
+
+
+    .card {
+
+        flex-basis:
+            390px;
+
+        width:
+            390px;
+
+        padding:
+            30px;
+
+    }
+
+
+    #brain-viewport {
+
+        height:
+            540px;
+
+    }
+
+
+    h2 {
+
+        font-size:
+            clamp(28px, 4vw, 36px);
+
+    }
+
+
+    .avatar-3d {
+
+        height:
+            145px;
+
+    }
+
+}
+
+
+/* ============================================================
+   TABLET VERTICAL / TELAS MENORES
+   ============================================================ */
+
+@media (max-width: 900px) {
 
     body {
 
@@ -2063,7 +2379,7 @@ select option {
             auto;
 
         padding:
-            80px 0 30px;
+            0 0 35px;
 
     }
 
@@ -2073,11 +2389,23 @@ select option {
         min-height:
             auto;
 
+        width:
+            100%;
+
+        padding:
+            95px 24px 40px;
+
         flex-direction:
             column;
 
+        align-items:
+            center;
+
+        justify-content:
+            flex-start;
+
         gap:
-            20px;
+            10px;
 
     }
 
@@ -2090,31 +2418,6 @@ select option {
     }
 
 
-    #brain-viewport {
-
-        width:
-            100%;
-
-        min-width:
-            0;
-
-        height:
-            420px;
-
-        order:
-            -1;
-
-    }
-
-
-    .card {
-
-        width:
-            min(440px, 92%);
-
-    }
-
-
     .side-line {
 
         display:
@@ -2122,15 +2425,302 @@ select option {
 
     }
 
+
+    #brain-viewport {
+
+        width:
+            min(100%, 720px);
+
+        height:
+            430px;
+
+        order:
+            -1;
+
+    }
+
+
+    .brain-label {
+
+        top:
+            15px;
+
+    }
+
+
+    .card {
+
+        width:
+            min(100%, 500px);
+
+        flex:
+            0 1 auto;
+
+        padding:
+            30px;
+
+    }
+
+
+    .avatar-3d {
+
+        height:
+            150px;
+
+    }
+
+
+    .tool-panel {
+
+        width:
+            min(94vw, 720px);
+
+        max-height:
+            90vh;
+
+    }
+
 }
 
 
-@media(max-width: 550px) {
+/* ============================================================
+   TABLET PEQUENO — 768px
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .main-container {
+
+        padding-left:
+            20px;
+
+        padding-right:
+            20px;
+
+    }
+
+
+    #brain-viewport {
+
+        height:
+            390px;
+
+    }
+
+
+    .card {
+
+        width:
+            min(100%, 520px);
+
+        border-radius:
+            var(--radius-lg);
+
+    }
+
+
+    .tool-panel {
+
+        width:
+            94vw;
+
+        padding:
+            25px;
+
+        border-radius:
+            var(--radius-lg);
+
+    }
+
 
     .tool-grid {
 
         grid-template-columns:
-            1fr;
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+
+    .btn-aluno-fixo {
+
+        top:
+            18px;
+
+        right:
+            20px;
+
+    }
+
+}
+
+
+/* ============================================================
+   CELULAR — 600px
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .main-container {
+
+        padding:
+            82px 14px 30px;
+
+        gap:
+            2px;
+
+    }
+
+
+    #brain-viewport {
+
+        height:
+            330px;
+
+    }
+
+
+    .brain-label {
+
+        font-size:
+            7px;
+
+        padding:
+            7px 10px;
+
+    }
+
+
+    .card {
+
+        width:
+            100%;
+
+        padding:
+            24px 20px;
+
+        border-radius:
+            20px;
+
+    }
+
+
+    .brand {
+
+        margin-bottom:
+            19px;
+
+    }
+
+
+    .brand-icon {
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+        flex-basis:
+            34px;
+
+    }
+
+
+    .brand span {
+
+        font-size:
+            9px;
+
+    }
+
+
+    .system-status {
+
+        margin-bottom:
+            10px;
+
+    }
+
+
+    .avatar-3d {
+
+        height:
+            130px;
+
+        margin-bottom:
+            6px;
+
+    }
+
+
+    h2 {
+
+        font-size:
+            clamp(29px, 9vw, 36px);
+
+        max-width:
+            none;
+
+    }
+
+
+    .subtitle {
+
+        font-size:
+            11px;
+
+        line-height:
+            1.7;
+
+        margin-bottom:
+            20px;
+
+    }
+
+
+    input,
+    select,
+    textarea {
+
+        min-height:
+            46px;
+
+        font-size:
+            12px;
+
+    }
+
+
+    textarea {
+
+        min-height:
+            110px;
+
+    }
+
+
+    .btn-neuro {
+
+        min-height:
+            48px;
+
+    }
+
+
+    .btn-library,
+    .btn-atlas {
+
+        min-height:
+            44px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
 
     }
 
@@ -2143,21 +2733,115 @@ select option {
         right:
             12px;
 
+        padding:
+            9px 12px;
+
+        font-size:
+            8px;
+
+    }
+
+
+    .tool-panel {
+
+        width:
+            calc(100vw - 20px);
+
+        max-height:
+            calc(100vh - 20px);
+
+        padding:
+            20px 17px;
+
+        border-radius:
+            18px;
+
+    }
+
+
+    .tool-header {
+
+        gap:
+            12px;
+
+        margin-bottom:
+            18px;
+
+    }
+
+
+    .tool-header h3 {
+
+        font-size:
+            24px;
+
+    }
+
+
+    .tool-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+
+    }
+
+
+    .tool-card {
+
+        padding:
+            15px;
+
+    }
+
+
+    .close-tool {
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+        flex-basis:
+            34px;
+
+    }
+
+}
+
+
+/* ============================================================
+   CELULAR PEQUENO — 420px
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    #brain-viewport {
+
+        height:
+            285px;
+
+    }
+
+
+    .main-container {
+
+        padding:
+            75px 10px 25px;
+
     }
 
 
     .card {
 
         padding:
-            25px;
+            21px 16px;
 
-    }
-
-
-    h2 {
-
-        font-size:
-            28px;
+        border-radius:
+            18px;
 
     }
 
@@ -2165,15 +2849,96 @@ select option {
     .avatar-3d {
 
         height:
-            135px;
+            115px;
+
+    }
+
+
+    h2 {
+
+        font-size:
+            30px;
+
+    }
+
+
+    .subtitle {
+
+        font-size:
+            10.5px;
+
+    }
+
+
+    .btn-aluno-fixo {
+
+        padding:
+            8px 10px;
+
+    }
+
+
+    .btn-aluno-fixo::before {
+
+        width:
+            5px;
+
+        height:
+            5px;
 
     }
 
 
     .tool-panel {
 
+        width:
+            calc(100vw - 12px);
+
         padding:
-            22px;
+            18px 14px;
+
+    }
+
+
+    .tool-header h3 {
+
+        font-size:
+            21px;
+
+    }
+
+
+    .result-box {
+
+        padding:
+            14px;
+
+    }
+
+}
+
+
+/* ============================================================
+   REDUÇÃO DE MOVIMENTO
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior:
+            auto !important;
+
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .01ms !important;
 
     }
 
