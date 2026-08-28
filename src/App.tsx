@@ -1,1782 +1,1645 @@
-```tsx
-import "./styles/neuro-edu.css";
+```css
+/* ==========================================================================
+   NEURO-EDUCA · UNINTA
+   Laboratório de Pesquisa e Práticas Pedagógicas
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+   Direção de design
+   ------------------
+   Sala de leitura noturna, guardada pela coruja de Atena.
 
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+   Linguagem visual:
+   - Ouro envelhecido
+   - Violeta profundo
+   - Tinta noturna
+   - Pergaminho
+   - Fraunces + IBM Plex
+   - Cortes diagonais de ficha catalográfica
+   - Medalhão da coruja
+   - Grade arquitetônica
+   - Textura analógica
+   ========================================================================== */
 
-/* =========================================================
-   TIPOS
-   ========================================================= */
 
-type VideoIndex = 0 | 1 | 2;
+/* ==========================================================================
+   FONTES
+   ========================================================================== */
 
-type ModuleName =
-  | "diagnostico"
-  | "bncc"
-  | "planejamento"
-  | "intervencao"
-  | null;
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
-type Resultados = {
-  diagnostico?: string;
-  bncc?: string;
-  planejamento?: string;
-  intervencao?: string;
-};
 
-/* =========================================================
-   CONSTANTES
-   ========================================================= */
+/* ==========================================================================
+   DESIGN TOKENS
+   ========================================================================== */
 
-const ANOS = Array.from(
-  { length: 9 },
-  (_, i) => `${i + 1}º Ano`
-);
+:root {
 
-/* =========================================================
-   APP
-   ========================================================= */
+  /* ------------------------------------------------------------------------
+     CORES — FUNDO
+     ------------------------------------------------------------------------ */
 
-function App() {
-  /* ---------------------------------------------------------
-     REFS
-     --------------------------------------------------------- */
+  --ink: #0b0a13;
+  --surface: #17141f;
+  --surface-raised: #1d1929;
 
-  const brainViewportRef =
-    useRef<HTMLDivElement | null>(null);
 
-  const videosRef =
-    useRef<(HTMLVideoElement | null)[]>([]);
+  /* ------------------------------------------------------------------------
+     CORES — TEXTO
+     ------------------------------------------------------------------------ */
 
-  const transitioningRef =
-    useRef(false);
+  --paper: #ede6d6;
+  --paper-dim: #a89c89;
+  --paper-faint: #6f6759;
 
-  const transitionTimeoutRef =
-    useRef<number | null>(null);
 
-  const currentVideoRef =
-    useRef<VideoIndex>(0);
+  /* ------------------------------------------------------------------------
+     CORES — OURO
+     ------------------------------------------------------------------------ */
 
-  /* ---------------------------------------------------------
-     ESTADOS
-     --------------------------------------------------------- */
+  --gold: #c7a468;
+  --gold-bright: #e6c992;
+  --gold-dim: #8a7248;
 
-  const [currentVideo, setCurrentVideo] =
-    useState<VideoIndex>(0);
 
-  const [activeModule, setActiveModule] =
-    useState<ModuleName>(null);
+  /* ------------------------------------------------------------------------
+     CORES — VIOLETA
+     ------------------------------------------------------------------------ */
 
-  const [idInput, setIdInput] =
-    useState("");
+  --violet: #6b5490;
+  --violet-soft: #443463;
 
-  const [diagDescricao, setDiagDescricao] =
-    useState("");
 
-  const [buscaBNCC, setBuscaBNCC] =
-    useState("");
+  /* ------------------------------------------------------------------------
+     BORDAS / SOMBRAS
+     ------------------------------------------------------------------------ */
 
-  const [temaPlano, setTemaPlano] =
-    useState("");
+  --line: rgba(199, 164, 104, 0.16);
+  --line-bright: rgba(199, 164, 104, 0.4);
 
-  const [objetivoPlano, setObjetivoPlano] =
-    useState("");
+  --shadow-deep: rgba(4, 3, 8, 0.65);
 
-  const [necessidadeIntervencao, setNecessidadeIntervencao] =
-    useState("");
 
-  const [contextoIntervencao, setContextoIntervencao] =
-    useState("");
+  /* ------------------------------------------------------------------------
+     TIPOGRAFIA
+     ------------------------------------------------------------------------ */
 
-  const [resultado, setResultado] =
-    useState<Resultados>({});
+  --font-display:
+    "Fraunces",
+    "Iowan Old Style",
+    ui-serif,
+    Georgia,
+    serif;
 
-  const [accessError, setAccessError] =
-    useState(false);
+  --font-body:
+    "IBM Plex Sans",
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
 
-  const [modelStatus, setModelStatus] =
-    useState<"loading" | "ready" | "error">("loading");
+  --font-mono:
+    "IBM Plex Mono",
+    ui-monospace,
+    "SFMono-Regular",
+    monospace;
 
-  /* =========================================================
-     SINCRONIZA O VÍDEO ATUAL COM O REF
-     ========================================================= */
 
-  useEffect(() => {
-    currentVideoRef.current = currentVideo;
-  }, [currentVideo]);
+  /* ------------------------------------------------------------------------
+     FORMA
+     ------------------------------------------------------------------------ */
 
-  /* =========================================================
-     SEQUÊNCIA DE VÍDEOS
-     ========================================================= */
-
-  useEffect(() => {
-    const videos = videosRef.current.filter(
-      (video): video is HTMLVideoElement =>
-        video !== null
-    );
-
-    if (!videos.length) return;
-
-    videos.forEach((video, index) => {
-      video.muted = true;
-      video.playsInline = true;
-      video.preload = "auto";
-      video.loop = index === 2;
-    });
-
-    const firstVideo = videos[0];
-
-    firstVideo.currentTime = 0;
-    firstVideo.classList.add("active");
-
-    firstVideo.play().catch(() => {
-      console.warn(
-        "O navegador bloqueou o autoplay."
-      );
-    });
-
-    const cleanups: Array<() => void> = [];
-
-    videos.forEach((video, index) => {
-      if (index === 2) return;
-
-      const handleEnded = () => {
-        if (index !== currentVideoRef.current) {
-          return;
-        }
-
-        if (transitioningRef.current) {
-          return;
-        }
-
-        const nextIndex =
-          (index + 1) as VideoIndex;
-
-        const nextVideo =
-          videos[nextIndex];
-
-        if (!nextVideo) return;
-
-        transitioningRef.current = true;
-
-        nextVideo.currentTime = 0;
-
-        nextVideo
-          .play()
-          .then(() => {
-            nextVideo.classList.add("active");
-
-            transitionTimeoutRef.current =
-              window.setTimeout(() => {
-                video.classList.remove("active");
-
-                video.pause();
-
-                video.currentTime = 0;
-
-                setCurrentVideo(nextIndex);
-
-                transitioningRef.current = false;
-              }, 1400);
-          })
-          .catch(() => {
-            transitioningRef.current = false;
-          });
-      };
-
-      video.addEventListener(
-        "ended",
-        handleEnded
-      );
-
-      cleanups.push(() => {
-        video.removeEventListener(
-          "ended",
-          handleEnded
-        );
-      });
-    });
-
-    return () => {
-      cleanups.forEach(
-        (cleanup) => cleanup()
-      );
-
-      if (
-        transitionTimeoutRef.current !== null
-      ) {
-        window.clearTimeout(
-          transitionTimeoutRef.current
-        );
-      }
-    };
-  }, []);
-
-  /* =========================================================
-     TECLA ESC
-     ========================================================= */
-
-  useEffect(() => {
-    const handleKeyDown = (
-      event: KeyboardEvent
-    ) => {
-      if (event.key === "Escape") {
-        closeModule();
-      }
-    };
-
-    document.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
-    return () => {
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-    };
-  }, []);
-
-  /* =========================================================
-     THREE.JS — CORUJA
-     ========================================================= */
-
-  useEffect(() => {
-    const container =
-      brainViewportRef.current;
-
-    if (!container) return;
-
-    const prefersReducedMotion =
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-    /* -------------------------------------------------------
-       CENA
-       ------------------------------------------------------- */
-
-    const scene = new THREE.Scene();
-
-    scene.fog = new THREE.FogExp2(
-      0x090614,
-      0.045
-    );
-
-    /* -------------------------------------------------------
-       TAMANHO
-       ------------------------------------------------------- */
-
-    const width =
-      container.clientWidth || 500;
-
-    const height =
-      container.clientHeight || 500;
-
-    /* -------------------------------------------------------
-       CÂMERA
-       ------------------------------------------------------- */
-
-    const camera =
-      new THREE.PerspectiveCamera(
-        35,
-        width / height,
-        0.1,
-        1000
-      );
-
-    camera.position.z = 8;
-
-    /* -------------------------------------------------------
-       RENDERER
-       ------------------------------------------------------- */
-
-    const renderer =
-      new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-      });
-
-    renderer.setSize(
-      width,
-      height
-    );
-
-    renderer.setPixelRatio(
-      Math.min(
-        window.devicePixelRatio,
-        2
-      )
-    );
-
-    renderer.outputColorSpace =
-      THREE.SRGBColorSpace;
-
-    container.appendChild(
-      renderer.domElement
-    );
-
-    /* =======================================================
-       ILUMINAÇÃO
-       ======================================================= */
-
-    const ambientLight =
-      new THREE.AmbientLight(
-        0xffffff,
-        0.8
-      );
-
-    scene.add(ambientLight);
-
-    const mainLight =
-      new THREE.PointLight(
-        0xffffff,
-        1.8
-      );
-
-    mainLight.position.set(
-      5,
-      5,
-      10
-    );
-
-    scene.add(mainLight);
-
-    const goldLight =
-      new THREE.PointLight(
-        0xc4a265,
-        0.9
-      );
-
-    goldLight.position.set(
-      -5,
-      -2,
-      5
-    );
-
-    scene.add(goldLight);
-
-    /* =======================================================
-       PARTÍCULAS
-       ======================================================= */
-
-    const partGeo =
-      new THREE.BufferGeometry();
-
-    const partCount = 700;
-
-    const positions =
-      new Float32Array(
-        partCount * 3
-      );
-
-    for (
-      let i = 0;
-      i < partCount * 3;
-      i++
-    ) {
-      positions[i] =
-        (Math.random() - 0.5) * 15;
-    }
-
-    partGeo.setAttribute(
-      "position",
-      new THREE.BufferAttribute(
-        positions,
-        3
-      )
-    );
-
-    const partMat =
-      new THREE.PointsMaterial({
-        size: 0.022,
-        color: 0xc4a265,
-        transparent: true,
-        opacity: 0.28,
-      });
-
-    const particles =
-      new THREE.Points(
-        partGeo,
-        partMat
-      );
-
-    scene.add(particles);
-
-    /* =======================================================
-       MODELO GLB
-       ======================================================= */
-
-    let brain:
-      THREE.Object3D | null = null;
-
-    let targetX = 0;
-    let targetY = 0;
-
-    let entradaInicio:
-      number | null = null;
-
-    let entradaFinalizada = false;
-
-    const modelURL =
-      "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
-
-    const loader =
-      new GLTFLoader();
-
-    loader.load(
-      modelURL,
-
-      (gltf) => {
-        brain = gltf.scene;
-
-        brain.traverse(
-          (object) => {
-            if (
-              object instanceof THREE.Mesh
-            ) {
-              object.castShadow = true;
-              object.receiveShadow = true;
-            }
-          }
-        );
-
-        brain.scale.set(
-          0.01,
-          0.01,
-          0.01
-        );
-
-        brain.position.set(
-          0,
-          -0.8,
-          0
-        );
-
-        brain.rotation.set(
-          0,
-          -0.35,
-          0
-        );
-
-        scene.add(brain);
-
-        entradaInicio =
-          performance.now();
-
-        entradaFinalizada = false;
-
-        setModelStatus("ready");
-      },
-
-      undefined,
-
-      (error) => {
-        console.error(
-          "Erro ao carregar Corujafinal.glb:",
-          error
-        );
-
-        setModelStatus("error");
-      }
-    );
-
-    /* =======================================================
-       MOUSE / PARALAXE
-       ======================================================= */
-
-    const handleMouseMove = (
-      event: MouseEvent
-    ) => {
-      if (prefersReducedMotion) {
-        return;
-      }
-
-      const mouseX =
-        event.clientX /
-          window.innerWidth -
-        0.5;
-
-      const mouseY =
-        event.clientY /
-          window.innerHeight -
-        0.5;
-
-      targetX =
-        mouseX * 0.16;
-
-      targetY =
-        mouseY * 0.1;
-    };
-
-    window.addEventListener(
-      "mousemove",
-      handleMouseMove
-    );
-
-    /* =======================================================
-       ANIMAÇÃO
-       ======================================================= */
-
-    let animationFrame = 0;
-
-    const animate = (
-      now: number
-    ) => {
-      animationFrame =
-        requestAnimationFrame(
-          animate
-        );
-
-      if (!prefersReducedMotion) {
-        particles.rotation.y +=
-          0.0007;
-
-        particles.rotation.x +=
-          0.0001;
-      }
-
-      /* -----------------------------------------------------
-         ENTRADA DA CORUJA
-         ----------------------------------------------------- */
-
-      if (
-        brain &&
-        !entradaFinalizada &&
-        entradaInicio !== null
-      ) {
-        const duracao = 1700;
-
-        const tempo =
-          now - entradaInicio;
-
-        const progresso =
-          Math.min(
-            tempo / duracao,
-            1
-          );
-
-        const ease =
-          1 -
-          Math.pow(
-            1 - progresso,
-            4
-          );
-
-        const escala =
-          1.45 * ease;
-
-        brain.scale.set(
-          escala,
-          escala,
-          escala
-        );
-
-        brain.position.y =
-          -0.8 +
-          0.8 * ease;
-
-        brain.rotation.y =
-          -0.35 +
-          0.35 * ease;
-
-        brain.rotation.z =
-          Math.sin(
-            progresso *
-              Math.PI
-          ) * 0.035;
-
-        if (
-          progresso >= 1
-        ) {
-          entradaFinalizada =
-            true;
-
-          entradaInicio =
-            null;
-
-          brain.position.y = 0;
-        }
-      }
-
-      /* -----------------------------------------------------
-         MOVIMENTO CONTÍNUO
-         ----------------------------------------------------- */
-
-      if (
-        brain &&
-        entradaFinalizada
-      ) {
-        brain.position.y =
-          prefersReducedMotion
-            ? 0
-            : Math.sin(
-                now * 0.0014
-              ) * 0.045;
-
-        brain.rotation.y +=
-          0.035 *
-          (targetX -
-            brain.rotation.y);
-
-        brain.rotation.x +=
-          0.025 *
-          (targetY -
-            brain.rotation.x);
-
-        brain.rotation.z =
-          prefersReducedMotion
-            ? 0
-            : Math.sin(
-                now * 0.0009
-              ) * 0.025;
-      }
-
-      renderer.render(
-        scene,
-        camera
-      );
-    };
-
-    animationFrame =
-      requestAnimationFrame(
-        animate
-      );
-
-    /* =======================================================
-       RESPONSIVIDADE
-       ======================================================= */
-
-    const handleResize = () => {
-      const newWidth =
-        container.clientWidth;
-
-      const newHeight =
-        container.clientHeight;
-
-      if (
-        newWidth <= 0 ||
-        newHeight <= 0
-      ) {
-        return;
-      }
-
-      camera.aspect =
-        newWidth /
-        newHeight;
-
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(
-        newWidth,
-        newHeight
-      );
-    };
-
-    window.addEventListener(
-      "resize",
-      handleResize
-    );
-
-    /* =======================================================
-       CLEANUP
-       ======================================================= */
-
-    return () => {
-      cancelAnimationFrame(
-        animationFrame
-      );
-
-      window.removeEventListener(
-        "mousemove",
-        handleMouseMove
-      );
-
-      window.removeEventListener(
-        "resize",
-        handleResize
-      );
-
-      if (
-        renderer.domElement.parentNode ===
-        container
-      ) {
-        container.removeChild(
-          renderer.domElement
-        );
-      }
-
-      renderer.dispose();
-
-      partGeo.dispose();
-
-      partMat.dispose();
-
-      scene.clear();
-    };
-  }, []);
-
-  /* =========================================================
-     MÓDULOS
-     ========================================================= */
-
-  const openModule = (
-    name: Exclude<
-      ModuleName,
-      null
-    >
-  ) => {
-    setActiveModule(name);
-  };
-
-  const closeModule = () => {
-    setActiveModule(null);
-  };
-
-  /* =========================================================
-     DIAGNÓSTICO
-     ========================================================= */
-
-  const executarDiagnostico =
-    () => {
-      if (
-        !diagDescricao.trim()
-      ) {
-        alert(
-          "Descreva a necessidade observada."
-        );
-
-        return;
-      }
-
-      setResultado(
-        (prev) => ({
-          ...prev,
-
-          diagnostico:
-            "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
-        })
-      );
-    };
-
-  /* =========================================================
-     BNCC
-     ========================================================= */
-
-  const consultarBNCC =
-    () => {
-      if (
-        !buscaBNCC.trim()
-      ) {
-        alert(
-          "Digite algo para pesquisar."
-        );
-
-        return;
-      }
-
-      setResultado(
-        (prev) => ({
-          ...prev,
-
-          bncc:
-            "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
-        })
-      );
-    };
-
-  /* =========================================================
-     PLANEJAMENTO
-     ========================================================= */
-
-  const gerarPlano =
-    () => {
-      if (
-        !temaPlano.trim() ||
-        !objetivoPlano.trim()
-      ) {
-        alert(
-          "Informe o tema e o objetivo."
-        );
-
-        return;
-      }
-
-      setResultado(
-        (prev) => ({
-          ...prev,
-
-          planejamento:
-            "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
-        })
-      );
-    };
-
-  /* =========================================================
-     INTERVENÇÃO
-     ========================================================= */
-
-  const gerarIntervencao =
-    () => {
-      if (
-        !necessidadeIntervencao.trim()
-      ) {
-        alert(
-          "Informe a necessidade identificada."
-        );
-
-        return;
-      }
-
-      setResultado(
-        (prev) => ({
-          ...prev,
-
-          intervencao:
-            "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
-        })
-      );
-    };
-
-  /* =========================================================
-     ACESSO DO ALUNO
-     ========================================================= */
-
-  const validarAcesso =
-    () => {
-      const valor =
-        idInput
-          .trim()
-          .toUpperCase();
-
-      if (
-        valor === "MATH001" ||
-        valor.startsWith("PAC")
-      ) {
-        window.location.href =
-          "/aluno.html";
-
-        return;
-      }
-
-      setAccessError(true);
-    };
-
-  /* =========================================================
-     JSX
-     ========================================================= */
-
-  return (
-    <>
-      {/* =====================================================
-          VÍDEOS DE FUNDO
-          ===================================================== */}
-
-      <div
-        className="video-background"
-        aria-hidden="true"
-      >
-        <video
-          ref={(el) => {
-            videosRef.current[0] =
-              el;
-          }}
-          className={`bg-video ${
-            currentVideo === 0
-              ? "active"
-              : ""
-          }`}
-          src="/athenaslivro.mp4"
-          muted
-          playsInline
-          preload="auto"
-        />
-
-        <video
-          ref={(el) => {
-            videosRef.current[1] =
-              el;
-          }}
-          className={`bg-video ${
-            currentVideo === 1
-              ? "active"
-              : ""
-          }`}
-          src="/maos%20mexendo.mp4"
-          muted
-          playsInline
-          preload="auto"
-        />
-
-        <video
-          ref={(el) => {
-            videosRef.current[2] =
-              el;
-          }}
-          className={`bg-video ${
-            currentVideo === 2
-              ? "active"
-              : ""
-          }`}
-          src="/cubo.mp4"
-          muted
-          playsInline
-          preload="auto"
-          loop
-        />
-      </div>
-
-      {/* =====================================================
-          CAMADAS VISUAIS
-          ===================================================== */}
-
-      <div
-        className="video-overlay"
-        aria-hidden="true"
-      />
-
-      <div
-        className="video-purple-glow"
-        aria-hidden="true"
-      />
-
-      <div
-        className="architectural-grid"
-        aria-hidden="true"
-      />
-
-      <div
-        className="side-line"
-        aria-hidden="true"
-      >
-        <span>
-          Laboratório Pedagógico
-        </span>
-      </div>
-
-      <div
-        className="grain"
-        aria-hidden="true"
-      />
-
-      {/* =====================================================
-          ÁREA DO ALUNO
-          ===================================================== */}
-
-      <a
-        href="/aluno.html"
-        className="btn-aluno-fixo"
-      >
-        Área do Aluno
-      </a>
-
-      {/* =====================================================
-          CONTEÚDO PRINCIPAL
-          ===================================================== */}
-
-      <main className="main-container">
-
-        <div className="institution-marker">
-          <span />
-
-          Laboratório de Pesquisa
-          e Práticas Pedagógicas
-        </div>
-
-        {/* ===================================================
-            CARD PRINCIPAL
-            =================================================== */}
-
-        <section className="card">
-
-          <div className="brand">
-            <div
-              className="brand-icon"
-              aria-hidden="true"
-            />
-
-            <span>
-              Neuro-Educa · UNINTA
-            </span>
-          </div>
-
-          <div className="system-status">
-            <span className="system-dot" />
-
-            Laboratório aberto
-          </div>
-
-          {/* =================================================
-              AVATAR SPLINE
-              ================================================= */}
-
-          <div className="avatar-3d">
-            <spline-viewer
-              url="/genkub_greeting_robot.spline"
-            />
-          </div>
-
-          <h2>
-            Laboratório Pedagógico
-          </h2>
-
-          <p className="subtitle">
-            Um espaço de trabalho para
-            diagnóstico, planejamento,
-            consulta curricular e
-            intervenção — construído
-            a partir da prática docente,
-            não no lugar dela.
-          </p>
-
-          {/* =================================================
-              IDENTIFICAÇÃO
-              ================================================= */}
-
-          <label
-            className="field-label"
-            htmlFor="idInput"
-          >
-            Identificação
-          </label>
-
-          <input
-            type="text"
-            id="idInput"
-            value={idInput}
-            onChange={(event) => {
-              setIdInput(
-                event.target.value
-              );
-
-              if (accessError) {
-                setAccessError(false);
-              }
-            }}
-            placeholder="Digite seu ID de acesso"
-            autoComplete="off"
-            aria-invalid={accessError}
-            aria-describedby={
-              accessError
-                ? "idInput-erro"
-                : undefined
-            }
-          />
-
-          {accessError && (
-            <p
-              id="idInput-erro"
-              className="field-error"
-              role="alert"
-            >
-              ID de acesso inválido.
-              Verifique e tente novamente.
-            </p>
-          )}
-
-          <button
-            type="button"
-            className="btn-neuro"
-            onClick={validarAcesso}
-          >
-            Entrar no laboratório
-          </button>
-
-          {/* =================================================
-              LINKS
-              ================================================= */}
-
-          <a
-            href="/biblioteca.html"
-            className="btn-library"
-          >
-            Biblioteca digital
-          </a>
-
-          <a
-            href="/atlas.html"
-            className="btn-atlas"
-          >
-            Explorar o mapa da aprendizagem
-          </a>
-
-          {/* =================================================
-              MÓDULOS
-              ================================================= */}
-
-          <div className="tool-grid">
-
-            <button
-              type="button"
-              className="tool-card"
-              onClick={() =>
-                openModule(
-                  "diagnostico"
-                )
-              }
-            >
-              <span
-                className="tool-card-mark"
-                aria-hidden="true"
-              >
-                I
-              </span>
-
-              <h4>
-                Diagnóstico
-              </h4>
-
-              <p>
-                Leitura do processo
-                de aprendizagem.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              className="tool-card"
-              onClick={() =>
-                openModule("bncc")
-              }
-            >
-              <span
-                className="tool-card-mark"
-                aria-hidden="true"
-              >
-                II
-              </span>
-
-              <h4>
-                BNCC
-              </h4>
-
-              <p>
-                Consulta à base curricular.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              className="tool-card"
-              onClick={() =>
-                openModule(
-                  "planejamento"
-                )
-              }
-            >
-              <span
-                className="tool-card-mark"
-                aria-hidden="true"
-              >
-                III
-              </span>
-
-              <h4>
-                Planejamento
-              </h4>
-
-              <p>
-                Construção de planos
-                de aula.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              className="tool-card"
-              onClick={() =>
-                openModule(
-                  "intervencao"
-                )
-              }
-            >
-              <span
-                className="tool-card-mark"
-                aria-hidden="true"
-              >
-                IV
-              </span>
-
-              <h4>
-                Intervenção
-              </h4>
-
-              <p>
-                Estratégias pedagógicas
-                dirigidas.
-              </p>
-            </button>
-
-          </div>
-        </section>
-
-        {/* ===================================================
-            CORUJA 3D
-            =================================================== */}
-
-        <section
-          id="brain-viewport"
-          ref={brainViewportRef}
-          data-status={modelStatus}
-        >
-
-          <div className="brain-frame">
-
-            <span className="brain-corner brain-corner--tl" />
-            <span className="brain-corner brain-corner--tr" />
-            <span className="brain-corner brain-corner--bl" />
-            <span className="brain-corner brain-corner--br" />
-
-            <svg
-              className="brain-ring"
-              viewBox="0 0 400 400"
-              aria-hidden="true"
-            >
-              <defs>
-                <path
-                  id="brainRingPath"
-                  d="
-                    M 200,200
-                    m -170,0
-                    a 170,170 0 1,1 340,0
-                    a 170,170 0 1,1 -340,0
-                  "
-                />
-              </defs>
-
-              <text>
-                <textPath
-                  href="#brainRingPath"
-                  startOffset="0%"
-                >
-                  NEURO-EDUCA ·
-                  LABORATÓRIO PEDAGÓGICO ·
-                  UNINTA ·
-                  SABEDORIA APLICADA ·
-                </textPath>
-              </text>
-            </svg>
-
-            {modelStatus ===
-              "loading" && (
-              <p className="brain-status">
-                Preparando a guardiã…
-              </p>
-            )}
-
-            {modelStatus ===
-              "error" && (
-              <p className="brain-status brain-status--error">
-                Não foi possível
-                carregar o modelo 3D.
-              </p>
-            )}
-
-          </div>
-
-          <div className="brain-label">
-            Guardiã do laboratório
-
-            <strong>
-              A coruja de Atena
-            </strong>
-          </div>
-
-        </section>
-      </main>
-
-      {/* =====================================================
-          OVERLAY
-          ===================================================== */}
-
-      <div
-        className={`overlay ${
-          activeModule
-            ? "active"
-            : ""
-        }`}
-        onClick={closeModule}
-        aria-hidden="true"
-      />
-
-      {/* =====================================================
-          MÓDULO I — DIAGNÓSTICO
-          ===================================================== */}
-
-      <ModulePanel
-        id="diagnostico"
-        badge="Módulo I"
-        title="Diagnóstico da Aprendizagem"
-        description="Estrutura preparada para leitura pedagógica assistida."
-        isActive={
-          activeModule ===
-          "diagnostico"
-        }
-        onClose={closeModule}
-      >
-
-        <div className="tool-grid tool-grid--fields">
-
-          <div className="tool-card tool-card--field">
-
-            <label
-              className="field-label"
-              htmlFor="diag-ano"
-            >
-              Ano / série
-            </label>
-
-            <select
-              id="diag-ano"
-              defaultValue={ANOS[0]}
-            >
-              {ANOS.map(
-                (ano) => (
-                  <option
-                    key={ano}
-                  >
-                    {ano}
-                  </option>
-                )
-              )}
-            </select>
-
-          </div>
-
-          <div className="tool-card tool-card--field">
-
-            <label
-              className="field-label"
-              htmlFor="diag-componente"
-            >
-              Componente
-            </label>
-
-            <select
-              id="diag-componente"
-              defaultValue="Língua Portuguesa"
-            >
-              <option>
-                Língua Portuguesa
-              </option>
-
-              <option>
-                Matemática
-              </option>
-
-              <option>
-                Ciências
-              </option>
-
-              <option>
-                História
-              </option>
-
-              <option>
-                Geografia
-              </option>
-            </select>
-
-          </div>
-
-        </div>
-
-        <label
-          className="field-label"
-          htmlFor="diag-descricao"
-        >
-          Habilidade / necessidade
-          observada
-        </label>
-
-        <textarea
-          id="diag-descricao"
-          value={diagDescricao}
-          onChange={(event) =>
-            setDiagDescricao(
-              event.target.value
-            )
-          }
-          placeholder="Descreva o que foi observado no processo de aprendizagem..."
-        />
-
-        <button
-          type="button"
-          className="btn-neuro"
-          onClick={
-            executarDiagnostico
-          }
-        >
-          Analisar
-        </button>
-
-        {resultado.diagnostico && (
-          <div className="result-box">
-
-            <strong>
-              Leitura pedagógica
-            </strong>
-
-            <p>
-              {resultado.diagnostico}
-            </p>
-
-          </div>
-        )}
-
-      </ModulePanel>
-
-      {/* =====================================================
-          MÓDULO II — BNCC
-          ===================================================== */}
-
-      <ModulePanel
-        id="bncc"
-        badge="Módulo II"
-        title="Consulta Curricular"
-        description="Pesquisa de habilidades e organização curricular."
-        isActive={
-          activeModule === "bncc"
-        }
-        onClose={closeModule}
-      >
-
-        <label
-          className="field-label"
-          htmlFor="bncc-busca"
-        >
-          Habilidade ou palavra-chave
-        </label>
-
-        <input
-          type="text"
-          id="bncc-busca"
-          value={buscaBNCC}
-          onChange={(event) =>
-            setBuscaBNCC(
-              event.target.value
-            )
-          }
-          placeholder="Ex.: interpretação de texto, frações..."
-        />
-
-        <div className="tool-grid">
-
-          <div className="tool-card tool-card--static">
-
-            <h4>
-              Habilidades
-            </h4>
-
-            <p>
-              Consulta estruturada
-              de habilidades e
-              competências curriculares.
-            </p>
-
-          </div>
-
-          <div className="tool-card tool-card--static">
-
-            <h4>
-              Contexto pedagógico
-            </h4>
-
-            <p>
-              Use a habilidade
-              selecionada como
-              referência para suas análises.
-            </p>
-
-          </div>
-
-        </div>
-
-        <button
-          type="button"
-          className="btn-neuro"
-          onClick={consultarBNCC}
-        >
-          Consultar
-        </button>
-
-        {resultado.bncc && (
-          <div className="result-box">
-
-            <strong>
-              Resultado
-            </strong>
-
-            <p>
-              {resultado.bncc}
-            </p>
-
-          </div>
-        )}
-
-      </ModulePanel>
-
-      {/* =====================================================
-          MÓDULO III — PLANEJAMENTO
-          ===================================================== */}
-
-      <ModulePanel
-        id="planejamento"
-        badge="Módulo III"
-        title="Planejamento Pedagógico"
-        description="Estruture objetivos e estratégias para sua prática."
-        isActive={
-          activeModule ===
-          "planejamento"
-        }
-        onClose={closeModule}
-      >
-
-        <label
-          className="field-label"
-          htmlFor="plano-tema"
-        >
-          Tema
-        </label>
-
-        <input
-          id="plano-tema"
-          value={temaPlano}
-          onChange={(event) =>
-            setTemaPlano(
-              event.target.value
-            )
-          }
-          placeholder="Ex.: interpretação textual"
-        />
-
-        <label
-          className="field-label"
-          htmlFor="plano-ano"
-        >
-          Ano / série
-        </label>
-
-        <select
-          id="plano-ano"
-          defaultValue={ANOS[0]}
-        >
-          {ANOS.map(
-            (ano) => (
-              <option
-                key={ano}
-              >
-                {ano}
-              </option>
-            )
-          )}
-        </select>
-
-        <label
-          className="field-label"
-          htmlFor="plano-objetivo"
-        >
-          Objetivo
-        </label>
-
-        <textarea
-          id="plano-objetivo"
-          value={objetivoPlano}
-          onChange={(event) =>
-            setObjetivoPlano(
-              event.target.value
-            )
-          }
-          placeholder="O que o aluno deverá desenvolver?"
-        />
-
-        <button
-          type="button"
-          className="btn-neuro"
-          onClick={gerarPlano}
-        >
-          Gerar planejamento
-        </button>
-
-        {resultado.planejamento && (
-          <div className="result-box">
-
-            <strong>
-              Planejamento
-            </strong>
-
-            <p>
-              {resultado.planejamento}
-            </p>
-
-          </div>
-        )}
-
-      </ModulePanel>
-
-      {/* =====================================================
-          MÓDULO IV — INTERVENÇÃO
-          ===================================================== */}
-
-      <ModulePanel
-        id="intervencao"
-        badge="Módulo IV"
-        title="Intervenção Pedagógica"
-        description="Transforme evidências de aprendizagem em estratégias."
-        isActive={
-          activeModule ===
-          "intervencao"
-        }
-        onClose={closeModule}
-      >
-
-        <label
-          className="field-label"
-          htmlFor="interv-necessidade"
-        >
-          Necessidade identificada
-        </label>
-
-        <textarea
-          id="interv-necessidade"
-          value={
-            necessidadeIntervencao
-          }
-          onChange={(event) =>
-            setNecessidadeIntervencao(
-              event.target.value
-            )
-          }
-          placeholder="Descreva a dificuldade ou necessidade observada..."
-        />
-
-        <label
-          className="field-label"
-          htmlFor="interv-contexto"
-        >
-          Contexto
-        </label>
-
-        <textarea
-          id="interv-contexto"
-          value={
-            contextoIntervencao
-          }
-          onChange={(event) =>
-            setContextoIntervencao(
-              event.target.value
-            )
-          }
-          placeholder="Informe o contexto da turma ou do estudante..."
-        />
-
-        <button
-          type="button"
-          className="btn-neuro"
-          onClick={
-            gerarIntervencao
-          }
-        >
-          Propor intervenção
-        </button>
-
-        {resultado.intervencao && (
-          <div className="result-box">
-
-            <strong>
-              Proposta pedagógica
-            </strong>
-
-            <p>
-              {resultado.intervencao}
-            </p>
-
-          </div>
-        )}
-
-      </ModulePanel>
-    </>
+  --cut: 14px;
+
+
+  /* ------------------------------------------------------------------------
+     ANIMAÇÃO
+     ------------------------------------------------------------------------ */
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+
+  background: var(--ink);
+  color: var(--paper);
+
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+/* ==========================================================================
+   ELEMENTOS BASE
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+
+  font-family: var(--font-display);
+  font-weight: 500;
+
+  color: var(--paper);
+
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+
+/* ==========================================================================
+   CORTE DIAGONAL — ASSINATURA VISUAL
+   ========================================================================== */
+
+.card,
+.tool-card,
+.tool-panel,
+.btn-neuro,
+.result-box,
+.tool-card--field,
+.tool-card--static {
+  clip-path: polygon(
+    var(--cut) 0%,
+    100% 0%,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0% 100%,
+    0% var(--cut)
   );
 }
 
-/* =========================================================
-   COMPONENTE — PAINEL DE MÓDULO
-   ========================================================= */
 
-function ModulePanel({
-  id,
-  badge,
-  title,
-  description,
-  isActive,
-  onClose,
-  children,
-}: {
-  id: string;
-  badge: string;
-  title: string;
-  description: string;
-  isActive: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={`tool-panel ${
-        isActive
-          ? "active"
-          : ""
-      }`}
-      role="dialog"
-      aria-modal={isActive}
-      aria-hidden={!isActive}
-      aria-labelledby={`${id}-title`}
-    >
+/* ==========================================================================
+   ACESSIBILIDADE — FOCO
+   ========================================================================== */
 
-      <div className="tool-header">
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
 
-        <div>
 
-          <span className="ai-badge">
-            {badge}
-          </span>
+/* ==========================================================================
+   CAMADAS DE FUNDO
+   ========================================================================== */
 
-          <h3
-            id={`${id}-title`}
-          >
-            {title}
-          </h3>
+.video-background {
+  position: fixed;
+  inset: 0;
 
-          <p>
-            {description}
-          </p>
+  z-index: 0;
 
-        </div>
+  overflow: hidden;
 
-        <button
-          type="button"
-          className="close-tool"
-          onClick={onClose}
-          aria-label="Fechar módulo"
-        >
-          ×
-        </button>
+  background: var(--ink);
+}
 
-      </div>
+.bg-video {
+  position: absolute;
+  inset: 0;
 
-      {children}
+  width: 100%;
+  height: 100%;
 
-    </div>
+  object-fit: cover;
+
+  opacity: 0;
+
+  transform: scale(1.04);
+
+  transition:
+    opacity 1.1s var(--ease-out),
+    transform 6s linear;
+
+  filter:
+    saturate(0.75)
+    brightness(0.55)
+    contrast(1.05);
+}
+
+.bg-video.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
+/* ==========================================================================
+   OVERLAY DO VÍDEO
+   ========================================================================== */
+
+.video-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(11, 10, 19, 0.55) 0%,
+      rgba(11, 10, 19, 0.82) 60%,
+      var(--ink) 100%
+    ),
+    linear-gradient(
+      90deg,
+      var(--ink) 0%,
+      rgba(11, 10, 19, 0.35) 22%,
+      rgba(11, 10, 19, 0.35) 78%,
+      var(--ink) 100%
+    );
+}
+
+
+/* ==========================================================================
+   HALO AMBIENTE
+   ========================================================================== */
+
+.ambient-glow {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      760px 520px at 82% 18%,
+      rgba(107, 84, 144, 0.32),
+      transparent 70%
+    ),
+    radial-gradient(
+      600px 480px at 8% 88%,
+      rgba(199, 164, 104, 0.14),
+      transparent 72%
+    );
+
+  mix-blend-mode: screen;
+}
+
+
+/* ==========================================================================
+   GRADE ARQUITETÔNICA
+   ========================================================================== */
+
+.architectural-grid {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  opacity: 0.5;
+
+  background-image:
+    linear-gradient(
+      var(--line) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      var(--line) 1px,
+      transparent 1px
+    );
+
+  background-size: 88px 88px;
+
+  mask-image:
+    radial-gradient(
+      circle at 50% 40%,
+      black,
+      transparent 78%
+    );
+}
+
+
+/* ==========================================================================
+   TEXTURA / GRAIN
+   ========================================================================== */
+
+.grain {
+  position: fixed;
+  inset: 0;
+
+  z-index: 3;
+
+  pointer-events: none;
+
+  opacity: 0.05;
+
+  mix-blend-mode: overlay;
+
+  background-image: url(
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"
   );
 }
 
-export default App;
+
+/* ==========================================================================
+   LINHA LATERAL
+   ========================================================================== */
+
+.side-line {
+  position: fixed;
+
+  z-index: 4;
+
+  left: 28px;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  display: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      var(--line-bright) 18%,
+      var(--line-bright) 82%,
+      transparent 100%
+    );
+}
+
+.side-line span {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-90deg);
+
+  white-space: nowrap;
+
+  padding: 4px 10px;
+
+  background: var(--ink);
+
+  color: var(--paper-faint);
+
+  font-family: var(--font-mono);
+  font-size: 10px;
+
+  letter-spacing: 0.32em;
+
+  text-transform: uppercase;
+}
+
+@media (min-width: 1200px) {
+
+  .side-line {
+    display: block;
+  }
+
+}
+
+
+/* ==========================================================================
+   PARTÍCULAS THREE.JS
+   ========================================================================== */
+
+#particles-layer {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+}
+
+
+/* ==========================================================================
+   BOTÃO FIXO — ÁREA DO ALUNO
+   ========================================================================== */
+
+.btn-aluno-fixo {
+  position: fixed;
+
+  z-index: 20;
+
+  top: 24px;
+  right: 28px;
+
+  padding: 10px 20px;
+
+  border: 1px solid var(--line-bright);
+
+  background: rgba(23, 20, 31, 0.6);
+
+  backdrop-filter: blur(10px);
+
+  color: var(--gold-bright);
+
+  font-family: var(--font-mono);
+  font-size: 12px;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+
+  transition:
+    border-color 0.25s var(--ease-out),
+    background 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.btn-aluno-fixo:hover {
+  border-color: var(--gold);
+
+  background: rgba(199, 164, 104, 0.1);
+
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL
+   ========================================================================== */
+
+.main-container {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(320px, 460px)
+    1fr;
+
+  align-items: center;
+
+  gap: clamp(28px, 5vw, 72px);
+
+  min-height: 100vh;
+
+  padding:
+    clamp(88px, 10vh, 120px)
+    clamp(24px, 6vw, 96px)
+    64px
+    calc(clamp(24px, 6vw, 96px) + 20px);
+}
+
+@media (min-width: 1200px) {
+
+  .main-container {
+    padding-left:
+      calc(clamp(24px, 6vw, 96px) + 60px);
+  }
+
+}
+
+
+/* ==========================================================================
+   MARCADOR INSTITUCIONAL
+   ========================================================================== */
+
+.institution-marker {
+  grid-column: 1 / -1;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 4px;
+
+  color: var(--paper-faint);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+
+  letter-spacing: 0.24em;
+
+  text-transform: uppercase;
+}
+
+.institution-marker span {
+  width: 6px;
+  height: 6px;
+
+  flex-shrink: 0;
+
+  background: var(--gold);
+
+  transform: rotate(45deg);
+}
+
+
+/* ==========================================================================
+   CARTÃO PRINCIPAL
+   ========================================================================== */
+
+.card {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding: clamp(28px, 3vw, 40px);
+
+  background:
+    linear-gradient(
+      165deg,
+      var(--surface-raised) 0%,
+      var(--surface) 100%
+    );
+
+  border: 1px solid var(--line);
+
+  box-shadow:
+    0 40px 80px -30px var(--shadow-deep);
+}
+
+
+/* ==========================================================================
+   MARCA
+   ========================================================================== */
+
+.brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 2px;
+}
+
+.brand-icon {
+  position: relative;
+
+  width: 20px;
+  height: 20px;
+
+  flex-shrink: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-bright),
+      var(--gold-dim)
+    );
+
+  transform: rotate(45deg);
+}
+
+.brand-icon::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 5px;
+
+  background: var(--surface);
+}
+
+.brand span {
+  color: var(--paper-dim);
+
+  font-family: var(--font-mono);
+  font-size: 12px;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+}
+
+
+/* ==========================================================================
+   STATUS DO SISTEMA
+   ========================================================================== */
+
+.system-status {
+  position: absolute;
+
+  top: clamp(28px, 3vw, 40px);
+  right: clamp(28px, 3vw, 40px);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--paper-dim);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+
+  letter-spacing: 0.08em;
+}
+
+.system-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--gold-bright);
+
+  box-shadow:
+    0 0 0 0 rgba(230, 201, 146, 0.55);
+
+  animation:
+    pulse-dot 2.4s ease-out infinite;
+}
+
+@keyframes pulse-dot {
+
+  0% {
+    box-shadow:
+      0 0 0 0
+      rgba(230, 201, 146, 0.5);
+  }
+
+  75% {
+    box-shadow:
+      0 0 0 8px
+      rgba(230, 201, 146, 0);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 0
+      rgba(230, 201, 146, 0);
+  }
+
+}
+
+
+/* ==========================================================================
+   AVATAR 3D
+   ========================================================================== */
+
+.avatar-3d {
+  width: 96px;
+  height: 96px;
+
+  margin: 4px 0 8px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--line-bright);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      var(--violet-soft),
+      var(--ink) 75%
+    );
+}
+
+.avatar-3d spline-viewer {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+}
+
+
+/* ==========================================================================
+   TÍTULO
+   ========================================================================== */
+
+.card h2 {
+  font-size: clamp(28px, 3vw, 36px);
+
+  line-height: 1.08;
+}
+
+
+/* ==========================================================================
+   SUBTÍTULO
+   ========================================================================== */
+
+.subtitle {
+  max-width: 46ch;
+
+  margin-bottom: 6px;
+
+  color: var(--paper-dim);
+
+  font-size: 14.5px;
+
+  line-height: 1.65;
+}
+
+
+/* ==========================================================================
+   CAMPOS
+   ========================================================================== */
+
+.field-label {
+  margin-top: 6px;
+
+  color: var(--gold);
+
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+}
+
+.field-error {
+  margin-top: -6px;
+
+  color: #d98a76;
+
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+
+/* ==========================================================================
+   INPUTS
+   ========================================================================== */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  padding: 9px 2px;
+
+  background: transparent;
+
+  border: none;
+
+  border-bottom: 1px solid var(--line-bright);
+
+  color: var(--paper);
+
+  font-family: var(--font-body);
+  font-size: 15px;
+
+  transition:
+    border-color 0.2s var(--ease-out),
+    background 0.2s var(--ease-out);
+}
+
+textarea {
+  min-height: 84px;
+
+  resize: vertical;
+
+  line-height: 1.55;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--paper-faint);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-bottom-color: var(--gold-dim);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+
+  border-bottom-color: var(--gold-bright);
+
+  background:
+    rgba(199, 164, 104, 0.05);
+}
+
+
+/* ==========================================================================
+   SELECT
+   ========================================================================== */
+
+select {
+  appearance: none;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent 50%,
+      var(--gold) 50%
+    ),
+    linear-gradient(
+      135deg,
+      var(--gold) 50%,
+      transparent 50%
+    );
+
+  background-position:
+    calc(100% - 14px) 16px,
+    calc(100% - 8px) 16px;
+
+  background-size: 6px 6px;
+
+  background-repeat: no-repeat;
+}
+
+
+/* ==========================================================================
+   BOTÃO PRINCIPAL
+   ========================================================================== */
+
+.btn-neuro {
+  margin-top: 8px;
+
+  padding: 13px 22px;
+
+  border: 1px solid var(--gold);
+
+  background: var(--gold);
+
+  color: var(--ink);
+
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+
+  letter-spacing: 0.1em;
+
+  text-align: center;
+
+  text-transform: uppercase;
+
+  transition:
+    background 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.btn-neuro:hover {
+  background: var(--gold-bright);
+
+  border-color: var(--gold-bright);
+
+  transform: translateY(-1px);
+}
+
+.btn-neuro:active {
+  transform: translateY(0);
+}
+
+
+/* ==========================================================================
+   LINKS — BIBLIOTECA / ATLAS
+   ========================================================================== */
+
+.btn-library,
+.btn-atlas {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  width: fit-content;
+
+  padding: 4px 0;
+
+  border-bottom: 1px solid transparent;
+
+  color: var(--paper-dim);
+
+  font-family: var(--font-mono);
+  font-size: 12px;
+
+  letter-spacing: 0.08em;
+
+  transition:
+    color 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out);
+}
+
+.btn-library::before,
+.btn-atlas::before {
+  content: "→";
+
+  color: var(--gold);
+
+  transition:
+    transform 0.2s var(--ease-out);
+}
+
+.btn-library:hover,
+.btn-atlas:hover {
+  color: var(--paper);
+
+  border-color: var(--line-bright);
+}
+
+.btn-library:hover::before,
+.btn-atlas:hover::before {
+  transform: translateX(3px);
+}
+
+
+/* ==========================================================================
+   MÓDULOS
+   ========================================================================== */
+
+.tool-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 10px;
+
+  margin-top: 16px;
+}
+
+.tool-grid--fields {
+  margin-top: 4px;
+}
+
+
+/* ==========================================================================
+   CARD DOS MÓDULOS
+   ========================================================================== */
+
+.tool-card {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  overflow: hidden;
+
+  padding: 16px 14px 14px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--line);
+
+  text-align: left;
+
+  transition:
+    border-color 0.25s var(--ease-out),
+    background 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.tool-card:hover,
+.tool-card:focus-visible {
+  background: var(--surface-raised);
+
+  border-color: var(--line-bright);
+
+  transform: translateY(-2px);
+}
+
+
+/* ==========================================================================
+   MARCA ROMANA DOS MÓDULOS
+   ========================================================================== */
+
+.tool-card-mark {
+  position: absolute;
+
+  right: 4px;
+  bottom: -14px;
+
+  color: var(--paper);
+
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 500;
+
+  line-height: 1;
+
+  opacity: 0.06;
+
+  pointer-events: none;
+}
+
+.tool-card h4 {
+  color: var(--paper);
+
+  font-size: 14.5px;
+}
+
+.tool-card p {
+  color: var(--paper-dim);
+
+  font-size: 12.5px;
+
+  line-height: 1.5;
+}
+
+
+/* ==========================================================================
+   CARDS ESTÁTICOS
+   ========================================================================== */
+
+.tool-card--field,
+.tool-card--static {
+  padding: 14px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--line);
+}
+
+.tool-card--static h4 {
+  margin-bottom: 4px;
+
+  font-size: 13.5px;
+}
+
+.tool-card--static p {
+  color: var(--paper-dim);
+
+  font-size: 12px;
+}
+
+
+/* ==========================================================================
+   VIEWPORT DA CORUJA — MEDALHÃO
+   ========================================================================== */
+
+#owl-viewport {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  max-width: 560px;
+  max-height: 560px;
+
+  margin: 0 auto;
+
+  justify-self: center;
+}
+
+
+/* ==========================================================================
+   CANVAS THREE.JS
+   ========================================================================== */
+
+#owl-viewport canvas {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+/* ==========================================================================
+   FRAME DA CORUJA
+   ========================================================================== */
+
+.owl-frame {
+  position: absolute;
+
+  inset: 6%;
+
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+.owl-corner {
+  position: absolute;
+
+  width: 26px;
+  height: 26px;
+
+  border: 1px solid var(--gold);
+
+  opacity: 0.6;
+}
+
+.owl-corner--tl {
+  top: 0;
+  left: 0;
+
+  border-right: none;
+  border-bottom: none;
+}
+
+.owl-corner--tr {
+  top: 0;
+  right: 0;
+
+  border-left: none;
+  border-bottom: none;
+}
+
+.owl-corner--bl {
+  bottom: 0;
+  left: 0;
+
+  border-right: none;
+  border-top: none;
+}
+
+.owl-corner--br {
+  right: 0;
+  bottom: 0;
+
+  border-left: none;
+  border-top: none;
+}
+
+
+/* ==========================================================================
+   ANEL DA CORUJA
+   ========================================================================== */
+
+.owl-ring {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  animation:
+    rotate-ring 70s linear infinite;
+}
+
+.owl-ring text {
+  fill: var(--gold);
+
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+
+  letter-spacing: 0.05em;
+
+  opacity: 0.55;
+}
+
+@keyframes rotate-ring {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* ==========================================================================
+   STATUS DA CORUJA
+   ========================================================================== */
+
+.owl-status {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  color: var(--paper-faint);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.owl-status--error {
+  color: #d98a76;
+}
+
+
+/* ==========================================================================
+   IDENTIFICAÇÃO DA CORUJA
+   ========================================================================== */
+
+.owl-label {
+  position: absolute;
+
+  left: 50%;
+  bottom: 2%;
+
+  z-index: 2;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  transform:
+    translateX(-50%);
+
+  text-align: center;
+
+  color: var(--paper-faint);
+
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+.owl-label strong {
+  color: var(--gold-bright);
+
+  font-family: var(--font-display);
+
+  font-size: 16px;
+
+  font-style: italic;
+
+  font-weight: 500;
+
+  letter-spacing: 0;
+
+  text-transform: none;
+}
+
+
+/* ==========================================================================
+   OVERLAY
+   ========================================================================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 30;
+
+  background:
+    rgba(6, 5, 11, 0.6);
+
+  backdrop-filter: blur(4px);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.3s var(--ease-out);
+}
+
+.overlay.active {
+  opacity: 1;
+
+  visibility: visible;
+}
+
+
+/* ==========================================================================
+   PAINEL LATERAL
+   ========================================================================== */
+
+.tool-panel {
+  position: fixed;
+
+  z-index: 31;
+
+  top: 0;
+  right: 0;
+
+  width: min(460px, 100%);
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  overflow-y: auto;
+
+  padding: 32px 30px 40px;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--surface-raised) 0%,
+      var(--surface) 100%
+    );
+
+  border-left: 1px solid var(--line-bright);
+
+  box-shadow:
+    -40px 0 80px -30px var(--shadow-deep);
+
+  transform: translateX(100%);
+
+  transition:
+    transform 0.4s var(--ease-out);
+}
+
+.tool-panel.active {
+  transform: translateX(0);
+}
+
+
+/* ==========================================================================
+   CABEÇALHO DO PAINEL
+   ========================================================================== */
+
+.tool-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 6px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.ai-badge {
+  display: inline-block;
+
+  margin-bottom: 10px;
+
+  padding: 3px 9px;
+
+  color: var(--gold);
+
+  border: 1px solid var(--line-bright);
+
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+}
+
+.tool-header h3 {
+  margin-bottom: 6px;
+
+  font-size: 21px;
+}
+
+.tool-header p {
+  max-width: 36ch;
+
+  color: var(--paper-dim);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* ==========================================================================
+   BOTÃO FECHAR
+   ========================================================================== */
+
+.close-tool {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid var(--line-bright);
+
+  background: transparent;
+
+  color: var(--paper-dim);
+
+  font-size: 18px;
+
+  line-height: 1;
+
+  transition:
+    border-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.close-tool:hover {
+  border-color: var(--gold);
+
+  color: var(--gold-bright);
+
+  transform: rotate(90deg);
+}
+
+
+/* ==========================================================================
+   RESULTADO DA IA
+   ========================================================================== */
+
+.result-box {
+  margin-top: 8px;
+
+  padding: 16px;
+
+  background:
+    rgba(199, 164, 104, 0.06);
+
+  border-left: 2px solid var(--gold);
+
+  animation:
+    fade-up 0.4s var(--ease-out);
+}
+
+.result-box strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--gold);
+
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+.result-box p {
+  color: var(--paper-dim);
+
+  font-size: 13.5px;
+
+  line-height: 1.6;
+}
+
+@keyframes fade-up {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* ==========================================================================
+   RESPONSIVO — TABLET
+   ========================================================================== */
+
+@media (max-width: 920px) {
+
+  .main-container {
+    grid-template-columns: 1fr;
+
+    padding-top: 96px;
+  }
+
+  #owl-viewport {
+    max-width: 420px;
+    max-height: 420px;
+  }
+
+}
+
+
+/* ==========================================================================
+   RESPONSIVO — CELULAR
+   ========================================================================== */
+
+@media (max-width: 560px) {
+
+  .main-container {
+    grid-template-columns: 1fr;
+
+    padding:
+      80px
+      18px
+      60px;
+  }
+
+  .system-status {
+    position: static;
+
+    margin-bottom: 6px;
+  }
+
+  .tool-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tool-panel {
+    width: 100%;
+
+    padding:
+      26px
+      20px
+      32px;
+  }
+
+  .btn-aluno-fixo {
+    top: 16px;
+    right: 16px;
+
+    padding: 8px 14px;
+
+    font-size: 11px;
+  }
+
+}
+
+
+/* ==========================================================================
+   ACESSIBILIDADE — MOVIMENTO REDUZIDO
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .bg-video,
+  .btn-aluno-fixo,
+  .tool-card,
+  .btn-neuro,
+  .close-tool,
+  .tool-panel,
+  .overlay,
+  .result-box,
+  .owl-ring,
+  .system-dot {
+    transition: none !important;
+
+    animation: none !important;
+  }
+
+  .system-dot {
+    box-shadow: none;
+  }
+
+}
 ```
