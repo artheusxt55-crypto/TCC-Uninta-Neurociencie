@@ -367,8 +367,8 @@ function App() {
 
         const purpleLight =
             new THREE.PointLight(
-                0x8b5cf6,
-                0.8
+                0xc4a265,
+                0.9
             );
 
         purpleLight.position.set(
@@ -390,7 +390,7 @@ function App() {
         const partGeo =
             new THREE.BufferGeometry();
 
-        const partCount = 1300;
+        const partCount = 700;
 
         const positions =
             new Float32Array(
@@ -417,10 +417,10 @@ function App() {
 
         const partMat =
             new THREE.PointsMaterial({
-                size: 0.03,
-                color: 0x9b6cff,
+                size: 0.022,
+                color: 0xc4a265,
                 transparent: true,
-                opacity: 0.38,
+                opacity: 0.28,
             });
 
         const particles =
@@ -1001,7 +1001,7 @@ function App() {
                 href="/aluno.html"
                 className="btn-aluno-fixo"
             >
-                ÁREA DO ALUNO
+                Área do Aluno
             </a>
 
             {/* CONTEÚDO */}
@@ -1010,7 +1010,7 @@ function App() {
                 <div className="institution-marker">
                     <span />
 
-                    LABORATÓRIO DE PESQUISA E PRÁTICAS PEDAGÓGICAS
+                    Laboratório de Pesquisa e Práticas Pedagógicas
                 </div>
 
                 <section className="card">
@@ -1018,14 +1018,14 @@ function App() {
                         <div className="brand-icon" />
 
                         <span>
-                            NEURO-EDUCA • UNINTA
+                            Neuro-Educa · UNINTA
                         </span>
                     </div>
 
                     <div className="system-status">
                         <span className="system-dot" />
 
-                        SISTEMA OPERACIONAL
+                        Laboratório aberto
                     </div>
 
                     {/* SPLINE */}
@@ -1041,12 +1041,20 @@ function App() {
                     </h2>
 
                     <p className="subtitle">
-                        Um ambiente para diagnóstico,
+                        Um espaço de trabalho para diagnóstico,
                         planejamento, consulta curricular
-                        e intervenção pedagógica.
+                        e intervenção — construído a partir
+                        da prática docente, não no lugar dela.
                     </p>
 
                     {/* ID */}
+
+                    <label
+                        className="field-label"
+                        htmlFor="idInput"
+                    >
+                        Identificação
+                    </label>
 
                     <input
                         type="text"
@@ -1057,7 +1065,7 @@ function App() {
                                 event.target.value
                             )
                         }
-                        placeholder="DIGITE SEU ID"
+                        placeholder="Digite seu ID de acesso"
                         autoComplete="off"
                     />
 
@@ -1067,21 +1075,21 @@ function App() {
                             validarAcesso
                         }
                     >
-                        ACESSAR LABORATÓRIO
+                        Entrar no laboratório
                     </button>
 
                     <a
                         href="/biblioteca.html"
                         className="btn-library"
                     >
-                        BIBLIOTECA DIGITAL
+                        Biblioteca digital
                     </a>
 
                     <a
                         href="/atlas.html"
                         className="btn-atlas"
                     >
-                        EXPLORAR MAPA DA APRENDIZAGEM 3D
+                        Explorar o mapa da aprendizagem
                     </a>
 
                     {/* MÓDULOS */}
@@ -1096,12 +1104,13 @@ function App() {
                                 )
                             }
                         >
+                            <span className="tool-card-mark">I</span>
                             <h4>
-                                DIAGNÓSTICO
+                                Diagnóstico
                             </h4>
 
                             <p>
-                                Análise da aprendizagem.
+                                Leitura do processo de aprendizagem.
                             </p>
                         </button>
 
@@ -1114,12 +1123,13 @@ function App() {
                                 )
                             }
                         >
+                            <span className="tool-card-mark">II</span>
                             <h4>
                                 BNCC
                             </h4>
 
                             <p>
-                                Consulta curricular.
+                                Consulta à base curricular.
                             </p>
                         </button>
 
@@ -1132,12 +1142,13 @@ function App() {
                                 )
                             }
                         >
+                            <span className="tool-card-mark">III</span>
                             <h4>
-                                PLANEJAMENTO
+                                Planejamento
                             </h4>
 
                             <p>
-                                Criação de planos.
+                                Construção de planos de aula.
                             </p>
                         </button>
 
@@ -1150,12 +1161,13 @@ function App() {
                                 )
                             }
                         >
+                            <span className="tool-card-mark">IV</span>
                             <h4>
-                                INTERVENÇÃO
+                                Intervenção
                             </h4>
 
                             <p>
-                                Estratégias pedagógicas.
+                                Estratégias pedagógicas dirigidas.
                             </p>
                         </button>
                     </div>
@@ -1169,11 +1181,40 @@ function App() {
                         brainViewportRef
                     }
                 >
+                    <div className="brain-frame">
+                        <span className="brain-corner brain-corner--tl" />
+                        <span className="brain-corner brain-corner--tr" />
+                        <span className="brain-corner brain-corner--bl" />
+                        <span className="brain-corner brain-corner--br" />
+
+                        <svg
+                            className="brain-ring"
+                            viewBox="0 0 400 400"
+                            aria-hidden="true"
+                        >
+                            <defs>
+                                <path
+                                    id="brainRingPath"
+                                    d="M 200,200 m -170,0 a 170,170 0 1,1 340,0 a 170,170 0 1,1 -340,0"
+                                />
+                            </defs>
+
+                            <text>
+                                <textPath
+                                    href="#brainRingPath"
+                                    startOffset="0%"
+                                >
+                                    NEURO-EDUCA · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
+                                </textPath>
+                            </text>
+                        </svg>
+                    </div>
+
                     <div className="brain-label">
-                        SISTEMA
+                        Guardiã do laboratório
 
                         <strong>
-                            NEURO-EDUCA
+                            A coruja de Atena
                         </strong>
                     </div>
                 </section>
@@ -1206,12 +1247,16 @@ function App() {
             >
                 <div className="tool-header">
                     <div>
+                        <span className="ai-badge">
+                            Módulo I
+                        </span>
+
                         <h3>
                             Diagnóstico da Aprendizagem
                         </h3>
 
                         <p>
-                            Estrutura preparada para análise
+                            Estrutura preparada para leitura
                             pedagógica assistida.
                         </p>
                     </div>
@@ -1222,19 +1267,16 @@ function App() {
                         onClick={
                             closeModule
                         }
+                        aria-label="Fechar"
                     >
                         ×
                     </button>
                 </div>
 
-                <div className="ai-badge">
-                    IA PEDAGÓGICA
-                </div>
-
                 <div className="tool-grid">
-                    <div className="tool-card">
+                    <div className="tool-card tool-card--field">
                         <label className="field-label">
-                            ANO / SÉRIE
+                            Ano / série
                         </label>
 
                         <select>
@@ -1260,9 +1302,9 @@ function App() {
                         </select>
                     </div>
 
-                    <div className="tool-card">
+                    <div className="tool-card tool-card--field">
                         <label className="field-label">
-                            COMPONENTE
+                            Componente
                         </label>
 
                         <select>
@@ -1290,7 +1332,7 @@ function App() {
                 </div>
 
                 <label className="field-label">
-                    HABILIDADE / NECESSIDADE OBSERVADA
+                    Habilidade / necessidade observada
                 </label>
 
                 <textarea
@@ -1312,13 +1354,13 @@ function App() {
                         executarDiagnostico
                     }
                 >
-                    ANALISAR
+                    Analisar
                 </button>
 
                 {resultado.diagnostico && (
                     <div className="result-box">
                         <strong>
-                            ANÁLISE PEDAGÓGICA
+                            Leitura pedagógica
                         </strong>
 
                         <p>
@@ -1344,6 +1386,10 @@ function App() {
             >
                 <div className="tool-header">
                     <div>
+                        <span className="ai-badge">
+                            Módulo II
+                        </span>
+
                         <h3>
                             Consulta Curricular
                         </h3>
@@ -1360,14 +1406,15 @@ function App() {
                         onClick={
                             closeModule
                         }
+                        aria-label="Fechar"
                     >
                         ×
                     </button>
                 </div>
 
-                <div className="ai-badge">
-                    BASE CURRICULAR
-                </div>
+                <label className="field-label">
+                    Habilidade ou palavra-chave
+                </label>
 
                 <input
                     type="text"
@@ -1377,13 +1424,13 @@ function App() {
                             event.target.value
                         )
                     }
-                    placeholder="Digite uma habilidade ou palavra-chave..."
+                    placeholder="Ex.: interpretação de texto, frações..."
                 />
 
                 <div className="tool-grid">
                     <div className="tool-card">
                         <h4>
-                            HABILIDADES
+                            Habilidades
                         </h4>
 
                         <p>
@@ -1394,12 +1441,12 @@ function App() {
 
                     <div className="tool-card">
                         <h4>
-                            CONTEXTO PEDAGÓGICO
+                            Contexto pedagógico
                         </h4>
 
                         <p>
-                            Utilize a habilidade selecionada
-                            como referência para suas análises.
+                            Use a habilidade selecionada como
+                            referência para suas análises.
                         </p>
                     </div>
                 </div>
@@ -1411,13 +1458,13 @@ function App() {
                         consultarBNCC
                     }
                 >
-                    CONSULTAR
+                    Consultar
                 </button>
 
                 {resultado.bncc && (
                     <div className="result-box">
                         <strong>
-                            RESULTADO
+                            Resultado
                         </strong>
 
                         <p>
@@ -1443,13 +1490,17 @@ function App() {
             >
                 <div className="tool-header">
                     <div>
+                        <span className="ai-badge">
+                            Módulo III
+                        </span>
+
                         <h3>
                             Planejamento Pedagógico
                         </h3>
 
                         <p>
                             Estruture objetivos e estratégias
-                            para sua prática pedagógica.
+                            para sua prática.
                         </p>
                     </div>
 
@@ -1459,17 +1510,14 @@ function App() {
                         onClick={
                             closeModule
                         }
+                        aria-label="Fechar"
                     >
                         ×
                     </button>
                 </div>
 
-                <div className="ai-badge">
-                    PLANEJAMENTO ASSISTIDO
-                </div>
-
                 <label className="field-label">
-                    TEMA
+                    Tema
                 </label>
 
                 <input
@@ -1483,7 +1531,7 @@ function App() {
                 />
 
                 <label className="field-label">
-                    ANO / SÉRIE
+                    Ano / série
                 </label>
 
                 <select>
@@ -1509,7 +1557,7 @@ function App() {
                 </select>
 
                 <label className="field-label">
-                    OBJETIVO
+                    Objetivo
                 </label>
 
                 <textarea
@@ -1531,13 +1579,13 @@ function App() {
                         gerarPlano
                     }
                 >
-                    GERAR PLANEJAMENTO
+                    Gerar planejamento
                 </button>
 
                 {resultado.planejamento && (
                     <div className="result-box">
                         <strong>
-                            PLANEJAMENTO
+                            Planejamento
                         </strong>
 
                         <p>
@@ -1563,13 +1611,17 @@ function App() {
             >
                 <div className="tool-header">
                     <div>
+                        <span className="ai-badge">
+                            Módulo IV
+                        </span>
+
                         <h3>
                             Intervenção Pedagógica
                         </h3>
 
                         <p>
                             Transforme evidências de aprendizagem
-                            em estratégias pedagógicas.
+                            em estratégias.
                         </p>
                     </div>
 
@@ -1579,17 +1631,14 @@ function App() {
                         onClick={
                             closeModule
                         }
+                        aria-label="Fechar"
                     >
                         ×
                     </button>
                 </div>
 
-                <div className="ai-badge">
-                    ESTRATÉGIA PEDAGÓGICA
-                </div>
-
                 <label className="field-label">
-                    NECESSIDADE IDENTIFICADA
+                    Necessidade identificada
                 </label>
 
                 <textarea
@@ -1605,7 +1654,7 @@ function App() {
                 />
 
                 <label className="field-label">
-                    CONTEXTO
+                    Contexto
                 </label>
 
                 <textarea
@@ -1627,13 +1676,13 @@ function App() {
                         gerarIntervencao
                     }
                 >
-                    PROPOR INTERVENÇÃO
+                    Propor intervenção
                 </button>
 
                 {resultado.intervencao && (
                     <div className="result-box">
                         <strong>
-                            PROPOSTA PEDAGÓGICA
+                            Proposta pedagógica
                         </strong>
 
                         <p>
