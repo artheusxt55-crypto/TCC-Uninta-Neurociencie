@@ -1,7 +1,13 @@
 ```tsx
 import "./styles/neuro-edu.css";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -21,43 +27,82 @@ type Resultados = {
   intervencao?: string;
 };
 
-const ANOS = Array.from({ length: 9 }, (_, i) => `${i + 1}º Ano`);
+const ANOS = Array.from(
+  { length: 9 },
+  (_, index) => `${index + 1}º Ano`
+);
 
 function App() {
   const brainViewportRef = useRef<HTMLDivElement | null>(null);
+
   const videosRef = useRef<(HTMLVideoElement | null)[]>([]);
-  const transitioningRef = useRef(false);
-  const transitionTimeoutRef = useRef<number | null>(null);
+
   const currentVideoRef = useRef<VideoIndex>(0);
 
-  const [currentVideo, setCurrentVideo] = useState<VideoIndex>(0);
-  const [activeModule, setActiveModule] = useState<ModuleName>(null);
+  const transitioningRef = useRef(false);
+
+  const transitionTimeoutRef = useRef<number | null>(null);
+
+  const [currentVideo, setCurrentVideo] =
+    useState<VideoIndex>(0);
+
+  const [activeModule, setActiveModule] =
+    useState<ModuleName>(null);
 
   const [idInput, setIdInput] = useState("");
-  const [diagDescricao, setDiagDescricao] = useState("");
-  const [buscaBNCC, setBuscaBNCC] = useState("");
-  const [temaPlano, setTemaPlano] = useState("");
-  const [objetivoPlano, setObjetivoPlano] = useState("");
-  const [necessidadeIntervencao, setNecessidadeIntervencao] = useState("");
-  const [contextoIntervencao, setContextoIntervencao] = useState("");
 
-  const [resultado, setResultado] = useState<Resultados>({});
-  const [accessError, setAccessError] = useState(false);
+  const [diagDescricao, setDiagDescricao] =
+    useState("");
 
-  const [modelStatus, setModelStatus] = useState<
-    "loading" | "ready" | "error"
-  >("loading");
+  const [buscaBNCC, setBuscaBNCC] =
+    useState("");
+
+  const [temaPlano, setTemaPlano] =
+    useState("");
+
+  const [objetivoPlano, setObjetivoPlano] =
+    useState("");
+
+  const [necessidadeIntervencao, setNecessidadeIntervencao] =
+    useState("");
+
+  const [contextoIntervencao, setContextoIntervencao] =
+    useState("");
+
+  const [resultado, setResultado] =
+    useState<Resultados>({});
+
+  const [accessError, setAccessError] =
+    useState(false);
+
+  const [modelStatus, setModelStatus] =
+    useState<"loading" | "ready" | "error">("loading");
+
+  /*
+   * =====================================================
+   * MANTÉM O VÍDEO ATUAL SINCRONIZADO COM O REF
+   * =====================================================
+   */
 
   useEffect(() => {
     currentVideoRef.current = currentVideo;
   }, [currentVideo]);
 
+  /*
+   * =====================================================
+   * SEQUÊNCIA DE VÍDEOS
+   * =====================================================
+   */
+
   useEffect(() => {
     const videos = videosRef.current.filter(
-      (video): video is HTMLVideoElement => video !== null
+      (video): video is HTMLVideoElement =>
+        video !== null
     );
 
-    if (!videos.length) return;
+    if (videos.length === 0) {
+      return;
+    }
 
     videos.forEach((video, index) => {
       video.muted = true;
@@ -72,24 +117,37 @@ function App() {
     firstVideo.classList.add("active");
 
     firstVideo.play().catch(() => {
-      console.warn("O navegador bloqueou o autoplay.");
+      console.warn(
+        "O navegador bloqueou o autoplay do vídeo."
+      );
     });
 
     const cleanups: Array<() => void> = [];
 
     videos.forEach((video, index) => {
-      if (index === 2) return;
+      if (index === 2) {
+        return;
+      }
 
       const handleEnded = () => {
-        if (index !== currentVideoRef.current) return;
-        if (transitioningRef.current) return;
+        if (index !== currentVideoRef.current) {
+          return;
+        }
+
+        if (transitioningRef.current) {
+          return;
+        }
 
         const nextIndex = (index + 1) as VideoIndex;
+
         const nextVideo = videos[nextIndex];
 
-        if (!nextVideo) return;
+        if (!nextVideo) {
+          return;
+        }
 
         transitioningRef.current = true;
+
         nextVideo.currentTime = 0;
 
         nextVideo
@@ -97,130 +155,205 @@ function App() {
           .then(() => {
             nextVideo.classList.add("active");
 
-            transitionTimeoutRef.current = window.setTimeout(() => {
-              video.classList.remove("active");
-              video.pause();
-              video.currentTime = 0;
+            transitionTimeoutRef.current =
+              window.setTimeout(() => {
+                video.classList.remove("active");
 
-              setCurrentVideo(nextIndex);
+                video.pause();
 
-              transitioningRef.current = false;
-            }, 1400);
+                video.currentTime = 0;
+
+                setCurrentVideo(nextIndex);
+
+                transitioningRef.current = false;
+              }, 1400);
           })
           .catch(() => {
             transitioningRef.current = false;
           });
       };
 
-      video.addEventListener("ended", handleEnded);
+      video.addEventListener(
+        "ended",
+        handleEnded
+      );
 
       cleanups.push(() => {
-        video.removeEventListener("ended", handleEnded);
+        video.removeEventListener(
+          "ended",
+          handleEnded
+        );
       });
     });
 
     return () => {
       cleanups.forEach((cleanup) => cleanup());
 
-      if (transitionTimeoutRef.current !== null) {
-        window.clearTimeout(transitionTimeoutRef.current);
+      if (
+        transitionTimeoutRef.current !== null
+      ) {
+        window.clearTimeout(
+          transitionTimeoutRef.current
+        );
       }
     };
   }, []);
 
+  /*
+   * =====================================================
+   * TECLA ESC
+   * =====================================================
+   */
+
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (
+      event: KeyboardEvent
+    ) => {
       if (event.key === "Escape") {
-        closeModule();
+        setActiveModule(null);
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
     };
   }, []);
 
+  /*
+   * =====================================================
+   * THREE.JS — CORUJA
+   * =====================================================
+   */
+
   useEffect(() => {
-    const container = brainViewportRef.current;
+    const container =
+      brainViewportRef.current;
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const prefersReducedMotion =
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
 
     const scene = new THREE.Scene();
 
-    scene.fog = new THREE.FogExp2(0x090614, 0.045);
-
-    const width = container.clientWidth || 500;
-    const height = container.clientHeight || 500;
-
-    const camera = new THREE.PerspectiveCamera(
-      35,
-      width / height,
-      0.1,
-      1000
+    scene.fog = new THREE.FogExp2(
+      0x090614,
+      0.045
     );
+
+    const width =
+      container.clientWidth || 500;
+
+    const height =
+      container.clientHeight || 500;
+
+    const camera =
+      new THREE.PerspectiveCamera(
+        35,
+        width / height,
+        0.1,
+        1000
+      );
 
     camera.position.z = 8;
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-    });
+    const renderer =
+      new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
 
-    renderer.setSize(width, height);
+    renderer.setSize(
+      width,
+      height
+    );
 
     renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio, 2)
+      Math.min(
+        window.devicePixelRatio,
+        2
+      )
     );
 
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.outputColorSpace =
+      THREE.SRGBColorSpace;
 
-    container.appendChild(renderer.domElement);
-
-    // ILUMINAÇÃO
-
-    const ambientLight = new THREE.AmbientLight(
-      0xffffff,
-      0.8
+    container.appendChild(
+      renderer.domElement
     );
+
+    /*
+     * ILUMINAÇÃO
+     */
+
+    const ambientLight =
+      new THREE.AmbientLight(
+        0xffffff,
+        0.8
+      );
 
     scene.add(ambientLight);
 
-    const mainLight = new THREE.PointLight(
-      0xffffff,
-      1.8
-    );
+    const mainLight =
+      new THREE.PointLight(
+        0xffffff,
+        1.8
+      );
 
-    mainLight.position.set(5, 5, 10);
+    mainLight.position.set(
+      5,
+      5,
+      10
+    );
 
     scene.add(mainLight);
 
-    const goldLight = new THREE.PointLight(
-      0xc4a265,
-      0.9
-    );
+    const goldLight =
+      new THREE.PointLight(
+        0xc4a265,
+        0.9
+      );
 
-    goldLight.position.set(-5, -2, 5);
+    goldLight.position.set(
+      -5,
+      -2,
+      5
+    );
 
     scene.add(goldLight);
 
-    // PARTÍCULAS
+    /*
+     * PARTÍCULAS
+     */
 
-    const partGeo = new THREE.BufferGeometry();
+    const partGeo =
+      new THREE.BufferGeometry();
 
     const partCount = 700;
 
-    const positions = new Float32Array(
-      partCount * 3
-    );
+    const positions =
+      new Float32Array(
+        partCount * 3
+      );
 
-    for (let i = 0; i < partCount * 3; i++) {
-      positions[i] =
+    for (
+      let index = 0;
+      index < partCount * 3;
+      index++
+    ) {
+      positions[index] =
         (Math.random() - 0.5) * 15;
     }
 
@@ -232,48 +365,58 @@ function App() {
       )
     );
 
-    const partMat = new THREE.PointsMaterial({
-      size: 0.022,
-      color: 0xc4a265,
-      transparent: true,
-      opacity: 0.28,
-    });
+    const partMat =
+      new THREE.PointsMaterial({
+        size: 0.022,
+        color: 0xc4a265,
+        transparent: true,
+        opacity: 0.28,
+      });
 
-    const particles = new THREE.Points(
-      partGeo,
-      partMat
-    );
+    const particles =
+      new THREE.Points(
+        partGeo,
+        partMat
+      );
 
     scene.add(particles);
 
-    // MODELO 3D
+    /*
+     * MODELO 3D
+     */
 
-    let brain: THREE.Object3D | null = null;
+    let brain: THREE.Object3D | null =
+      null;
 
     let targetX = 0;
     let targetY = 0;
 
-    let entradaInicio: number | null = null;
+    let entradaInicio:
+      number | null = null;
 
     let entradaFinalizada = false;
 
     const modelURL =
       "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
 
-    const loader = new GLTFLoader();
+    const loader =
+      new GLTFLoader();
 
     loader.load(
       modelURL,
-
       (gltf) => {
         brain = gltf.scene;
 
-        brain.traverse((object) => {
-          if (object instanceof THREE.Mesh) {
-            object.castShadow = true;
-            object.receiveShadow = true;
+        brain.traverse(
+          (object) => {
+            if (
+              object instanceof THREE.Mesh
+            ) {
+              object.castShadow = true;
+              object.receiveShadow = true;
+            }
           }
-        });
+        );
 
         brain.scale.set(
           0.01,
@@ -295,15 +438,14 @@ function App() {
 
         scene.add(brain);
 
-        entradaInicio = performance.now();
+        entradaInicio =
+          performance.now();
 
         entradaFinalizada = false;
 
         setModelStatus("ready");
       },
-
       undefined,
-
       (error) => {
         console.error(
           "Erro ao carregar Corujafinal.glb:",
@@ -314,12 +456,16 @@ function App() {
       }
     );
 
-    // MOUSE / PARALAXE
+    /*
+     * MOUSE / PARALAXE
+     */
 
     const handleMouseMove = (
       event: MouseEvent
     ) => {
-      if (prefersReducedMotion) return;
+      if (prefersReducedMotion) {
+        return;
+      }
 
       const mouseX =
         event.clientX /
@@ -340,11 +486,15 @@ function App() {
       handleMouseMove
     );
 
-    // ANIMAÇÃO
+    /*
+     * ANIMAÇÃO
+     */
 
     let animationFrame = 0;
 
-    const animate = (now: number) => {
+    const animate = (
+      now: number
+    ) => {
       animationFrame =
         requestAnimationFrame(
           animate
@@ -358,6 +508,10 @@ function App() {
           0.0001;
       }
 
+      /*
+       * ENTRADA DA CORUJA
+       */
+
       if (
         brain &&
         !entradaFinalizada &&
@@ -368,10 +522,11 @@ function App() {
         const tempo =
           now - entradaInicio;
 
-        const progresso = Math.min(
-          tempo / duracao,
-          1
-        );
+        const progresso =
+          Math.min(
+            tempo / duracao,
+            1
+          );
 
         const ease =
           1 -
@@ -390,10 +545,12 @@ function App() {
         );
 
         brain.position.y =
-          -0.8 + 0.8 * ease;
+          -0.8 +
+          0.8 * ease;
 
         brain.rotation.y =
-          -0.35 + 0.35 * ease;
+          -0.35 +
+          0.35 * ease;
 
         brain.rotation.z =
           Math.sin(
@@ -408,6 +565,10 @@ function App() {
           brain.position.y = 0;
         }
       }
+
+      /*
+       * MOVIMENTO CONTÍNUO
+       */
 
       if (
         brain &&
@@ -449,7 +610,9 @@ function App() {
         animate
       );
 
-    // RESPONSIVIDADE
+    /*
+     * RESPONSIVIDADE
+     */
 
     const handleResize = () => {
       const newWidth =
@@ -466,8 +629,7 @@ function App() {
       }
 
       camera.aspect =
-        newWidth /
-        newHeight;
+        newWidth / newHeight;
 
       camera.updateProjectionMatrix();
 
@@ -481,6 +643,10 @@ function App() {
       "resize",
       handleResize
     );
+
+    /*
+     * LIMPEZA
+     */
 
     return () => {
       cancelAnimationFrame(
@@ -516,6 +682,12 @@ function App() {
     };
   }, []);
 
+  /*
+   * =====================================================
+   * MÓDULOS
+   * =====================================================
+   */
+
   const openModule = (
     name: Exclude<
       ModuleName,
@@ -529,48 +701,59 @@ function App() {
     setActiveModule(null);
   };
 
+  /*
+   * =====================================================
+   * DIAGNÓSTICO
+   * =====================================================
+   */
+
   const executarDiagnostico =
     () => {
-      if (
-        !diagDescricao.trim()
-      ) {
+      if (!diagDescricao.trim()) {
         alert(
           "Descreva a necessidade observada."
         );
-
         return;
       }
 
       setResultado(
         (prev) => ({
           ...prev,
-
           diagnostico:
             "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
         })
       );
     };
 
-  const consultarBNCC = () => {
-    if (
-      !buscaBNCC.trim()
-    ) {
-      alert(
-        "Digite algo para pesquisar."
+  /*
+   * =====================================================
+   * BNCC
+   * =====================================================
+   */
+
+  const consultarBNCC =
+    () => {
+      if (!buscaBNCC.trim()) {
+        alert(
+          "Digite algo para pesquisar."
+        );
+        return;
+      }
+
+      setResultado(
+        (prev) => ({
+          ...prev,
+          bncc:
+            "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
+        })
       );
+    };
 
-      return;
-    }
-
-    setResultado(
-      (prev) => ({
-        ...prev,
-
-        bncc:
-          "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
-      })
-    );
-  };
+  /*
+   * =====================================================
+   * PLANEJAMENTO
+   * =====================================================
+   */
 
   const gerarPlano = () => {
     if (
@@ -580,19 +763,23 @@ function App() {
       alert(
         "Informe o tema e o objetivo."
       );
-
       return;
     }
 
     setResultado(
       (prev) => ({
         ...prev,
-
         planejamento:
           "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
       })
     );
   };
+
+  /*
+   * =====================================================
+   * INTERVENÇÃO
+   * =====================================================
+   */
 
   const gerarIntervencao =
     () => {
@@ -602,19 +789,23 @@ function App() {
         alert(
           "Informe a necessidade identificada."
         );
-
         return;
       }
 
       setResultado(
         (prev) => ({
           ...prev,
-
           intervencao:
             "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
         })
       );
     };
+
+  /*
+   * =====================================================
+   * ACESSO DO ALUNO
+   * =====================================================
+   */
 
   const validarAcesso = () => {
     const valor =
@@ -635,18 +826,24 @@ function App() {
     setAccessError(true);
   };
 
+  /*
+   * =====================================================
+   * INTERFACE
+   * =====================================================
+   */
+
   return (
     <>
-      {/* VÍDEOS DE FUNDO */}
+      {/* FUNDO DE VÍDEOS */}
 
       <div
         className="video-background"
         aria-hidden="true"
       >
         <video
-          ref={(el) => {
+          ref={(element) => {
             videosRef.current[0] =
-              el;
+              element;
           }}
           className={`bg-video ${
             currentVideo === 0
@@ -660,9 +857,9 @@ function App() {
         />
 
         <video
-          ref={(el) => {
+          ref={(element) => {
             videosRef.current[1] =
-              el;
+              element;
           }}
           className={`bg-video ${
             currentVideo === 1
@@ -676,9 +873,9 @@ function App() {
         />
 
         <video
-          ref={(el) => {
+          ref={(element) => {
             videosRef.current[2] =
-              el;
+              element;
           }}
           className={`bg-video ${
             currentVideo === 2
@@ -734,16 +931,15 @@ function App() {
       {/* CONTEÚDO PRINCIPAL */}
 
       <main className="main-container">
-
         <div className="institution-marker">
           <span />
-
-          Laboratório de Pesquisa
-          e Práticas Pedagógicas
+          Laboratório de Pesquisa e
+          Práticas Pedagógicas
         </div>
 
-        <section className="card">
+        {/* CARTÃO PRINCIPAL */}
 
+        <section className="card">
           <div className="brand">
             <div
               className="brand-icon"
@@ -757,9 +953,10 @@ function App() {
 
           <div className="system-status">
             <span className="system-dot" />
-
             Laboratório aberto
           </div>
+
+          {/* AVATAR SPLINE */}
 
           <div className="avatar-3d">
             <spline-viewer
@@ -772,14 +969,15 @@ function App() {
           </h2>
 
           <p className="subtitle">
-            Um espaço de trabalho
-            para diagnóstico,
-            planejamento, consulta
-            curricular e intervenção —
-            construído a partir da
-            prática docente, não no
-            lugar dela.
+            Um espaço de trabalho para
+            diagnóstico, planejamento,
+            consulta curricular e
+            intervenção — construído a
+            partir da prática docente,
+            não no lugar dela.
           </p>
+
+          {/* IDENTIFICAÇÃO */}
 
           <label
             className="field-label"
@@ -818,8 +1016,7 @@ function App() {
               role="alert"
             >
               ID de acesso inválido.
-              Verifique e tente
-              novamente.
+              Verifique e tente novamente.
             </p>
           )}
 
@@ -849,7 +1046,6 @@ function App() {
           {/* MÓDULOS */}
 
           <div className="tool-grid">
-
             <button
               type="button"
               className="tool-card"
@@ -871,8 +1067,8 @@ function App() {
               </h4>
 
               <p>
-                Leitura do processo
-                de aprendizagem.
+                Leitura do processo de
+                aprendizagem.
               </p>
             </button>
 
@@ -919,8 +1115,8 @@ function App() {
               </h4>
 
               <p>
-                Construção de planos
-                de aula.
+                Construção de planos de
+                aula.
               </p>
             </button>
 
@@ -945,15 +1141,14 @@ function App() {
               </h4>
 
               <p>
-                Estratégias
-                pedagógicas dirigidas.
+                Estratégias pedagógicas
+                dirigidas.
               </p>
             </button>
-
           </div>
         </section>
 
-        {/* CORUJA 3D */}
+        {/* CORUJA THREE.JS */}
 
         <section
           id="brain-viewport"
@@ -961,7 +1156,6 @@ function App() {
           data-status={modelStatus}
         >
           <div className="brain-frame">
-
             <span className="brain-corner brain-corner--tl" />
             <span className="brain-corner brain-corner--tr" />
             <span className="brain-corner brain-corner--bl" />
@@ -973,43 +1167,38 @@ function App() {
               aria-hidden="true"
             >
               <defs>
-
                 <path
                   id="brainRingPath"
                   d="M 200,200 m -170,0 a 170,170 0 1,1 340,0 a 170,170 0 1,1 -340,0"
                 />
-
               </defs>
 
               <text>
-
                 <textPath
                   href="#brainRingPath"
                   startOffset="0%"
                 >
-                  NEURO-EDUCA · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
+                  NEURO-EDUCA · LABORATÓRIO
+                  PEDAGÓGICO · UNINTA ·
+                  SABEDORIA APLICADA ·
                 </textPath>
-
               </text>
             </svg>
 
             {modelStatus ===
               "loading" && (
               <p className="brain-status">
-                Preparando a
-                guardiã…
+                Preparando a guardiã…
               </p>
             )}
 
             {modelStatus ===
               "error" && (
               <p className="brain-status brain-status--error">
-                Não foi possível
-                carregar o modelo
-                3D.
+                Não foi possível carregar
+                o modelo 3D.
               </p>
             )}
-
           </div>
 
           <div className="brain-label">
@@ -1020,7 +1209,6 @@ function App() {
             </strong>
           </div>
         </section>
-
       </main>
 
       {/* OVERLAY */}
@@ -1035,7 +1223,7 @@ function App() {
         aria-hidden="true"
       />
 
-      {/* DIAGNÓSTICO */}
+      {/* MÓDULO DIAGNÓSTICO */}
 
       <ModulePanel
         id="diagnostico"
@@ -1048,11 +1236,8 @@ function App() {
         }
         onClose={closeModule}
       >
-
         <div className="tool-grid tool-grid--fields">
-
           <div className="tool-card tool-card--field">
-
             <label
               className="field-label"
               htmlFor="diag-ano"
@@ -1064,21 +1249,18 @@ function App() {
               id="diag-ano"
               defaultValue={ANOS[0]}
             >
-              {ANOS.map(
-                (ano) => (
-                  <option
-                    key={ano}
-                  >
-                    {ano}
-                  </option>
-                )
-              )}
+              {ANOS.map((ano) => (
+                <option
+                  key={ano}
+                  value={ano}
+                >
+                  {ano}
+                </option>
+              ))}
             </select>
-
           </div>
 
           <div className="tool-card tool-card--field">
-
             <label
               className="field-label"
               htmlFor="diag-componente"
@@ -1110,9 +1292,7 @@ function App() {
                 Geografia
               </option>
             </select>
-
           </div>
-
         </div>
 
         <label
@@ -1155,10 +1335,9 @@ function App() {
             </p>
           </div>
         )}
-
       </ModulePanel>
 
-      {/* BNCC */}
+      {/* MÓDULO BNCC */}
 
       <ModulePanel
         id="bncc"
@@ -1166,12 +1345,10 @@ function App() {
         title="Consulta Curricular"
         description="Pesquisa de habilidades e organização curricular."
         isActive={
-          activeModule ===
-          "bncc"
+          activeModule === "bncc"
         }
         onClose={closeModule}
       >
-
         <label
           className="field-label"
           htmlFor="bncc-busca"
@@ -1192,16 +1369,14 @@ function App() {
         />
 
         <div className="tool-grid">
-
           <div className="tool-card tool-card--static">
             <h4>
               Habilidades
             </h4>
 
             <p>
-              Consulta estruturada
-              de habilidades e
-              competências
+              Consulta estruturada de
+              habilidades e competências
               curriculares.
             </p>
           </div>
@@ -1213,27 +1388,22 @@ function App() {
 
             <p>
               Use a habilidade
-              selecionada como
-              referência para suas
-              análises.
+              selecionada como referência
+              para suas análises.
             </p>
           </div>
-
         </div>
 
         <button
           type="button"
           className="btn-neuro"
-          onClick={
-            consultarBNCC
-          }
+          onClick={consultarBNCC}
         >
           Consultar
         </button>
 
         {resultado.bncc && (
           <div className="result-box">
-
             <strong>
               Resultado
             </strong>
@@ -1241,13 +1411,11 @@ function App() {
             <p>
               {resultado.bncc}
             </p>
-
           </div>
         )}
-
       </ModulePanel>
 
-      {/* PLANEJAMENTO */}
+      {/* MÓDULO PLANEJAMENTO */}
 
       <ModulePanel
         id="planejamento"
@@ -1260,7 +1428,6 @@ function App() {
         }
         onClose={closeModule}
       >
-
         <label
           className="field-label"
           htmlFor="plano-tema"
@@ -1290,13 +1457,14 @@ function App() {
           id="plano-ano"
           defaultValue={ANOS[0]}
         >
-          {ANOS.map(
-            (ano) => (
-              <option key={ano}>
-                {ano}
-              </option>
-            )
-          )}
+          {ANOS.map((ano) => (
+            <option
+              key={ano}
+              value={ano}
+            >
+              {ano}
+            </option>
+          ))}
         </select>
 
         <label
@@ -1320,16 +1488,13 @@ function App() {
         <button
           type="button"
           className="btn-neuro"
-          onClick={
-            gerarPlano
-          }
+          onClick={gerarPlano}
         >
           Gerar planejamento
         </button>
 
         {resultado.planejamento && (
           <div className="result-box">
-
             <strong>
               Planejamento
             </strong>
@@ -1337,13 +1502,11 @@ function App() {
             <p>
               {resultado.planejamento}
             </p>
-
           </div>
         )}
-
       </ModulePanel>
 
-      {/* INTERVENÇÃO */}
+      {/* MÓDULO INTERVENÇÃO */}
 
       <ModulePanel
         id="intervencao"
@@ -1356,7 +1519,6 @@ function App() {
         }
         onClose={closeModule}
       >
-
         <label
           className="field-label"
           htmlFor="interv-necessidade"
@@ -1409,7 +1571,6 @@ function App() {
 
         {resultado.intervencao && (
           <div className="result-box">
-
             <strong>
               Proposta pedagógica
             </strong>
@@ -1417,14 +1578,28 @@ function App() {
             <p>
               {resultado.intervencao}
             </p>
-
           </div>
         )}
-
       </ModulePanel>
     </>
   );
 }
+
+/*
+ * =====================================================
+ * COMPONENTE DOS PAINÉIS
+ * =====================================================
+ */
+
+type ModulePanelProps = {
+  id: string;
+  badge: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  onClose: () => void;
+  children: ReactNode;
+};
 
 function ModulePanel({
   id,
@@ -1434,45 +1609,36 @@ function ModulePanel({
   isActive,
   onClose,
   children,
-}: {
-  id: string;
-  badge: string;
-  title: string;
-  description: string;
-  isActive: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+}: ModulePanelProps) {
   return (
     <div
       className={`tool-panel ${
-        isActive
-          ? "active"
-          : ""
+        isActive ? "active" : ""
       }`}
       role="dialog"
-      aria-modal={isActive}
-      aria-hidden={!isActive}
+      aria-modal={
+        isActive
+          ? "true"
+          : undefined
+      }
+      aria-hidden={
+        !isActive
+      }
       aria-labelledby={`${id}-title`}
     >
       <div className="tool-header">
-
         <div>
-
           <span className="ai-badge">
             {badge}
           </span>
 
-          <h3
-            id={`${id}-title`}
-          >
+          <h3 id={`${id}-title`}>
             {title}
           </h3>
 
           <p>
             {description}
           </p>
-
         </div>
 
         <button
@@ -1483,11 +1649,9 @@ function ModulePanel({
         >
           ×
         </button>
-
       </div>
 
       {children}
-
     </div>
   );
 }
