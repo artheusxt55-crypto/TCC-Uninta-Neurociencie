@@ -21,5 +21,9 @@
     "@vitejs/plugin-react": "latest",
     "typescript": "latest",
     "vite": "latest"
+    "clsx": "^2.1.0",
+"framer-motion": "^11.0.0",
+"lucide-react": "^0.300.0",
+"tailwind-merge": "^2.2.0"
   }
 }
