@@ -864,3 +864,1401 @@ input:focus, select:focus, textarea:focus {
         padding: 44px 26px 50px;
     }
 }
+/* ================================================================
+   NEURO-EDUCA — ART DIRECTION OVERRIDE
+   ------------------------------------------------
+   Refinamento visual:
+   instituição + laboratório + biblioteca + editorial
+   ================================================================ */
+
+
+/* ================================================================
+   01. SISTEMA VISUAL
+   ================================================================ */
+
+:root {
+    --surface-dark:
+        rgba(9, 13, 21, 0.88);
+
+    --surface-dark-2:
+        rgba(14, 19, 29, 0.94);
+
+    --surface-paper:
+        #f5f0e4;
+
+    --paper-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.34);
+
+    --deep-shadow:
+        0 42px 100px rgba(0, 0, 0, 0.52);
+
+    --bronze-bright:
+        #c5a26a;
+
+    --bronze-faint:
+        rgba(176, 138, 84, 0.14);
+
+    --cyan-faint:
+        rgba(79, 182, 196, 0.10);
+
+    --white-faint:
+        rgba(242, 236, 221, 0.055);
+}
+
+
+/* ================================================================
+   02. FUNDO — MAIS PROFUNDIDADE
+   ================================================================ */
+
+.video-background {
+    background:
+        radial-gradient(
+            ellipse at 73% 42%,
+            rgba(176, 138, 84, 0.065),
+            transparent 32%
+        ),
+        radial-gradient(
+            ellipse at 20% 70%,
+            rgba(79, 182, 196, 0.025),
+            transparent 30%
+        ),
+        var(--ink);
+}
+
+
+/*
+   Não queremos que o vídeo pareça um wallpaper.
+   Ele deve parecer uma fotografia de arquivo dentro
+   de uma instituição.
+*/
+
+.bg-video {
+    filter:
+        grayscale(0.62)
+        contrast(1.08)
+        brightness(0.42)
+        sepia(0.10);
+
+    transform: scale(1.025);
+
+    transform-origin: center;
+}
+
+
+/* ================================================================
+   03. VÉU CINEMATOGRÁFICO
+   ================================================================ */
+
+.video-overlay {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(6, 10, 17, 0.97) 0%,
+            rgba(6, 10, 17, 0.90) 24%,
+            rgba(6, 10, 17, 0.68) 48%,
+            rgba(6, 10, 17, 0.40) 72%,
+            rgba(6, 10, 17, 0.82) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(5, 8, 13, 0.34),
+            rgba(5, 8, 13, 0.92)
+        );
+}
+
+
+/* ================================================================
+   04. VINHETA — SEM "GLOW DE IA"
+   ================================================================ */
+
+.video-purple-glow {
+    width: 58vw;
+    height: 58vw;
+
+    top: -28%;
+    right: -18%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(176, 138, 84, 0.075) 0%,
+            rgba(176, 138, 84, 0.025) 34%,
+            transparent 70%
+        );
+
+    filter: blur(8px);
+}
+
+
+/* ================================================================
+   05. GRID ARQUITETÔNICO
+   ================================================================ */
+
+.architectural-grid {
+    background-image:
+        linear-gradient(
+            rgba(242, 236, 221, 0.07) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(242, 236, 221, 0.07) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        150px 150px;
+
+    opacity: 0.10;
+
+    mask-image:
+        radial-gradient(
+            ellipse at 68% 48%,
+            black 0%,
+            rgba(0, 0, 0, 0.8) 32%,
+            transparent 76%
+        );
+}
+
+
+/* ================================================================
+   06. LINHA LATERAL — IDENTIDADE
+   ================================================================ */
+
+.side-line {
+    left: 34px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(176, 138, 84, 0.12) 12%,
+            rgba(176, 138, 84, 0.38) 45%,
+            rgba(176, 138, 84, 0.16) 82%,
+            transparent 100%
+        );
+}
+
+
+/*
+   Pequeno marcador na linha.
+   Parece detalhe arquitetônico e não decoração aleatória.
+*/
+
+.side-line::before {
+    content: "";
+
+    position: absolute;
+
+    top: 28%;
+
+    left: -3px;
+
+    width: 7px;
+    height: 7px;
+
+    border:
+        1px solid
+        var(--bronze);
+
+    background:
+        var(--ink);
+
+    transform:
+        rotate(45deg);
+}
+
+
+/* ================================================================
+   07. GRAIN — MAIS DISCRETO
+   ================================================================ */
+
+.grain {
+    opacity: 0.028;
+}
+
+
+/* ================================================================
+   08. ÁREA PRINCIPAL
+   ================================================================ */
+
+.main-container {
+    max-width: 1380px;
+
+    padding:
+        124px
+        54px
+        140px;
+}
+
+
+/*
+   Criamos uma pequena "margem editorial"
+   no lado esquerdo.
+*/
+
+.main-container::before {
+    content: "";
+
+    position: absolute;
+
+    left: 54px;
+    top: 116px;
+
+    width: 38px;
+    height: 1px;
+
+    background:
+        var(--bronze);
+
+    opacity: 0.65;
+}
+
+
+/* ================================================================
+   09. MARCADOR INSTITUCIONAL
+   ================================================================ */
+
+.institution-marker {
+    position: relative;
+
+    width: fit-content;
+
+    margin-bottom: 72px;
+
+    padding-left: 18px;
+
+    color:
+        rgba(242, 236, 221, 0.68);
+
+    font-size: 10px;
+
+    letter-spacing:
+        0.22em;
+}
+
+
+/*
+   Linha vertical em vez de simplesmente um ponto.
+*/
+
+.institution-marker::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 8px;
+    height: 1px;
+
+    background:
+        var(--bronze);
+
+    transform:
+        translateY(-50%);
+}
+
+.institution-marker span {
+    display: none;
+}
+
+
+/* ================================================================
+   10. GRID PRINCIPAL
+   ================================================================ */
+
+@media (min-width: 980px) {
+
+    .main-container {
+        grid-template-columns:
+            minmax(470px, 0.88fr)
+            minmax(460px, 1.12fr);
+
+        gap: 92px;
+
+        align-items: center;
+    }
+
+    .institution-marker {
+        grid-column: 1 / -1;
+    }
+}
+
+
+/* ================================================================
+   11. CARTÃO — MENOS "CARD", MAIS OBJETO EDITORIAL
+   ================================================================ */
+
+.card {
+    position: relative;
+
+    padding:
+        62px
+        58px
+        54px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(247, 242, 230, 0.985),
+            rgba(238, 231, 214, 0.985)
+        );
+
+    border:
+        1px solid
+        rgba(176, 138, 84, 0.42);
+
+    border-radius:
+        2px;
+
+    box-shadow:
+        var(--paper-shadow);
+
+    isolation: isolate;
+}
+
+
+/*
+   Segunda moldura.
+*/
+
+.card::before {
+    inset: 13px;
+
+    border:
+        1px solid
+        rgba(10, 14, 23, 0.10);
+}
+
+
+/*
+   Terceira linha extremamente discreta.
+*/
+
+.card::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 20px;
+
+    border-top:
+        1px solid
+        rgba(176, 138, 84, 0.12);
+
+    border-bottom:
+        1px solid
+        rgba(176, 138, 84, 0.12);
+
+    pointer-events: none;
+
+    z-index: -1;
+}
+
+
+/* ================================================================
+   12. MARCA
+   ================================================================ */
+
+.brand {
+    position: relative;
+
+    width: fit-content;
+
+    gap: 12px;
+
+    margin-bottom: 38px;
+
+    padding-bottom: 10px;
+
+    border-bottom:
+        1px solid
+        rgba(176, 138, 84, 0.28);
+}
+
+.brand-icon {
+    width: 14px;
+    height: 14px;
+
+    border-color:
+        var(--bronze);
+
+    transform:
+        rotate(45deg);
+}
+
+.brand-icon::after {
+    inset: 3px;
+
+    border-radius: 0;
+
+    background:
+        var(--bronze);
+
+    transform:
+        rotate(-45deg);
+}
+
+
+/* ================================================================
+   13. STATUS
+   ================================================================ */
+
+.system-status {
+    top: 62px;
+    right: 58px;
+
+    font-size: 9px;
+
+    letter-spacing:
+        0.16em;
+
+    opacity: 0.72;
+}
+
+.system-dot {
+    width: 5px;
+    height: 5px;
+
+    background:
+        var(--cyan);
+
+    box-shadow:
+        0 0 0 2px
+        rgba(79, 182, 196, 0.12);
+}
+
+
+/* ================================================================
+   14. TÍTULO — MAIS EDITORIAL
+   ================================================================ */
+
+.card h2 {
+    position: relative;
+
+    max-width: 10ch;
+
+    font-size:
+        clamp(34px, 4vw, 48px);
+
+    line-height:
+        1.05;
+
+    letter-spacing:
+        -0.025em;
+}
+
+
+/*
+   Pequeno detalhe de índice.
+*/
+
+.card h2::after {
+    content: "01";
+
+    position: absolute;
+
+    right: -4px;
+    bottom: 4px;
+
+    font-family:
+        var(--font-mono);
+
+    font-size: 9px;
+
+    font-style: normal;
+
+    letter-spacing:
+        0.15em;
+
+    color:
+        rgba(176, 138, 84, 0.48);
+}
+
+
+/* ================================================================
+   15. SUBTÍTULO
+   ================================================================ */
+
+.subtitle {
+    max-width: 39ch;
+
+    margin-top: 22px;
+
+    font-size: 16px;
+
+    line-height: 1.75;
+
+    color:
+        rgba(10, 14, 23, 0.64);
+}
+
+
+/* ================================================================
+   16. CAMPOS
+   ================================================================ */
+
+.field-label {
+    position: relative;
+
+    margin-top: 36px;
+
+    margin-bottom: 10px;
+
+    padding-left: 13px;
+
+    color:
+        var(--bronze-deep);
+
+    font-size: 9px;
+
+    letter-spacing:
+        0.18em;
+}
+
+.field-label::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 6px;
+    height: 1px;
+
+    background:
+        var(--bronze);
+
+    transform:
+        translateY(-50%);
+}
+
+
+input[type="text"],
+input:not([type]),
+select,
+textarea {
+    font-size: 16px;
+
+    padding:
+        13px
+        3px;
+
+    border-bottom-color:
+        rgba(10, 14, 23, 0.18);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-bottom-color:
+        rgba(176, 138, 84, 0.55);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-bottom-color:
+        var(--bronze);
+
+    outline: none;
+}
+
+
+/* ================================================================
+   17. BOTÃO PRINCIPAL
+   ================================================================ */
+
+.btn-neuro {
+    position: relative;
+
+    min-height: 54px;
+
+    margin-top: 34px;
+
+    overflow: hidden;
+
+    background:
+        var(--ink);
+
+    border-color:
+        var(--ink);
+
+    transition:
+        color 0.3s var(--ease),
+        background 0.3s var(--ease),
+        border-color 0.3s var(--ease),
+        transform 0.3s var(--ease);
+}
+
+
+/*
+   Linha de bronze entrando lateralmente.
+*/
+
+.btn-neuro::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 0;
+    height: 2px;
+
+    background:
+        var(--bronze);
+
+    transition:
+        width 0.45s var(--ease);
+}
+
+.btn-neuro:hover::before {
+    width: 100%;
+}
+
+.btn-neuro:hover {
+    background:
+        #151b26;
+
+    border-color:
+        rgba(176, 138, 84, 0.55);
+
+    color:
+        var(--ivory);
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* ================================================================
+   18. LINKS SECUNDÁRIOS
+   ================================================================ */
+
+.btn-library,
+.btn-atlas {
+    position: relative;
+
+    padding:
+        15px
+        2px;
+
+    border-top:
+        1px solid
+        rgba(10, 14, 23, 0.13);
+
+    transition:
+        padding-left 0.3s var(--ease),
+        color 0.3s var(--ease);
+}
+
+.btn-library::after,
+.btn-atlas::after {
+    content: "↗";
+
+    color:
+        var(--bronze);
+
+    transition:
+        transform 0.3s var(--ease);
+}
+
+.btn-library:hover,
+.btn-atlas:hover {
+    padding-left: 10px;
+}
+
+.btn-library:hover::after,
+.btn-atlas:hover::after {
+    transform:
+        translate(2px, -2px);
+}
+
+
+/* ================================================================
+   19. MÓDULOS
+   ================================================================ */
+
+.tool-grid {
+    position: relative;
+
+    margin-top: 44px;
+
+    border:
+        1px solid
+        rgba(10, 14, 23, 0.12);
+
+    background:
+        rgba(10, 14, 23, 0.12);
+
+    box-shadow:
+        0 10px 30px rgba(10, 14, 23, 0.05);
+}
+
+.tool-card {
+    min-height: 145px;
+
+    padding:
+        25px
+        22px
+        22px;
+
+    transition:
+        background 0.3s var(--ease);
+}
+
+.tool-card:hover {
+    background:
+        #eee7d5;
+}
+
+.tool-card-mark {
+    position: relative;
+
+    margin-bottom: 18px;
+
+    font-size: 28px;
+}
+
+
+/*
+   Pequeno índice lateral.
+*/
+
+.tool-card-mark::after {
+    content: "·";
+
+    position: absolute;
+
+    margin-left: 8px;
+
+    color:
+        var(--bronze);
+}
+
+
+/* ================================================================
+   20. VITRINE DA CORUJA
+   ================================================================ */
+
+#brain-viewport {
+    position: relative;
+
+    min-height:
+        620px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(176, 138, 84, 0.075),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #111722,
+            #080c13
+        );
+
+    border:
+        1px solid
+        rgba(176, 138, 84, 0.20);
+
+    border-radius:
+        2px;
+
+    box-shadow:
+        var(--deep-shadow);
+
+    isolation: isolate;
+}
+
+
+/*
+   Moldura externa.
+*/
+
+#brain-viewport::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 18px;
+
+    border:
+        1px solid
+        rgba(176, 138, 84, 0.13);
+
+    pointer-events: none;
+}
+
+
+/*
+   Marca central muito discreta.
+*/
+
+#brain-viewport::after {
+    content: "";
+
+    position: absolute;
+
+    top: 18px;
+    left: 50%;
+
+    width: 80px;
+    height: 1px;
+
+    background:
+        var(--bronze);
+
+    opacity: 0.5;
+
+    transform:
+        translateX(-50%);
+}
+
+
+/* ================================================================
+   21. FRAME DA CORUJA
+   ================================================================ */
+
+.brain-frame {
+    position: relative;
+
+    width:
+        min(100%, 470px);
+
+    aspect-ratio:
+        1 / 1;
+}
+
+
+/*
+   Halo sem aparência de neon.
+*/
+
+.brain-frame::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 18%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(176, 138, 84, 0.12),
+            transparent 68%
+        );
+
+    filter:
+        blur(18px);
+
+    pointer-events: none;
+}
+
+
+/* ================================================================
+   22. CANTOS DA MOLDURA
+   ================================================================ */
+
+.brain-corner {
+    width: 28px;
+    height: 28px;
+
+    border-color:
+        rgba(196, 162, 101, 0.72);
+
+    opacity: 0.85;
+}
+
+
+/* ================================================================
+   23. ANEL DA CORUJA
+   ================================================================ */
+
+.brain-ring text,
+.brain-ring textPath {
+    font-size:
+        8.5px;
+
+    letter-spacing:
+        0.30em;
+
+    fill:
+        var(--bronze);
+
+    opacity:
+        0.48;
+}
+
+
+/* ================================================================
+   24. LABEL DA CORUJA
+   ================================================================ */
+
+.brain-label {
+    position: relative;
+
+    margin-top: 34px;
+
+    padding-top: 17px;
+
+    text-align: center;
+}
+
+.brain-label::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: 38px;
+    height: 1px;
+
+    background:
+        var(--bronze);
+
+    transform:
+        translateX(-50%);
+}
+
+.brain-label strong {
+    font-size:
+        21px;
+
+    letter-spacing:
+        0.015em;
+}
+
+
+/* ================================================================
+   25. PAINEL LATERAL
+   ================================================================ */
+
+.tool-panel {
+    width:
+        min(610px, 94vw);
+
+    padding:
+        64px
+        58px
+        70px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f7f2e6,
+            #eee7d8
+        );
+
+    border-left:
+        1px solid
+        rgba(176, 138, 84, 0.40);
+
+    box-shadow:
+        -30px 0 80px
+        rgba(0, 0, 0, 0.38);
+}
+
+
+/*
+   Linha de registro no topo.
+*/
+
+.tool-panel::before {
+    content:
+        "NEURO-EDUCA  /  LABORATÓRIO";
+
+    display:
+        block;
+
+    margin-bottom:
+        28px;
+
+    padding-bottom:
+        12px;
+
+    border-bottom:
+        1px solid
+        rgba(10, 14, 23, 0.12);
+
+    font-family:
+        var(--font-mono);
+
+    font-size:
+        8.5px;
+
+    letter-spacing:
+        0.20em;
+
+    color:
+        var(--bronze-deep);
+}
+
+
+/* ================================================================
+   26. BADGE
+   ================================================================ */
+
+.ai-badge {
+    padding:
+        5px
+        10px;
+
+    border-radius:
+        2px;
+
+    letter-spacing:
+        0.18em;
+}
+
+
+/*
+   Mantemos "AI" discreto.
+   Não queremos transformar a interface em produto de IA.
+*/
+
+.ai-badge::before {
+    content:
+        "· ";
+
+    color:
+        var(--cyan);
+}
+
+
+/* ================================================================
+   27. CABEÇALHO DO PAINEL
+   ================================================================ */
+
+.tool-header {
+    padding-bottom:
+        30px;
+
+    border-bottom:
+        1px solid
+        rgba(10, 14, 23, 0.14);
+}
+
+.tool-header h3 {
+    max-width:
+        13ch;
+
+    font-size:
+        29px;
+
+    line-height:
+        1.08;
+}
+
+.tool-header p {
+    max-width:
+        42ch;
+
+    margin-top:
+        14px;
+
+    font-size:
+        15px;
+}
+
+
+/* ================================================================
+   28. BOTÃO FECHAR
+   ================================================================ */
+
+.close-tool {
+    width: 36px;
+    height: 36px;
+
+    border-radius:
+        2px;
+
+    transition:
+        background 0.25s var(--ease),
+        color 0.25s var(--ease),
+        border-color 0.25s var(--ease),
+        transform 0.25s var(--ease);
+}
+
+.close-tool:hover {
+    transform:
+        rotate(45deg);
+
+    border-color:
+        var(--bronze);
+
+    background:
+        var(--bronze);
+
+    color:
+        var(--ink);
+}
+
+
+/* ================================================================
+   29. RESULTADOS
+   ================================================================ */
+
+.result-box {
+    position: relative;
+
+    margin-top:
+        34px;
+
+    padding:
+        24px
+        25px
+        25px
+        27px;
+
+    background:
+        rgba(10, 14, 23, 0.025);
+
+    border-left:
+        2px solid
+        var(--bronze);
+}
+
+
+/*
+   Pequeno marcador superior.
+*/
+
+.result-box::before {
+    content:
+        "REGISTRO";
+
+    position: absolute;
+
+    top: -8px;
+    right: 0;
+
+    padding:
+        0 6px;
+
+    background:
+        var(--ivory-panel);
+
+    font-family:
+        var(--font-mono);
+
+    font-size:
+        8px;
+
+    letter-spacing:
+        0.16em;
+
+    color:
+        var(--bronze-deep);
+}
+
+
+/* ================================================================
+   30. MICROINTERAÇÕES
+   ================================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .card,
+    #brain-viewport {
+        animation:
+            entrance 0.8s var(--ease) both;
+    }
+
+    #brain-viewport {
+        animation-delay:
+            0.08s;
+    }
+
+    .institution-marker {
+        animation:
+            fade-up 0.6s var(--ease) both;
+    }
+
+    @keyframes entrance {
+
+        from {
+            opacity: 0;
+            transform:
+                translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translateY(0);
+        }
+    }
+
+    @keyframes fade-up {
+
+        from {
+            opacity: 0;
+            transform:
+                translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translateY(0);
+        }
+    }
+}
+
+
+/* ================================================================
+   31. RESPONSIVIDADE — TABLET
+   ================================================================ */
+
+@media (max-width: 979px) {
+
+    .main-container {
+        padding:
+            100px
+            30px
+            100px;
+    }
+
+    .main-container::before {
+        left: 30px;
+    }
+
+    .card {
+        padding:
+            52px
+            42px
+            44px;
+    }
+
+    #brain-viewport {
+        min-height:
+            500px;
+    }
+}
+
+
+/* ================================================================
+   32. RESPONSIVIDADE — MOBILE
+   ================================================================ */
+
+@media (max-width: 640px) {
+
+    .main-container {
+        padding:
+            88px
+            18px
+            80px;
+    }
+
+    .main-container::before {
+        display:
+            none;
+    }
+
+    .institution-marker {
+        margin-bottom:
+            48px;
+    }
+
+    .card {
+        padding:
+            42px
+            26px
+            38px;
+    }
+
+    .card::before {
+        inset:
+            9px;
+    }
+
+    .card::after {
+        inset:
+            15px;
+    }
+
+    .system-status {
+        position:
+            static;
+
+        margin-bottom:
+            24px;
+    }
+
+    .card h2 {
+        max-width:
+            12ch;
+
+        font-size:
+            36px;
+    }
+
+    #brain-viewport {
+        min-height:
+            400px;
+
+        padding:
+            25px;
+    }
+
+    .brain-frame {
+        width:
+            100%;
+    }
+
+    .tool-panel {
+        width:
+            100%;
+
+        padding:
+            48px
+            25px
+            54px;
+    }
+}
+
+
+/* ================================================================
+   33. MOBILE PEQUENO
+   ================================================================ */
+
+@media (max-width: 400px) {
+
+    .main-container {
+        padding:
+            80px
+            14px
+            60px;
+    }
+
+    .card {
+        padding:
+            38px
+            22px
+            32px;
+    }
+
+    .card h2 {
+        font-size:
+            32px;
+    }
+
+    .btn-aluno-fixo {
+        right:
+            14px;
+
+        top:
+            16px;
+    }
+}
