@@ -450,7 +450,7 @@ function App() {
                     Laboratório de Pesquisa e Práticas Pedagógicas
                 </div>
 
-                <section className="card">
+                <section className="hero">
                     <div className="brand">
                         <div className="brand-icon" />
                         <span>Neuro-Educa · UNINTA</span>
@@ -482,43 +482,18 @@ function App() {
                         autoComplete="off"
                     />
 
-                    <button className="btn-neuro" onClick={validarAcesso}>
+                    <button className="btn-chalk" onClick={validarAcesso}>
                         Entrar no laboratório
                     </button>
 
-                    <a href="/biblioteca.html" className="btn-library">
-                        Biblioteca digital
-                    </a>
+                    <div className="hero-links">
+                        <a href="/biblioteca.html" className="chalk-link">
+                            Biblioteca digital
+                        </a>
 
-                    <a href="/atlas.html" className="btn-atlas">
-                        Explorar o mapa da aprendizagem
-                    </a>
-
-                    {/* MÓDULOS */}
-                    <div className="tool-grid">
-                        <button type="button" className="tool-card" onClick={() => openModule("diagnostico")}>
-                            <span className="tool-card-mark">I</span>
-                            <h4>Diagnóstico</h4>
-                            <p>Leitura do processo de aprendizagem.</p>
-                        </button>
-
-                        <button type="button" className="tool-card" onClick={() => openModule("bncc")}>
-                            <span className="tool-card-mark">II</span>
-                            <h4>BNCC</h4>
-                            <p>Consulta à base curricular.</p>
-                        </button>
-
-                        <button type="button" className="tool-card" onClick={() => openModule("planejamento")}>
-                            <span className="tool-card-mark">III</span>
-                            <h4>Planejamento</h4>
-                            <p>Construção de planos de aula.</p>
-                        </button>
-
-                        <button type="button" className="tool-card" onClick={() => openModule("intervencao")}>
-                            <span className="tool-card-mark">IV</span>
-                            <h4>Intervenção</h4>
-                            <p>Estratégias pedagógicas dirigidas.</p>
-                        </button>
+                        <a href="/atlas.html" className="chalk-link">
+                            Explorar o mapa da aprendizagem
+                        </a>
                     </div>
                 </section>
 
@@ -551,6 +526,49 @@ function App() {
                         <strong>A coruja de Atena</strong>
                     </div>
                 </section>
+
+                {/* MÓDULOS — bandeja de giz */}
+                <nav className="chalk-tray" aria-label="Módulos do laboratório">
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Leitura do processo de aprendizagem."
+                        onClick={() => openModule("diagnostico")}
+                    >
+                        <span className="tray-index">I</span>
+                        <span className="tray-name">Diagnóstico</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Consulta à base curricular."
+                        onClick={() => openModule("bncc")}
+                    >
+                        <span className="tray-index">II</span>
+                        <span className="tray-name">BNCC</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Construção de planos de aula."
+                        onClick={() => openModule("planejamento")}
+                    >
+                        <span className="tray-index">III</span>
+                        <span className="tray-name">Planejamento</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Estratégias pedagógicas dirigidas."
+                        onClick={() => openModule("intervencao")}
+                    >
+                        <span className="tray-index">IV</span>
+                        <span className="tray-name">Intervenção</span>
+                    </button>
+                </nav>
             </main>
 
             {/* OVERLAY */}
@@ -604,7 +622,7 @@ function App() {
                     placeholder="Descreva o que foi observado no processo de aprendizagem..."
                 />
 
-                <button type="button" className="btn-neuro" onClick={executarDiagnostico}>
+                <button type="button" className="btn-ink" onClick={executarDiagnostico}>
                     Analisar
                 </button>
 
@@ -653,7 +671,7 @@ function App() {
                     </div>
                 </div>
 
-                <button type="button" className="btn-neuro" onClick={consultarBNCC}>
+                <button type="button" className="btn-ink" onClick={consultarBNCC}>
                     Consultar
                 </button>
 
@@ -705,7 +723,7 @@ function App() {
                     placeholder="O que o aluno deverá desenvolver?"
                 />
 
-                <button type="button" className="btn-neuro" onClick={gerarPlano}>
+                <button type="button" className="btn-ink" onClick={gerarPlano}>
                     Gerar planejamento
                 </button>
 
@@ -749,7 +767,7 @@ function App() {
                     placeholder="Informe o contexto da turma ou do estudante..."
                 />
 
-                <button type="button" className="btn-neuro" onClick={gerarIntervencao}>
+                <button type="button" className="btn-ink" onClick={gerarIntervencao}>
                     Propor intervenção
                 </button>
 
