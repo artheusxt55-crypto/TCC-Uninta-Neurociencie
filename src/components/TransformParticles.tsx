@@ -1612,7 +1612,3 @@ export default App;
 src/components/TransformParticles.tsx
 src/styles/transform-particles.css
 ```
-
-e que o `TransformParticles.tsx` seja exatamente o componente que você enviou.
-
-Também não precisa criar outro componente. A coruja continua sendo o primeiro Three.js e as partículas serão o segundo.
