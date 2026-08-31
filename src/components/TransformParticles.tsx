@@ -1605,10 +1605,3 @@ function App() {
 
 export default App;
 ```
-
-**Importante:** esse código pressupõe que você já tenha:
-
-```text
-src/components/TransformParticles.tsx
-src/styles/transform-particles.css
-```
