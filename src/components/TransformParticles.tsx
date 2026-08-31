@@ -6,8 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-import TransformParticles from "./components/TransformParticles";
-
 type VideoIndex = 0 | 1 | 2;
 
 type ModuleName =
