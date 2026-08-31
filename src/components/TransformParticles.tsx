@@ -1,327 +1,252 @@
 ```tsx
-import "./../styles/transform-particles.css";
-import { useEffect, useRef } from "react";
+import "./styles/neuro-edu.css";
+
+import { useEffect, useRef, useState } from "react";
 
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-type TransformParticlesProps = {
-    words?: string[];
-    color?: string;
-    particleCount?: number;
+import TransformParticles from "./components/TransformParticles";
+
+type VideoIndex = 0 | 1 | 2;
+
+type ModuleName =
+    | "diagnostico"
+    | "bncc"
+    | "planejamento"
+    | "intervencao"
+    | null;
+
+type Resultados = {
+    diagnostico?: string;
+    bncc?: string;
+    planejamento?: string;
+    intervencao?: string;
 };
 
-type Particle = {
-    mesh: THREE.Sprite;
-    cubeTarget: THREE.Vector3;
-    textTarget: THREE.Vector3;
-    velocity: THREE.Vector3;
-    phase: number;
-};
+const MODEL_URL =
+    "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
 
-const DEFAULT_WORDS = [
-    "PEDAGOGIA",
-    "APRENDIZAGEM",
-    "NEUROEDUCAÇÃO",
-    "SABEDORIA",
-];
+function App() {
+    const brainViewportRef = useRef<HTMLDivElement | null>(null);
+    const videosRef = useRef<(HTMLVideoElement | null)[]>([]);
+    const transitioningRef = useRef(false);
+    const transitionTimeoutRef = useRef<number | null>(null);
 
-const CHARACTERS = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#@&";
+    const [currentVideo, setCurrentVideo] = useState<VideoIndex>(0);
+    const [activeModule, setActiveModule] =
+        useState<ModuleName>(null);
 
-function randomCharacter() {
-    return CHARACTERS[
-        Math.floor(Math.random() * CHARACTERS.length)
-    ];
-}
+    const [idInput, setIdInput] = useState("");
+    const [diagDescricao, setDiagDescricao] = useState("");
+    const [buscaBNCC, setBuscaBNCC] = useState("");
+    const [temaPlano, setTemaPlano] = useState("");
+    const [objetivoPlano, setObjetivoPlano] = useState("");
+    const [
+        necessidadeIntervencao,
+        setNecessidadeIntervencao,
+    ] = useState("");
+    const [
+        contextoIntervencao,
+        setContextoIntervencao,
+    ] = useState("");
 
-function createCharacterTexture(
-    character: string,
-    color: string
-): THREE.CanvasTexture {
-    const canvas = document.createElement("canvas");
+    const [resultado, setResultado] =
+        useState<Resultados>({});
 
-    canvas.width = 128;
-    canvas.height = 128;
+    /* =====================================================
+     * MÓDULOS
+     * ===================================================== */
 
-    const context = canvas.getContext("2d");
+    const openModule = (
+        name: Exclude<ModuleName, null>
+    ) => {
+        setActiveModule(name);
+    };
 
-    if (!context) {
-        throw new Error("Não foi possível criar o contexto do Canvas.");
-    }
+    const closeModule = () => {
+        setActiveModule(null);
+    };
 
-    context.clearRect(0, 0, 128, 128);
-
-    context.fillStyle = color;
-    context.font = "bold 72px monospace";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-
-    context.fillText(character, 64, 64);
-
-    return new THREE.CanvasTexture(canvas);
-}
-
-function createParticleMaterial(
-    character: string,
-    color: string
-): THREE.SpriteMaterial {
-    const texture = createCharacterTexture(character, color);
-
-    return new THREE.SpriteMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 0.9,
-        depthWrite: false,
-    });
-}
-
-function createCubeTargets(count: number): THREE.Vector3[] {
-    const targets: THREE.Vector3[] = [];
-
-    const size = 2.6;
-    const half = size / 2;
-
-    const pointsPerEdge = Math.max(
-        2,
-        Math.ceil(count / 12)
-    );
-
-    const edges: [THREE.Vector3, THREE.Vector3][] = [
-        [
-            new THREE.Vector3(-half, -half, -half),
-            new THREE.Vector3(half, -half, -half),
-        ],
-        [
-            new THREE.Vector3(half, -half, -half),
-            new THREE.Vector3(half, half, -half),
-        ],
-        [
-            new THREE.Vector3(half, half, -half),
-            new THREE.Vector3(-half, half, -half),
-        ],
-        [
-            new THREE.Vector3(-half, half, -half),
-            new THREE.Vector3(-half, -half, -half),
-        ],
-
-        [
-            new THREE.Vector3(-half, -half, half),
-            new THREE.Vector3(half, -half, half),
-        ],
-        [
-            new THREE.Vector3(half, -half, half),
-            new THREE.Vector3(half, half, half),
-        ],
-        [
-            new THREE.Vector3(half, half, half),
-            new THREE.Vector3(-half, half, half),
-        ],
-        [
-            new THREE.Vector3(-half, half, half),
-            new THREE.Vector3(-half, -half, half),
-        ],
-
-        [
-            new THREE.Vector3(-half, -half, -half),
-            new THREE.Vector3(-half, -half, half),
-        ],
-        [
-            new THREE.Vector3(half, -half, -half),
-            new THREE.Vector3(half, -half, half),
-        ],
-        [
-            new THREE.Vector3(half, half, -half),
-            new THREE.Vector3(half, half, half),
-        ],
-        [
-            new THREE.Vector3(-half, half, -half),
-            new THREE.Vector3(-half, half, half),
-        ],
-    ];
-
-    for (const [start, end] of edges) {
-        for (let i = 0; i < pointsPerEdge; i++) {
-            const t =
-                i / Math.max(1, pointsPerEdge - 1);
-
-            targets.push(
-                new THREE.Vector3(
-                    THREE.MathUtils.lerp(
-                        start.x,
-                        end.x,
-                        t
-                    ),
-                    THREE.MathUtils.lerp(
-                        start.y,
-                        end.y,
-                        t
-                    ),
-                    THREE.MathUtils.lerp(
-                        start.z,
-                        end.z,
-                        t
-                    )
-                )
-            );
-
-            if (targets.length >= count) {
-                return targets;
-            }
-        }
-    }
-
-    while (targets.length < count) {
-        targets.push(
-            new THREE.Vector3(
-                (Math.random() - 0.5) * size,
-                (Math.random() - 0.5) * size,
-                (Math.random() - 0.5) * size
-            )
-        );
-    }
-
-    return targets;
-}
-
-function createTextTargets(
-    text: string,
-    count: number
-): THREE.Vector3[] {
-    const canvas = document.createElement("canvas");
-
-    canvas.width = 1200;
-    canvas.height = 400;
-
-    const context = canvas.getContext("2d");
-
-    if (!context) {
-        return [];
-    }
-
-    context.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    context.fillStyle = "#ffffff";
-    context.font = "bold 170px Arial";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-
-    context.fillText(
-        text,
-        canvas.width / 2,
-        canvas.height / 2
-    );
-
-    const image = context.getImageData(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    const rawPoints: THREE.Vector3[] = [];
-
-    const step = 8;
-
-    for (
-        let y = 0;
-        y < canvas.height;
-        y += step
-    ) {
-        for (
-            let x = 0;
-            x < canvas.width;
-            x += step
-        ) {
-            const index =
-                (y * canvas.width + x) * 4;
-
-            const alpha = image.data[index + 3];
-
-            if (alpha > 100) {
-                const normalizedX =
-                    (x / canvas.width - 0.5) * 7;
-
-                const normalizedY =
-                    -(y / canvas.height - 0.5) * 2.4;
-
-                rawPoints.push(
-                    new THREE.Vector3(
-                        normalizedX,
-                        normalizedY,
-                        0
-                    )
-                );
-            }
-        }
-    }
-
-    if (rawPoints.length === 0) {
-        return [];
-    }
-
-    const targets: THREE.Vector3[] = [];
-
-    for (let i = 0; i < count; i++) {
-        const point =
-            rawPoints[
-                Math.floor(
-                    Math.random() *
-                        rawPoints.length
-                )
-            ];
-
-        targets.push(
-            point.clone().add(
-                new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.025,
-                    (Math.random() - 0.5) * 0.025,
-                    (Math.random() - 0.5) * 0.025
-                )
-            )
-        );
-    }
-
-    return targets;
-}
-
-export default function TransformParticles({
-    words = DEFAULT_WORDS,
-    color = "#c4a265",
-    particleCount = 900,
-}: TransformParticlesProps) {
-    const containerRef =
-        useRef<HTMLDivElement | null>(null);
+    /* =====================================================
+     * SISTEMA DE VÍDEOS
+     * ===================================================== */
 
     useEffect(() => {
-        const container = containerRef.current;
+        const videos =
+            videosRef.current.filter(
+                (
+                    video
+                ): video is HTMLVideoElement =>
+                    video !== null
+            );
+
+        if (!videos.length) return;
+
+        videos.forEach((video, index) => {
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.loop = index === 2;
+        });
+
+        const firstVideo = videos[0];
+
+        firstVideo.currentTime = 0;
+
+        firstVideo.play().catch(() => {
+            console.warn(
+                "O navegador bloqueou o autoplay."
+            );
+        });
+
+        const cleanups: Array<() => void> = [];
+
+        videos.forEach((video, index) => {
+            const handleEnded = () => {
+                if (index === 2) return;
+                if (index !== currentVideo) return;
+                if (transitioningRef.current) return;
+
+                const nextIndex =
+                    (index + 1) as VideoIndex;
+
+                const nextVideo =
+                    videos[nextIndex];
+
+                if (!nextVideo) return;
+
+                transitioningRef.current = true;
+
+                nextVideo.currentTime = 0;
+
+                nextVideo
+                    .play()
+                    .then(() => {
+                        nextVideo.classList.add(
+                            "active"
+                        );
+
+                        transitionTimeoutRef.current =
+                            window.setTimeout(() => {
+                                video.classList.remove(
+                                    "active"
+                                );
+
+                                video.pause();
+                                video.currentTime = 0;
+
+                                setCurrentVideo(
+                                    nextIndex
+                                );
+
+                                transitioningRef.current =
+                                    false;
+                            }, 1400);
+                    })
+                    .catch(() => {
+                        transitioningRef.current =
+                            false;
+                    });
+            };
+
+            video.addEventListener(
+                "ended",
+                handleEnded
+            );
+
+            cleanups.push(() =>
+                video.removeEventListener(
+                    "ended",
+                    handleEnded
+                )
+            );
+        });
+
+        return () => {
+            cleanups.forEach(
+                (cleanup) => cleanup()
+            );
+
+            if (
+                transitionTimeoutRef.current !==
+                null
+            ) {
+                window.clearTimeout(
+                    transitionTimeoutRef.current
+                );
+            }
+        };
+    }, [currentVideo]);
+
+    /* =====================================================
+     * TECLA ESC
+     * ===================================================== */
+
+    useEffect(() => {
+        const handleKeyDown = (
+            event: KeyboardEvent
+        ) => {
+            if (event.key === "Escape") {
+                closeModule();
+            }
+        };
+
+        document.addEventListener(
+            "keydown",
+            handleKeyDown
+        );
+
+        return () =>
+            document.removeEventListener(
+                "keydown",
+                handleKeyDown
+            );
+    }, []);
+
+    /* =====================================================
+     * THREE.JS — A CORUJA DE ATENA
+     * ===================================================== */
+
+    useEffect(() => {
+        const container =
+            brainViewportRef.current;
 
         if (!container) return;
 
         const scene = new THREE.Scene();
 
+        scene.fog = new THREE.FogExp2(
+            0x090614,
+            0.045
+        );
+
+        const width =
+            container.clientWidth || 500;
+
+        const height =
+            container.clientHeight || 500;
+
         const camera =
             new THREE.PerspectiveCamera(
-                45,
-                1,
+                35,
+                width / height,
                 0.1,
-                100
+                1000
             );
 
-        camera.position.set(
-            0,
-            0,
-            10
-        );
+        camera.position.z = 8;
 
         const renderer =
             new THREE.WebGLRenderer({
                 antialias: true,
                 alpha: true,
             });
+
+        renderer.setSize(
+            width,
+            height
+        );
 
         renderer.setPixelRatio(
             Math.min(
@@ -330,469 +255,367 @@ export default function TransformParticles({
             )
         );
 
-        renderer.setClearColor(
-            0x000000,
-            0
-        );
+        renderer.outputColorSpace =
+            THREE.SRGBColorSpace;
 
         container.appendChild(
             renderer.domElement
         );
 
-        const cubeGroup =
-            new THREE.Group();
+        /* =================================================
+         * ILUMINAÇÃO
+         * ================================================= */
 
-        scene.add(cubeGroup);
-
-        const particles: Particle[] = [];
-
-        const cubeTargets =
-            createCubeTargets(
-                particleCount
+        const ambientLight =
+            new THREE.AmbientLight(
+                0xffffff,
+                0.8
             );
 
-        let currentWordIndex = 0;
+        scene.add(ambientLight);
 
-        let textTargets =
-            createTextTargets(
-                words[0],
-                particleCount
+        const mainLight =
+            new THREE.PointLight(
+                0xffffff,
+                1.8
             );
 
-        while (
-            textTargets.length <
-            particleCount
-        ) {
-            textTargets.push(
-                new THREE.Vector3(
-                    (Math.random() - 0.5) * 6,
-                    (Math.random() - 0.5) * 3,
-                    (Math.random() - 0.5) * 2
-                )
+        mainLight.position.set(
+            5,
+            5,
+            10
+        );
+
+        scene.add(mainLight);
+
+        const purpleLight =
+            new THREE.PointLight(
+                0xc4a265,
+                0.9
             );
-        }
+
+        purpleLight.position.set(
+            -5,
+            -2,
+            5
+        );
+
+        scene.add(purpleLight);
+
+        /* =================================================
+         * PARTÍCULAS AMBIENTE DA CORUJA
+         * ================================================= */
+
+        const partGeo =
+            new THREE.BufferGeometry();
+
+        const partCount = 700;
+
+        const positions =
+            new Float32Array(
+                partCount * 3
+            );
 
         for (
             let i = 0;
-            i < particleCount;
+            i < partCount * 3;
             i++
         ) {
-            const character =
-                randomCharacter();
-
-            const material =
-                createParticleMaterial(
-                    character,
-                    color
-                );
-
-            const sprite =
-                new THREE.Sprite(material);
-
-            sprite.scale.set(
-                0.18,
-                0.18,
-                0.18
-            );
-
-            sprite.position.set(
-                (Math.random() - 0.5) * 12,
-                Math.random() * 8 - 4,
-                (Math.random() - 0.5) * 6
-            );
-
-            cubeGroup.add(sprite);
-
-            particles.push({
-                mesh: sprite,
-                cubeTarget:
-                    cubeTargets[i].clone(),
-                textTarget:
-                    textTargets[i].clone(),
-                velocity:
-                    new THREE.Vector3(
-                        (Math.random() - 0.5) * 0.02,
-                        Math.random() * 0.04,
-                        (Math.random() - 0.5) * 0.02
-                    ),
-                phase:
-                    Math.random() * Math.PI * 2,
-            });
+            positions[i] =
+                (Math.random() - 0.5) *
+                15;
         }
 
-        type AnimationState =
-            | "fall"
-            | "cube"
-            | "cubeBreak"
-            | "text"
-            | "textBreak";
+        partGeo.setAttribute(
+            "position",
+            new THREE.BufferAttribute(
+                positions,
+                3
+            )
+        );
 
-        let state: AnimationState =
-            "fall";
+        const partMat =
+            new THREE.PointsMaterial({
+                size: 0.022,
+                color: 0xc4a265,
+                transparent: true,
+                opacity: 0.28,
+            });
 
-        let stateStart =
-            performance.now();
+        const particles =
+            new THREE.Points(
+                partGeo,
+                partMat
+            );
 
-        let previousTime =
-            performance.now();
+        scene.add(particles);
 
-        const FALL_TIME = 2200;
-        const CUBE_TIME = 3500;
-        const CUBE_BREAK_TIME = 1800;
-        const TEXT_TIME = 3500;
-        const TEXT_BREAK_TIME = 1800;
+        /* =================================================
+         * MODELO GLB — CORUJA
+         * ================================================= */
 
-        const ease = (
-            value: number
-        ) => {
-            const t =
-                THREE.MathUtils.clamp(
-                    value,
+        let brain:
+            | THREE.Object3D
+            | null = null;
+
+        let targetX = 0;
+        let targetY = 0;
+
+        let entradaInicio:
+            | number
+            | null = null;
+
+        let entradaFinalizada = false;
+
+        const loader =
+            new GLTFLoader();
+
+        loader.load(
+            MODEL_URL,
+            (gltf) => {
+                brain = gltf.scene;
+
+                brain.traverse(
+                    (object) => {
+                        if (
+                            object instanceof
+                            THREE.Mesh
+                        ) {
+                            object.castShadow =
+                                true;
+
+                            object.receiveShadow =
+                                true;
+                        }
+                    }
+                );
+
+                brain.scale.set(
+                    0.01,
+                    0.01,
+                    0.01
+                );
+
+                brain.position.set(
                     0,
-                    1
+                    -0.8,
+                    0
                 );
 
-            return (
-                1 -
-                Math.pow(1 - t, 4)
-            );
-        };
-
-        const changeState = (
-            next: AnimationState
-        ) => {
-            state = next;
-            stateStart =
-                performance.now();
-
-            particles.forEach(
-                (particle) => {
-                    particle.velocity.set(
-                        (Math.random() -
-                            0.5) *
-                            0.025,
-                        Math.random() *
-                            0.035,
-                        (Math.random() -
-                            0.5) *
-                            0.025
-                    );
-                }
-            );
-        };
-
-        const prepareNextWord = () => {
-            currentWordIndex =
-                (currentWordIndex + 1) %
-                words.length;
-
-            textTargets =
-                createTextTargets(
-                    words[
-                        currentWordIndex
-                    ],
-                    particleCount
+                brain.rotation.set(
+                    0,
+                    -0.35,
+                    0
                 );
 
-            while (
-                textTargets.length <
-                particleCount
-            ) {
-                textTargets.push(
-                    new THREE.Vector3(
-                        (Math.random() -
-                            0.5) *
-                            6,
-                        (Math.random() -
-                            0.5) *
-                            3,
-                        (Math.random() -
-                            0.5) *
-                            2
-                    )
+                scene.add(brain);
+
+                entradaInicio =
+                    performance.now();
+
+                entradaFinalizada = false;
+            },
+            undefined,
+            (error) => {
+                console.error(
+                    "Erro ao carregar Corujafinal.glb:",
+                    error
                 );
             }
+        );
 
-            particles.forEach(
-                (particle, index) => {
-                    particle.textTarget =
-                        textTargets[
-                            index
-                        ].clone();
-                }
-            );
+        /* =================================================
+         * MOUSE
+         * ================================================= */
+
+        const handleMouseMove = (
+            event: MouseEvent
+        ) => {
+            const mouseX =
+                event.clientX /
+                    window.innerWidth -
+                0.5;
+
+            const mouseY =
+                event.clientY /
+                    window.innerHeight -
+                0.5;
+
+            targetX =
+                mouseX * 0.16;
+
+            targetY =
+                mouseY * 0.1;
         };
+
+        window.addEventListener(
+            "mousemove",
+            handleMouseMove
+        );
+
+        /* =================================================
+         * ANIMAÇÃO DA CORUJA
+         * ================================================= */
+
+        let animationFrame = 0;
 
         const animate = (
             now: number
         ) => {
-            const delta =
-                Math.min(
-                    (now -
-                        previousTime) /
-                        1000,
-                    0.05
+            animationFrame =
+                requestAnimationFrame(
+                    animate
                 );
 
-            previousTime = now;
+            particles.rotation.y +=
+                0.0007;
 
-            const elapsed =
-                now - stateStart;
+            particles.rotation.x +=
+                0.0001;
 
-            const progress =
-                elapsed /
-                ({
-                    fall: FALL_TIME,
-                    cube: CUBE_TIME,
-                    cubeBreak:
-                        CUBE_BREAK_TIME,
-                    text: TEXT_TIME,
-                    textBreak:
-                        TEXT_BREAK_TIME,
-                }[state]);
+            /* Entrada */
 
-            const t = ease(
-                progress
-            );
+            if (
+                brain &&
+                !entradaFinalizada &&
+                entradaInicio !== null
+            ) {
+                const duracao = 1700;
 
-            if (state === "fall") {
-                particles.forEach(
-                    (particle) => {
-                        particle.mesh.position.y +=
-                            particle.velocity.y *
-                            60 *
-                            delta;
+                const tempo =
+                    now -
+                    entradaInicio;
 
-                        particle.velocity.y -=
-                            0.0018;
-
-                        particle.mesh.rotation.z +=
-                            0.01;
-
-                        particle.mesh.material.opacity =
-                            0.9;
-                    }
-                );
-
-                if (progress >= 1) {
-                    changeState(
-                        "cube"
+                const progresso =
+                    Math.min(
+                        tempo /
+                            duracao,
+                        1
                     );
-                }
-            }
 
-            if (state === "cube") {
-                particles.forEach(
-                    (particle) => {
-                        particle.mesh.position.lerp(
-                            particle.cubeTarget,
-                            0.08
-                        );
+                const ease =
+                    1 -
+                    Math.pow(
+                        1 - progresso,
+                        4
+                    );
 
-                        particle.mesh.material.opacity =
-                            0.9;
-                    }
+                const escala =
+                    1.45 * ease;
+
+                brain.scale.set(
+                    escala,
+                    escala,
+                    escala
                 );
 
-                cubeGroup.rotation.y +=
-                    0.0035;
+                brain.position.y =
+                    -0.8 +
+                    0.8 * ease;
 
-                cubeGroup.rotation.x =
+                brain.rotation.y =
+                    -0.35 +
+                    0.35 * ease;
+
+                brain.rotation.z =
                     Math.sin(
-                        now * 0.0005
-                    ) * 0.08;
+                        progresso *
+                            Math.PI
+                    ) * 0.035;
 
-                if (progress >= 1) {
-                    changeState(
-                        "cubeBreak"
-                    );
+                if (
+                    progresso >= 1
+                ) {
+                    entradaFinalizada =
+                        true;
+
+                    entradaInicio =
+                        null;
+
+                    brain.position.y =
+                        0;
                 }
             }
+
+            /* Flutuação */
 
             if (
-                state ===
-                "cubeBreak"
+                brain &&
+                entradaFinalizada
             ) {
-                particles.forEach(
-                    (particle) => {
-                        const direction =
-                            particle.cubeTarget
-                                .clone()
-                                .normalize();
+                const flutuar =
+                    Math.sin(
+                        now * 0.0014
+                    ) * 0.045;
 
-                        const target =
-                            particle.cubeTarget
-                                .clone()
-                                .add(
-                                    direction.multiplyScalar(
-                                        5
-                                    )
-                                );
+                brain.position.y =
+                    flutuar;
 
-                        particle.mesh.position.lerp(
-                            target,
-                            0.035
-                        );
+                brain.rotation.y +=
+                    0.035 *
+                    (targetX -
+                        brain.rotation.y);
 
-                        particle.mesh.material.opacity =
-                            1 - t;
-                    }
-                );
+                brain.rotation.x +=
+                    0.025 *
+                    (targetY -
+                        brain.rotation.x);
 
-                cubeGroup.rotation.y +=
-                    0.008;
-
-                if (progress >= 1) {
-                    prepareNextWord();
-
-                    particles.forEach(
-                        (particle) => {
-                            particle.mesh.position.set(
-                                (Math.random() -
-                                    0.5) *
-                                    10,
-                                (Math.random() -
-                                    0.5) *
-                                    6,
-                                (Math.random() -
-                                    0.5) *
-                                    5
-                            );
-
-                            particle.mesh.material.opacity =
-                                0.9;
-                        }
-                    );
-
-                    changeState(
-                        "text"
-                    );
-                }
+                brain.rotation.z =
+                    Math.sin(
+                        now * 0.0009
+                    ) * 0.025;
             }
-
-            if (state === "text") {
-                particles.forEach(
-                    (particle) => {
-                        particle.mesh.position.lerp(
-                            particle.textTarget,
-                            0.075
-                        );
-
-                        particle.mesh.material.opacity =
-                            0.9;
-                    }
-                );
-
-                if (progress >= 1) {
-                    changeState(
-                        "textBreak"
-                    );
-                }
-            }
-
-            if (
-                state ===
-                "textBreak"
-            ) {
-                particles.forEach(
-                    (particle) => {
-                        const direction =
-                            particle.textTarget
-                                .clone()
-                                .normalize();
-
-                        const target =
-                            particle.textTarget
-                                .clone()
-                                .add(
-                                    direction.multiplyScalar(
-                                        5
-                                    )
-                                );
-
-                        particle.mesh.position.lerp(
-                            target,
-                            0.035
-                        );
-
-                        particle.mesh.material.opacity =
-                            1 - t;
-                    }
-                );
-
-                if (progress >= 1) {
-                    particles.forEach(
-                        (particle) => {
-                            particle.mesh.position.set(
-                                (Math.random() -
-                                    0.5) *
-                                    10,
-                                Math.random() *
-                                    7 -
-                                    3,
-                                (Math.random() -
-                                    0.5) *
-                                    5
-                            );
-
-                            particle.mesh.material.opacity =
-                                0.9;
-                        }
-                    );
-
-                    changeState(
-                        "fall"
-                    );
-                }
-            }
-
-            cubeGroup.position.y =
-                Math.sin(
-                    now * 0.0008
-                ) * 0.08;
 
             renderer.render(
                 scene,
                 camera
             );
-
-            animationFrame =
-                requestAnimationFrame(
-                    animate
-                );
         };
 
-        let animationFrame =
+        animationFrame =
             requestAnimationFrame(
                 animate
             );
 
-        const resize = () => {
-            const width =
-                container.clientWidth ||
-                500;
+        /* =================================================
+         * RESPONSIVIDADE
+         * ================================================= */
 
-            const height =
-                container.clientHeight ||
-                400;
+        const handleResize = () => {
+            const newWidth =
+                container.clientWidth;
+
+            const newHeight =
+                container.clientHeight;
+
+            if (
+                newWidth <= 0 ||
+                newHeight <= 0
+            ) {
+                return;
+            }
 
             camera.aspect =
-                width / height;
+                newWidth /
+                newHeight;
 
             camera.updateProjectionMatrix();
 
             renderer.setSize(
-                width,
-                height
+                newWidth,
+                newHeight
             );
         };
 
-        resize();
-
         window.addEventListener(
             "resize",
-            resize
+            handleResize
         );
+
+        /* =================================================
+         * CLEANUP
+         * ================================================= */
 
         return () => {
             cancelAnimationFrame(
@@ -800,18 +623,14 @@ export default function TransformParticles({
             );
 
             window.removeEventListener(
+                "mousemove",
+                handleMouseMove
+            );
+
+            window.removeEventListener(
                 "resize",
-                resize
+                handleResize
             );
-
-            particles.forEach(
-                (particle) => {
-                    particle.mesh.material.map?.dispose();
-                    particle.mesh.material.dispose();
-                }
-            );
-
-            renderer.dispose();
 
             if (
                 renderer.domElement
@@ -823,20 +642,977 @@ export default function TransformParticles({
                 );
             }
 
+            renderer.dispose();
+
+            partGeo.dispose();
+            partMat.dispose();
+
             scene.clear();
         };
-    }, [
-        words,
-        color,
-        particleCount,
-    ]);
+    }, []);
+
+    /* =====================================================
+     * DIAGNÓSTICO
+     * ===================================================== */
+
+    const executarDiagnostico =
+        () => {
+            if (
+                !diagDescricao.trim()
+            ) {
+                alert(
+                    "Descreva a necessidade observada."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (prev) => ({
+                    ...prev,
+                    diagnostico:
+                        "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
+                })
+            );
+        };
+
+    /* =====================================================
+     * BNCC
+     * ===================================================== */
+
+    const consultarBNCC = () => {
+        if (!buscaBNCC.trim()) {
+            alert(
+                "Digite algo para pesquisar."
+            );
+
+            return;
+        }
+
+        setResultado(
+            (prev) => ({
+                ...prev,
+                bncc:
+                    "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
+            })
+        );
+    };
+
+    /* =====================================================
+     * PLANEJAMENTO
+     * ===================================================== */
+
+    const gerarPlano = () => {
+        if (
+            !temaPlano.trim() ||
+            !objetivoPlano.trim()
+        ) {
+            alert(
+                "Informe o tema e o objetivo."
+            );
+
+            return;
+        }
+
+        setResultado(
+            (prev) => ({
+                ...prev,
+                planejamento:
+                    "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
+            })
+        );
+    };
+
+    /* =====================================================
+     * INTERVENÇÃO
+     * ===================================================== */
+
+    const gerarIntervencao =
+        () => {
+            if (
+                !necessidadeIntervencao.trim()
+            ) {
+                alert(
+                    "Informe a necessidade identificada."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (prev) => ({
+                    ...prev,
+                    intervencao:
+                        "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
+                })
+            );
+        };
+
+    /* =====================================================
+     * ACESSO
+     * ===================================================== */
+
+    const validarAcesso = () => {
+        const valor =
+            idInput
+                .trim()
+                .toUpperCase();
+
+        if (
+            valor === "MATH001" ||
+            valor.startsWith("PAC")
+        ) {
+            window.location.href =
+                "/aluno.html";
+
+            return;
+        }
+
+        alert(
+            "ID de acesso inválido."
+        );
+    };
+
+    /* =====================================================
+     * JSX
+     * ===================================================== */
 
     return (
-        <div
-            ref={containerRef}
-            className="transform-particles"
-            aria-label="Animação de partículas formando palavras e um cubo"
-        />
+        <>
+            {/* =================================================
+                VÍDEOS
+            ================================================= */}
+
+            <div className="video-background">
+                <video
+                    ref={(element) => {
+                        videosRef.current[0] =
+                            element;
+                    }}
+                    id="video1"
+                    className={`bg-video ${
+                        currentVideo === 0
+                            ? "active"
+                            : ""
+                    }`}
+                    src="/athenaslivro.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                />
+
+                <video
+                    ref={(element) => {
+                        videosRef.current[1] =
+                            element;
+                    }}
+                    id="video2"
+                    className={`bg-video ${
+                        currentVideo === 1
+                            ? "active"
+                            : ""
+                    }`}
+                    src="/maos%20mexendo.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                />
+
+                <video
+                    ref={(element) => {
+                        videosRef.current[2] =
+                            element;
+                    }}
+                    id="video3"
+                    className={`bg-video ${
+                        currentVideo === 2
+                            ? "active"
+                            : ""
+                    }`}
+                    src="/cubo.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                    loop
+                />
+            </div>
+
+            {/* =================================================
+                CAMADAS
+            ================================================= */}
+
+            <div className="video-overlay" />
+            <div className="video-purple-glow" />
+            <div className="architectural-grid" />
+            <div className="side-line" />
+            <div className="grain" />
+            <div id="particles-layer" />
+
+            {/* =================================================
+                ÁREA DO ALUNO
+            ================================================= */}
+
+            <a
+                href="/aluno.html"
+                className="btn-aluno-fixo"
+            >
+                Área do Aluno
+            </a>
+
+            {/* =================================================
+                CONTEÚDO PRINCIPAL
+            ================================================= */}
+
+            <main className="main-container">
+                <div className="institution-marker">
+                    Laboratório de Pesquisa e Práticas Pedagógicas
+                </div>
+
+                {/* =================================================
+                    HERO
+                ================================================= */}
+
+                <section className="hero">
+                    <div className="brand">
+                        <div className="brand-icon" />
+
+                        <span>
+                            Neuro-Educa · UNINTA
+                        </span>
+                    </div>
+
+                    <div className="system-status">
+                        <span className="system-dot" />
+
+                        Laboratório aberto
+                    </div>
+
+                    <h2>
+                        Laboratório Pedagógico
+                    </h2>
+
+                    <p className="subtitle">
+                        Um espaço de trabalho para diagnóstico,
+                        planejamento, consulta curricular e
+                        intervenção — construído a partir da
+                        prática docente, não no lugar dela.
+                    </p>
+
+                    {/* ID */}
+
+                    <label
+                        className="field-label"
+                        htmlFor="idInput"
+                    >
+                        Identificação
+                    </label>
+
+                    <input
+                        type="text"
+                        id="idInput"
+                        value={idInput}
+                        onChange={(event) =>
+                            setIdInput(
+                                event.target.value
+                            )
+                        }
+                        placeholder="Digite seu ID de acesso"
+                        autoComplete="off"
+                    />
+
+                    <button
+                        className="btn-chalk"
+                        onClick={
+                            validarAcesso
+                        }
+                    >
+                        Entrar no laboratório
+                    </button>
+
+                    <div className="hero-links">
+                        <a
+                            href="/biblioteca.html"
+                            className="chalk-link"
+                        >
+                            Biblioteca digital
+                        </a>
+
+                        <a
+                            href="/atlas.html"
+                            className="chalk-link"
+                        >
+                            Explorar o mapa da aprendizagem
+                        </a>
+                    </div>
+                </section>
+
+                {/* =================================================
+                    CORUJA DE ATENA
+                ================================================= */}
+
+                <section
+                    id="brain-viewport"
+                    ref={
+                        brainViewportRef
+                    }
+                >
+                    <div className="brain-frame">
+                        <span className="brain-corner brain-corner--tl" />
+                        <span className="brain-corner brain-corner--tr" />
+                        <span className="brain-corner brain-corner--bl" />
+                        <span className="brain-corner brain-corner--br" />
+
+                        <svg
+                            className="brain-ring"
+                            viewBox="0 0 400 400"
+                            aria-hidden="true"
+                        >
+                            <defs>
+                                <path
+                                    id="brainRingPath"
+                                    d="M 200,200 m -170,0 a 170,170 0 1,1 340,0 a 170,170 0 1,1 -340,0"
+                                />
+                            </defs>
+
+                            <text>
+                                <textPath
+                                    href="#brainRingPath"
+                                    startOffset="0%"
+                                >
+                                    NEURO-EDUCA · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
+                                </textPath>
+                            </text>
+                        </svg>
+                    </div>
+
+                    <div className="brain-label">
+                        Guardiã do laboratório
+
+                        <strong>
+                            A coruja de Atena
+                        </strong>
+                    </div>
+                </section>
+
+                {/* =================================================
+                    NOVA ANIMAÇÃO
+                    CUBO → PALAVRAS → DESFAZER
+                ================================================= */}
+
+                <section className="transform-section">
+                    <div className="transform-header">
+                        <span>
+                            NEURO-EDU · VISUALIZAÇÃO
+                        </span>
+
+                        <strong>
+                            Conhecimento em movimento
+                        </strong>
+                    </div>
+
+                    <TransformParticles
+                        words={[
+                            "PEDAGOGIA",
+                            "APRENDIZAGEM",
+                            "NEUROEDUCAÇÃO",
+                            "SABEDORIA",
+                        ]}
+                        color="#c4a265"
+                        particleCount={900}
+                    />
+                </section>
+
+                {/* =================================================
+                    MÓDULOS
+                ================================================= */}
+
+                <nav
+                    className="chalk-tray"
+                    aria-label="Módulos do laboratório"
+                >
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Leitura do processo de aprendizagem."
+                        onClick={() =>
+                            openModule(
+                                "diagnostico"
+                            )
+                        }
+                    >
+                        <span className="tray-index">
+                            I
+                        </span>
+
+                        <span className="tray-name">
+                            Diagnóstico
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Consulta à base curricular."
+                        onClick={() =>
+                            openModule(
+                                "bncc"
+                            )
+                        }
+                    >
+                        <span className="tray-index">
+                            II
+                        </span>
+
+                        <span className="tray-name">
+                            BNCC
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Construção de planos de aula."
+                        onClick={() =>
+                            openModule(
+                                "planejamento"
+                            )
+                        }
+                    >
+                        <span className="tray-index">
+                            III
+                        </span>
+
+                        <span className="tray-name">
+                            Planejamento
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="tray-item"
+                        title="Estratégias pedagógicas dirigidas."
+                        onClick={() =>
+                            openModule(
+                                "intervencao"
+                            )
+                        }
+                    >
+                        <span className="tray-index">
+                            IV
+                        </span>
+
+                        <span className="tray-name">
+                            Intervenção
+                        </span>
+                    </button>
+                </nav>
+            </main>
+
+            {/* =================================================
+                OVERLAY
+            ================================================= */}
+
+            <div
+                className={`overlay ${
+                    activeModule
+                        ? "active"
+                        : ""
+                }`}
+                onClick={
+                    closeModule
+                }
+            />
+
+            {/* =================================================
+                DIAGNÓSTICO
+            ================================================= */}
+
+            <div
+                className={`tool-panel ${
+                    activeModule ===
+                    "diagnostico"
+                        ? "active"
+                        : ""
+                }`}
+            >
+                <div className="tool-header">
+                    <div>
+                        <span className="ai-badge">
+                            Módulo I
+                        </span>
+
+                        <h3>
+                            Diagnóstico da Aprendizagem
+                        </h3>
+
+                        <p>
+                            Estrutura preparada para leitura
+                            pedagógica assistida.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="close-tool"
+                        onClick={
+                            closeModule
+                        }
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div className="tool-grid">
+                    <div className="tool-card tool-card--field">
+                        <label className="field-label">
+                            Ano / série
+                        </label>
+
+                        <select>
+                            {Array.from(
+                                {
+                                    length: 9,
+                                },
+                                (
+                                    _,
+                                    index
+                                ) => (
+                                    <option
+                                        key={
+                                            index
+                                        }
+                                    >
+                                        {index +
+                                            1}
+                                        º Ano
+                                    </option>
+                                )
+                            )}
+                        </select>
+                    </div>
+
+                    <div className="tool-card tool-card--field">
+                        <label className="field-label">
+                            Componente
+                        </label>
+
+                        <select>
+                            <option>
+                                Língua Portuguesa
+                            </option>
+
+                            <option>
+                                Matemática
+                            </option>
+
+                            <option>
+                                Ciências
+                            </option>
+
+                            <option>
+                                História
+                            </option>
+
+                            <option>
+                                Geografia
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <label className="field-label">
+                    Habilidade / necessidade observada
+                </label>
+
+                <textarea
+                    value={
+                        diagDescricao
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setDiagDescricao(
+                            event.target.value
+                        )
+                    }
+                    placeholder="Descreva o que foi observado no processo de aprendizagem..."
+                />
+
+                <button
+                    type="button"
+                    className="btn-ink"
+                    onClick={
+                        executarDiagnostico
+                    }
+                >
+                    Analisar
+                </button>
+
+                {resultado.diagnostico && (
+                    <div className="result-box">
+                        <strong>
+                            Leitura pedagógica
+                        </strong>
+
+                        <p>
+                            {
+                                resultado.diagnostico
+                            }
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* =================================================
+                BNCC
+            ================================================= */}
+
+            <div
+                className={`tool-panel ${
+                    activeModule ===
+                    "bncc"
+                        ? "active"
+                        : ""
+                }`}
+            >
+                <div className="tool-header">
+                    <div>
+                        <span className="ai-badge">
+                            Módulo II
+                        </span>
+
+                        <h3>
+                            Consulta Curricular
+                        </h3>
+
+                        <p>
+                            Pesquisa de habilidades e
+                            organização curricular.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="close-tool"
+                        onClick={
+                            closeModule
+                        }
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <label className="field-label">
+                    Habilidade ou palavra-chave
+                </label>
+
+                <input
+                    type="text"
+                    value={
+                        buscaBNCC
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setBuscaBNCC(
+                            event.target.value
+                        )
+                    }
+                    placeholder="Ex.: interpretação de texto, frações..."
+                />
+
+                <div className="tool-grid">
+                    <div className="tool-card">
+                        <h4>
+                            Habilidades
+                        </h4>
+
+                        <p>
+                            Consulta estruturada de habilidades e
+                            competências curriculares.
+                        </p>
+                    </div>
+
+                    <div className="tool-card">
+                        <h4>
+                            Contexto pedagógico
+                        </h4>
+
+                        <p>
+                            Use a habilidade selecionada como
+                            referência para suas análises.
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    className="btn-ink"
+                    onClick={
+                        consultarBNCC
+                    }
+                >
+                    Consultar
+                </button>
+
+                {resultado.bncc && (
+                    <div className="result-box">
+                        <strong>
+                            Resultado
+                        </strong>
+
+                        <p>
+                            {
+                                resultado.bncc
+                            }
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* =================================================
+                PLANEJAMENTO
+            ================================================= */}
+
+            <div
+                className={`tool-panel ${
+                    activeModule ===
+                    "planejamento"
+                        ? "active"
+                        : ""
+                }`}
+            >
+                <div className="tool-header">
+                    <div>
+                        <span className="ai-badge">
+                            Módulo III
+                        </span>
+
+                        <h3>
+                            Planejamento Pedagógico
+                        </h3>
+
+                        <p>
+                            Estruture objetivos e estratégias
+                            para sua prática.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="close-tool"
+                        onClick={
+                            closeModule
+                        }
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <label className="field-label">
+                    Tema
+                </label>
+
+                <input
+                    value={
+                        temaPlano
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setTemaPlano(
+                            event.target.value
+                        )
+                    }
+                    placeholder="Ex.: interpretação textual"
+                />
+
+                <label className="field-label">
+                    Ano / série
+                </label>
+
+                <select>
+                    {Array.from(
+                        {
+                            length: 9,
+                        },
+                        (
+                            _,
+                            index
+                        ) => (
+                            <option
+                                key={
+                                    index
+                                }
+                            >
+                                {index +
+                                    1}
+                                º Ano
+                            </option>
+                        )
+                    )}
+                </select>
+
+                <label className="field-label">
+                    Objetivo
+                </label>
+
+                <textarea
+                    value={
+                        objetivoPlano
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setObjetivoPlano(
+                            event.target.value
+                        )
+                    }
+                    placeholder="O que o aluno deverá desenvolver?"
+                />
+
+                <button
+                    type="button"
+                    className="btn-ink"
+                    onClick={
+                        gerarPlano
+                    }
+                >
+                    Gerar planejamento
+                </button>
+
+                {resultado.planejamento && (
+                    <div className="result-box">
+                        <strong>
+                            Planejamento
+                        </strong>
+
+                        <p>
+                            {
+                                resultado.planejamento
+                            }
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* =================================================
+                INTERVENÇÃO
+            ================================================= */}
+
+            <div
+                className={`tool-panel ${
+                    activeModule ===
+                    "intervencao"
+                        ? "active"
+                        : ""
+                }`}
+            >
+                <div className="tool-header">
+                    <div>
+                        <span className="ai-badge">
+                            Módulo IV
+                        </span>
+
+                        <h3>
+                            Intervenção Pedagógica
+                        </h3>
+
+                        <p>
+                            Transforme evidências de aprendizagem
+                            em estratégias.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="close-tool"
+                        onClick={
+                            closeModule
+                        }
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <label className="field-label">
+                    Necessidade identificada
+                </label>
+
+                <textarea
+                    value={
+                        necessidadeIntervencao
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setNecessidadeIntervencao(
+                            event.target.value
+                        )
+                    }
+                    placeholder="Descreva a dificuldade ou necessidade observada..."
+                />
+
+                <label className="field-label">
+                    Contexto
+                </label>
+
+                <textarea
+                    value={
+                        contextoIntervencao
+                    }
+                    onChange={(
+                        event
+                    ) =>
+                        setContextoIntervencao(
+                            event.target.value
+                        )
+                    }
+                    placeholder="Informe o contexto da turma ou do estudante..."
+                />
+
+                <button
+                    type="button"
+                    className="btn-ink"
+                    onClick={
+                        gerarIntervencao
+                    }
+                >
+                    Propor intervenção
+                </button>
+
+                {resultado.intervencao && (
+                    <div className="result-box">
+                        <strong>
+                            Proposta pedagógica
+                        </strong>
+
+                        <p>
+                            {
+                                resultado.intervencao
+                            }
+                        </p>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
+
+export default App;
 ```
+
+**Importante:** esse código pressupõe que você já tenha:
+
+```text
+src/components/TransformParticles.tsx
+src/styles/transform-particles.css
+```
+
+e que o `TransformParticles.tsx` seja exatamente o componente que você enviou.
+
+Também não precisa criar outro componente. A coruja continua sendo o primeiro Three.js e as partículas serão o segundo.
