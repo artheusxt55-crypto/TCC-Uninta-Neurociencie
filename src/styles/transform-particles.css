@@ -1,5 +1,7 @@
+```css
 .transform-particles {
     position: relative;
+
     width: 100%;
     height: 520px;
 
@@ -10,9 +12,15 @@
 
     background: transparent;
 
+    isolation: isolate;
+
     cursor: default;
 
-    isolation: isolate;
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    touch-action: none;
 }
 
 .transform-particles canvas {
@@ -37,3 +45,4 @@
         min-height: 240px;
     }
 }
+```
