@@ -1,43 +1,38 @@
-
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,460;0,9..144,560;1,9..144,420;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,380;0,6..72,440;0,6..72,560;1,6..72,420&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400..700;1,400..700&family=Literata:ital,opsz,wght@0,7..72,380;0,7..72,440;0,7..72,560;1,7..72,420&family=Caveat:wght@500;700&family=Space+Mono:wght@400;700&display=swap");
 
 /* =====================================================================
    1. TOKENS
-   Identidade: instituição de pesquisa + laboratório + arquivo editorial.
-   A coruja de Atena é o signo central — bronze envelhecido sobre marfim
-   e tinta quase-preta, nunca neon, nunca "produto de IA".
+   Identidade: o quadro-negro da aula, não a tela de um app. A coruja é o
+   diagrama do dia; os módulos são pedaços de giz na bandeja; os painéis
+   de trabalho são folhas de caderno pautado — giz para apresentar,
+   papel para escrever.
    ===================================================================== */
 
 :root {
-    /* cor */
-    --ink: #0a0e17;
-    --ink-2: #10151f;
-    --ink-3: #171d2b;
-    --ivory: #f2ecdd;
-    --ivory-panel: #f6f1e4;
-    --ivory-dim: #b8b0a0;
-    --ivory-muted: rgba(242, 236, 221, 0.62);
-    --bronze: #b08a54;
-    --bronze-soft: #8a6c42;
-    --bronze-deep: #5c4526;
-    --bronze-line: rgba(176, 138, 84, 0.34);
-    --cyan: #4fb6c4;
-    --hairline: rgba(242, 236, 221, 0.12);
-    --hairline-dark: rgba(10, 14, 23, 0.1);
+    --board: #17281f;
+    --board-2: #1e3428;
+    --board-deep: #0b1611;
+    --paper: #f6f0e2;
+    --paper-2: #efe7d4;
+    --ink: #1d2b21;
+    --ink-dim: rgba(29, 43, 33, 0.62);
+    --chalk: #f4efe2;
+    --chalk-dim: rgba(244, 239, 226, 0.62);
+    --chalk-faint: rgba(244, 239, 226, 0.18);
+    --ochre: #e2a75a;
+    --ochre-deep: #b9822f;
+    --coral: #df8069;
+    --wood: #8a6239;
+    --wood-deep: #4c3520;
 
-    --paper-shadow: 0 32px 80px rgba(0, 0, 0, 0.34);
-    --deep-shadow: 0 42px 100px rgba(0, 0, 0, 0.52);
+    --shadow-soft: 0 26px 60px -26px rgba(0, 0, 0, 0.55);
+    --shadow-deep: 0 46px 110px rgba(0, 0, 0, 0.5);
 
-    /* tipografia */
-    --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-    --font-body: "Newsreader", Georgia, "Times New Roman", serif;
-    --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+    --font-display: "Petrona", Georgia, serif;
+    --font-body: "Literata", Georgia, serif;
+    --font-chalk: "Caveat", cursive;
+    --font-mono: "Space Mono", "SFMono-Regular", Menlo, monospace;
 
-    /* ritmo */
-    --edge: 1px solid var(--hairline);
-    --edge-dark: 1px solid var(--hairline-dark);
-    --radius-sm: 2px;
-    --radius-md: 2px;
     --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -50,14 +45,14 @@
 }
 
 html {
-    background: var(--ink);
+    background: var(--board);
     color-scheme: dark;
 }
 
 body {
     margin: 0;
-    background: var(--ink);
-    color: var(--ivory);
+    background: var(--board);
+    color: var(--chalk);
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;
@@ -67,7 +62,7 @@ body {
 
 h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 480;
+    font-weight: 500;
     letter-spacing: -0.01em;
     margin: 0;
     color: inherit;
@@ -87,12 +82,12 @@ button {
 }
 
 ::selection {
-    background: var(--bronze);
-    color: var(--ink);
+    background: var(--ochre);
+    color: var(--board-deep);
 }
 
 :focus-visible {
-    outline: 1.5px solid var(--cyan);
+    outline: 1.5px solid var(--ochre);
     outline-offset: 3px;
 }
 
@@ -106,7 +101,7 @@ button {
 }
 
 /* =====================================================================
-   3. CAMADA DE FUNDO — o vídeo como fotografia de arquivo, não hero de app
+   3. O QUADRO — vídeo tratado como projeção esverdeada sobre a lousa
    ===================================================================== */
 
 .video-background {
@@ -115,9 +110,9 @@ button {
     z-index: 0;
     overflow: hidden;
     background:
-        radial-gradient(ellipse at 73% 42%, rgba(176, 138, 84, 0.065), transparent 32%),
-        radial-gradient(ellipse at 20% 70%, rgba(79, 182, 196, 0.025), transparent 30%),
-        var(--ink);
+        radial-gradient(ellipse at 76% 30%, rgba(226, 167, 90, 0.05), transparent 34%),
+        radial-gradient(ellipse at 18% 76%, rgba(223, 128, 105, 0.03), transparent 32%),
+        var(--board);
 }
 
 .bg-video {
@@ -127,9 +122,9 @@ button {
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transform: scale(1.025);
+    transform: scale(1.02);
     transform-origin: center;
-    filter: grayscale(0.62) contrast(1.08) brightness(0.42) sepia(0.1);
+    filter: grayscale(0.78) sepia(0.22) hue-rotate(70deg) saturate(0.85) contrast(1.05) brightness(0.3);
     transition: opacity 1.4s var(--ease);
 }
 
@@ -137,79 +132,44 @@ button {
     opacity: 1;
 }
 
-/* véu cinematográfico: escurece e unifica a temperatura de cor do vídeo,
-   deixando a coluna direita (a coruja) mais legível que a esquerda */
 .video-overlay {
     position: fixed;
     inset: 0;
     z-index: 1;
     pointer-events: none;
     background:
-        linear-gradient(
-            90deg,
-            rgba(6, 10, 17, 0.97) 0%,
-            rgba(6, 10, 17, 0.9) 24%,
-            rgba(6, 10, 17, 0.68) 48%,
-            rgba(6, 10, 17, 0.4) 72%,
-            rgba(6, 10, 17, 0.82) 100%
-        ),
-        linear-gradient(180deg, rgba(5, 8, 13, 0.34), rgba(5, 8, 13, 0.92));
+        linear-gradient(180deg, rgba(11, 22, 17, 0.88) 0%, rgba(11, 22, 17, 0.7) 40%, rgba(11, 22, 17, 0.94) 100%),
+        radial-gradient(ellipse at center, transparent 42%, rgba(6, 12, 9, 0.6) 100%);
 }
 
 .video-purple-glow {
     position: fixed;
-    top: -28%;
-    right: -18%;
-    width: 58vw;
-    height: 58vw;
+    top: -26%;
+    right: -16%;
+    width: 56vw;
+    height: 56vw;
     z-index: 1;
     pointer-events: none;
-    filter: blur(8px);
-    background: radial-gradient(circle, rgba(176, 138, 84, 0.075) 0%, rgba(176, 138, 84, 0.025) 34%, transparent 70%);
+    filter: blur(10px);
+    background: radial-gradient(circle, rgba(226, 167, 90, 0.06) 0%, rgba(226, 167, 90, 0.02) 34%, transparent 70%);
 }
 
+/* poeira de giz, não grão de filme: pontos claros, mix-blend screen */
 .architectural-grid {
     position: fixed;
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.1;
+    opacity: 0.05;
     background-image:
-        linear-gradient(rgba(242, 236, 221, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(242, 236, 221, 0.07) 1px, transparent 1px);
-    background-size: 150px 150px;
-    mask-image: radial-gradient(ellipse at 68% 48%, black 0%, rgba(0, 0, 0, 0.8) 32%, transparent 76%);
+        linear-gradient(rgba(244, 239, 226, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244, 239, 226, 0.4) 1px, transparent 1px);
+    background-size: 96px 96px;
+    mask-image: radial-gradient(ellipse at 62% 40%, black 0%, rgba(0, 0, 0, 0.7) 40%, transparent 78%);
 }
 
 .side-line {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 34px;
-    width: 1px;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(176, 138, 84, 0.12) 12%,
-        rgba(176, 138, 84, 0.38) 45%,
-        rgba(176, 138, 84, 0.16) 82%,
-        transparent 100%
-    );
-}
-
-/* marcador arquitetônico — não decoração aleatória, indica o eixo de leitura */
-.side-line::before {
-    content: "";
-    position: absolute;
-    top: 28%;
-    left: -3px;
-    width: 7px;
-    height: 7px;
-    border: 1px solid var(--bronze);
-    background: var(--ink);
-    transform: rotate(45deg);
+    display: none;
 }
 
 .grain {
@@ -217,8 +177,8 @@ button {
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    opacity: 0.028;
-    mix-blend-mode: overlay;
+    opacity: 0.05;
+    mix-blend-mode: screen;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
@@ -241,17 +201,17 @@ button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 18px;
+    padding: 9px 16px;
     font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.14em;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     text-decoration: none;
-    color: var(--ivory);
+    color: var(--chalk);
     background: transparent;
-    border: var(--edge);
-    border-radius: var(--radius-sm);
+    border: 1.5px dashed var(--chalk-faint);
+    border-radius: 999px;
     transition: border-color 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
 }
 
@@ -259,135 +219,81 @@ button {
     content: "";
     width: 5px;
     height: 5px;
-    background: var(--bronze);
+    background: var(--ochre);
     border-radius: 50%;
 }
 
 .btn-aluno-fixo:hover {
-    border-color: var(--bronze);
-    color: var(--ink);
-    background: var(--bronze);
+    border-color: var(--ochre);
+    border-style: solid;
+    color: var(--board-deep);
+    background: var(--ochre);
 }
 
 .btn-aluno-fixo:hover::before {
-    background: var(--ink);
+    background: var(--board-deep);
 }
 
 /* =====================================================================
-   5. ESTRUTURA PRINCIPAL — composição editorial em duas colunas
+   5. ESTRUTURA — coluna única, como uma lição lida de cima para baixo
    ===================================================================== */
 
 .main-container {
     position: relative;
     z-index: 3;
-    max-width: 1380px;
+    max-width: 980px;
     margin: 0 auto;
-    padding: 124px 54px 140px;
-}
-
-/* pequena margem editorial, como a régua de uma prancheta */
-.main-container::before {
-    content: "";
-    position: absolute;
-    left: 54px;
-    top: 116px;
-    width: 38px;
-    height: 1px;
-    background: var(--bronze);
-    opacity: 0.65;
+    padding: 150px 32px 0;
 }
 
 .institution-marker {
     position: relative;
     width: fit-content;
-    margin-bottom: 72px;
-    padding-left: 18px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(242, 236, 221, 0.68);
+    margin-bottom: 44px;
+    padding: 6px 4px;
+    transform: rotate(-1deg);
+    font-family: var(--font-chalk);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ochre);
 }
 
-.institution-marker::before {
+.institution-marker::after {
     content: "";
     position: absolute;
-    left: 0;
-    top: 50%;
-    width: 8px;
+    left: -6px;
+    right: -6px;
+    bottom: 2px;
     height: 1px;
-    background: var(--bronze);
-    transform: translateY(-50%);
-}
-
-@media (min-width: 980px) {
-    .main-container {
-        display: grid;
-        grid-template-columns: minmax(470px, 0.88fr) minmax(460px, 1.12fr);
-        align-items: center;
-        gap: 92px;
-    }
-
-    .institution-marker {
-        grid-column: 1 / -1;
-    }
+    background: repeating-linear-gradient(90deg, var(--ochre) 0 6px, transparent 6px 10px);
+    opacity: 0.6;
 }
 
 /* =====================================================================
-   6. CARTÃO PRINCIPAL — página de rosto do laboratório
+   6. O QUADRO PRINCIPAL — apresentação, não formulário
    ===================================================================== */
 
-.card {
+.hero {
     position: relative;
-    isolation: isolate;
-    padding: 62px 58px 54px;
-    background: linear-gradient(145deg, rgba(247, 242, 230, 0.985), rgba(238, 231, 214, 0.985));
-    color: var(--ink);
-    border: 1px solid rgba(176, 138, 84, 0.42);
-    border-radius: var(--radius-md);
-    box-shadow: var(--paper-shadow);
-}
-
-/* segunda moldura, como a margem de uma página impressa */
-.card::before {
-    content: "";
-    position: absolute;
-    inset: 13px;
-    border: 1px solid rgba(10, 14, 23, 0.1);
-    pointer-events: none;
-}
-
-/* terceira linha, extremamente discreta */
-.card::after {
-    content: "";
-    position: absolute;
-    inset: 20px;
-    z-index: -1;
-    border-top: 1px solid rgba(176, 138, 84, 0.12);
-    border-bottom: 1px solid rgba(176, 138, 84, 0.12);
-    pointer-events: none;
 }
 
 .brand {
-    position: relative;
     display: flex;
     align-items: center;
     width: fit-content;
-    gap: 12px;
-    margin-bottom: 38px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(176, 138, 84, 0.28);
+    gap: 10px;
+    margin-bottom: 26px;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 10.5px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--bronze-deep);
+    color: var(--chalk-dim);
 }
 
 .brand-icon {
     width: 14px;
     height: 14px;
-    border: 1.4px solid var(--bronze);
+    border: 1.4px solid var(--ochre);
     transform: rotate(45deg);
     position: relative;
 }
@@ -396,95 +302,63 @@ button {
     content: "";
     position: absolute;
     inset: 3px;
-    background: var(--bronze);
+    background: var(--ochre);
     transform: rotate(-45deg);
 }
 
 .system-status {
-    position: absolute;
-    top: 62px;
-    right: 58px;
     display: flex;
     align-items: center;
     gap: 7px;
+    margin-bottom: 30px;
     font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.16em;
+    font-size: 10px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ivory-dim);
-    opacity: 0.72;
+    color: var(--chalk-dim);
 }
 
 .system-dot {
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 0 2px rgba(79, 182, 196, 0.12);
+    background: var(--coral);
+    box-shadow: 0 0 0 3px rgba(223, 128, 105, 0.16);
 }
 
-.card h2 {
-    position: relative;
-    max-width: 10ch;
-    margin-top: 4px;
-    font-size: clamp(34px, 4vw, 48px);
+.hero h2 {
+    max-width: 13ch;
+    font-size: clamp(40px, 6vw, 64px);
     font-style: italic;
-    font-weight: 460;
-    line-height: 1.05;
-    letter-spacing: -0.025em;
-    color: var(--ink);
-}
-
-/* numeração de catálogo — no mesmo espírito do "REGISTRO" do resultado
-   e do rótulo "NEURO-EDUCA / LABORATÓRIO" do painel: a página de rosto
-   como primeiro item de um arquivo institucional */
-.card h2::after {
-    content: "01";
-    position: absolute;
-    right: -4px;
-    bottom: 4px;
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    color: rgba(176, 138, 84, 0.48);
+    font-weight: 500;
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+    color: var(--chalk);
+    text-shadow: 0 0 26px rgba(244, 239, 226, 0.12);
 }
 
 .subtitle {
     margin-top: 22px;
-    max-width: 39ch;
+    max-width: 46ch;
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.75;
-    color: rgba(10, 14, 23, 0.64);
+    color: var(--chalk-dim);
 }
 
 /* =====================================================================
-   7. CAMPOS E BOTÕES — vocabulário de manuscrito, não de SaaS
+   7. CHAMADA — a "lista de presença", não um formulário de SaaS
    ===================================================================== */
 
 .field-label {
-    position: relative;
     display: block;
-    margin: 36px 0 10px;
-    padding-left: 13px;
+    margin: 34px 0 10px;
     font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--bronze-deep);
-}
-
-.field-label::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 6px;
-    height: 1px;
-    background: var(--bronze);
-    transform: translateY(-50%);
+    color: var(--ochre);
 }
 
 input[type="text"],
@@ -492,247 +366,120 @@ input:not([type]),
 select,
 textarea {
     width: 100%;
-    padding: 13px 3px;
+    padding: 12px 2px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(10, 14, 23, 0.18);
+    border-bottom: 1.5px dashed var(--chalk-faint);
     border-radius: 0;
     font-family: var(--font-body);
-    font-size: 16px;
-    color: var(--ink);
+    font-size: 17px;
+    color: var(--chalk);
     transition: border-color 0.25s var(--ease);
 }
 
-textarea {
-    min-height: 92px;
-    resize: vertical;
-    line-height: 1.6;
+.hero textarea {
+    min-height: 0;
 }
 
 select {
     appearance: none;
     -webkit-appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--bronze-deep) 50%),
-        linear-gradient(135deg, var(--bronze-deep) 50%, transparent 50%);
+    background-image: linear-gradient(45deg, transparent 50%, var(--ochre) 50%),
+        linear-gradient(135deg, var(--ochre) 50%, transparent 50%);
     background-position: calc(100% - 4px) 20px, calc(100% - 10px) 20px;
     background-size: 6px 6px, 6px 6px;
     background-repeat: no-repeat;
+    color: var(--chalk);
+}
+
+.hero select {
+    color: var(--chalk);
 }
 
 input::placeholder,
 textarea::placeholder {
-    color: rgba(10, 14, 23, 0.34);
+    color: rgba(244, 239, 226, 0.32);
     font-style: italic;
 }
 
-input:hover,
-select:hover,
-textarea:hover {
-    border-bottom-color: rgba(176, 138, 84, 0.55);
+input:hover, select:hover, textarea:hover {
+    border-bottom-color: rgba(226, 167, 90, 0.5);
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-    border-bottom-color: var(--bronze);
+input:focus, select:focus, textarea:focus {
+    border-bottom-color: var(--ochre);
     outline: none;
 }
 
-.btn-neuro {
-    position: relative;
+.btn-chalk {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
-    min-height: 54px;
-    margin-top: 34px;
-    overflow: hidden;
-    background: var(--ink);
-    color: var(--ivory);
-    border: 1px solid var(--ink);
-    border-radius: var(--radius-sm);
+    margin-top: 28px;
+    padding: 15px 22px;
+    background: transparent;
+    color: var(--chalk);
+    border: 1.5px dashed rgba(244, 239, 226, 0.5);
+    border-radius: 4px;
     font-family: var(--font-mono);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease),
-        transform 0.3s var(--ease);
+    transition: background 0.28s var(--ease), color 0.28s var(--ease), border-color 0.28s var(--ease),
+        transform 0.28s var(--ease);
 }
 
-/* traço de bronze entrando lateralmente no hover */
-.btn-neuro::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    background: var(--bronze);
-    transition: width 0.45s var(--ease);
+.btn-chalk:hover {
+    background: var(--chalk);
+    border-color: var(--chalk);
+    border-style: solid;
+    color: var(--board-deep);
+    transform: translateY(-1px);
 }
 
-.btn-neuro:hover::before {
-    width: 100%;
-}
-
-.btn-neuro:hover {
-    background: #151b26;
-    border-color: rgba(176, 138, 84, 0.55);
-    color: var(--ivory);
-    transform: translateY(-2px);
-}
-
-.btn-neuro:active {
+.btn-chalk:active {
     transform: translateY(0);
 }
 
-.btn-library,
-.btn-atlas {
-    position: relative;
+.hero-links {
     display: flex;
+    flex-wrap: wrap;
+    gap: 26px;
+    margin-top: 24px;
+}
+
+.chalk-link {
+    display: inline-flex;
     align-items: baseline;
-    justify-content: space-between;
-    margin-top: 14px;
-    padding: 15px 2px;
-    border-top: 1px solid rgba(10, 14, 23, 0.13);
+    gap: 6px;
+    padding-bottom: 2px;
     text-decoration: none;
     font-family: var(--font-body);
     font-style: italic;
     font-size: 15px;
-    color: var(--ink);
-    transition: color 0.3s var(--ease), padding-left 0.3s var(--ease);
+    color: var(--chalk-dim);
+    border-bottom: 1px dashed rgba(244, 239, 226, 0.35);
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
 }
 
-.btn-library::after,
-.btn-atlas::after {
+.chalk-link::after {
     content: "↗";
     font-style: normal;
     font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--bronze);
-    transition: transform 0.3s var(--ease);
+    font-size: 12px;
+    color: var(--ochre);
 }
 
-.btn-library:hover,
-.btn-atlas:hover {
-    padding-left: 10px;
-    color: var(--bronze-deep);
-}
-
-.btn-library:hover::after,
-.btn-atlas:hover::after {
-    transform: translate(2px, -2px);
+.chalk-link:hover {
+    color: var(--chalk);
+    border-color: var(--ochre);
 }
 
 /* =====================================================================
-   8. MÓDULOS — fichas de índice, não cards de dashboard
-   ===================================================================== */
-
-.tool-grid {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    margin-top: 44px;
-    background: rgba(10, 14, 23, 0.12);
-    border: var(--edge-dark);
-    box-shadow: 0 10px 30px rgba(10, 14, 23, 0.05);
-}
-
-.tool-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 145px;
-    padding: 25px 22px 22px;
-    background: var(--ivory-panel);
-    border: none;
-    border-radius: 0;
-    text-align: left;
-    transition: background 0.3s var(--ease);
-}
-
-.tool-card:hover {
-    background: #eee7d5;
-}
-
-.tool-card-mark {
-    position: relative;
-    display: block;
-    margin-bottom: 18px;
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 28px;
-    font-weight: 460;
-    color: var(--bronze);
-    opacity: 0.8;
-}
-
-.tool-card-mark::after {
-    content: "·";
-    margin-left: 8px;
-    color: var(--bronze);
-}
-
-.tool-card h4 {
-    font-size: 15px;
-    font-weight: 520;
-    color: var(--ink);
-    margin-bottom: 6px;
-}
-
-.tool-card p {
-    font-family: var(--font-body);
-    font-size: 13px;
-    line-height: 1.5;
-    color: rgba(10, 14, 23, 0.6);
-}
-
-.tool-card::after {
-    content: "";
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 0;
-    height: 1px;
-    background: var(--bronze);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.35s var(--ease);
-}
-
-.tool-card:hover::after {
-    transform: scaleX(1);
-}
-
-/* dentro dos painéis de módulo, o tool-grid volta a ser um par de campos
-   sem moldura de ficha */
-.tool-panel .tool-grid {
-    background: none;
-    border: none;
-    box-shadow: none;
-    gap: 24px;
-    margin-top: 30px;
-}
-
-.tool-panel .tool-card {
-    min-height: 0;
-    padding: 0;
-    background: none;
-}
-
-.tool-panel .tool-card::after {
-    display: none;
-}
-
-.tool-card--field h4,
-.tool-card--field p {
-    display: none;
-}
-
-/* =====================================================================
-   9. A VITRINE DA CORUJA — elemento assinatura
+   8. A VITRINE DA CORUJA — o diagrama do dia, desenhado grande no quadro
    ===================================================================== */
 
 #brain-viewport {
@@ -742,63 +489,38 @@ textarea:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 620px;
+    min-height: 560px;
+    margin-top: 86px;
     padding: 40px;
     overflow: hidden;
-    background:
-        radial-gradient(circle at center, rgba(176, 138, 84, 0.075), transparent 42%),
-        linear-gradient(145deg, #111722, #080c13);
-    border: 1px solid rgba(176, 138, 84, 0.2);
-    border-radius: var(--radius-md);
-    box-shadow: var(--deep-shadow);
-}
-
-.card, #brain-viewport {
-    display: block;
-}
-
-#brain-viewport::before {
-    content: "";
-    position: absolute;
-    inset: 18px;
-    border: 1px solid rgba(176, 138, 84, 0.13);
-    pointer-events: none;
-}
-
-#brain-viewport::after {
-    content: "";
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    width: 80px;
-    height: 1px;
-    background: var(--bronze);
-    opacity: 0.5;
-    transform: translateX(-50%);
+    background: radial-gradient(circle at 50% 42%, rgba(226, 167, 90, 0.06), transparent 55%), var(--board-2);
+    border: 1.5px dashed rgba(244, 239, 226, 0.22);
+    border-radius: 6px;
+    box-shadow: var(--shadow-deep);
 }
 
 .brain-frame {
     position: relative;
-    width: min(100%, 470px);
+    width: min(100%, 440px);
     aspect-ratio: 1 / 1;
 }
 
 .brain-frame::before {
     content: "";
     position: absolute;
-    inset: 18%;
+    inset: 16%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(176, 138, 84, 0.12), transparent 68%);
-    filter: blur(18px);
+    background: radial-gradient(circle, rgba(226, 167, 90, 0.14), transparent 68%);
+    filter: blur(20px);
     pointer-events: none;
 }
 
 .brain-corner {
     position: absolute;
-    width: 28px;
-    height: 28px;
-    border: 1px solid rgba(196, 162, 101, 0.72);
-    opacity: 0.85;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid var(--ochre);
+    opacity: 0.7;
 }
 
 .brain-corner--tl { top: 0; left: 0; border-right: none; border-bottom: none; }
@@ -819,8 +541,8 @@ textarea:focus {
     font-family: var(--font-mono);
     font-size: 8.5px;
     letter-spacing: 0.3em;
-    fill: var(--bronze);
-    opacity: 0.48;
+    fill: var(--ochre);
+    opacity: 0.5;
 }
 
 #brain-viewport canvas {
@@ -831,49 +553,92 @@ textarea:focus {
 }
 
 .brain-label {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 34px;
-    padding-top: 17px;
+    margin-top: 30px;
     text-align: center;
     font-family: var(--font-body);
     font-style: italic;
     font-size: 13.5px;
-    letter-spacing: 0.02em;
-    color: var(--ivory-dim);
-}
-
-.brain-label::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 38px;
-    height: 1px;
-    background: var(--bronze);
-    transform: translateX(-50%);
+    color: var(--chalk-dim);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .brain-label strong {
     font-family: var(--font-display);
     font-style: normal;
-    font-weight: 460;
-    font-size: 21px;
-    letter-spacing: 0.015em;
-    color: var(--ivory);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--chalk);
 }
 
 /* =====================================================================
-   10. OVERLAY E PAINÉIS DE MÓDULO — página de manuscrito deslizante
+   9. A BANDEJA DE GIZ — os módulos, apoiados como pedaços de giz
+   ===================================================================== */
+
+.chalk-tray {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin: 40px 0 150px;
+    padding: 18px;
+    background: linear-gradient(180deg, var(--wood), var(--wood-deep));
+    border-radius: 6px;
+    box-shadow: var(--shadow-soft), inset 0 2px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tray-item {
+    flex: 1 1 190px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px;
+    background: var(--paper);
+    border: none;
+    border-radius: 3px;
+    text-align: left;
+    box-shadow: 0 10px 0 -6px rgba(0, 0, 0, 0.18);
+    transition: transform 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.tray-item:hover {
+    transform: translateY(-5px);
+    background: #fbf6e9;
+    box-shadow: 0 16px 20px -12px rgba(0, 0, 0, 0.4);
+}
+
+.tray-index {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--board);
+    color: var(--ochre);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 15px;
+}
+
+.tray-name {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+/* =====================================================================
+   10. OVERLAY E PAINÉIS — folhas de caderno pautado
    ===================================================================== */
 
 .overlay {
     position: fixed;
     inset: 0;
     z-index: 48;
-    background: rgba(10, 14, 23, 0.6);
+    background: rgba(11, 22, 17, 0.66);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.35s var(--ease);
@@ -890,31 +655,21 @@ textarea:focus {
     right: 0;
     bottom: 0;
     z-index: 49;
-    width: min(610px, 94vw);
-    padding: 64px 58px 70px;
-    background: linear-gradient(145deg, #f7f2e6, #eee7d8);
+    width: min(580px, 94vw);
+    padding: 60px 52px 64px;
+    background:
+        repeating-linear-gradient(180deg, transparent 0 38px, rgba(29, 43, 33, 0.06) 38px 39px),
+        var(--paper);
     color: var(--ink);
-    border-left: 1px solid rgba(176, 138, 84, 0.4);
+    border-left: 3px solid var(--coral);
     overflow-y: auto;
     transform: translateX(100%);
     transition: transform 0.42s var(--ease);
-    box-shadow: -30px 0 80px rgba(0, 0, 0, 0.38);
+    box-shadow: -30px 0 70px -30px rgba(0, 0, 0, 0.55);
 }
 
 .tool-panel.active {
     transform: translateX(0);
-}
-
-.tool-panel::before {
-    content: "NEURO-EDUCA  /  LABORATÓRIO";
-    display: block;
-    margin-bottom: 28px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(10, 14, 23, 0.12);
-    font-family: var(--font-mono);
-    font-size: 8.5px;
-    letter-spacing: 0.2em;
-    color: var(--bronze-deep);
 }
 
 .tool-header {
@@ -922,57 +677,52 @@ textarea:focus {
     align-items: flex-start;
     justify-content: space-between;
     gap: 24px;
-    padding-bottom: 30px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(10, 14, 23, 0.14);
+    padding-bottom: 24px;
+    margin-bottom: 6px;
+    border-bottom: 1.5px dashed rgba(29, 43, 33, 0.22);
 }
 
 .ai-badge {
     display: inline-block;
     margin-bottom: 12px;
-    padding: 5px 10px;
+    padding: 4px 10px;
     font-family: var(--font-mono);
     font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--bronze-deep);
-    border: 1px solid var(--bronze-line);
-    border-radius: var(--radius-sm);
-}
-
-.ai-badge::before {
-    content: "· ";
-    color: var(--cyan);
+    color: var(--paper);
+    background: var(--ink);
+    border-radius: 999px;
 }
 
 .tool-header h3 {
-    max-width: 13ch;
-    font-size: 29px;
+    font-size: 26px;
     font-style: italic;
-    font-weight: 460;
-    line-height: 1.08;
+    font-weight: 500;
+    line-height: 1.18;
+    color: var(--ink);
 }
 
 .tool-header p {
-    max-width: 42ch;
-    margin-top: 14px;
+    margin-top: 10px;
+    max-width: 40ch;
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.6;
-    color: rgba(10, 14, 23, 0.62);
+    color: var(--ink-dim);
 }
 
 .close-tool {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: none;
-    border: 1px solid rgba(10, 14, 23, 0.22);
-    border-radius: var(--radius-sm);
+    border: 1.5px solid rgba(29, 43, 33, 0.28);
+    border-radius: 50%;
     font-family: var(--font-body);
     font-size: 17px;
     line-height: 1;
@@ -982,31 +732,104 @@ textarea:focus {
 }
 
 .close-tool:hover {
-    transform: rotate(45deg);
-    border-color: var(--bronze);
-    background: var(--bronze);
+    transform: rotate(90deg);
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+}
+
+/* dentro dos painéis, os pares de campo ficam lado a lado sem moldura */
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.tool-card {
+    padding: 0;
+}
+
+.tool-card--field h4,
+.tool-card--field p {
+    display: none;
+}
+
+.tool-panel .field-label {
+    color: var(--ochre-deep);
+}
+
+.tool-panel input,
+.tool-panel select,
+.tool-panel textarea {
     color: var(--ink);
+    border-bottom: 1.5px dashed rgba(29, 43, 33, 0.28);
+}
+
+.tool-panel input::placeholder,
+.tool-panel textarea::placeholder {
+    color: rgba(29, 43, 33, 0.36);
+}
+
+.tool-panel input:hover,
+.tool-panel select:hover,
+.tool-panel textarea:hover {
+    border-bottom-color: rgba(223, 128, 105, 0.6);
+}
+
+.tool-panel input:focus,
+.tool-panel select:focus,
+.tool-panel textarea:focus {
+    border-bottom-color: var(--coral);
+}
+
+.tool-panel textarea {
+    min-height: 92px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.tool-panel select {
+    background-image: linear-gradient(45deg, transparent 50%, var(--ochre-deep) 50%),
+        linear-gradient(135deg, var(--ochre-deep) 50%, transparent 50%);
+}
+
+/* o botão de dentro do caderno é carimbo de tinta, não giz */
+.btn-ink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 30px;
+    padding: 14px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background 0.28s var(--ease), transform 0.28s var(--ease);
+}
+
+.btn-ink:hover {
+    background: var(--coral);
+    transform: translateY(-1px);
+}
+
+.btn-ink:active {
+    transform: translateY(0);
 }
 
 .result-box {
     position: relative;
-    margin-top: 34px;
-    padding: 24px 25px 25px 27px;
-    background: rgba(10, 14, 23, 0.025);
-    border-left: 2px solid var(--bronze);
-}
-
-.result-box::before {
-    content: "REGISTRO";
-    position: absolute;
-    top: -8px;
-    right: 0;
-    padding: 0 6px;
-    background: var(--ivory-panel);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 0.16em;
-    color: var(--bronze-deep);
+    margin-top: 32px;
+    padding: 20px 22px;
+    background: rgba(29, 43, 33, 0.04);
+    border-left: 2px solid var(--coral);
 }
 
 .result-box strong {
@@ -1014,31 +837,36 @@ textarea:focus {
     margin-bottom: 8px;
     font-family: var(--font-mono);
     font-size: 10.5px;
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--bronze-deep);
+    color: var(--ochre-deep);
 }
 
 .result-box p {
     font-family: var(--font-body);
     font-size: 14.5px;
     line-height: 1.65;
-    color: rgba(10, 14, 23, 0.82);
+    color: var(--ink);
 }
 
 /* =====================================================================
-   11. MICROINTERAÇÕES DE ENTRADA — um único momento orquestrado
+   11. MICROINTERAÇÕES DE ENTRADA
    ===================================================================== */
 
 @media (prefers-reduced-motion: no-preference) {
-    .card,
-    #brain-viewport {
-        animation: entrance 0.8s var(--ease) both;
+    .hero,
+    #brain-viewport,
+    .chalk-tray {
+        animation: entrance 0.85s var(--ease) both;
     }
 
     #brain-viewport {
-        animation-delay: 0.08s;
+        animation-delay: 0.12s;
+    }
+
+    .chalk-tray {
+        animation-delay: 0.22s;
     }
 
     .institution-marker {
@@ -1046,12 +874,12 @@ textarea:focus {
     }
 
     @keyframes entrance {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(14px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fade-up {
-        from { opacity: 0; transform: translateY(5px); }
+        from { opacity: 0; transform: translateY(6px); }
         to { opacity: 1; transform: translateY(0); }
     }
 }
@@ -1060,75 +888,33 @@ textarea:focus {
    12. RESPONSIVO
    ===================================================================== */
 
-@media (max-width: 979px) {
+@media (max-width: 720px) {
     .main-container {
-        padding: 100px 30px 100px;
+        padding: 118px 20px 0;
     }
 
-    .main-container::before {
-        left: 30px;
-    }
-
-    .card {
-        padding: 52px 42px 44px;
-    }
-
-    #brain-viewport {
-        margin-top: 40px;
-        min-height: 500px;
-    }
-
-    .side-line {
-        display: none;
-    }
-}
-
-@media (max-width: 640px) {
-    .main-container {
-        padding: 88px 18px 80px;
-    }
-
-    .main-container::before {
-        display: none;
-    }
-
-    .institution-marker {
-        margin-bottom: 48px;
-    }
-
-    .card {
-        padding: 42px 26px 38px;
-    }
-
-    .card::before {
-        inset: 9px;
-    }
-
-    .card::after {
-        inset: 15px;
-    }
-
-    .system-status {
-        position: static;
-        margin-bottom: 24px;
-    }
-
-    .card h2 {
-        max-width: 12ch;
-        font-size: 36px;
-    }
-
-    .tool-grid {
-        grid-template-columns: 1fr;
+    .hero h2 {
+        max-width: 11ch;
+        font-size: 40px;
     }
 
     #brain-viewport {
         min-height: 400px;
-        padding: 25px;
+        margin-top: 60px;
+        padding: 24px;
     }
 
-    .brain-frame {
-        width: 100%;
+    .chalk-tray {
+        flex-direction: column;
+        margin-bottom: 90px;
+    }
+
+    .tray-item {
+        flex: 1 1 auto;
+    }
+
+    .tool-grid {
+        grid-template-columns: 1fr;
     }
 
     .btn-aluno-fixo {
@@ -1139,25 +925,6 @@ textarea:focus {
 
     .tool-panel {
         width: 100%;
-        padding: 48px 25px 54px;
-    }
-}
-
-@media (max-width: 400px) {
-    .main-container {
-        padding: 80px 14px 60px;
-    }
-
-    .card {
-        padding: 38px 22px 32px;
-    }
-
-    .card h2 {
-        font-size: 32px;
-    }
-
-    .btn-aluno-fixo {
-        right: 14px;
-        top: 16px;
+        padding: 46px 24px 50px;
     }
 }
