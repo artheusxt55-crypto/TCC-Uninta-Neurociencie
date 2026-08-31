@@ -1,4 +1,4 @@
-```tsx
+
 import "./styles/neuro-edu.css";
 
 import { useEffect, useRef, useState } from "react";
