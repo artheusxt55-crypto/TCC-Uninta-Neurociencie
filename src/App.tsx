@@ -1,4 +1,3 @@
-
 import "./styles/neuro-edu.css";
 
 import { useEffect, useRef, useState } from "react";
@@ -7,6 +6,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import TransformParticles from "./components/TransformParticles";
+
+import { supabase } from "./lib/supabase";
 
 type VideoIndex = 0 | 1 | 2;
 
@@ -806,6 +807,32 @@ function App() {
     };
 
     /* =====================================================
+     * LOGIN GOOGLE
+     * ===================================================== */
+
+    const loginComGoogle = async () => {
+        const { error } =
+            await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo:
+                        window.location.origin,
+                },
+            });
+
+        if (error) {
+            console.error(
+                "Erro no login com Google:",
+                error
+            );
+
+            alert(
+                "Não foi possível entrar com Google."
+            );
+        }
+    };
+
+    /* =====================================================
      * JSX
      * ===================================================== */
 
@@ -968,6 +995,16 @@ function App() {
                         }
                     >
                         Entrar no laboratório
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn-chalk"
+                        onClick={
+                            loginComGoogle
+                        }
+                    >
+                        Continuar com Google
                     </button>
 
                     <div className="hero-links">
@@ -1723,4 +1760,3 @@ function App() {
 }
 
 export default App;
-
