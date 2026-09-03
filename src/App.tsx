@@ -76,6 +76,54 @@ function App() {
         useState<Resultados>({});
 
     /* =====================================================
+     * COOKIES / PRIVACIDADE
+     * ===================================================== */
+
+    const [showCookieBanner, setShowCookieBanner] =
+        useState(false);
+
+    useEffect(() => {
+        const consentimento =
+            localStorage.getItem(
+                "educacube_cookie_consent"
+            );
+
+        if (!consentimento) {
+            setShowCookieBanner(true);
+        }
+    }, []);
+
+    const salvarConsentimento = (
+        escolha: "aceito" | "recusado"
+    ) => {
+        /*
+         * Memória persistente no navegador.
+         * A escolha continua salva mesmo depois
+         * de fechar e abrir o navegador.
+         */
+        localStorage.setItem(
+            "educacube_cookie_consent",
+            escolha
+        );
+
+        /*
+         * Cookie persistente por 1 ano.
+         */
+        document.cookie =
+            `educacube_cookie_consent=${escolha}; ` +
+            `Max-Age=31536000; ` +
+            `Path=/; ` +
+            `SameSite=Lax`;
+
+        setShowCookieBanner(false);
+    };
+
+    const abrirConfiguracoesCookies = () => {
+        window.location.href =
+            "/cookies.html";
+    };
+
+    /* =====================================================
      * LOGIN GOOGLE
      * ===================================================== */
 
@@ -1755,6 +1803,90 @@ function App() {
                 )}
 
             </div>
+
+            {/* =================================================
+                BANNER DE COOKIES
+            ================================================= */}
+
+            {showCookieBanner && (
+                <div
+                    className="cookie-banner"
+                    role="dialog"
+                    aria-label="Aviso de cookies"
+                >
+
+                    <div className="cookie-content">
+
+                        <div className="cookie-icon">
+                            🍪
+                        </div>
+
+                        <div className="cookie-text">
+
+                            <h3>
+                                Cookies e privacidade
+                            </h3>
+
+                            <p>
+                                O EducaCube utiliza cookies
+                                e tecnologias semelhantes
+                                para manter funcionalidades
+                                da plataforma, autenticação
+                                e preferências.
+                            </p>
+
+                            <a
+                                href="/cookies.html"
+                                className="cookie-link"
+                            >
+                                Política de Cookies
+                            </a>
+
+                        </div>
+
+                        <div className="cookie-actions">
+
+                            <button
+                                type="button"
+                                className="cookie-btn cookie-btn-reject"
+                                onClick={() =>
+                                    salvarConsentimento(
+                                        "recusado"
+                                    )
+                                }
+                            >
+                                Recusar
+                            </button>
+
+                            <button
+                                type="button"
+                                className="cookie-btn cookie-btn-config"
+                                onClick={
+                                    abrirConfiguracoesCookies
+                                }
+                            >
+                                Configurar
+                            </button>
+
+                            <button
+                                type="button"
+                                className="cookie-btn cookie-btn-accept"
+                                onClick={() =>
+                                    salvarConsentimento(
+                                        "aceito"
+                                    )
+                                }
+                            >
+                                Aceitar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            )}
+
         </>
     );
 }
