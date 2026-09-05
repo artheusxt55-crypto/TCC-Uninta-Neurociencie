@@ -1,26 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400..700;1,400..700&family=Literata:ital,opsz,wght@0,7..72,380;0,7..72,440;0,7..72,560;1,7..72,420&family=Caveat:wght@500;700&family=Space+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Mono:wght@400;700&display=swap");
 
 /* =====================================================================
    ARQUITETURA DE CAMADAS
-   A ordem aqui é a fonte da verdade da cascata — evita a guerra de
-   especificidade entre seletores de classe e de elemento citada no
-   briefing (ex.: .section vs textarea). Tudo que vem depois de uma
-   camada só vence dentro da mesma camada, nunca por especificidade bruta.
    ===================================================================== */
 
 @layer reset, tokens, base, layout, chalkboard, showcase, tray, panel, motion;
 
 /* =====================================================================
    1. TOKENS
-   Identidade: o quadro-negro da aula, não a tela de um app. A coruja é o
-   diagrama do dia; os módulos são pedaços de giz na bandeja; os painéis
-   de trabalho são folhas de caderno pautado — giz para apresentar,
-   papel para escrever.
-
-   Paleta convertida para OKLCH: mesma identidade visual do original,
-   mas com matiz e luminosidade previsíveis — os estados derivados
-   (dim/faint/hover) usam color-mix() em vez de valores rgba soltos,
-   então qualquer ajuste futuro do tom-base propaga sozinho.
+   Identidade: EducaCube — o cubo violeta e a coruja como núcleo de uma
+   plataforma tecnológica de educação, não mais um quadro-negro de giz.
+   Fundo quase-preto com matiz violeta, tipografia geométrica em caixa
+   alta para a marca, e um único acento — o violeta — carregando toda
+   a energia da interface. Os estados derivados continuam calculados
+   via color-mix(), então qualquer ajuste do tom-base se propaga sozinho.
    ===================================================================== */
 
 @layer tokens {
@@ -28,33 +21,32 @@
         color-scheme: dark;
 
         /* --- paleta-base (OKLCH) --- */
-        --board: oklch(25.9% 0.028 160.4);
-        --board-2: oklch(30.2% 0.036 159.4);
-        --board-deep: oklch(18.8% 0.019 164.4);
-        --paper: oklch(95.6% 0.02 87.5);
-        --paper-2: oklch(92.9% 0.027 87.9);
-        --ink: oklch(27.3% 0.027 153.3);
-        --chalk: oklch(95.2% 0.018 89.4);
-        --ochre: oklch(76.9% 0.117 71.8);
-        --ochre-deep: oklch(64.7% 0.118 73.6);
-        --coral: oklch(69.8% 0.123 34.5);
-        --wood: oklch(52.9% 0.077 65.5);
-        --wood-deep: oklch(35% 0.047 62.7);
+        --board: oklch(12% 0.03 292);
+        --board-2: oklch(16.5% 0.038 292);
+        --board-deep: oklch(7% 0.02 292);
+        --paper: oklch(15.5% 0.035 292);
+        --paper-2: oklch(19.5% 0.04 292);
+        --ink: oklch(96.5% 0.012 290);
+        --chalk: oklch(97% 0.012 290);
+        --ochre: oklch(64% 0.225 296);
+        --ochre-deep: oklch(50% 0.215 297);
+        --coral: oklch(66% 0.19 332);
+        --wood: oklch(17% 0.035 292);
+        --wood-deep: oklch(9% 0.024 292);
 
         /* --- estados derivados, calculados, não redigitados --- */
         --ink-dim: color-mix(in oklch, var(--ink) 62%, transparent);
         --chalk-dim: color-mix(in oklch, var(--chalk) 62%, transparent);
         --chalk-faint: color-mix(in oklch, var(--chalk) 18%, transparent);
         --chalk-soft: color-mix(in oklch, var(--chalk) 50%, transparent);
-        --ochre-glow: color-mix(in oklch, var(--ochre) 14%, transparent);
-        --coral-ring: color-mix(in oklch, var(--coral) 16%, transparent);
+        --ochre-glow: color-mix(in oklch, var(--ochre) 20%, transparent);
+        --coral-ring: color-mix(in oklch, var(--coral) 18%, transparent);
         --ink-hair: color-mix(in oklch, var(--ink) 22%, transparent);
-        --ink-wash: color-mix(in oklch, var(--ink) 4%, transparent);
+        --ink-wash: color-mix(in oklch, var(--ink) 6%, transparent);
 
         /* --- tipografia --- */
-        --font-display: "Petrona", Georgia, serif;
-        --font-body: "Literata", Georgia, serif;
-        --font-chalk: "Caveat", cursive;
+        --font-display: "Space Grotesk", "Inter", sans-serif;
+        --font-body: "Inter", "Space Grotesk", sans-serif;
         --font-mono: "Space Mono", "SFMono-Regular", Menlo, monospace;
 
         /* escala fluida — proporção ~1.2, ancorada no viewport */
@@ -62,7 +54,7 @@
         --step-body: clamp(0.95rem, 0.9rem + 0.2vw, 1.0625rem);
         --step-subtitle: clamp(1rem, 0.95rem + 0.3vw, 1.0625rem);
         --step-panel-title: clamp(1.35rem, 1.2rem + 0.7vw, 1.625rem);
-        --step-hero: clamp(2.5rem, 1.9rem + 3vw, 4rem);
+        --step-hero: clamp(2.5rem, 1.9rem + 3vw, 4.125rem);
 
         /* --- ritmo e forma --- */
         --space-2xs: clamp(0.5rem, 0.46rem + 0.2vw, 0.625rem);
@@ -73,16 +65,17 @@
         --space-xl: clamp(3.5rem, 2.5rem + 5vw, 6.25rem);
         --space-2xl: clamp(5rem, 3.5rem + 7.5vw, 9.375rem);
 
-        --radius-sm: 3px;
-        --radius-md: 6px;
+        --radius-sm: 6px;
+        --radius-md: 14px;
+        --radius-lg: 22px;
         --radius-pill: 999px;
 
         --dash-hairline: repeating-linear-gradient(90deg, currentcolor 0 6px, transparent 6px 10px);
-        --border-dashed: 1.5px dashed var(--chalk-faint);
+        --border-dashed: 1.5px solid var(--chalk-faint);
 
-        --shadow-soft: 0 26px 60px -26px oklch(0% 0 0 / 0.55);
-        --shadow-deep: 0 46px 110px oklch(0% 0 0 / 0.5);
-        --shadow-lift: 0 16px 20px -12px oklch(0% 0 0 / 0.4);
+        --shadow-soft: 0 26px 60px -26px oklch(0% 0 0 / 0.6);
+        --shadow-deep: 0 46px 110px oklch(0% 0 0 / 0.55);
+        --shadow-lift: 0 16px 30px -12px oklch(56% 0.22 296 / 0.35);
 
         --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
         --duration-fast: 0.25s;
@@ -121,8 +114,8 @@
 
     :is(h1, h2, h3, h4) {
         font-family: var(--font-display);
-        font-weight: 500;
-        letter-spacing: -0.01em;
+        font-weight: 600;
+        letter-spacing: -0.015em;
         margin: 0;
         color: inherit;
         text-wrap: balance;
@@ -176,7 +169,7 @@
 }
 
 /* =====================================================================
-   3. O QUADRO — vídeo tratado como projeção esverdeada sobre a lousa
+   3. O FUNDO — vídeo tratado como campo violeta por trás do cubo
    ===================================================================== */
 
 @layer chalkboard {
@@ -186,8 +179,8 @@
         z-index: 0;
         overflow: hidden;
         background:
-            radial-gradient(ellipse at 76% 30%, var(--ochre-glow), transparent 34%),
-            radial-gradient(ellipse at 18% 76%, color-mix(in oklch, var(--coral) 3%, transparent), transparent 32%),
+            radial-gradient(ellipse at 76% 26%, var(--ochre-glow), transparent 40%),
+            radial-gradient(ellipse at 16% 78%, color-mix(in oklch, var(--coral) 8%, transparent), transparent 38%),
             var(--board);
     }
 
@@ -200,7 +193,7 @@
         opacity: 0;
         transform: scale(1.02);
         transform-origin: center;
-        filter: grayscale(0.78) sepia(0.22) hue-rotate(70deg) saturate(0.85) contrast(1.05) brightness(0.3);
+        filter: grayscale(0.7) sepia(0.18) hue-rotate(215deg) saturate(1.35) contrast(1.08) brightness(0.32);
         transition: opacity 1.4s var(--ease);
 
         &.active {
@@ -214,8 +207,8 @@
         z-index: 1;
         pointer-events: none;
         background:
-            linear-gradient(180deg, oklch(18.8% 0.019 164.4 / 0.88) 0%, oklch(18.8% 0.019 164.4 / 0.7) 40%, oklch(18.8% 0.019 164.4 / 0.94) 100%),
-            radial-gradient(ellipse at center, transparent 42%, oklch(12% 0.02 164 / 0.6) 100%);
+            linear-gradient(180deg, oklch(7% 0.02 292 / 0.9) 0%, oklch(7% 0.02 292 / 0.72) 40%, oklch(7% 0.02 292 / 0.95) 100%),
+            radial-gradient(ellipse at center, transparent 42%, oklch(5% 0.02 292 / 0.65) 100%);
     }
 
     .video-purple-glow {
@@ -227,19 +220,19 @@
         z-index: 1;
         pointer-events: none;
         filter: blur(10px);
-        background: radial-gradient(circle, var(--ochre-glow) 0%, color-mix(in oklch, var(--ochre) 2%, transparent) 34%, transparent 70%);
+        background: radial-gradient(circle, var(--ochre-glow) 0%, color-mix(in oklch, var(--ochre) 6%, transparent) 34%, transparent 70%);
     }
 
-    /* poeira de giz, não grão de filme: pontos claros, mix-blend screen */
+    /* poeira violeta, não grão de filme: pontos claros, mix-blend screen */
     .architectural-grid {
         position: fixed;
         inset: 0;
         z-index: 1;
         pointer-events: none;
-        opacity: 0.05;
+        opacity: 0.06;
         background-image:
-            linear-gradient(color-mix(in oklch, var(--chalk) 40%, transparent) 1px, transparent 1px),
-            linear-gradient(90deg, color-mix(in oklch, var(--chalk) 40%, transparent) 1px, transparent 1px);
+            linear-gradient(color-mix(in oklch, var(--ochre) 55%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in oklch, var(--ochre) 55%, transparent) 1px, transparent 1px);
         background-size: 96px 96px;
         mask-image: radial-gradient(ellipse at 62% 40%, black 0%, oklch(0% 0 0 / 0.7) 40%, transparent 78%);
     }
@@ -253,7 +246,7 @@
         inset: 0;
         z-index: 2;
         pointer-events: none;
-        opacity: 0.05;
+        opacity: 0.04;
         mix-blend-mode: screen;
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     }
@@ -279,7 +272,7 @@
         display: inline-flex;
         align-items: center;
         gap: var(--space-2xs);
-        padding: 9px 16px;
+        padding: 10px 18px;
         font-family: var(--font-mono);
         font-size: var(--step-label);
         font-weight: 700;
@@ -287,8 +280,9 @@
         text-transform: uppercase;
         text-decoration: none;
         color: var(--chalk);
-        background: transparent;
-        border: 1.5px dashed var(--chalk-faint);
+        background: color-mix(in oklch, var(--board-2) 70%, transparent);
+        backdrop-filter: blur(10px);
+        border: 1.5px solid var(--chalk-faint);
         border-radius: var(--radius-pill);
         transition: border-color var(--duration-base) var(--ease),
             color var(--duration-base) var(--ease),
@@ -300,22 +294,23 @@
             height: 5px;
             background: var(--ochre);
             border-radius: 50%;
+            box-shadow: 0 0 8px 1px var(--ochre);
         }
 
         &:hover, &:focus-visible {
             border-color: var(--ochre);
-            border-style: solid;
             color: var(--board-deep);
             background: var(--ochre);
 
             &::before {
                 background: var(--board-deep);
+                box-shadow: none;
             }
         }
     }
 
     /* =================================================================
-       5. ESTRUTURA — coluna única, como uma lição lida de cima para baixo
+       5. ESTRUTURA — coluna única
        ================================================================= */
 
     .main-container {
@@ -330,28 +325,21 @@
         position: relative;
         width: fit-content;
         margin-block-end: var(--space-md);
-        padding: 6px 4px;
-        transform: rotate(-1deg);
-        font-family: var(--font-chalk);
-        font-size: 20px;
-        font-weight: 500;
+        padding: 6px 14px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
         color: var(--ochre);
-
-        &::after {
-            content: "";
-            position: absolute;
-            inset-inline: -6px;
-            inset-block-end: 2px;
-            height: 1px;
-            background: var(--dash-hairline);
-            color: var(--ochre);
-            opacity: 0.6;
-        }
+        background: var(--ochre-glow);
+        border: 1px solid color-mix(in oklch, var(--ochre) 35%, transparent);
+        border-radius: var(--radius-pill);
     }
 }
 
 /* =====================================================================
-   6. O QUADRO PRINCIPAL — apresentação, não formulário
+   6. O PAINEL PRINCIPAL — apresentação da plataforma
    ===================================================================== */
 
 @layer layout {
@@ -373,9 +361,10 @@
     }
 
     .brand-icon {
-        width: 14px;
-        height: 14px;
-        border: 1.4px solid var(--ochre);
+        width: 15px;
+        height: 15px;
+        border: 1.6px solid var(--ochre);
+        border-radius: 3px;
         transform: rotate(45deg);
         position: relative;
 
@@ -384,6 +373,7 @@
             position: absolute;
             inset: 3px;
             background: var(--ochre);
+            border-radius: 1px;
             transform: rotate(-45deg);
         }
     }
@@ -409,14 +399,14 @@
     }
 
     .hero h2 {
-        max-width: 13ch;
+        max-width: 14ch;
         font-size: var(--step-hero);
-        font-style: italic;
-        font-weight: 500;
-        line-height: 1.03;
-        letter-spacing: -0.02em;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 1.02;
+        letter-spacing: -0.03em;
         color: var(--chalk);
-        text-shadow: 0 0 26px var(--chalk-soft);
+        text-shadow: 0 0 40px color-mix(in oklch, var(--ochre) 25%, transparent);
     }
 
     .subtitle {
@@ -424,13 +414,13 @@
         max-width: 46ch;
         font-family: var(--font-body);
         font-size: var(--step-subtitle);
-        line-height: 1.75;
+        line-height: 1.7;
         color: var(--chalk-dim);
     }
 }
 
 /* =====================================================================
-   7. CHAMADA — a "lista de presença", não um formulário de SaaS
+   7. CHAMADA DE ACESSO
    ===================================================================== */
 
 @layer layout {
@@ -450,7 +440,7 @@
         padding: 12px 2px;
         background: transparent;
         border: none;
-        border-block-end: var(--border-dashed);
+        border-block-end: 1.5px solid var(--chalk-faint);
         border-radius: 0;
         font-family: var(--font-body);
         font-size: 17px;
@@ -459,7 +449,7 @@
         transition: border-color var(--duration-fast) var(--ease);
 
         &:hover {
-            border-block-end-color: color-mix(in oklch, var(--ochre) 50%, transparent);
+            border-block-end-color: color-mix(in oklch, var(--ochre) 55%, transparent);
         }
 
         &:focus {
@@ -469,7 +459,7 @@
 
         &::placeholder {
             color: color-mix(in oklch, var(--chalk) 32%, transparent);
-            font-style: italic;
+            font-style: normal;
         }
     }
 
@@ -501,7 +491,7 @@
         padding: 15px 22px;
         background: transparent;
         color: var(--chalk);
-        border: 1.5px dashed var(--chalk-soft);
+        border: 1.5px solid var(--chalk-soft);
         border-radius: var(--radius-sm);
         font-family: var(--font-mono);
         font-size: 12px;
@@ -514,9 +504,8 @@
             transform var(--duration-base) var(--ease);
 
         &:hover, &:focus-visible {
-            background: var(--chalk);
-            border-color: var(--chalk);
-            border-style: solid;
+            background: linear-gradient(135deg, var(--ochre), var(--ochre-deep));
+            border-color: var(--ochre);
             color: var(--board-deep);
             transform: translateY(-1px);
         }
@@ -540,15 +529,15 @@
         padding-block-end: 2px;
         text-decoration: none;
         font-family: var(--font-body);
-        font-style: italic;
+        font-style: normal;
+        font-weight: 500;
         font-size: 15px;
         color: var(--chalk-dim);
-        border-block-end: 1px dashed color-mix(in oklch, var(--chalk) 35%, transparent);
+        border-block-end: 1px solid color-mix(in oklch, var(--chalk) 35%, transparent);
         transition: color var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
 
         &::after {
             content: "↗";
-            font-style: normal;
             font-family: var(--font-mono);
             font-size: 12px;
             color: var(--ochre);
@@ -562,7 +551,7 @@
 }
 
 /* =====================================================================
-   8. A VITRINE DA CORUJA — o diagrama do dia, desenhado grande no quadro
+   8. A VITRINE DA CORUJA — o núcleo do cubo, em destaque
    ===================================================================== */
 
 @layer showcase {
@@ -578,9 +567,8 @@
         padding: var(--space-md);
         overflow: hidden;
         background: radial-gradient(circle at 50% 42%, var(--ochre-glow), transparent 55%), var(--board-2);
-        border: var(--border-dashed);
-        border-color: color-mix(in oklch, var(--chalk) 22%, transparent);
-        border-radius: var(--radius-md);
+        border: 1px solid color-mix(in oklch, var(--ochre) 22%, transparent);
+        border-radius: var(--radius-lg);
         box-shadow: var(--shadow-deep);
         container-type: inline-size;
         container-name: showcase;
@@ -607,12 +595,12 @@
         width: 24px;
         height: 24px;
         border: 1.5px solid var(--ochre);
-        opacity: 0.7;
+        opacity: 0.75;
 
-        &--tl { inset-block-start: 0; inset-inline-start: 0; border-inline-end: none; border-block-end: none; }
-        &--tr { inset-block-start: 0; inset-inline-end: 0; border-inline-start: none; border-block-end: none; }
-        &--bl { inset-block-end: 0; inset-inline-start: 0; border-inline-end: none; border-block-start: none; }
-        &--br { inset-block-end: 0; inset-inline-end: 0; border-inline-start: none; border-block-start: none; }
+        &--tl { inset-block-start: 0; inset-inline-start: 0; border-inline-end: none; border-block-end: none; border-start-start-radius: var(--radius-sm); }
+        &--tr { inset-block-start: 0; inset-inline-end: 0; border-inline-start: none; border-block-end: none; border-start-end-radius: var(--radius-sm); }
+        &--bl { inset-block-end: 0; inset-inline-start: 0; border-inline-end: none; border-block-start: none; border-end-start-radius: var(--radius-sm); }
+        &--br { inset-block-end: 0; inset-inline-end: 0; border-inline-start: none; border-block-start: none; border-end-end-radius: var(--radius-sm); }
     }
 
     .brain-ring {
@@ -627,7 +615,7 @@
             font-size: 8.5px;
             letter-spacing: 0.3em;
             fill: var(--ochre);
-            opacity: 0.5;
+            opacity: 0.55;
         }
     }
 
@@ -642,7 +630,7 @@
         margin-block-start: var(--space-sm);
         text-align: center;
         font-family: var(--font-body);
-        font-style: italic;
+        font-style: normal;
         font-size: 13.5px;
         color: var(--chalk-dim);
         display: flex;
@@ -651,8 +639,7 @@
 
         strong {
             font-family: var(--font-display);
-            font-style: normal;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 22px;
             color: var(--chalk);
         }
@@ -667,7 +654,7 @@
 }
 
 /* =====================================================================
-   9. A BANDEJA DE GIZ — os módulos, apoiados como pedaços de giz
+   9. A TRAY DE MÓDULOS — cartões de vidro sobre o painel escuro
    ===================================================================== */
 
 @layer tray {
@@ -675,12 +662,13 @@
         position: relative;
         display: flex;
         flex-wrap: wrap;
-        gap: 2px;
+        gap: 10px;
         margin: var(--space-md) 0 150px;
         padding: 18px;
         background: linear-gradient(180deg, var(--wood), var(--wood-deep));
-        border-radius: var(--radius-md);
-        box-shadow: var(--shadow-soft), inset 0 2px 0 oklch(100% 0 0 / 0.06);
+        border: 1px solid color-mix(in oklch, var(--ochre) 16%, transparent);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(100% 0 0 / 0.03);
         container-type: inline-size;
         container-name: tray;
     }
@@ -691,18 +679,20 @@
         align-items: center;
         gap: var(--space-2xs);
         padding: 16px;
-        background: var(--paper);
-        border: none;
-        border-radius: var(--radius-sm);
+        background: color-mix(in oklch, var(--board-2) 65%, transparent);
+        backdrop-filter: blur(6px);
+        border: 1px solid color-mix(in oklch, var(--chalk) 10%, transparent);
+        border-radius: var(--radius-md);
         text-align: start;
-        box-shadow: 0 10px 0 -6px oklch(0% 0 0 / 0.18);
         transition: transform var(--duration-fast) var(--ease),
             background var(--duration-fast) var(--ease),
+            border-color var(--duration-fast) var(--ease),
             box-shadow var(--duration-fast) var(--ease);
 
         &:hover, &:focus-visible {
             transform: translateY(-5px);
-            background: color-mix(in oklch, var(--paper) 92%, white);
+            background: color-mix(in oklch, var(--ochre) 12%, var(--board-2));
+            border-color: color-mix(in oklch, var(--ochre) 50%, transparent);
             box-shadow: var(--shadow-lift);
         }
     }
@@ -715,18 +705,18 @@
         width: 34px;
         height: 34px;
         border-radius: 50%;
-        background: var(--board);
-        color: var(--ochre);
+        background: linear-gradient(135deg, var(--ochre), var(--ochre-deep));
+        color: var(--board-deep);
         font-family: var(--font-display);
-        font-style: italic;
-        font-size: 15px;
+        font-weight: 700;
+        font-size: 14px;
     }
 
     .tray-name {
         font-family: var(--font-body);
         font-size: 15px;
-        font-weight: 500;
-        color: var(--ink);
+        font-weight: 600;
+        color: var(--chalk);
     }
 
     @container tray (max-width: 480px) {
@@ -741,7 +731,7 @@
 }
 
 /* =====================================================================
-   10. OVERLAY E PAINÉIS — folhas de caderno pautado
+   10. OVERLAY E PAINÉIS — vidro escuro sobre o quadro
    ===================================================================== */
 
 @layer panel {
@@ -749,7 +739,7 @@
         position: fixed;
         inset: 0;
         z-index: 48;
-        background: oklch(18.8% 0.019 164.4 / 0.66);
+        background: oklch(6% 0.02 292 / 0.7);
         opacity: 0;
         visibility: hidden;
         transition: opacity var(--duration-base) var(--ease);
@@ -776,14 +766,14 @@
         overscroll-behavior: contain;
         transform: translateX(100%);
         transition: transform 0.42s var(--ease);
-        box-shadow: -30px 0 70px -30px oklch(0% 0 0 / 0.55);
+        box-shadow: -30px 0 70px -30px oklch(0% 0 0 / 0.65);
 
         &.active {
             transform: translateX(0);
         }
 
         :is(.field-label) {
-            color: var(--ochre-deep);
+            color: var(--ochre);
         }
 
         :is(input, select, textarea) {
@@ -791,7 +781,7 @@
             border-block-end-color: var(--ink-hair);
 
             &::placeholder {
-                color: color-mix(in oklch, var(--ink) 36%, transparent);
+                color: color-mix(in oklch, var(--ink) 40%, transparent);
             }
 
             &:hover {
@@ -810,8 +800,8 @@
         }
 
         select {
-            background-image: linear-gradient(45deg, transparent 50%, var(--ochre-deep) 50%),
-                linear-gradient(135deg, var(--ochre-deep) 50%, transparent 50%);
+            background-image: linear-gradient(45deg, transparent 50%, var(--ochre) 50%),
+                linear-gradient(135deg, var(--ochre) 50%, transparent 50%);
         }
     }
 
@@ -822,7 +812,7 @@
         gap: var(--space-sm);
         padding-block-end: var(--space-sm);
         margin-block-end: 6px;
-        border-block-end: 1.5px dashed var(--ink-hair);
+        border-block-end: 1.5px solid var(--ink-hair);
     }
 
     .ai-badge {
@@ -834,15 +824,15 @@
         font-weight: 700;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--paper);
-        background: var(--ink);
+        color: var(--board-deep);
+        background: linear-gradient(135deg, var(--ochre), var(--ochre-deep));
         border-radius: var(--radius-pill);
     }
 
     .tool-header h3 {
         font-size: var(--step-panel-title);
-        font-style: italic;
-        font-weight: 500;
+        font-style: normal;
+        font-weight: 600;
         line-height: 1.18;
         color: var(--ink);
     }
@@ -876,9 +866,9 @@
 
         &:hover, &:focus-visible {
             transform: rotate(90deg);
-            border-color: var(--ink);
-            background: var(--ink);
-            color: var(--paper);
+            border-color: var(--ochre);
+            background: var(--ochre);
+            color: var(--board-deep);
         }
     }
 
@@ -897,7 +887,7 @@
         display: none;
     }
 
-    /* o botão de dentro do caderno é carimbo de tinta, não giz */
+    /* botão de dentro do painel — sólido, gradiente violeta */
     .btn-ink {
         display: inline-flex;
         align-items: center;
@@ -906,19 +896,19 @@
         width: 100%;
         margin-block-start: var(--space-sm);
         padding: 14px 22px;
-        background: var(--ink);
-        color: var(--paper);
-        border: 1px solid var(--ink);
+        background: linear-gradient(135deg, var(--ochre), var(--ochre-deep));
+        color: var(--board-deep);
+        border: 1px solid transparent;
         border-radius: var(--radius-sm);
         font-family: var(--font-mono);
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        transition: background var(--duration-base) var(--ease), transform var(--duration-base) var(--ease);
+        transition: filter var(--duration-base) var(--ease), transform var(--duration-base) var(--ease);
 
         &:hover, &:focus-visible {
-            background: var(--coral);
+            filter: brightness(1.12);
             transform: translateY(-1px);
         }
 
@@ -933,6 +923,7 @@
         padding: 20px 22px;
         background: var(--ink-wash);
         border-inline-start: 2px solid var(--coral);
+        border-radius: var(--radius-sm);
 
         strong {
             display: block;
@@ -942,7 +933,7 @@
             font-weight: 700;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: var(--ochre-deep);
+            color: var(--ochre);
         }
 
         p {
@@ -961,9 +952,110 @@
 }
 
 /* =====================================================================
+   10b. BANNER DE COOKIES — mesmo vidro escuro dos painéis
+   ===================================================================== */
+
+@layer panel {
+    .cookie-banner {
+        position: fixed;
+        inset-block-end: 24px;
+        inset-inline: 0;
+        z-index: 60;
+        display: flex;
+        justify-content: center;
+        padding-inline: 20px;
+    }
+
+    .cookie-content {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        max-width: 760px;
+        width: 100%;
+        padding: 20px 24px;
+        background: color-mix(in oklch, var(--board-2) 88%, transparent);
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in oklch, var(--ochre) 22%, transparent);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-deep);
+    }
+
+    .cookie-icon {
+        flex-shrink: 0;
+        font-size: 22px;
+    }
+
+    .cookie-text h3 {
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--chalk);
+        margin-block-end: 6px;
+    }
+
+    .cookie-text p {
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--chalk-dim);
+        max-width: 46ch;
+    }
+
+    .cookie-link {
+        display: inline-block;
+        margin-block-start: 6px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ochre);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .cookie-actions {
+        display: flex;
+        flex-shrink: 0;
+        gap: 8px;
+    }
+
+    .cookie-btn {
+        padding: 9px 16px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--chalk-faint);
+        color: var(--chalk);
+        white-space: nowrap;
+        transition: background var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
+
+        &:hover {
+            border-color: var(--ochre);
+        }
+    }
+
+    .cookie-btn-accept {
+        background: linear-gradient(135deg, var(--ochre), var(--ochre-deep));
+        border-color: transparent;
+        color: var(--board-deep);
+    }
+
+    @media (max-width: 640px) {
+        .cookie-content {
+            flex-wrap: wrap;
+        }
+
+        .cookie-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+}
+
+/* =====================================================================
    11. MICROINTERAÇÕES DE ENTRADA
-   Um único momento orquestrado na carga da página — o quadro é montado
-   em sequência, como uma aula que começa. Nada mais se move sozinho.
    ===================================================================== */
 
 @layer motion {
@@ -1000,9 +1092,6 @@
 
 /* =====================================================================
    12. RESPONSIVO
-   Breakpoints de viewport para o que depende da janela inteira
-   (posição do botão fixo, padding do container); o que depende do
-   próprio componente já usa @container acima.
    ===================================================================== */
 
 @layer layout {
