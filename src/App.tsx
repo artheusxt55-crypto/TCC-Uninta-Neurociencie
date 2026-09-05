@@ -1,5 +1,3 @@
-import "./styles/neuro-edu.css";
-
 import { useEffect, useRef, useState } from "react";
 
 import * as THREE from "three";
@@ -28,6 +26,84 @@ type Resultados = {
 const MODEL_URL =
     "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
 
+/* =========================================================================
+ * ÍCONES — traço fino, um por módulo. Nada de biblioteca nova: SVG inline.
+ * ========================================================================= */
+
+function IconCube({ className }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+            <path d="M12 3 L20.5 7.5 V16.5 L12 21 L3.5 16.5 V7.5 Z" />
+            <path d="M3.5 7.5 L12 12 L20.5 7.5" />
+            <path d="M12 12 V21" />
+        </svg>
+    );
+}
+
+function IconDiagnostico() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M15.5 15.5 L21 21" />
+        </svg>
+    );
+}
+
+function IconBncc() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <path d="M4 5.5 C6.5 4.2 9 4.2 12 5.5 C15 4.2 17.5 4.2 20 5.5 V18.5 C17.5 17.2 15 17.2 12 18.5 C9 17.2 6.5 17.2 4 18.5 Z" />
+            <path d="M12 5.5 V18.5" />
+        </svg>
+    );
+}
+
+function IconPlanejamento() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="1" />
+            <path d="M8 9 H16 M8 13 H16 M8 17 H12.5" />
+        </svg>
+    );
+}
+
+function IconIntervencao() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <circle cx="12" cy="12" r="3.2" />
+            <path d="M12 2.5 V5 M12 19 V21.5" />
+        </svg>
+    );
+}
+
+function IconMenu() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+            <path d="M4 7 H20 M4 12 H20 M4 17 H20" />
+        </svg>
+    );
+}
+
+function IconClose() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+            <path d="M5 5 L19 19 M19 5 L5 19" />
+        </svg>
+    );
+}
+
+function IconCookie() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" />
+            <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none" />
+            <circle cx="14" cy="9" r="1" fill="currentColor" stroke="none" />
+            <circle cx="13" cy="14.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+    );
+}
+
 function App() {
     const brainViewportRef =
         useRef<HTMLDivElement | null>(null);
@@ -46,6 +122,9 @@ function App() {
 
     const [activeModule, setActiveModule] =
         useState<ModuleName>(null);
+
+    const [menuAberto, setMenuAberto] =
+        useState(false);
 
     const [idInput, setIdInput] =
         useState("");
@@ -309,6 +388,7 @@ function App() {
         ) => {
             if (event.key === "Escape") {
                 closeModule();
+                setMenuAberto(false);
             }
         };
 
@@ -337,7 +417,7 @@ function App() {
         const scene = new THREE.Scene();
 
         scene.fog = new THREE.FogExp2(
-            0x0c0a17,
+            0x0c0b10,
             0.045
         );
 
@@ -383,7 +463,7 @@ function App() {
         );
 
         /* =================================================
-         * ILUMINAÇÃO — violeta, coerente com a marca EducaCube
+         * ILUMINAÇÃO — roxo de marca, discreto
          * ================================================= */
 
         const ambientLight =
@@ -410,8 +490,8 @@ function App() {
 
         const violetLight =
             new THREE.PointLight(
-                0x8b5cf6,
-                1.4
+                0x6e458c,
+                1.3
             );
 
         violetLight.position.set(
@@ -422,14 +502,28 @@ function App() {
 
         scene.add(violetLight);
 
+        const brassLight =
+            new THREE.PointLight(
+                0xb8935a,
+                0.35
+            );
+
+        brassLight.position.set(
+            2,
+            -3,
+            -4
+        );
+
+        scene.add(brassLight);
+
         /* =================================================
-         * PARTÍCULAS AMBIENTE — poeira violeta
+         * PARTÍCULAS AMBIENTE — poeira discreta
          * ================================================= */
 
         const partGeo =
             new THREE.BufferGeometry();
 
-        const partCount = 700;
+        const partCount = 500;
 
         const positions =
             new Float32Array(
@@ -456,10 +550,10 @@ function App() {
 
         const partMat =
             new THREE.PointsMaterial({
-                size: 0.022,
-                color: 0x8b5cf6,
+                size: 0.018,
+                color: 0x9b81c4,
                 transparent: true,
-                opacity: 0.32,
+                opacity: 0.22,
             });
 
         const particles =
@@ -895,11 +989,108 @@ function App() {
     };
 
     /* =====================================================
+     * DADOS DOS MÓDULOS — usados para renderizar o fluxo
+     * ===================================================== */
+
+    const modulos: Array<{
+        id: Exclude<ModuleName, null>;
+        numero: string;
+        nome: string;
+        descricao: string;
+        Icone: () => JSX.Element;
+    }> = [
+        {
+            id: "diagnostico",
+            numero: "01",
+            nome: "Diagnóstico",
+            descricao: "Leitura do processo de aprendizagem.",
+            Icone: IconDiagnostico,
+        },
+        {
+            id: "bncc",
+            numero: "02",
+            nome: "BNCC",
+            descricao: "Consulta à base curricular.",
+            Icone: IconBncc,
+        },
+        {
+            id: "planejamento",
+            numero: "03",
+            nome: "Planejamento",
+            descricao: "Construção de planos de aula.",
+            Icone: IconPlanejamento,
+        },
+        {
+            id: "intervencao",
+            numero: "04",
+            nome: "Intervenção",
+            descricao: "Estratégias pedagógicas dirigidas.",
+            Icone: IconIntervencao,
+        },
+    ];
+
+    /* =====================================================
      * JSX
      * ===================================================== */
 
     return (
         <>
+            {/* =================================================
+                CABEÇALHO / NAVEGAÇÃO
+            ================================================= */}
+
+            <header className="site-header">
+
+                <div className="brand-mark">
+                    <IconCube className="brand-glyph" />
+                    <span className="brand-name">EducaCube</span>
+                    <span className="brand-affiliation">UNINTA — Laboratório de Pesquisa</span>
+                </div>
+
+                <nav className="site-nav" aria-label="Navegação principal">
+                    <a href="#inicio">Início</a>
+                    <a href="#ferramentas">Ferramentas</a>
+                    <a href="/biblioteca.html">Biblioteca</a>
+                    <a href="/atlas.html">Mapa da aprendizagem</a>
+                </nav>
+
+                <div className="site-actions">
+                    <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={loginComGoogle}
+                    >
+                        Entrar com Google
+                    </button>
+
+                    <a href="/aluno.html" className="btn-primary">
+                        Área do aluno
+                    </a>
+                </div>
+
+                <button
+                    type="button"
+                    className="nav-toggle"
+                    aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+                    aria-expanded={menuAberto}
+                    onClick={() => setMenuAberto((valor) => !valor)}
+                >
+                    {menuAberto ? <IconClose /> : <IconMenu />}
+                </button>
+
+            </header>
+
+            {menuAberto && (
+                <div className="mobile-menu">
+                    <a href="#inicio" onClick={() => setMenuAberto(false)}>Início</a>
+                    <a href="#ferramentas" onClick={() => setMenuAberto(false)}>Ferramentas</a>
+                    <a href="/biblioteca.html">Biblioteca</a>
+                    <a href="/atlas.html">Mapa da aprendizagem</a>
+                    <button type="button" onClick={loginComGoogle}>Entrar com Google</button>
+                    <a href="/aluno.html">Área do aluno</a>
+                </div>
+            )}
+
             {/* =================================================
                 VÍDEOS
             ================================================= */}
@@ -975,178 +1166,141 @@ function App() {
             <div id="particles-layer" />
 
             {/* =================================================
-                ÁREA DO ALUNO
-            ================================================= */}
-
-            <a
-                href="/aluno.html"
-                className="btn-aluno-fixo"
-            >
-                Área do Aluno
-            </a>
-
-            {/* =================================================
                 CONTEÚDO PRINCIPAL
             ================================================= */}
 
             <main className="main-container">
 
-                <div className="institution-marker">
-                    Laboratório de Pesquisa e Práticas Pedagógicas
-                </div>
-
                 {/* =================================================
                     HERO
                 ================================================= */}
 
-                <section className="hero">
+                <section className="hero" id="inicio">
 
-                    <div className="brand">
+                    <div className="hero-grid">
 
-                        <div className="brand-icon" />
+                        <div className="hero-content">
 
-                        <span>
-                            EducaCube · UNINTA
-                        </span>
+                            <p className="hero-kicker">
+                                Um espaço de trabalho para quem diagnostica, planeja
+                                e intervém na aprendizagem — não um assistente genérico.
+                            </p>
 
-                    </div>
+                            <h1>
+                                O laboratório <em>pedagógico</em> do EducaCube
+                            </h1>
 
-                    <div className="system-status">
+                            <p className="hero-lede">
+                                Quatro instrumentos construídos a partir da prática
+                                docente: leitura do processo de aprendizagem, consulta
+                                curricular, planejamento de aula e desenho de
+                                intervenções — no lugar da prática, não em vez dela.
+                            </p>
 
-                        <span className="system-dot" />
+                            <div className="access-card">
 
-                        Laboratório aberto
+                                <p className="access-card__title">
+                                    ACESSO AO LABORATÓRIO
+                                </p>
 
-                    </div>
+                                <label
+                                    className="field-label"
+                                    htmlFor="idInput"
+                                >
+                                    Identificação
+                                </label>
 
-                    <h2>
-                        Laboratório Pedagógico
-                    </h2>
-
-                    <p className="subtitle">
-                        Um espaço de trabalho para diagnóstico,
-                        planejamento, consulta curricular e
-                        intervenção — construído a partir da
-                        prática docente, não no lugar dela.
-                    </p>
-
-                    <label
-                        className="field-label"
-                        htmlFor="idInput"
-                    >
-                        Identificação
-                    </label>
-
-                    <input
-                        type="text"
-                        id="idInput"
-                        value={idInput}
-                        onChange={(event) =>
-                            setIdInput(
-                                event.target.value
-                            )
-                        }
-                        placeholder="Digite seu ID de acesso"
-                        autoComplete="off"
-                    />
-
-                    <button
-                        className="btn-chalk"
-                        onClick={
-                            validarAcesso
-                        }
-                    >
-                        Entrar no laboratório
-                    </button>
-
-                    <button
-                        type="button"
-                        className="btn-chalk"
-                        onClick={
-                            loginComGoogle
-                        }
-                    >
-                        Continuar com Google
-                    </button>
-
-                    <div className="hero-links">
-
-                        <a
-                            href="/biblioteca.html"
-                            className="chalk-link"
-                        >
-                            Biblioteca digital
-                        </a>
-
-                        <a
-                            href="/atlas.html"
-                            className="chalk-link"
-                        >
-                            Explorar o mapa da aprendizagem
-                        </a>
-
-                    </div>
-
-                </section>
-
-                {/* =================================================
-                    CORUJA
-                ================================================= */}
-
-                <section
-                    id="brain-viewport"
-                    ref={
-                        brainViewportRef
-                    }
-                >
-
-                    <div className="brain-frame">
-
-                        <span className="brain-corner brain-corner--tl" />
-
-                        <span className="brain-corner brain-corner--tr" />
-
-                        <span className="brain-corner brain-corner--bl" />
-
-                        <span className="brain-corner brain-corner--br" />
-
-                        <svg
-                            className="brain-ring"
-                            viewBox="0 0 400 400"
-                            aria-hidden="true"
-                        >
-
-                            <defs>
-
-                                <path
-                                    id="brainRingPath"
-                                    d="M 200,200 m -170,0 a 170,170 0 1,1 340,0 a 170,170 0 1,1 -340,0"
+                                <input
+                                    type="text"
+                                    id="idInput"
+                                    value={idInput}
+                                    onChange={(event) =>
+                                        setIdInput(
+                                            event.target.value
+                                        )
+                                    }
+                                    placeholder="Digite seu ID de acesso"
+                                    autoComplete="off"
                                 />
 
-                            </defs>
-
-                            <text>
-
-                                <textPath
-                                    href="#brainRingPath"
-                                    startOffset="0%"
+                                <button
+                                    className="btn-primary"
+                                    onClick={
+                                        validarAcesso
+                                    }
                                 >
-                                    EDUCACUBE · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
-                                </textPath>
+                                    Entrar no laboratório
+                                </button>
 
-                            </text>
+                                <div className="access-divider">ou</div>
 
-                        </svg>
+                                <button
+                                    type="button"
+                                    className="btn-ghost"
+                                    onClick={
+                                        loginComGoogle
+                                    }
+                                >
+                                    Continuar com Google
+                                </button>
 
-                    </div>
+                            </div>
 
-                    <div className="brain-label">
+                            <div className="hero-links">
 
-                        Guardiã do laboratório
+                                <a
+                                    href="/biblioteca.html"
+                                    className="chalk-link"
+                                >
+                                    Biblioteca digital
+                                </a>
 
-                        <strong>
-                            A coruja do EducaCube
-                        </strong>
+                                <a
+                                    href="/atlas.html"
+                                    className="chalk-link"
+                                >
+                                    Explorar o mapa da aprendizagem
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        {/* =================================================
+                            CORUJA
+                        ================================================= */}
+
+                        <section
+                            id="brain-viewport"
+                            ref={
+                                brainViewportRef
+                            }
+                            aria-label="Modelo tridimensional da coruja do EducaCube"
+                        >
+
+                            <div className="brain-frame">
+
+                                <span className="brain-corner brain-corner--tl" />
+
+                                <span className="brain-corner brain-corner--tr" />
+
+                                <span className="brain-corner brain-corner--bl" />
+
+                                <span className="brain-corner brain-corner--br" />
+
+                            </div>
+
+                            <div className="brain-label">
+
+                                <span>Guardiã do laboratório</span>
+
+                                <strong>
+                                    A coruja do EducaCube
+                                </strong>
+
+                            </div>
+
+                        </section>
 
                     </div>
 
@@ -1160,13 +1314,13 @@ function App() {
 
                     <div className="transform-header">
 
-                        <span>
-                            EDUCACUBE · VISUALIZAÇÃO
-                        </span>
-
                         <strong>
                             Conhecimento em movimento
                         </strong>
+
+                        <span>
+                            EducaCube
+                        </span>
 
                     </div>
 
@@ -1179,7 +1333,7 @@ function App() {
                                 "NEUROEDUCAÇÃO",
                                 "SABEDORIA",
                             ]}
-                            color="#8b5cf6"
+                            color="#7c5cab"
                             particleCount={900}
                         />
 
@@ -1188,91 +1342,47 @@ function App() {
                 </section>
 
                 {/* =================================================
-                    MÓDULOS
+                    MÓDULOS — FLUXO DE TRABALHO
                 ================================================= */}
 
-                <nav
-                    className="chalk-tray"
-                    aria-label="Módulos do laboratório"
-                >
+                <section className="workspace-section" id="ferramentas">
 
-                    <button
-                        type="button"
-                        className="tray-item"
-                        title="Leitura do processo de aprendizagem."
-                        onClick={() =>
-                            openModule(
-                                "diagnostico"
-                            )
-                        }
+                    <div className="workspace-header">
+                        <h2>Um fluxo, quatro instrumentos</h2>
+                        <p>
+                            Da leitura do processo de aprendizagem até a intervenção —
+                            cada módulo assume o trabalho na etapa em que o anterior termina.
+                        </p>
+                    </div>
+
+                    <nav
+                        className="chalk-tray"
+                        aria-label="Módulos do laboratório"
                     >
-                        <span className="tray-index">
-                            I
-                        </span>
 
-                        <span className="tray-name">
-                            Diagnóstico
-                        </span>
-                    </button>
+                        {modulos.map(({ id, numero, nome, descricao, Icone }) => (
+                            <button
+                                key={id}
+                                type="button"
+                                className="tray-item"
+                                onClick={() => openModule(id)}
+                            >
+                                <div className="tray-top">
+                                    <span className="tray-index">{numero}</span>
+                                    <span className="tray-icon">
+                                        <Icone />
+                                    </span>
+                                </div>
 
-                    <button
-                        type="button"
-                        className="tray-item"
-                        title="Consulta à base curricular."
-                        onClick={() =>
-                            openModule(
-                                "bncc"
-                            )
-                        }
-                    >
-                        <span className="tray-index">
-                            II
-                        </span>
+                                <span className="tray-name">{nome}</span>
+                                <span className="tray-desc">{descricao}</span>
+                                <span className="tray-cta">Abrir módulo</span>
+                            </button>
+                        ))}
 
-                        <span className="tray-name">
-                            BNCC
-                        </span>
-                    </button>
+                    </nav>
 
-                    <button
-                        type="button"
-                        className="tray-item"
-                        title="Construção de planos de aula."
-                        onClick={() =>
-                            openModule(
-                                "planejamento"
-                            )
-                        }
-                    >
-                        <span className="tray-index">
-                            III
-                        </span>
-
-                        <span className="tray-name">
-                            Planejamento
-                        </span>
-                    </button>
-
-                    <button
-                        type="button"
-                        className="tray-item"
-                        title="Estratégias pedagógicas dirigidas."
-                        onClick={() =>
-                            openModule(
-                                "intervencao"
-                            )
-                        }
-                    >
-                        <span className="tray-index">
-                            IV
-                        </span>
-
-                        <span className="tray-name">
-                            Intervenção
-                        </span>
-                    </button>
-
-                </nav>
+                </section>
 
             </main>
 
@@ -1308,9 +1418,9 @@ function App() {
 
                     <div>
 
-                        <span className="ai-badge">
-                            Módulo I
-                        </span>
+                        <p className="module-eyebrow">
+                            Módulo 01
+                        </p>
 
                         <h3>
                             Diagnóstico da Aprendizagem
@@ -1467,9 +1577,9 @@ function App() {
 
                     <div>
 
-                        <span className="ai-badge">
-                            Módulo II
-                        </span>
+                        <p className="module-eyebrow">
+                            Módulo 02
+                        </p>
 
                         <h3>
                             Consulta Curricular
@@ -1589,9 +1699,9 @@ function App() {
 
                     <div>
 
-                        <span className="ai-badge">
-                            Módulo III
-                        </span>
+                        <p className="module-eyebrow">
+                            Módulo 03
+                        </p>
 
                         <h3>
                             Planejamento Pedagógico
@@ -1726,9 +1836,9 @@ function App() {
 
                     <div>
 
-                        <span className="ai-badge">
-                            Módulo IV
-                        </span>
+                        <p className="module-eyebrow">
+                            Módulo 04
+                        </p>
 
                         <h3>
                             Intervenção Pedagógica
@@ -1832,7 +1942,7 @@ function App() {
                     <div className="cookie-content">
 
                         <div className="cookie-icon">
-                            🍪
+                            <IconCookie />
                         </div>
 
                         <div className="cookie-text">
@@ -1862,7 +1972,7 @@ function App() {
 
                             <button
                                 type="button"
-                                className="cookie-btn cookie-btn-reject"
+                                className="cookie-btn"
                                 onClick={() =>
                                     salvarConsentimento(
                                         "recusado"
@@ -1874,7 +1984,7 @@ function App() {
 
                             <button
                                 type="button"
-                                className="cookie-btn cookie-btn-config"
+                                className="cookie-btn"
                                 onClick={
                                     abrirConfiguracoesCookies
                                 }
