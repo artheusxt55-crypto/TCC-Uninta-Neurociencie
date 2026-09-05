@@ -73,7 +73,9 @@
    ===================================================================== */
 
 @layer reset {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         box-sizing: border-box;
         min-width: 0;
     }
@@ -94,7 +96,10 @@
         -webkit-font-smoothing: antialiased;
     }
 
-    h1, h2, h3, h4 {
+    h1,
+    h2,
+    h3,
+    h4 {
         font-family: var(--font-display);
         font-weight: 600;
         margin: 0;
@@ -141,7 +146,9 @@
             scroll-behavior: auto;
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             animation-duration: 0.001ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.001ms !important;
@@ -678,14 +685,9 @@
             );
     }
 
-    /*
-     * ================================================================
-     * LOGO MOBILE
-     * ================================================================
-     *
-     * A logo só ocupa o espaço reservado à coruja.
-     * Não cria uma nova altura/largura para a página.
-     */
+    /* ================================================================
+       LOGO MOBILE
+       ================================================================ */
 
     .owl-mobile-image {
         display: block;
@@ -693,7 +695,7 @@
         height: 100%;
         object-fit: contain;
         object-position: center;
-        padding: 55px;
+        padding: 0;
         margin: 0;
     }
 
@@ -1336,6 +1338,10 @@
         }
     }
 
+    /* ================================================================
+       MOBILE
+       ================================================================ */
+
     @media (max-width: 760px) {
         .site-nav {
             display: none;
@@ -1385,11 +1391,9 @@
             max-width: none;
         }
 
-        /*
-         * ============================================================
-         * MOBILE — ESPAÇO DA CORUJA
-         * ============================================================
-         */
+        /* ============================================================
+           MOBILE — ESPAÇO DA CORUJA
+           ============================================================ */
 
         .brain-frame {
             width: min(100%, 320px);
@@ -1399,11 +1403,16 @@
         .owl-mobile-image {
             width: 100%;
             height: 100%;
-            padding: 55px;
+            padding: 0;
             object-fit: contain;
             object-position: center;
+            display: block;
         }
     }
+
+    /* ================================================================
+       CELULARES MENORES
+       ================================================================ */
 
     @media (max-width: 640px) {
         .chalk-tray {
@@ -1419,11 +1428,6 @@
             padding-inline: 20px;
         }
 
-        /*
-         * Em celulares menores, reduzimos o espaço da coruja,
-         * mas a logo continua presa dentro dele.
-         */
-
         #brain-viewport {
             min-height: 320px;
             padding: var(--space-sm);
@@ -1437,11 +1441,16 @@
         .owl-mobile-image {
             width: 100%;
             height: 100%;
-            padding: 48px;
+            padding: 0;
             object-fit: contain;
             object-position: center;
+            display: block;
         }
     }
+
+    /* ================================================================
+       TELAS MUITO PEQUENAS
+       ================================================================ */
 
     @media (max-width: 400px) {
         #brain-viewport {
@@ -1450,10 +1459,16 @@
 
         .brain-frame {
             width: min(100%, 260px);
+            aspect-ratio: 1 / 1;
         }
 
         .owl-mobile-image {
-            padding: 42px;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            object-fit: contain;
+            object-position: center;
+            display: block;
         }
     }
 }
