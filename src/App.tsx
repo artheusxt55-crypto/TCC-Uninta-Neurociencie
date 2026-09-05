@@ -325,7 +325,7 @@ function App() {
     }, []);
 
     /* =====================================================
-     * THREE.JS — CORUJA DE ATENA
+     * THREE.JS — CORUJA DO CUBO (EducaCube)
      * ===================================================== */
 
     useEffect(() => {
@@ -337,7 +337,7 @@ function App() {
         const scene = new THREE.Scene();
 
         scene.fog = new THREE.FogExp2(
-            0x090614,
+            0x0c0a17,
             0.045
         );
 
@@ -383,13 +383,13 @@ function App() {
         );
 
         /* =================================================
-         * ILUMINAÇÃO
+         * ILUMINAÇÃO — violeta, coerente com a marca EducaCube
          * ================================================= */
 
         const ambientLight =
             new THREE.AmbientLight(
                 0xffffff,
-                0.8
+                0.75
             );
 
         scene.add(ambientLight);
@@ -397,7 +397,7 @@ function App() {
         const mainLight =
             new THREE.PointLight(
                 0xffffff,
-                1.8
+                1.7
             );
 
         mainLight.position.set(
@@ -408,22 +408,22 @@ function App() {
 
         scene.add(mainLight);
 
-        const brassLight =
+        const violetLight =
             new THREE.PointLight(
-                0xc4a265,
-                0.9
+                0x8b5cf6,
+                1.4
             );
 
-        brassLight.position.set(
+        violetLight.position.set(
             -5,
             -2,
             5
         );
 
-        scene.add(brassLight);
+        scene.add(violetLight);
 
         /* =================================================
-         * PARTÍCULAS AMBIENTE
+         * PARTÍCULAS AMBIENTE — poeira violeta
          * ================================================= */
 
         const partGeo =
@@ -457,9 +457,9 @@ function App() {
         const partMat =
             new THREE.PointsMaterial({
                 size: 0.022,
-                color: 0xc4a265,
+                color: 0x8b5cf6,
                 transparent: true,
-                opacity: 0.28,
+                opacity: 0.32,
             });
 
         const particles =
@@ -1006,7 +1006,7 @@ function App() {
                         <div className="brand-icon" />
 
                         <span>
-                            Neuro-Educa · UNINTA
+                            EducaCube · UNINTA
                         </span>
 
                     </div>
@@ -1131,7 +1131,7 @@ function App() {
                                     href="#brainRingPath"
                                     startOffset="0%"
                                 >
-                                    NEURO-EDUCA · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
+                                    EDUCACUBE · LABORATÓRIO PEDAGÓGICO · UNINTA · SABEDORIA APLICADA ·
                                 </textPath>
 
                             </text>
@@ -1145,7 +1145,7 @@ function App() {
                         Guardiã do laboratório
 
                         <strong>
-                            A coruja de Atena
+                            A coruja do EducaCube
                         </strong>
 
                     </div>
@@ -1161,7 +1161,7 @@ function App() {
                     <div className="transform-header">
 
                         <span>
-                            NEURO-EDU · VISUALIZAÇÃO
+                            EDUCACUBE · VISUALIZAÇÃO
                         </span>
 
                         <strong>
@@ -1179,7 +1179,7 @@ function App() {
                                 "NEUROEDUCAÇÃO",
                                 "SABEDORIA",
                             ]}
-                            color="#c4a265"
+                            color="#8b5cf6"
                             particleCount={900}
                         />
 
