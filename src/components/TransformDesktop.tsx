@@ -1,0 +1,10 @@
+<TransformParticles
+    words={[
+        "PEDAGOGIA",
+        "APRENDIZAGEM",
+        "NEUROEDUCAÇÃO",
+        "SABEDORIA",
+    ]}
+    color="#7c5cab"
+    particleCount={900}
+/>
