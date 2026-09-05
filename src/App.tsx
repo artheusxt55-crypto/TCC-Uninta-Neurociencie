@@ -1,4 +1,3 @@
-
 import "./styles/neuro-edu.css";
 
 import { useEffect, useRef, useState } from "react";
@@ -7,7 +6,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import TransformParticles from "./components/TransformParticles";
-import { supabase } from "./lib/supabase";
+import { auth, googleProvider } from "./lib/firebase";
+import { signInWithPopup } from "firebase/auth";
 
 type VideoIndex = 0 | 1 | 2;
 
@@ -124,20 +124,34 @@ function App() {
     };
 
     /* =====================================================
-     * LOGIN GOOGLE
+     * LOGIN GOOGLE — FIREBASE
      * ===================================================== */
 
     const loginComGoogle = async () => {
-        const { error } =
-            await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo:
-                        window.location.origin,
-                },
-            });
+        try {
+            const result = await signInWithPopup(
+                auth,
+                googleProvider
+            );
 
-        if (error) {
+            const user = result.user;
+
+            console.log(
+                "Login Firebase realizado:",
+                {
+                    uid: user.uid,
+                    nome: user.displayName,
+                    email: user.email,
+                }
+            );
+
+            alert(
+                `Bem-vindo, ${
+                    user.displayName || "usuário"
+                }!`
+            );
+
+        } catch (error) {
             console.error(
                 "Erro no login com Google:",
                 error
@@ -1892,4 +1906,3 @@ function App() {
 }
 
 export default App;
-
