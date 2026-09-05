@@ -6,15 +6,22 @@ import {
     useState,
 } from "react";
 
-import TransformParticles from "./components/TransformParticles";
-
 import { auth, googleProvider } from "./lib/firebase";
 import { signInWithPopup } from "firebase/auth";
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
+/* =========================================================
+ * COMPONENTES PESADOS
+ * Só são carregados quando realmente necessários.
+ * ========================================================= */
+
 const OwlShowcase = lazy(
     () => import("./components/OwlShowcase")
+);
+
+const TransformDesktop = lazy(
+    () => import("./components/TransformDesktop")
 );
 
 type VideoIndex = 0 | 1 | 2;
@@ -33,9 +40,9 @@ type Resultados = {
     intervencao?: string;
 };
 
-/* =========================================================================
+/* =========================================================
  * ÍCONES
- * ========================================================================= */
+ * ========================================================= */
 
 function IconCube({ className }: { className?: string }) {
     return (
@@ -153,12 +160,34 @@ function IconCookie() {
             aria-hidden="true"
         >
             <circle cx="12" cy="12" r="8.5" />
-            <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none" />
-            <circle cx="14" cy="9" r="1" fill="currentColor" stroke="none" />
-            <circle cx="13" cy="14.5" r="1" fill="currentColor" stroke="none" />
+            <circle
+                cx="9"
+                cy="10"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+            />
+            <circle
+                cx="14"
+                cy="9"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+            />
+            <circle
+                cx="13"
+                cy="14.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+            />
         </svg>
     );
 }
+
+/* =========================================================
+ * APP
+ * ========================================================= */
 
 function App() {
 
@@ -234,6 +263,7 @@ function App() {
      * ===================================================== */
 
     useEffect(() => {
+
         const consentimento =
             localStorage.getItem(
                 "educacube_cookie_consent"
@@ -242,11 +272,13 @@ function App() {
         if (!consentimento) {
             setShowCookieBanner(true);
         }
+
     }, []);
 
     const salvarConsentimento = (
         escolha: "aceito" | "recusado"
     ) => {
+
         localStorage.setItem(
             "educacube_cookie_consent",
             escolha
@@ -262,8 +294,10 @@ function App() {
     };
 
     const abrirConfiguracoesCookies = () => {
+
         window.location.href =
             "/cookies.html";
+
     };
 
     /* =====================================================
@@ -271,13 +305,17 @@ function App() {
      * ===================================================== */
 
     const loginComGoogle = async () => {
-        try {
-            const result = await signInWithPopup(
-                auth,
-                googleProvider
-            );
 
-            const user = result.user;
+        try {
+
+            const result =
+                await signInWithPopup(
+                    auth,
+                    googleProvider
+                );
+
+            const user =
+                result.user;
 
             console.log(
                 "Login Firebase realizado:",
@@ -295,6 +333,7 @@ function App() {
             );
 
         } catch (error) {
+
             console.error(
                 "Erro no login com Google:",
                 error
@@ -303,7 +342,9 @@ function App() {
             alert(
                 "Não foi possível entrar com Google."
             );
+
         }
+
     };
 
     /* =====================================================
@@ -313,11 +354,15 @@ function App() {
     const openModule = (
         name: Exclude<ModuleName, null>
     ) => {
+
         setActiveModule(name);
+
     };
 
     const closeModule = () => {
+
         setActiveModule(null);
+
     };
 
     /* =====================================================
@@ -327,11 +372,17 @@ function App() {
     useEffect(() => {
 
         /*
-         * Por enquanto o sistema continua igual.
+         * No modo reduzido/mobile não existem vídeos
+         * carregados neste componente no futuro.
          *
-         * Na próxima etapa vamos fazer com que os vídeos
-         * nem sejam carregados no celular.
+         * Por enquanto esta proteção evita qualquer
+         * processamento desnecessário caso não existam
+         * elementos <video>.
          */
+
+        if (!isFull) {
+            return;
+        }
 
         const videos =
             videosRef.current.filter(
@@ -341,124 +392,155 @@ function App() {
                     video !== null
             );
 
-        if (!videos.length) return;
+        if (!videos.length) {
+            return;
+        }
 
         videos.forEach((video, index) => {
+
             video.muted = true;
             video.playsInline = true;
             video.preload = "auto";
             video.loop = index === 2;
+
         });
 
-        const firstVideo = videos[0];
+        const firstVideo =
+            videos[0];
 
         firstVideo.currentTime = 0;
 
-        firstVideo.play().catch(() => {
-            console.warn(
-                "O navegador bloqueou o autoplay."
-            );
-        });
+        firstVideo
+            .play()
+            .catch(() => {
 
-        const cleanups: Array<() => void> = [];
+                console.warn(
+                    "O navegador bloqueou o autoplay."
+                );
 
-        videos.forEach((video, index) => {
+            });
 
-            const handleEnded = () => {
+        const cleanups:
+            Array<() => void> = [];
 
-                if (index === 2) return;
+        videos.forEach(
+            (video, index) => {
 
-                if (
-                    index !== currentVideo
-                ) {
-                    return;
-                }
+                const handleEnded =
+                    () => {
 
-                if (
-                    transitioningRef.current
-                ) {
-                    return;
-                }
+                        if (index === 2) {
+                            return;
+                        }
 
-                const nextIndex =
-                    (index + 1) as VideoIndex;
+                        if (
+                            index !==
+                            currentVideo
+                        ) {
+                            return;
+                        }
 
-                const nextVideo =
-                    videos[nextIndex];
+                        if (
+                            transitioningRef.current
+                        ) {
+                            return;
+                        }
 
-                if (!nextVideo) return;
+                        const nextIndex =
+                            (index + 1) as VideoIndex;
 
-                transitioningRef.current =
-                    true;
+                        const nextVideo =
+                            videos[nextIndex];
 
-                nextVideo.currentTime = 0;
+                        if (!nextVideo) {
+                            return;
+                        }
 
-                nextVideo
-                    .play()
-                    .then(() => {
+                        transitioningRef.current =
+                            true;
 
-                        nextVideo.classList.add(
-                            "active"
-                        );
+                        nextVideo.currentTime =
+                            0;
 
-                        transitionTimeoutRef.current =
-                            window.setTimeout(() => {
+                        nextVideo
+                            .play()
+                            .then(() => {
 
-                                video.classList.remove(
+                                nextVideo.classList.add(
                                     "active"
                                 );
 
-                                video.pause();
-                                video.currentTime = 0;
+                                transitionTimeoutRef.current =
+                                    window.setTimeout(
+                                        () => {
 
-                                setCurrentVideo(
-                                    nextIndex
-                                );
+                                            video.classList.remove(
+                                                "active"
+                                            );
+
+                                            video.pause();
+
+                                            video.currentTime =
+                                                0;
+
+                                            setCurrentVideo(
+                                                nextIndex
+                                            );
+
+                                            transitioningRef.current =
+                                                false;
+
+                                        },
+                                        1400
+                                    );
+
+                            })
+                            .catch(() => {
 
                                 transitioningRef.current =
                                     false;
 
-                            }, 1400);
+                            });
 
-                    })
-                    .catch(() => {
+                    };
 
-                        transitioningRef.current =
-                            false;
-
-                    });
-            };
-
-            video.addEventListener(
-                "ended",
-                handleEnded
-            );
-
-            cleanups.push(() =>
-                video.removeEventListener(
+                video.addEventListener(
                     "ended",
                     handleEnded
-                )
-            );
-        });
+                );
+
+                cleanups.push(
+                    () =>
+                        video.removeEventListener(
+                            "ended",
+                            handleEnded
+                        )
+                );
+
+            }
+        );
 
         return () => {
 
             cleanups.forEach(
-                (cleanup) => cleanup()
+                (cleanup) =>
+                    cleanup()
             );
 
             if (
                 transitionTimeoutRef.current !==
                 null
             ) {
+
                 window.clearTimeout(
                     transitionTimeoutRef.current
                 );
+
             }
+
         };
 
-    }, [currentVideo]);
+    }, [currentVideo, isFull]);
 
     /* =====================================================
      * TECLA ESC
@@ -466,16 +548,21 @@ function App() {
 
     useEffect(() => {
 
-        const handleKeyDown = (
-            event: KeyboardEvent
-        ) => {
+        const handleKeyDown =
+            (event: KeyboardEvent) => {
 
-            if (event.key === "Escape") {
-                closeModule();
-                setMenuAberto(false);
-            }
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
 
-        };
+                    closeModule();
+
+                    setMenuAberto(false);
+
+                }
+
+            };
 
         document.addEventListener(
             "keydown",
@@ -514,6 +601,7 @@ function App() {
                     "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
             })
         );
+
     };
 
     /* =====================================================
@@ -540,6 +628,7 @@ function App() {
                     "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
             })
         );
+
     };
 
     /* =====================================================
@@ -567,6 +656,7 @@ function App() {
                     "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
             })
         );
+
     };
 
     /* =====================================================
@@ -593,6 +683,7 @@ function App() {
                     "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
             })
         );
+
     };
 
     /* =====================================================
@@ -620,6 +711,7 @@ function App() {
         alert(
             "ID de acesso inválido."
         );
+
     };
 
     /* =====================================================
@@ -687,7 +779,9 @@ function App() {
 
                 <div className="brand-mark">
 
-                    <IconCube className="brand-glyph" />
+                    <IconCube
+                        className="brand-glyph"
+                    />
 
                     <span className="brand-name">
                         EducaCube
@@ -727,7 +821,9 @@ function App() {
                     <button
                         type="button"
                         className="btn-ghost"
-                        onClick={loginComGoogle}
+                        onClick={
+                            loginComGoogle
+                        }
                     >
                         Entrar com Google
                     </button>
@@ -749,17 +845,22 @@ function App() {
                             ? "Fechar menu"
                             : "Abrir menu"
                     }
-                    aria-expanded={menuAberto}
+                    aria-expanded={
+                        menuAberto
+                    }
                     onClick={() =>
                         setMenuAberto(
-                            (valor) => !valor
+                            (valor) =>
+                                !valor
                         )
                     }
                 >
+
                     {menuAberto
                         ? <IconClose />
                         : <IconMenu />
                     }
+
                 </button>
 
             </header>
@@ -774,7 +875,9 @@ function App() {
                     <a
                         href="#inicio"
                         onClick={() =>
-                            setMenuAberto(false)
+                            setMenuAberto(
+                                false
+                            )
                         }
                     >
                         Início
@@ -783,7 +886,9 @@ function App() {
                     <a
                         href="#ferramentas"
                         onClick={() =>
-                            setMenuAberto(false)
+                            setMenuAberto(
+                                false
+                            )
                         }
                     >
                         Ferramentas
@@ -799,7 +904,9 @@ function App() {
 
                     <button
                         type="button"
-                        onClick={loginComGoogle}
+                        onClick={
+                            loginComGoogle
+                        }
                     >
                         Entrar com Google
                     </button>
@@ -813,63 +920,66 @@ function App() {
 
             {/* =================================================
                 VÍDEOS
+                SOMENTE DESKTOP FULL
             ================================================= */}
 
-            <div className="video-background">
+            {isFull && (
+                <div className="video-background">
 
-                <video
-                    ref={(element) => {
-                        videosRef.current[0] =
-                            element;
-                    }}
-                    id="video1"
-                    className={`bg-video ${
-                        currentVideo === 0
-                            ? "active"
-                            : ""
-                    }`}
-                    src="/athenaslivro.mp4"
-                    muted
-                    playsInline
-                    preload="auto"
-                />
+                    <video
+                        ref={(element) => {
+                            videosRef.current[0] =
+                                element;
+                        }}
+                        id="video1"
+                        className={`bg-video ${
+                            currentVideo === 0
+                                ? "active"
+                                : ""
+                        }`}
+                        src="/athenaslivro.mp4"
+                        muted
+                        playsInline
+                        preload="auto"
+                    />
 
-                <video
-                    ref={(element) => {
-                        videosRef.current[1] =
-                            element;
-                    }}
-                    id="video2"
-                    className={`bg-video ${
-                        currentVideo === 1
-                            ? "active"
-                            : ""
-                    }`}
-                    src="/maos%20mexendo.mp4"
-                    muted
-                    playsInline
-                    preload="auto"
-                />
+                    <video
+                        ref={(element) => {
+                            videosRef.current[1] =
+                                element;
+                        }}
+                        id="video2"
+                        className={`bg-video ${
+                            currentVideo === 1
+                                ? "active"
+                                : ""
+                        }`}
+                        src="/maos%20mexendo.mp4"
+                        muted
+                        playsInline
+                        preload="metadata"
+                    />
 
-                <video
-                    ref={(element) => {
-                        videosRef.current[2] =
-                            element;
-                    }}
-                    id="video3"
-                    className={`bg-video ${
-                        currentVideo === 2
-                            ? "active"
-                            : ""
-                    }`}
-                    src="/cubo.mp4"
-                    muted
-                    playsInline
-                    preload="auto"
-                    loop
-                />
+                    <video
+                        ref={(element) => {
+                            videosRef.current[2] =
+                                element;
+                        }}
+                        id="video3"
+                        className={`bg-video ${
+                            currentVideo === 2
+                                ? "active"
+                                : ""
+                        }`}
+                        src="/cubo.mp4"
+                        muted
+                        playsInline
+                        preload="metadata"
+                        loop
+                    />
 
-            </div>
+                </div>
+            )}
 
             {/* =================================================
                 CAMADAS
@@ -877,15 +987,17 @@ function App() {
 
             <div className="video-overlay" />
 
-            <div className="video-purple-glow" />
+            {isFull && (
+                <>
+                    <div className="video-purple-glow" />
 
-            <div className="architectural-grid" />
+                    <div className="architectural-grid" />
 
-            <div className="side-line" />
+                    <div className="side-line" />
 
-            <div className="grain" />
-
-            <div id="particles-layer" />
+                    <div className="grain" />
+                </>
+            )}
 
             {/* =================================================
                 CONTEÚDO PRINCIPAL
@@ -945,7 +1057,9 @@ function App() {
                                     type="text"
                                     id="idInput"
                                     value={idInput}
-                                    onChange={(event) =>
+                                    onChange={(
+                                        event
+                                    ) =>
                                         setIdInput(
                                             event.target.value
                                         )
@@ -1018,6 +1132,10 @@ function App() {
 
                                 <span className="brain-corner brain-corner--br" />
 
+                                {/* ==============================
+                                    DESKTOP
+                                ============================== */}
+
                                 {isFull && (
                                     <Suspense
                                         fallback={
@@ -1028,9 +1146,13 @@ function App() {
                                     </Suspense>
                                 )}
 
+                                {/* ==============================
+                                    MOBILE / REDUZIDO
+                                ============================== */}
+
                                 {!isFull && (
                                     <img
-                                        src="/owl-mobile.webp"
+                                        src="/educacubelogo.webp"
                                         alt="Coruja do EducaCube"
                                         className="owl-mobile-image"
                                     />
@@ -1060,36 +1182,33 @@ function App() {
                     TRANSFORM PARTICLES
                 ================================================= */}
 
-                <section className="transform-section">
+                {isFull && (
+                    <section className="transform-section">
 
-                    <div className="transform-header">
+                        <div className="transform-header">
 
-                        <strong>
-                            Conhecimento em movimento
-                        </strong>
+                            <strong>
+                                Conhecimento em movimento
+                            </strong>
 
-                        <span>
-                            EducaCube
-                        </span>
+                            <span>
+                                EducaCube
+                            </span>
 
-                    </div>
+                        </div>
 
-                    <div className="transform-particles-wrapper">
+                        <div className="transform-particles-wrapper">
 
-                        <TransformParticles
-                            words={[
-                                "PEDAGOGIA",
-                                "APRENDIZAGEM",
-                                "NEUROEDUCAÇÃO",
-                                "SABEDORIA",
-                            ]}
-                            color="#7c5cab"
-                            particleCount={900}
-                        />
+                            <Suspense
+                                fallback={null}
+                            >
+                                <TransformDesktop />
+                            </Suspense>
 
-                    </div>
+                        </div>
 
-                </section>
+                    </section>
+                )}
 
                 {/* =================================================
                     MÓDULOS
@@ -1133,7 +1252,9 @@ function App() {
                                     type="button"
                                     className="tray-item"
                                     onClick={() =>
-                                        openModule(id)
+                                        openModule(
+                                            id
+                                        )
                                     }
                                 >
 
@@ -1182,7 +1303,9 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                onClick={closeModule}
+                onClick={
+                    closeModule
+                }
             />
 
             {/* =================================================
@@ -1220,7 +1343,9 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={closeModule}
+                        onClick={
+                            closeModule
+                        }
                         aria-label="Fechar"
                     >
                         ×
@@ -1242,7 +1367,10 @@ function App() {
                                 {
                                     length: 9,
                                 },
-                                (_, index) => (
+                                (
+                                    _,
+                                    index
+                                ) => (
 
                                     <option
                                         key={index}
@@ -1296,8 +1424,12 @@ function App() {
                 </label>
 
                 <textarea
-                    value={diagDescricao}
-                    onChange={(event) =>
+                    value={
+                        diagDescricao
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setDiagDescricao(
                             event.target.value
                         )
@@ -1323,7 +1455,9 @@ function App() {
                         </strong>
 
                         <p>
-                            {resultado.diagnostico}
+                            {
+                                resultado.diagnostico
+                            }
                         </p>
 
                     </div>
@@ -1366,7 +1500,9 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={closeModule}
+                        onClick={
+                            closeModule
+                        }
                         aria-label="Fechar"
                     >
                         ×
@@ -1380,8 +1516,12 @@ function App() {
 
                 <input
                     type="text"
-                    value={buscaBNCC}
-                    onChange={(event) =>
+                    value={
+                        buscaBNCC
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setBuscaBNCC(
                             event.target.value
                         )
@@ -1422,7 +1562,9 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={consultarBNCC}
+                    onClick={
+                        consultarBNCC
+                    }
                 >
                     Consultar
                 </button>
@@ -1435,7 +1577,9 @@ function App() {
                         </strong>
 
                         <p>
-                            {resultado.bncc}
+                            {
+                                resultado.bncc
+                            }
                         </p>
 
                     </div>
@@ -1478,7 +1622,9 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={closeModule}
+                        onClick={
+                            closeModule
+                        }
                         aria-label="Fechar"
                     >
                         ×
@@ -1491,8 +1637,12 @@ function App() {
                 </label>
 
                 <input
-                    value={temaPlano}
-                    onChange={(event) =>
+                    value={
+                        temaPlano
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setTemaPlano(
                             event.target.value
                         )
@@ -1510,7 +1660,10 @@ function App() {
                         {
                             length: 9,
                         },
-                        (_, index) => (
+                        (
+                            _,
+                            index
+                        ) => (
 
                             <option
                                 key={index}
@@ -1528,8 +1681,12 @@ function App() {
                 </label>
 
                 <textarea
-                    value={objetivoPlano}
-                    onChange={(event) =>
+                    value={
+                        objetivoPlano
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setObjetivoPlano(
                             event.target.value
                         )
@@ -1540,7 +1697,9 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={gerarPlano}
+                    onClick={
+                        gerarPlano
+                    }
                 >
                     Gerar planejamento
                 </button>
@@ -1553,7 +1712,9 @@ function App() {
                         </strong>
 
                         <p>
-                            {resultado.planejamento}
+                            {
+                                resultado.planejamento
+                            }
                         </p>
 
                     </div>
@@ -1596,7 +1757,9 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={closeModule}
+                        onClick={
+                            closeModule
+                        }
                         aria-label="Fechar"
                     >
                         ×
@@ -1609,8 +1772,12 @@ function App() {
                 </label>
 
                 <textarea
-                    value={necessidadeIntervencao}
-                    onChange={(event) =>
+                    value={
+                        necessidadeIntervencao
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setNecessidadeIntervencao(
                             event.target.value
                         )
@@ -1623,8 +1790,12 @@ function App() {
                 </label>
 
                 <textarea
-                    value={contextoIntervencao}
-                    onChange={(event) =>
+                    value={
+                        contextoIntervencao
+                    }
+                    onChange={(
+                        event
+                    ) =>
                         setContextoIntervencao(
                             event.target.value
                         )
@@ -1635,7 +1806,9 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={gerarIntervencao}
+                    onClick={
+                        gerarIntervencao
+                    }
                 >
                     Propor intervenção
                 </button>
@@ -1648,7 +1821,9 @@ function App() {
                         </strong>
 
                         <p>
-                            {resultado.intervencao}
+                            {
+                                resultado.intervencao
+                            }
                         </p>
 
                     </div>
