@@ -1,11 +1,21 @@
-import { useEffect, useRef, useState } from "react";
-
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import {
+    lazy,
+    Suspense,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 import TransformParticles from "./components/TransformParticles";
+
 import { auth, googleProvider } from "./lib/firebase";
 import { signInWithPopup } from "firebase/auth";
+
+import { usePerformanceMode } from "./hooks/usePerformanceMode";
+
+const OwlShowcase = lazy(
+    () => import("./components/OwlShowcase")
+);
 
 type VideoIndex = 0 | 1 | 2;
 
@@ -23,16 +33,20 @@ type Resultados = {
     intervencao?: string;
 };
 
-const MODEL_URL =
-    "https://kczzuvkuubeqdokjihrm.supabase.co/storage/v1/object/public/modelos%203d/Corujafinal.glb";
-
 /* =========================================================================
- * ÍCONES — traço fino, um por módulo. Nada de biblioteca nova: SVG inline.
+ * ÍCONES
  * ========================================================================= */
 
 function IconCube({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            aria-hidden="true"
+        >
             <path d="M12 3 L20.5 7.5 V16.5 L12 21 L3.5 16.5 V7.5 Z" />
             <path d="M3.5 7.5 L12 12 L20.5 7.5" />
             <path d="M12 12 V21" />
@@ -42,7 +56,13 @@ function IconCube({ className }: { className?: string }) {
 
 function IconDiagnostico() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+        >
             <circle cx="10.5" cy="10.5" r="6.5" />
             <path d="M15.5 15.5 L21 21" />
         </svg>
@@ -51,7 +71,13 @@ function IconDiagnostico() {
 
 function IconBncc() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+        >
             <path d="M4 5.5 C6.5 4.2 9 4.2 12 5.5 C15 4.2 17.5 4.2 20 5.5 V18.5 C17.5 17.2 15 17.2 12 18.5 C9 17.2 6.5 17.2 4 18.5 Z" />
             <path d="M12 5.5 V18.5" />
         </svg>
@@ -60,7 +86,13 @@ function IconBncc() {
 
 function IconPlanejamento() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+        >
             <rect x="4" y="4" width="16" height="16" rx="1" />
             <path d="M8 9 H16 M8 13 H16 M8 17 H12.5" />
         </svg>
@@ -69,7 +101,13 @@ function IconPlanejamento() {
 
 function IconIntervencao() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+        >
             <circle cx="12" cy="12" r="8" />
             <circle cx="12" cy="12" r="3.2" />
             <path d="M12 2.5 V5 M12 19 V21.5" />
@@ -79,7 +117,13 @@ function IconIntervencao() {
 
 function IconMenu() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+        >
             <path d="M4 7 H20 M4 12 H20 M4 17 H20" />
         </svg>
     );
@@ -87,7 +131,13 @@ function IconMenu() {
 
 function IconClose() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+        >
             <path d="M5 5 L19 19 M19 5 L5 19" />
         </svg>
     );
@@ -95,7 +145,13 @@ function IconClose() {
 
 function IconCookie() {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+        >
             <circle cx="12" cy="12" r="8.5" />
             <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none" />
             <circle cx="14" cy="9" r="1" fill="currentColor" stroke="none" />
@@ -105,8 +161,20 @@ function IconCookie() {
 }
 
 function App() {
-    const brainViewportRef =
-        useRef<HTMLDivElement | null>(null);
+
+    /* =====================================================
+     * PERFORMANCE
+     * ===================================================== */
+
+    const performanceMode =
+        usePerformanceMode();
+
+    const isFull =
+        performanceMode === "full";
+
+    /* =====================================================
+     * REFERÊNCIAS DOS VÍDEOS
+     * ===================================================== */
 
     const videosRef =
         useRef<(HTMLVideoElement | null)[]>([]);
@@ -116,6 +184,10 @@ function App() {
 
     const transitionTimeoutRef =
         useRef<number | null>(null);
+
+    /* =====================================================
+     * ESTADOS
+     * ===================================================== */
 
     const [currentVideo, setCurrentVideo] =
         useState<VideoIndex>(0);
@@ -154,12 +226,12 @@ function App() {
     const [resultado, setResultado] =
         useState<Resultados>({});
 
+    const [showCookieBanner, setShowCookieBanner] =
+        useState(false);
+
     /* =====================================================
      * COOKIES / PRIVACIDADE
      * ===================================================== */
-
-    const [showCookieBanner, setShowCookieBanner] =
-        useState(false);
 
     useEffect(() => {
         const consentimento =
@@ -175,19 +247,11 @@ function App() {
     const salvarConsentimento = (
         escolha: "aceito" | "recusado"
     ) => {
-        /*
-         * Memória persistente no navegador.
-         * A escolha continua salva mesmo depois
-         * de fechar e abrir o navegador.
-         */
         localStorage.setItem(
             "educacube_cookie_consent",
             escolha
         );
 
-        /*
-         * Cookie persistente por 1 ano.
-         */
         document.cookie =
             `educacube_cookie_consent=${escolha}; ` +
             `Max-Age=31536000; ` +
@@ -261,6 +325,14 @@ function App() {
      * ===================================================== */
 
     useEffect(() => {
+
+        /*
+         * Por enquanto o sistema continua igual.
+         *
+         * Na próxima etapa vamos fazer com que os vídeos
+         * nem sejam carregados no celular.
+         */
+
         const videos =
             videosRef.current.filter(
                 (
@@ -291,7 +363,9 @@ function App() {
         const cleanups: Array<() => void> = [];
 
         videos.forEach((video, index) => {
+
             const handleEnded = () => {
+
                 if (index === 2) return;
 
                 if (
@@ -322,12 +396,14 @@ function App() {
                 nextVideo
                     .play()
                     .then(() => {
+
                         nextVideo.classList.add(
                             "active"
                         );
 
                         transitionTimeoutRef.current =
                             window.setTimeout(() => {
+
                                 video.classList.remove(
                                     "active"
                                 );
@@ -341,11 +417,15 @@ function App() {
 
                                 transitioningRef.current =
                                     false;
+
                             }, 1400);
+
                     })
                     .catch(() => {
+
                         transitioningRef.current =
                             false;
+
                     });
             };
 
@@ -363,6 +443,7 @@ function App() {
         });
 
         return () => {
+
             cleanups.forEach(
                 (cleanup) => cleanup()
             );
@@ -376,6 +457,7 @@ function App() {
                 );
             }
         };
+
     }, [currentVideo]);
 
     /* =====================================================
@@ -383,13 +465,16 @@ function App() {
      * ===================================================== */
 
     useEffect(() => {
+
         const handleKeyDown = (
             event: KeyboardEvent
         ) => {
+
             if (event.key === "Escape") {
                 closeModule();
                 setMenuAberto(false);
             }
+
         };
 
         document.addEventListener(
@@ -402,468 +487,7 @@ function App() {
                 "keydown",
                 handleKeyDown
             );
-    }, []);
 
-    /* =====================================================
-     * THREE.JS — CORUJA DO CUBO (EducaCube)
-     * ===================================================== */
-
-    useEffect(() => {
-        const container =
-            brainViewportRef.current;
-
-        if (!container) return;
-
-        const scene = new THREE.Scene();
-
-        scene.fog = new THREE.FogExp2(
-            0x0c0b10,
-            0.045
-        );
-
-        const width =
-            container.clientWidth || 500;
-
-        const height =
-            container.clientHeight || 500;
-
-        const camera =
-            new THREE.PerspectiveCamera(
-                35,
-                width / height,
-                0.1,
-                1000
-            );
-
-        camera.position.z = 8;
-
-        const renderer =
-            new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
-            });
-
-        renderer.setSize(
-            width,
-            height
-        );
-
-        renderer.setPixelRatio(
-            Math.min(
-                window.devicePixelRatio,
-                2
-            )
-        );
-
-        renderer.outputColorSpace =
-            THREE.SRGBColorSpace;
-
-        container.appendChild(
-            renderer.domElement
-        );
-
-        /* =================================================
-         * ILUMINAÇÃO — roxo de marca, discreto
-         * ================================================= */
-
-        const ambientLight =
-            new THREE.AmbientLight(
-                0xffffff,
-                0.75
-            );
-
-        scene.add(ambientLight);
-
-        const mainLight =
-            new THREE.PointLight(
-                0xffffff,
-                1.7
-            );
-
-        mainLight.position.set(
-            5,
-            5,
-            10
-        );
-
-        scene.add(mainLight);
-
-        const violetLight =
-            new THREE.PointLight(
-                0x6e458c,
-                1.3
-            );
-
-        violetLight.position.set(
-            -5,
-            -2,
-            5
-        );
-
-        scene.add(violetLight);
-
-        const brassLight =
-            new THREE.PointLight(
-                0xb8935a,
-                0.35
-            );
-
-        brassLight.position.set(
-            2,
-            -3,
-            -4
-        );
-
-        scene.add(brassLight);
-
-        /* =================================================
-         * PARTÍCULAS AMBIENTE — poeira discreta
-         * ================================================= */
-
-        const partGeo =
-            new THREE.BufferGeometry();
-
-        const partCount = 500;
-
-        const positions =
-            new Float32Array(
-                partCount * 3
-            );
-
-        for (
-            let i = 0;
-            i < partCount * 3;
-            i++
-        ) {
-            positions[i] =
-                (Math.random() - 0.5) *
-                15;
-        }
-
-        partGeo.setAttribute(
-            "position",
-            new THREE.BufferAttribute(
-                positions,
-                3
-            )
-        );
-
-        const partMat =
-            new THREE.PointsMaterial({
-                size: 0.018,
-                color: 0x9b81c4,
-                transparent: true,
-                opacity: 0.22,
-            });
-
-        const particles =
-            new THREE.Points(
-                partGeo,
-                partMat
-            );
-
-        scene.add(particles);
-
-        /* =================================================
-         * MODELO GLB — CORUJA
-         * ================================================= */
-
-        let brain:
-            | THREE.Object3D
-            | null = null;
-
-        let targetX = 0;
-        let targetY = 0;
-
-        let entradaInicio:
-            | number
-            | null = null;
-
-        let entradaFinalizada = false;
-
-        const loader =
-            new GLTFLoader();
-
-        loader.load(
-            MODEL_URL,
-            (gltf) => {
-                brain = gltf.scene;
-
-                brain.traverse(
-                    (object) => {
-                        if (
-                            object instanceof
-                            THREE.Mesh
-                        ) {
-                            object.castShadow =
-                                true;
-
-                            object.receiveShadow =
-                                true;
-                        }
-                    }
-                );
-
-                brain.scale.set(
-                    0.01,
-                    0.01,
-                    0.01
-                );
-
-                brain.position.set(
-                    0,
-                    -0.8,
-                    0
-                );
-
-                brain.rotation.set(
-                    0,
-                    -0.35,
-                    0
-                );
-
-                scene.add(brain);
-
-                entradaInicio =
-                    performance.now();
-
-                entradaFinalizada =
-                    false;
-            },
-            undefined,
-            (error) => {
-                console.error(
-                    "Erro ao carregar Corujafinal.glb:",
-                    error
-                );
-            }
-        );
-
-        /* =================================================
-         * MOUSE
-         * ================================================= */
-
-        const handleMouseMove = (
-            event: MouseEvent
-        ) => {
-            const mouseX =
-                event.clientX /
-                    window.innerWidth -
-                0.5;
-
-            const mouseY =
-                event.clientY /
-                    window.innerHeight -
-                0.5;
-
-            targetX =
-                mouseX * 0.16;
-
-            targetY =
-                mouseY * 0.1;
-        };
-
-        window.addEventListener(
-            "mousemove",
-            handleMouseMove
-        );
-
-        /* =================================================
-         * ANIMAÇÃO
-         * ================================================= */
-
-        let animationFrame = 0;
-
-        const animate = (
-            now: number
-        ) => {
-            animationFrame =
-                requestAnimationFrame(
-                    animate
-                );
-
-            particles.rotation.y +=
-                0.0007;
-
-            particles.rotation.x +=
-                0.0001;
-
-            /* Entrada */
-
-            if (
-                brain &&
-                !entradaFinalizada &&
-                entradaInicio !== null
-            ) {
-                const duracao = 1700;
-
-                const tempo =
-                    now -
-                    entradaInicio;
-
-                const progresso =
-                    Math.min(
-                        tempo /
-                            duracao,
-                        1
-                    );
-
-                const ease =
-                    1 -
-                    Math.pow(
-                        1 - progresso,
-                        4
-                    );
-
-                const escala =
-                    1.45 * ease;
-
-                brain.scale.set(
-                    escala,
-                    escala,
-                    escala
-                );
-
-                brain.position.y =
-                    -0.8 +
-                    0.8 * ease;
-
-                brain.rotation.y =
-                    -0.35 +
-                    0.35 * ease;
-
-                brain.rotation.z =
-                    Math.sin(
-                        progresso *
-                            Math.PI
-                    ) * 0.035;
-
-                if (
-                    progresso >= 1
-                ) {
-                    entradaFinalizada =
-                        true;
-
-                    entradaInicio =
-                        null;
-
-                    brain.position.y =
-                        0;
-                }
-            }
-
-            /* Flutuação */
-
-            if (
-                brain &&
-                entradaFinalizada
-            ) {
-                const flutuar =
-                    Math.sin(
-                        now * 0.0014
-                    ) * 0.045;
-
-                brain.position.y =
-                    flutuar;
-
-                brain.rotation.y +=
-                    0.035 *
-                    (targetX -
-                        brain.rotation.y);
-
-                brain.rotation.x +=
-                    0.025 *
-                    (targetY -
-                        brain.rotation.x);
-
-                brain.rotation.z =
-                    Math.sin(
-                        now * 0.0009
-                    ) * 0.025;
-            }
-
-            renderer.render(
-                scene,
-                camera
-            );
-        };
-
-        animationFrame =
-            requestAnimationFrame(
-                animate
-            );
-
-        /* =================================================
-         * RESPONSIVIDADE
-         * ================================================= */
-
-        const handleResize = () => {
-            const newWidth =
-                container.clientWidth;
-
-            const newHeight =
-                container.clientHeight;
-
-            if (
-                newWidth <= 0 ||
-                newHeight <= 0
-            ) {
-                return;
-            }
-
-            camera.aspect =
-                newWidth /
-                newHeight;
-
-            camera.updateProjectionMatrix();
-
-            renderer.setSize(
-                newWidth,
-                newHeight
-            );
-        };
-
-        window.addEventListener(
-            "resize",
-            handleResize
-        );
-
-        /* =================================================
-         * CLEANUP
-         * ================================================= */
-
-        return () => {
-            cancelAnimationFrame(
-                animationFrame
-            );
-
-            window.removeEventListener(
-                "mousemove",
-                handleMouseMove
-            );
-
-            window.removeEventListener(
-                "resize",
-                handleResize
-            );
-
-            if (
-                renderer.domElement
-                    .parentNode ===
-                container
-            ) {
-                container.removeChild(
-                    renderer.domElement
-                );
-            }
-
-            renderer.dispose();
-
-            partGeo.dispose();
-            partMat.dispose();
-
-            scene.clear();
-        };
     }, []);
 
     /* =====================================================
@@ -871,9 +495,11 @@ function App() {
      * ===================================================== */
 
     const executarDiagnostico = () => {
+
         if (
             !diagDescricao.trim()
         ) {
+
             alert(
                 "Descreva a necessidade observada."
             );
@@ -895,9 +521,11 @@ function App() {
      * ===================================================== */
 
     const consultarBNCC = () => {
+
         if (
             !buscaBNCC.trim()
         ) {
+
             alert(
                 "Digite algo para pesquisar."
             );
@@ -919,10 +547,12 @@ function App() {
      * ===================================================== */
 
     const gerarPlano = () => {
+
         if (
             !temaPlano.trim() ||
             !objetivoPlano.trim()
         ) {
+
             alert(
                 "Informe o tema e o objetivo."
             );
@@ -944,9 +574,11 @@ function App() {
      * ===================================================== */
 
     const gerarIntervencao = () => {
+
         if (
             !necessidadeIntervencao.trim()
         ) {
+
             alert(
                 "Informe a necessidade identificada."
             );
@@ -968,6 +600,7 @@ function App() {
      * ===================================================== */
 
     const validarAcesso = () => {
+
         const valor =
             idInput
                 .trim()
@@ -977,6 +610,7 @@ function App() {
             valor === "MATH001" ||
             valor.startsWith("PAC")
         ) {
+
             window.location.href =
                 "/aluno.html";
 
@@ -989,7 +623,7 @@ function App() {
     };
 
     /* =====================================================
-     * DADOS DOS MÓDULOS — usados para renderizar o fluxo
+     * DADOS DOS MÓDULOS
      * ===================================================== */
 
     const modulos: Array<{
@@ -999,34 +633,43 @@ function App() {
         descricao: string;
         Icone: () => JSX.Element;
     }> = [
+
         {
             id: "diagnostico",
             numero: "01",
             nome: "Diagnóstico",
-            descricao: "Leitura do processo de aprendizagem.",
+            descricao:
+                "Leitura do processo de aprendizagem.",
             Icone: IconDiagnostico,
         },
+
         {
             id: "bncc",
             numero: "02",
             nome: "BNCC",
-            descricao: "Consulta à base curricular.",
+            descricao:
+                "Consulta à base curricular.",
             Icone: IconBncc,
         },
+
         {
             id: "planejamento",
             numero: "03",
             nome: "Planejamento",
-            descricao: "Construção de planos de aula.",
+            descricao:
+                "Construção de planos de aula.",
             Icone: IconPlanejamento,
         },
+
         {
             id: "intervencao",
             numero: "04",
             nome: "Intervenção",
-            descricao: "Estratégias pedagógicas dirigidas.",
+            descricao:
+                "Estratégias pedagógicas dirigidas.",
             Icone: IconIntervencao,
         },
+
     ];
 
     /* =====================================================
@@ -1035,26 +678,52 @@ function App() {
 
     return (
         <>
+
             {/* =================================================
-                CABEÇALHO / NAVEGAÇÃO
+                CABEÇALHO
             ================================================= */}
 
             <header className="site-header">
 
                 <div className="brand-mark">
+
                     <IconCube className="brand-glyph" />
-                    <span className="brand-name">EducaCube</span>
-                    <span className="brand-affiliation">UNINTA — Laboratório de Pesquisa</span>
+
+                    <span className="brand-name">
+                        EducaCube
+                    </span>
+
+                    <span className="brand-affiliation">
+                        UNINTA — Laboratório de Pesquisa
+                    </span>
+
                 </div>
 
-                <nav className="site-nav" aria-label="Navegação principal">
-                    <a href="#inicio">Início</a>
-                    <a href="#ferramentas">Ferramentas</a>
-                    <a href="/biblioteca.html">Biblioteca</a>
-                    <a href="/atlas.html">Mapa da aprendizagem</a>
+                <nav
+                    className="site-nav"
+                    aria-label="Navegação principal"
+                >
+
+                    <a href="#inicio">
+                        Início
+                    </a>
+
+                    <a href="#ferramentas">
+                        Ferramentas
+                    </a>
+
+                    <a href="/biblioteca.html">
+                        Biblioteca
+                    </a>
+
+                    <a href="/atlas.html">
+                        Mapa da aprendizagem
+                    </a>
+
                 </nav>
 
                 <div className="site-actions">
+
                     <button
                         type="button"
                         className="btn-ghost"
@@ -1063,31 +732,82 @@ function App() {
                         Entrar com Google
                     </button>
 
-                    <a href="/aluno.html" className="btn-primary">
+                    <a
+                        href="/aluno.html"
+                        className="btn-primary"
+                    >
                         Área do aluno
                     </a>
+
                 </div>
 
                 <button
                     type="button"
                     className="nav-toggle"
-                    aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+                    aria-label={
+                        menuAberto
+                            ? "Fechar menu"
+                            : "Abrir menu"
+                    }
                     aria-expanded={menuAberto}
-                    onClick={() => setMenuAberto((valor) => !valor)}
+                    onClick={() =>
+                        setMenuAberto(
+                            (valor) => !valor
+                        )
+                    }
                 >
-                    {menuAberto ? <IconClose /> : <IconMenu />}
+                    {menuAberto
+                        ? <IconClose />
+                        : <IconMenu />
+                    }
                 </button>
 
             </header>
 
+            {/* =================================================
+                MENU MOBILE
+            ================================================= */}
+
             {menuAberto && (
                 <div className="mobile-menu">
-                    <a href="#inicio" onClick={() => setMenuAberto(false)}>Início</a>
-                    <a href="#ferramentas" onClick={() => setMenuAberto(false)}>Ferramentas</a>
-                    <a href="/biblioteca.html">Biblioteca</a>
-                    <a href="/atlas.html">Mapa da aprendizagem</a>
-                    <button type="button" onClick={loginComGoogle}>Entrar com Google</button>
-                    <a href="/aluno.html">Área do aluno</a>
+
+                    <a
+                        href="#inicio"
+                        onClick={() =>
+                            setMenuAberto(false)
+                        }
+                    >
+                        Início
+                    </a>
+
+                    <a
+                        href="#ferramentas"
+                        onClick={() =>
+                            setMenuAberto(false)
+                        }
+                    >
+                        Ferramentas
+                    </a>
+
+                    <a href="/biblioteca.html">
+                        Biblioteca
+                    </a>
+
+                    <a href="/atlas.html">
+                        Mapa da aprendizagem
+                    </a>
+
+                    <button
+                        type="button"
+                        onClick={loginComGoogle}
+                    >
+                        Entrar com Google
+                    </button>
+
+                    <a href="/aluno.html">
+                        Área do aluno
+                    </a>
+
                 </div>
             )}
 
@@ -1096,6 +816,7 @@ function App() {
             ================================================= */}
 
             <div className="video-background">
+
                 <video
                     ref={(element) => {
                         videosRef.current[0] =
@@ -1147,6 +868,7 @@ function App() {
                     preload="auto"
                     loop
                 />
+
             </div>
 
             {/* =================================================
@@ -1175,26 +897,35 @@ function App() {
                     HERO
                 ================================================= */}
 
-                <section className="hero" id="inicio">
+                <section
+                    className="hero"
+                    id="inicio"
+                >
 
                     <div className="hero-grid">
 
                         <div className="hero-content">
 
                             <p className="hero-kicker">
-                                Um espaço de trabalho para quem diagnostica, planeja
-                                e intervém na aprendizagem — não um assistente genérico.
+                                Um espaço de trabalho para quem
+                                diagnostica, planeja e intervém
+                                na aprendizagem — não um
+                                assistente genérico.
                             </p>
 
                             <h1>
-                                O laboratório <em>pedagógico</em> do EducaCube
+                                O laboratório{" "}
+                                <em>pedagógico</em>{" "}
+                                do EducaCube
                             </h1>
 
                             <p className="hero-lede">
-                                Quatro instrumentos construídos a partir da prática
-                                docente: leitura do processo de aprendizagem, consulta
-                                curricular, planejamento de aula e desenho de
-                                intervenções — no lugar da prática, não em vez dela.
+                                Quatro instrumentos construídos
+                                a partir da prática docente:
+                                leitura do processo de aprendizagem,
+                                consulta curricular, planejamento
+                                de aula e desenho de intervenções —
+                                no lugar da prática, não em vez dela.
                             </p>
 
                             <div className="access-card">
@@ -1232,7 +963,9 @@ function App() {
                                     Entrar no laboratório
                                 </button>
 
-                                <div className="access-divider">ou</div>
+                                <div className="access-divider">
+                                    ou
+                                </div>
 
                                 <button
                                     type="button"
@@ -1272,9 +1005,6 @@ function App() {
 
                         <section
                             id="brain-viewport"
-                            ref={
-                                brainViewportRef
-                            }
                             aria-label="Modelo tridimensional da coruja do EducaCube"
                         >
 
@@ -1288,11 +1018,31 @@ function App() {
 
                                 <span className="brain-corner brain-corner--br" />
 
+                                {isFull && (
+                                    <Suspense
+                                        fallback={
+                                            <div className="owl-loading" />
+                                        }
+                                    >
+                                        <OwlShowcase />
+                                    </Suspense>
+                                )}
+
+                                {!isFull && (
+                                    <img
+                                        src="/owl-mobile.webp"
+                                        alt="Coruja do EducaCube"
+                                        className="owl-mobile-image"
+                                    />
+                                )}
+
                             </div>
 
                             <div className="brain-label">
 
-                                <span>Guardiã do laboratório</span>
+                                <span>
+                                    Guardiã do laboratório
+                                </span>
 
                                 <strong>
                                     A coruja do EducaCube
@@ -1342,17 +1092,26 @@ function App() {
                 </section>
 
                 {/* =================================================
-                    MÓDULOS — FLUXO DE TRABALHO
+                    MÓDULOS
                 ================================================= */}
 
-                <section className="workspace-section" id="ferramentas">
+                <section
+                    className="workspace-section"
+                    id="ferramentas"
+                >
 
                     <div className="workspace-header">
-                        <h2>Um fluxo, quatro instrumentos</h2>
+
+                        <h2>
+                            Um fluxo, quatro instrumentos
+                        </h2>
+
                         <p>
-                            Da leitura do processo de aprendizagem até a intervenção —
-                            cada módulo assume o trabalho na etapa em que o anterior termina.
+                            Da leitura do processo de aprendizagem
+                            até a intervenção — cada módulo assume
+                            o trabalho na etapa em que o anterior termina.
                         </p>
+
                     </div>
 
                     <nav
@@ -1360,25 +1119,52 @@ function App() {
                         aria-label="Módulos do laboratório"
                     >
 
-                        {modulos.map(({ id, numero, nome, descricao, Icone }) => (
-                            <button
-                                key={id}
-                                type="button"
-                                className="tray-item"
-                                onClick={() => openModule(id)}
-                            >
-                                <div className="tray-top">
-                                    <span className="tray-index">{numero}</span>
-                                    <span className="tray-icon">
-                                        <Icone />
-                                    </span>
-                                </div>
+                        {modulos.map(
+                            ({
+                                id,
+                                numero,
+                                nome,
+                                descricao,
+                                Icone,
+                            }) => (
 
-                                <span className="tray-name">{nome}</span>
-                                <span className="tray-desc">{descricao}</span>
-                                <span className="tray-cta">Abrir módulo</span>
-                            </button>
-                        ))}
+                                <button
+                                    key={id}
+                                    type="button"
+                                    className="tray-item"
+                                    onClick={() =>
+                                        openModule(id)
+                                    }
+                                >
+
+                                    <div className="tray-top">
+
+                                        <span className="tray-index">
+                                            {numero}
+                                        </span>
+
+                                        <span className="tray-icon">
+                                            <Icone />
+                                        </span>
+
+                                    </div>
+
+                                    <span className="tray-name">
+                                        {nome}
+                                    </span>
+
+                                    <span className="tray-desc">
+                                        {descricao}
+                                    </span>
+
+                                    <span className="tray-cta">
+                                        Abrir módulo
+                                    </span>
+
+                                </button>
+
+                            )
+                        )}
 
                     </nav>
 
@@ -1396,9 +1182,7 @@ function App() {
                         ? "active"
                         : ""
                 }`}
-                onClick={
-                    closeModule
-                }
+                onClick={closeModule}
             />
 
             {/* =================================================
@@ -1436,9 +1220,7 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={
-                            closeModule
-                        }
+                        onClick={closeModule}
                         aria-label="Fechar"
                     >
                         ×
@@ -1460,19 +1242,14 @@ function App() {
                                 {
                                     length: 9,
                                 },
-                                (
-                                    _,
-                                    index
-                                ) => (
+                                (_, index) => (
+
                                     <option
-                                        key={
-                                            index
-                                        }
+                                        key={index}
                                     >
-                                        {index +
-                                            1}
-                                        º Ano
+                                        {index + 1}º Ano
                                     </option>
+
                                 )
                             )}
 
@@ -1519,12 +1296,8 @@ function App() {
                 </label>
 
                 <textarea
-                    value={
-                        diagDescricao
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={diagDescricao}
+                    onChange={(event) =>
                         setDiagDescricao(
                             event.target.value
                         )
@@ -1550,9 +1323,7 @@ function App() {
                         </strong>
 
                         <p>
-                            {
-                                resultado.diagnostico
-                            }
+                            {resultado.diagnostico}
                         </p>
 
                     </div>
@@ -1595,9 +1366,7 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={
-                            closeModule
-                        }
+                        onClick={closeModule}
                         aria-label="Fechar"
                     >
                         ×
@@ -1611,12 +1380,8 @@ function App() {
 
                 <input
                     type="text"
-                    value={
-                        buscaBNCC
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={buscaBNCC}
+                    onChange={(event) =>
                         setBuscaBNCC(
                             event.target.value
                         )
@@ -1657,9 +1422,7 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={
-                        consultarBNCC
-                    }
+                    onClick={consultarBNCC}
                 >
                     Consultar
                 </button>
@@ -1672,9 +1435,7 @@ function App() {
                         </strong>
 
                         <p>
-                            {
-                                resultado.bncc
-                            }
+                            {resultado.bncc}
                         </p>
 
                     </div>
@@ -1717,9 +1478,7 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={
-                            closeModule
-                        }
+                        onClick={closeModule}
                         aria-label="Fechar"
                     >
                         ×
@@ -1732,12 +1491,8 @@ function App() {
                 </label>
 
                 <input
-                    value={
-                        temaPlano
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={temaPlano}
+                    onChange={(event) =>
                         setTemaPlano(
                             event.target.value
                         )
@@ -1755,19 +1510,14 @@ function App() {
                         {
                             length: 9,
                         },
-                        (
-                            _,
-                            index
-                        ) => (
+                        (_, index) => (
+
                             <option
-                                key={
-                                    index
-                                }
+                                key={index}
                             >
-                                {index +
-                                    1}
-                                º Ano
+                                {index + 1}º Ano
                             </option>
+
                         )
                     )}
 
@@ -1778,12 +1528,8 @@ function App() {
                 </label>
 
                 <textarea
-                    value={
-                        objetivoPlano
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={objetivoPlano}
+                    onChange={(event) =>
                         setObjetivoPlano(
                             event.target.value
                         )
@@ -1794,9 +1540,7 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={
-                        gerarPlano
-                    }
+                    onClick={gerarPlano}
                 >
                     Gerar planejamento
                 </button>
@@ -1809,9 +1553,7 @@ function App() {
                         </strong>
 
                         <p>
-                            {
-                                resultado.planejamento
-                            }
+                            {resultado.planejamento}
                         </p>
 
                     </div>
@@ -1854,9 +1596,7 @@ function App() {
                     <button
                         type="button"
                         className="close-tool"
-                        onClick={
-                            closeModule
-                        }
+                        onClick={closeModule}
                         aria-label="Fechar"
                     >
                         ×
@@ -1869,12 +1609,8 @@ function App() {
                 </label>
 
                 <textarea
-                    value={
-                        necessidadeIntervencao
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={necessidadeIntervencao}
+                    onChange={(event) =>
                         setNecessidadeIntervencao(
                             event.target.value
                         )
@@ -1887,12 +1623,8 @@ function App() {
                 </label>
 
                 <textarea
-                    value={
-                        contextoIntervencao
-                    }
-                    onChange={(
-                        event
-                    ) =>
+                    value={contextoIntervencao}
+                    onChange={(event) =>
                         setContextoIntervencao(
                             event.target.value
                         )
@@ -1903,9 +1635,7 @@ function App() {
                 <button
                     type="button"
                     className="btn-ink"
-                    onClick={
-                        gerarIntervencao
-                    }
+                    onClick={gerarIntervencao}
                 >
                     Propor intervenção
                 </button>
@@ -1918,9 +1648,7 @@ function App() {
                         </strong>
 
                         <p>
-                            {
-                                resultado.intervencao
-                            }
+                            {resultado.intervencao}
                         </p>
 
                     </div>
@@ -1933,6 +1661,7 @@ function App() {
             ================================================= */}
 
             {showCookieBanner && (
+
                 <div
                     className="cookie-banner"
                     role="dialog"
@@ -2009,6 +1738,7 @@ function App() {
                     </div>
 
                 </div>
+
             )}
 
         </>
