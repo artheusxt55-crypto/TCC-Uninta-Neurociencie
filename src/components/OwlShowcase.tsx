@@ -15,6 +15,10 @@ export default function OwlShowcase() {
 
         if (!container) return;
 
+        /* =================================================
+         * CENA
+         * ================================================= */
+
         const scene = new THREE.Scene();
 
         scene.fog = new THREE.FogExp2(
@@ -22,21 +26,46 @@ export default function OwlShowcase() {
             0.045
         );
 
+        /* =================================================
+         * TAMANHO DO CONTAINER
+         * ================================================= */
+
         const width =
             container.clientWidth || 500;
 
         const height =
             container.clientHeight || 500;
 
+        const aspect =
+            width / height;
+
+        /* =================================================
+         * CÂMERA
+         * ================================================= */
+
         const camera =
             new THREE.PerspectiveCamera(
                 35,
-                width / height,
+                aspect,
                 0.1,
                 1000
             );
 
-        camera.position.z = 8;
+        camera.position.set(
+            0,
+            0,
+            8
+        );
+
+        camera.lookAt(
+            0,
+            0,
+            0
+        );
+
+        /* =================================================
+         * RENDERER
+         * ================================================= */
 
         const renderer =
             new THREE.WebGLRenderer({
@@ -59,6 +88,11 @@ export default function OwlShowcase() {
         renderer.outputColorSpace =
             THREE.SRGBColorSpace;
 
+        renderer.setClearColor(
+            0x000000,
+            0
+        );
+
         container.appendChild(
             renderer.domElement
         );
@@ -73,7 +107,9 @@ export default function OwlShowcase() {
                 0.75
             );
 
-        scene.add(ambientLight);
+        scene.add(
+            ambientLight
+        );
 
         const mainLight =
             new THREE.PointLight(
@@ -87,7 +123,9 @@ export default function OwlShowcase() {
             10
         );
 
-        scene.add(mainLight);
+        scene.add(
+            mainLight
+        );
 
         const violetLight =
             new THREE.PointLight(
@@ -101,7 +139,9 @@ export default function OwlShowcase() {
             5
         );
 
-        scene.add(violetLight);
+        scene.add(
+            violetLight
+        );
 
         const brassLight =
             new THREE.PointLight(
@@ -115,7 +155,9 @@ export default function OwlShowcase() {
             -4
         );
 
-        scene.add(brassLight);
+        scene.add(
+            brassLight
+        );
 
         /* =================================================
          * PARTÍCULAS
@@ -163,7 +205,9 @@ export default function OwlShowcase() {
                 partMat
             );
 
-        scene.add(particles);
+        scene.add(
+            particles
+        );
 
         /* =================================================
          * MODELO DA CORUJA
@@ -180,15 +224,22 @@ export default function OwlShowcase() {
             | number
             | null = null;
 
-        let entradaFinalizada = false;
+        let entradaFinalizada =
+            false;
 
         const loader =
             new GLTFLoader();
 
         loader.load(
             MODEL_URL,
+
             (gltf) => {
-                brain = gltf.scene;
+                brain =
+                    gltf.scene;
+
+                /* -----------------------------------------
+                 * CONFIGURAÇÃO DO MODELO
+                 * ----------------------------------------- */
 
                 brain.traverse(
                     (object) => {
@@ -204,6 +255,12 @@ export default function OwlShowcase() {
                         }
                     }
                 );
+
+                /*
+                 * IMPORTANTE:
+                 * Escala uniforme.
+                 * Isso NÃO deforma o modelo.
+                 */
 
                 brain.scale.set(
                     0.01,
@@ -223,7 +280,9 @@ export default function OwlShowcase() {
                     0
                 );
 
-                scene.add(brain);
+                scene.add(
+                    brain
+                );
 
                 entradaInicio =
                     performance.now();
@@ -231,7 +290,9 @@ export default function OwlShowcase() {
                 entradaFinalizada =
                     false;
             },
+
             undefined,
+
             (error) => {
                 console.error(
                     "Erro ao carregar Corujafinal.glb:",
@@ -283,20 +344,27 @@ export default function OwlShowcase() {
                     animate
                 );
 
+            /* -----------------------------------------
+             * PARTÍCULAS
+             * ----------------------------------------- */
+
             particles.rotation.y +=
                 0.0007;
 
             particles.rotation.x +=
                 0.0001;
 
-            /* Entrada */
+            /* -----------------------------------------
+             * ENTRADA DA CORUJA
+             * ----------------------------------------- */
 
             if (
                 brain &&
                 !entradaFinalizada &&
                 entradaInicio !== null
             ) {
-                const duracao = 1700;
+                const duracao =
+                    1700;
 
                 const tempo =
                     now -
@@ -312,12 +380,19 @@ export default function OwlShowcase() {
                 const ease =
                     1 -
                     Math.pow(
-                        1 - progresso,
+                        1 -
+                            progresso,
                         4
                     );
 
                 const escala =
-                    1.45 * ease;
+                    1.45 *
+                    ease;
+
+                /*
+                 * ESCALA UNIFORME
+                 * X = Y = Z
+                 */
 
                 brain.scale.set(
                     escala,
@@ -327,20 +402,24 @@ export default function OwlShowcase() {
 
                 brain.position.y =
                     -0.8 +
-                    0.8 * ease;
+                    0.8 *
+                        ease;
 
                 brain.rotation.y =
                     -0.35 +
-                    0.35 * ease;
+                    0.35 *
+                        ease;
 
                 brain.rotation.z =
                     Math.sin(
                         progresso *
                             Math.PI
-                    ) * 0.035;
+                    ) *
+                    0.035;
 
                 if (
-                    progresso >= 1
+                    progresso >=
+                    1
                 ) {
                     entradaFinalizada =
                         true;
@@ -353,7 +432,9 @@ export default function OwlShowcase() {
                 }
             }
 
-            /* Flutuação */
+            /* -----------------------------------------
+             * FLUTUAÇÃO
+             * ----------------------------------------- */
 
             if (
                 brain &&
@@ -361,27 +442,39 @@ export default function OwlShowcase() {
             ) {
                 const flutuar =
                     Math.sin(
-                        now * 0.0014
-                    ) * 0.045;
+                        now *
+                            0.0014
+                    ) *
+                    0.045;
 
                 brain.position.y =
                     flutuar;
 
                 brain.rotation.y +=
                     0.035 *
-                    (targetX -
-                        brain.rotation.y);
+                    (
+                        targetX -
+                        brain.rotation.y
+                    );
 
                 brain.rotation.x +=
                     0.025 *
-                    (targetY -
-                        brain.rotation.x);
+                    (
+                        targetY -
+                        brain.rotation.x
+                    );
 
                 brain.rotation.z =
                     Math.sin(
-                        now * 0.0009
-                    ) * 0.025;
+                        now *
+                            0.0009
+                    ) *
+                    0.025;
             }
+
+            /* -----------------------------------------
+             * RENDER
+             * ----------------------------------------- */
 
             renderer.render(
                 scene,
@@ -411,6 +504,11 @@ export default function OwlShowcase() {
             ) {
                 return;
             }
+
+            /*
+             * Atualiza a proporção da câmera
+             * de acordo com o container.
+             */
 
             camera.aspect =
                 newWidth /
@@ -449,7 +547,8 @@ export default function OwlShowcase() {
             );
 
             if (
-                renderer.domElement
+                renderer
+                    .domElement
                     .parentNode ===
                 container
             ) {
@@ -461,6 +560,7 @@ export default function OwlShowcase() {
             renderer.dispose();
 
             partGeo.dispose();
+
             partMat.dispose();
 
             scene.clear();
