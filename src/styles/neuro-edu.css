@@ -2,10 +2,6 @@
 
 /* =====================================================================
    EDUCACUBE — sistema visual
-   Um laboratório pedagógico, não um dashboard. A identidade nasce do
-   cruzamento cubo (estrutura, precisão) + coruja (observação, critério)
-   + estudo (papel, anotação). Roxo é usado como instrumento de
-   sinalização — estado ativo, foco, marca — não como pintura de fundo.
    ===================================================================== */
 
 @layer reset, tokens, base, header, hero, workspace, showcase, panel, cookie, motion, responsive;
@@ -18,7 +14,6 @@
     :root {
         color-scheme: dark;
 
-        /* --- neutros (base do laboratório) --- */
         --edu-bg: #0c0b10;
         --edu-bg-raised: #16141b;
         --edu-bg-panel: #1c1922;
@@ -29,7 +24,6 @@
         --edu-text-muted: #a79fb0;
         --edu-text-faint: #726b7d;
 
-        /* --- roxo de marca (ameixa fechado, não violeta genérico) --- */
         --edu-purple-900: #241a35;
         --edu-purple-700: #4f3874;
         --edu-purple-600: #61458c;
@@ -37,14 +31,11 @@
         --edu-purple-400: #9b81c4;
         --edu-purple-200: #d9cdec;
 
-        /* --- acento secundário — latão, usado com parcimônia --- */
         --edu-brass: #b8935a;
         --edu-brass-soft: rgba(184, 147, 90, 0.16);
 
-        /* --- feedback --- */
         --edu-focus: var(--edu-purple-400);
 
-        /* --- tipografia --- */
         --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
         --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
@@ -55,7 +46,6 @@
         --step-section: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem);
         --step-hero: clamp(2.35rem, 1.7rem + 3vw, 3.75rem);
 
-        /* --- ritmo --- */
         --space-3xs: 0.375rem;
         --space-2xs: 0.625rem;
         --space-xs: 0.875rem;
@@ -147,7 +137,9 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        html { scroll-behavior: auto; }
+        html {
+            scroll-behavior: auto;
+        }
 
         *, *::before, *::after {
             animation-duration: 0.001ms !important;
@@ -159,13 +151,17 @@
     @media (prefers-contrast: more) {
         :root {
             --edu-line: var(--edu-line-strong);
-            --edu-text-muted: color-mix(in srgb, var(--edu-text) 82%, transparent);
+            --edu-text-muted: color-mix(
+                in srgb,
+                var(--edu-text) 82%,
+                transparent
+            );
         }
     }
 }
 
 /* =====================================================================
-   3. FUNDO — vídeo tratado como material de laboratório, não como pôster
+   3. FUNDO
    ===================================================================== */
 
 @layer base {
@@ -184,10 +180,18 @@
         height: 100%;
         object-fit: cover;
         opacity: 0;
-        filter: grayscale(0.82) contrast(1.06) brightness(0.34) sepia(0.08) hue-rotate(228deg) saturate(1.1);
+        filter:
+            grayscale(0.82)
+            contrast(1.06)
+            brightness(0.34)
+            sepia(0.08)
+            hue-rotate(228deg)
+            saturate(1.1);
         transition: opacity 1.2s var(--ease);
 
-        &.active { opacity: 1; }
+        &.active {
+            opacity: 1;
+        }
     }
 
     .video-overlay {
@@ -196,10 +200,14 @@
         z-index: 1;
         pointer-events: none;
         background:
-            linear-gradient(180deg, rgba(8, 7, 10, 0.94) 0%, rgba(8, 7, 10, 0.8) 32%, rgba(8, 7, 10, 0.97) 100%);
+            linear-gradient(
+                180deg,
+                rgba(8, 7, 10, 0.94) 0%,
+                rgba(8, 7, 10, 0.8) 32%,
+                rgba(8, 7, 10, 0.97) 100%
+            );
     }
 
-    /* facetas — marca-d'água discreta de linhas triangulares (referência ao cubo) */
     .video-purple-glow {
         position: fixed;
         inset-block-start: -10%;
@@ -209,7 +217,12 @@
         z-index: 1;
         pointer-events: none;
         opacity: 0.5;
-        background: radial-gradient(circle, rgba(79, 56, 116, 0.16) 0%, transparent 68%);
+        background:
+            radial-gradient(
+                circle,
+                rgba(79, 56, 116, 0.16) 0%,
+                transparent 68%
+            );
     }
 
     .architectural-grid {
@@ -219,13 +232,28 @@
         pointer-events: none;
         opacity: 0.05;
         background-image:
-            linear-gradient(60deg, var(--edu-purple-400) 1px, transparent 1px),
-            linear-gradient(-60deg, var(--edu-purple-400) 1px, transparent 1px);
+            linear-gradient(
+                60deg,
+                var(--edu-purple-400) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                -60deg,
+                var(--edu-purple-400) 1px,
+                transparent 1px
+            );
         background-size: 58px 100px;
-        mask-image: radial-gradient(ellipse 60% 50% at 68% 38%, black 0%, transparent 72%);
+        mask-image:
+            radial-gradient(
+                ellipse 60% 50% at 68% 38%,
+                black 0%,
+                transparent 72%
+            );
     }
 
-    .side-line { display: none; }
+    .side-line {
+        display: none;
+    }
 
     .grain {
         position: fixed;
@@ -234,7 +262,8 @@
         pointer-events: none;
         opacity: 0.035;
         mix-blend-mode: overlay;
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+        background-image:
+            url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     }
 
     #particles-layer {
@@ -259,8 +288,15 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--space-md);
-        padding: var(--space-xs) clamp(20px, 4vw, 40px);
-        background: color-mix(in srgb, var(--edu-bg) 82%, transparent);
+        padding:
+            var(--space-xs)
+            clamp(20px, 4vw, 40px);
+        background:
+            color-mix(
+                in srgb,
+                var(--edu-bg) 82%,
+                transparent
+            );
         backdrop-filter: blur(8px);
         border-block-end: 1px solid var(--edu-line);
     }
@@ -307,7 +343,8 @@
         color: var(--edu-text-muted);
         text-decoration: none;
         padding-block: 4px;
-        transition: color var(--dur-fast) var(--ease);
+        transition:
+            color var(--dur-fast) var(--ease);
 
         &::after {
             content: "";
@@ -318,13 +355,17 @@
             background: var(--edu-purple-400);
             transform: scaleX(0);
             transform-origin: left;
-            transition: transform var(--dur-base) var(--ease);
+            transition:
+                transform var(--dur-base) var(--ease);
         }
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             color: var(--edu-text);
 
-            &::after { transform: scaleX(1); }
+            &::after {
+                transform: scaleX(1);
+            }
         }
     }
 
@@ -352,11 +393,12 @@
 }
 
 /* =====================================================================
-   5. BOTÕES — sistema único
+   5. BOTÕES
    ===================================================================== */
 
 @layer header {
-    .btn-primary, .btn-ghost {
+    .btn-primary,
+    .btn-ghost {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -366,7 +408,8 @@
         font-weight: 500;
         border-radius: var(--radius-sm);
         white-space: nowrap;
-        transition: background var(--dur-base) var(--ease),
+        transition:
+            background var(--dur-base) var(--ease),
             border-color var(--dur-base) var(--ease),
             color var(--dur-base) var(--ease),
             transform var(--dur-fast) var(--ease);
@@ -376,14 +419,18 @@
         background: var(--edu-purple-700);
         color: var(--edu-text);
         border: 1px solid var(--edu-purple-600);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             background: var(--edu-purple-600);
             transform: translateY(-1px);
         }
 
-        &:active { transform: translateY(0); }
+        &:active {
+            transform: translateY(0);
+        }
     }
 
     .btn-ghost {
@@ -391,7 +438,8 @@
         color: var(--edu-text-muted);
         border: 1px solid var(--edu-line-strong);
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             color: var(--edu-text);
             border-color: var(--edu-purple-400);
         }
@@ -408,12 +456,17 @@
         z-index: 3;
         max-width: 1180px;
         margin-inline: auto;
-        padding: clamp(96px, 12vw, 132px) clamp(20px, 4vw, 40px) 0;
+        padding:
+            clamp(96px, 12vw, 132px)
+            clamp(20px, 4vw, 40px)
+            0;
     }
 
     .hero-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 0.86fr);
         gap: clamp(2rem, 4vw, 4.5rem);
         align-items: center;
     }
@@ -457,7 +510,12 @@
         margin-block-start: var(--space-lg);
         max-width: 420px;
         padding: var(--space-md);
-        background: color-mix(in srgb, var(--edu-bg-raised) 92%, transparent);
+        background:
+            color-mix(
+                in srgb,
+                var(--edu-bg-raised) 92%,
+                transparent
+            );
         border: 1px solid var(--edu-line);
         border-radius: var(--radius-md);
     }
@@ -478,7 +536,12 @@
         color: var(--edu-text-muted);
     }
 
-    :is(input[type="text"], input:not([type]), select, textarea) {
+    :is(
+        input[type="text"],
+        input:not([type]),
+        select,
+        textarea
+    ) {
         width: 100%;
         padding: 11px 12px;
         background: var(--edu-bg-panel);
@@ -488,23 +551,39 @@
         font-size: 0.95rem;
         color: var(--edu-text);
         accent-color: var(--edu-purple-500);
-        transition: border-color var(--dur-fast) var(--ease);
+        transition:
+            border-color var(--dur-fast) var(--ease);
 
-        &:hover { border-color: var(--edu-line-strong); }
+        &:hover {
+            border-color: var(--edu-line-strong);
+        }
 
         &:focus {
             border-color: var(--edu-purple-400);
             outline: none;
         }
 
-        &::placeholder { color: var(--edu-text-faint); }
+        &::placeholder {
+            color: var(--edu-text-faint);
+        }
     }
 
     select {
         appearance: none;
-        background-image: linear-gradient(45deg, transparent 50%, var(--edu-purple-400) 50%),
-            linear-gradient(135deg, var(--edu-purple-400) 50%, transparent 50%);
-        background-position: calc(100% - 14px) 50%, calc(100% - 8px) 50%;
+        background-image:
+            linear-gradient(
+                45deg,
+                transparent 50%,
+                var(--edu-purple-400) 50%
+            ),
+            linear-gradient(
+                135deg,
+                var(--edu-purple-400) 50%,
+                transparent 50%
+            );
+        background-position:
+            calc(100% - 14px) 50%,
+            calc(100% - 8px) 50%;
         background-size: 5px 5px, 5px 5px;
         background-repeat: no-repeat;
         padding-inline-end: 30px;
@@ -524,7 +603,8 @@
         font-size: 0.75rem;
         color: var(--edu-text-faint);
 
-        &::before, &::after {
+        &::before,
+        &::after {
             content: "";
             flex: 1;
             height: 1px;
@@ -550,9 +630,12 @@
         font-size: 0.9rem;
         color: var(--edu-text-muted);
         border-block-end: 1px solid var(--edu-line-strong);
-        transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+        transition:
+            color var(--dur-fast) var(--ease),
+            border-color var(--dur-fast) var(--ease);
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             color: var(--edu-purple-400);
             border-color: var(--edu-purple-400);
         }
@@ -560,7 +643,7 @@
 }
 
 /* =====================================================================
-   7. VITRINE DA CORUJA — placa de espécime, não anel giratório
+   7. VITRINE DA CORUJA
    ===================================================================== */
 
 @layer showcase {
@@ -584,22 +667,72 @@
         position: relative;
         width: min(100%, 380px);
         aspect-ratio: 1 / 1;
+        overflow: hidden;
         border: 1px solid var(--edu-line-strong);
         border-radius: var(--radius-sm);
-        background: radial-gradient(circle at 50% 46%, rgba(79, 56, 116, 0.14), transparent 62%);
+        background:
+            radial-gradient(
+                circle at 50% 46%,
+                rgba(79, 56, 116, 0.14),
+                transparent 62%
+            );
+    }
+
+    /*
+     * ================================================================
+     * LOGO MOBILE
+     * ================================================================
+     *
+     * A logo só ocupa o espaço reservado à coruja.
+     * Não cria uma nova altura/largura para a página.
+     */
+
+    .owl-mobile-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        padding: 55px;
+        margin: 0;
     }
 
     .brain-corner {
         position: absolute;
         width: 16px;
         height: 16px;
+        z-index: 5;
         border: 1.5px solid var(--edu-brass);
         opacity: 0.85;
+        pointer-events: none;
 
-        &--tl { inset-block-start: -1px; inset-inline-start: -1px; border-inline-end: none; border-block-end: none; }
-        &--tr { inset-block-start: -1px; inset-inline-end: -1px; border-inline-start: none; border-block-end: none; }
-        &--bl { inset-block-end: -1px; inset-inline-start: -1px; border-inline-end: none; border-block-start: none; }
-        &--br { inset-block-end: -1px; inset-inline-end: -1px; border-inline-start: none; border-block-start: none; }
+        &--tl {
+            inset-block-start: -1px;
+            inset-inline-start: -1px;
+            border-inline-end: none;
+            border-block-end: none;
+        }
+
+        &--tr {
+            inset-block-start: -1px;
+            inset-inline-end: -1px;
+            border-inline-start: none;
+            border-block-end: none;
+        }
+
+        &--bl {
+            inset-block-end: -1px;
+            inset-inline-start: -1px;
+            border-inline-end: none;
+            border-block-start: none;
+        }
+
+        &--br {
+            inset-block-end: -1px;
+            inset-inline-end: -1px;
+            border-inline-start: none;
+            border-block-start: none;
+        }
     }
 
     .brain-ring {
@@ -619,28 +752,31 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+    }
 
-        span {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--edu-text-faint);
-        }
+    .brain-label span {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--edu-text-faint);
+    }
 
-        strong {
-            font-family: var(--font-display);
-            font-weight: 600;
-            font-size: 1.2rem;
-            color: var(--edu-text);
-        }
+    .brain-label strong {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--edu-text);
     }
 
     @container showcase (max-width: 420px) {
-        #brain-viewport { min-height: 360px; padding: var(--space-sm); }
+        #brain-viewport {
+            min-height: 360px;
+            padding: var(--space-sm);
+        }
     }
 }
 
 /* =====================================================================
-   8. FLUXO DE TRABALHO — os quatro módulos
+   8. FLUXO DE TRABALHO
    ===================================================================== */
 
 @layer workspace {
@@ -683,15 +819,20 @@
         text-align: start;
         background: var(--edu-bg-raised);
         border-inline-end: 1px solid var(--edu-line);
-        transition: background var(--dur-base) var(--ease);
+        transition:
+            background var(--dur-base) var(--ease);
 
-        &:last-child { border-inline-end: none; }
+        &:last-child {
+            border-inline-end: none;
+        }
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             background: var(--edu-bg-panel);
         }
 
-        &:hover .tray-icon, &:focus-visible .tray-icon {
+        &:hover .tray-icon,
+        &:focus-visible .tray-icon {
             border-color: var(--edu-purple-400);
             color: var(--edu-purple-400);
         }
@@ -719,10 +860,15 @@
         border: 1px solid var(--edu-line-strong);
         border-radius: var(--radius-sm);
         color: var(--edu-text-muted);
-        transition: border-color var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+        transition:
+            border-color var(--dur-base) var(--ease),
+            color var(--dur-base) var(--ease);
     }
 
-    .tray-icon svg { width: 18px; height: 18px; }
+    .tray-icon svg {
+        width: 18px;
+        height: 18px;
+    }
 
     .tray-name {
         font-family: var(--font-display);
@@ -746,21 +892,33 @@
     }
 
     @container tray (max-width: 760px) {
-        .chalk-tray { grid-template-columns: repeat(2, 1fr); }
+        .chalk-tray {
+            grid-template-columns: repeat(2, 1fr);
+        }
 
-        .tray-item:nth-child(2) { border-inline-end: none; }
+        .tray-item:nth-child(2) {
+            border-inline-end: none;
+        }
 
-        .tray-item:nth-child(1), .tray-item:nth-child(2) {
+        .tray-item:nth-child(1),
+        .tray-item:nth-child(2) {
             border-block-end: 1px solid var(--edu-line);
         }
     }
 
     @container tray (max-width: 420px) {
-        .chalk-tray { grid-template-columns: 1fr; }
+        .chalk-tray {
+            grid-template-columns: 1fr;
+        }
 
-        .tray-item { border-inline-end: none !important; border-block-end: 1px solid var(--edu-line); }
+        .tray-item {
+            border-inline-end: none !important;
+            border-block-end: 1px solid var(--edu-line);
+        }
 
-        .tray-item:last-child { border-block-end: none; }
+        .tray-item:last-child {
+            border-block-end: none;
+        }
     }
 }
 
@@ -816,9 +974,13 @@
         background: rgba(4, 3, 6, 0.66);
         opacity: 0;
         visibility: hidden;
-        transition: opacity var(--dur-base) var(--ease);
+        transition:
+            opacity var(--dur-base) var(--ease);
 
-        &.active { opacity: 1; visibility: visible; }
+        &.active {
+            opacity: 1;
+            visibility: visible;
+        }
     }
 
     .tool-panel {
@@ -827,19 +989,29 @@
         inset-inline-end: 0;
         z-index: 59;
         width: min(560px, 94vw);
-        padding: clamp(72px, 8vw, 88px) clamp(24px, 4vw, 48px) 56px;
+        padding:
+            clamp(72px, 8vw, 88px)
+            clamp(24px, 4vw, 48px)
+            56px;
         background: var(--edu-bg-panel);
         color: var(--edu-text);
         border-inline-start: 1px solid var(--edu-line-strong);
         overflow-y: auto;
         overscroll-behavior: contain;
         transform: translateX(100%);
-        transition: transform 0.38s var(--ease);
+        transition:
+            transform 0.38s var(--ease);
         box-shadow: var(--shadow-panel);
 
-        &.active { transform: translateX(0); }
+        &.active {
+            transform: translateX(0);
+        }
 
-        textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+            line-height: 1.6;
+        }
     }
 
     .tool-header {
@@ -885,9 +1057,12 @@
         font-size: 17px;
         line-height: 1;
         color: var(--edu-text);
-        transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        transition:
+            border-color var(--dur-fast) var(--ease),
+            color var(--dur-fast) var(--ease);
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             border-color: var(--edu-purple-400);
             color: var(--edu-purple-400);
         }
@@ -900,9 +1075,13 @@
         margin-block-start: var(--space-md);
     }
 
-    .tool-card { padding: 0; }
+    .tool-card {
+        padding: 0;
+    }
 
-    .tool-card--field :is(h4, p) { display: none; }
+    .tool-card--field :is(h4, p) {
+        display: none;
+    }
 
     .tool-card h4 {
         font-size: 0.85rem;
@@ -926,14 +1105,19 @@
         border-radius: var(--radius-sm);
         font-size: 0.9rem;
         font-weight: 500;
-        transition: background var(--dur-base) var(--ease), transform var(--dur-fast) var(--ease);
+        transition:
+            background var(--dur-base) var(--ease),
+            transform var(--dur-fast) var(--ease);
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             background: var(--edu-purple-600);
             transform: translateY(-1px);
         }
 
-        &:active { transform: translateY(0); }
+        &:active {
+            transform: translateY(0);
+        }
     }
 
     .result-box {
@@ -959,7 +1143,9 @@
     }
 
     @container (max-width: 30rem) {
-        .tool-grid { grid-template-columns: 1fr; }
+        .tool-grid {
+            grid-template-columns: 1fr;
+        }
     }
 }
 
@@ -984,7 +1170,9 @@
         gap: var(--space-sm);
         max-width: 720px;
         width: 100%;
-        padding: var(--space-sm) var(--space-md);
+        padding:
+            var(--space-sm)
+            var(--space-md);
         background: var(--edu-bg-raised);
         border: 1px solid var(--edu-line-strong);
         border-radius: var(--radius-md);
@@ -1003,7 +1191,10 @@
         color: var(--edu-brass);
     }
 
-    .cookie-icon svg { width: 15px; height: 15px; }
+    .cookie-icon svg {
+        width: 15px;
+        height: 15px;
+    }
 
     .cookie-text h3 {
         font-size: 0.95rem;
@@ -1042,9 +1233,14 @@
         border: 1px solid var(--edu-line-strong);
         color: var(--edu-text-muted);
         white-space: nowrap;
-        transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        transition:
+            border-color var(--dur-fast) var(--ease),
+            color var(--dur-fast) var(--ease);
 
-        &:hover { border-color: var(--edu-purple-400); color: var(--edu-text); }
+        &:hover {
+            border-color: var(--edu-purple-400);
+            color: var(--edu-text);
+        }
     }
 
     .cookie-btn-accept {
@@ -1054,35 +1250,68 @@
     }
 
     @media (max-width: 640px) {
-        .cookie-content { flex-wrap: wrap; }
-        .cookie-actions { width: 100%; justify-content: flex-end; }
+        .cookie-content {
+            flex-wrap: wrap;
+        }
+
+        .cookie-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
     }
 }
 
 /* =====================================================================
-   12. MICROINTERAÇÕES — um único momento orquestrado de entrada
+   12. MICROINTERAÇÕES
    ===================================================================== */
 
 @layer motion {
     @media (prefers-reduced-motion: no-preference) {
         .hero-content > * {
-            animation: rise var(--dur-entrance) var(--ease) both;
+            animation:
+                rise var(--dur-entrance)
+                var(--ease)
+                both;
         }
 
-        .hero-kicker { animation-delay: 0s; }
-        .hero h1 { animation-delay: 0.06s; }
-        .hero-lede { animation-delay: 0.12s; }
-        .access-card { animation-delay: 0.18s; }
-        .hero-links { animation-delay: 0.22s; }
+        .hero-kicker {
+            animation-delay: 0s;
+        }
+
+        .hero h1 {
+            animation-delay: 0.06s;
+        }
+
+        .hero-lede {
+            animation-delay: 0.12s;
+        }
+
+        .access-card {
+            animation-delay: 0.18s;
+        }
+
+        .hero-links {
+            animation-delay: 0.22s;
+        }
 
         #brain-viewport {
-            animation: rise var(--dur-entrance) var(--ease) both;
+            animation:
+                rise var(--dur-entrance)
+                var(--ease)
+                both;
             animation-delay: 0.1s;
         }
 
         @keyframes rise {
-            from { opacity: 0; translate: 0 10px; }
-            to { opacity: 1; translate: 0 0; }
+            from {
+                opacity: 0;
+                translate: 0 10px;
+            }
+
+            to {
+                opacity: 1;
+                translate: 0 0;
+            }
         }
     }
 }
@@ -1097,19 +1326,32 @@
             grid-template-columns: 1fr;
         }
 
-        #brain-viewport { order: -1; min-height: 340px; }
+        #brain-viewport {
+            order: -1;
+            min-height: 340px;
+        }
 
-        .hero h1 { max-width: none; }
+        .hero h1 {
+            max-width: none;
+        }
     }
 
     @media (max-width: 760px) {
-        .site-nav { display: none; }
+        .site-nav {
+            display: none;
+        }
 
-        .nav-toggle { display: inline-flex; }
+        .nav-toggle {
+            display: inline-flex;
+        }
 
-        .site-actions .btn-ghost { display: none; }
+        .site-actions .btn-ghost {
+            display: none;
+        }
 
-        .brand-affiliation { display: none; }
+        .brand-affiliation {
+            display: none;
+        }
 
         .mobile-menu {
             position: fixed;
@@ -1118,12 +1360,16 @@
             z-index: 49;
             display: flex;
             flex-direction: column;
-            padding: var(--space-sm) clamp(20px, 4vw, 40px) var(--space-md);
+            padding:
+                var(--space-sm)
+                clamp(20px, 4vw, 40px)
+                var(--space-md);
             background: var(--edu-bg-raised);
             border-block-end: 1px solid var(--edu-line);
         }
 
-        .mobile-menu a, .mobile-menu button {
+        .mobile-menu a,
+        .mobile-menu button {
             padding-block: var(--space-xs);
             font-size: 1rem;
             color: var(--edu-text-muted);
@@ -1131,16 +1377,83 @@
             border-block-end: 1px solid var(--edu-line);
         }
 
-        .main-container { padding-block-start: 96px; }
+        .main-container {
+            padding-block-start: 96px;
+        }
 
-        .access-card { max-width: none; }
+        .access-card {
+            max-width: none;
+        }
+
+        /*
+         * ============================================================
+         * MOBILE — ESPAÇO DA CORUJA
+         * ============================================================
+         */
+
+        .brain-frame {
+            width: min(100%, 320px);
+            aspect-ratio: 1 / 1;
+        }
+
+        .owl-mobile-image {
+            width: 100%;
+            height: 100%;
+            padding: 55px;
+            object-fit: contain;
+            object-position: center;
+        }
     }
 
     @media (max-width: 640px) {
-        .chalk-tray { grid-template-columns: 1fr !important; }
+        .chalk-tray {
+            grid-template-columns: 1fr !important;
+        }
 
-        .tray-item { border-inline-end: none !important; border-block-end: 1px solid var(--edu-line); }
+        .tray-item {
+            border-inline-end: none !important;
+            border-block-end: 1px solid var(--edu-line);
+        }
 
-        .tool-panel { padding-inline: 20px; }
+        .tool-panel {
+            padding-inline: 20px;
+        }
+
+        /*
+         * Em celulares menores, reduzimos o espaço da coruja,
+         * mas a logo continua presa dentro dele.
+         */
+
+        #brain-viewport {
+            min-height: 320px;
+            padding: var(--space-sm);
+        }
+
+        .brain-frame {
+            width: min(100%, 290px);
+            aspect-ratio: 1 / 1;
+        }
+
+        .owl-mobile-image {
+            width: 100%;
+            height: 100%;
+            padding: 48px;
+            object-fit: contain;
+            object-position: center;
+        }
+    }
+
+    @media (max-width: 400px) {
+        #brain-viewport {
+            min-height: 300px;
+        }
+
+        .brain-frame {
+            width: min(100%, 260px);
+        }
+
+        .owl-mobile-image {
+            padding: 42px;
+        }
     }
 }
