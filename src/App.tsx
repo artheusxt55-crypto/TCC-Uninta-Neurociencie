@@ -13,6 +13,7 @@ import {
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signInWithPopup,
+    updateProfile,
 } from "firebase/auth";
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -322,12 +323,74 @@ function App() {
     };
 
     /* =====================================================
+     * SINCRONIZAÇÃO FIREBASE → SUPABASE
+     * ===================================================== */
+
+    const sincronizarUsuarioComSupabase = async (
+        user: any
+    ) => {
+
+        try {
+
+            const idToken =
+                await user.getIdToken();
+
+            const response =
+                await fetch(
+                    "/api/usuario",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Authorization:
+                                `Bearer ${idToken}`,
+                        },
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                console.error(
+                    "Erro ao sincronizar usuário:",
+                    data
+                );
+
+                return false;
+            }
+
+            console.log(
+                "Usuário sincronizado com Supabase:",
+                data.usuario
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Erro na sincronização com Supabase:",
+                error
+            );
+
+            return false;
+        }
+    };
+
+    /* =====================================================
      * LOGIN GOOGLE — FIREBASE
      * ===================================================== */
 
     const loginComGoogle = async () => {
 
         try {
+
+            setCarregandoAuth(true);
 
             const result =
                 await signInWithPopup(
@@ -347,6 +410,20 @@ function App() {
                 }
             );
 
+            const sincronizado =
+                await sincronizarUsuarioComSupabase(
+                    user
+                );
+
+            if (!sincronizado) {
+
+                alert(
+                    "Login realizado, mas não foi possível sincronizar seu perfil."
+                );
+
+                return;
+            }
+
             alert(
                 `Bem-vindo, ${
                     user.displayName || "usuário"
@@ -363,6 +440,10 @@ function App() {
             alert(
                 "Não foi possível entrar com Google."
             );
+
+        } finally {
+
+            setCarregandoAuth(false);
 
         }
 
@@ -391,15 +472,6 @@ function App() {
      * ===================================================== */
 
     useEffect(() => {
-
-        /*
-         * No modo reduzido/mobile não existem vídeos
-         * carregados neste componente no futuro.
-         *
-         * Por enquanto esta proteção evita qualquer
-         * processamento desnecessário caso não existam
-         * elementos <video>.
-         */
 
         if (!isFull) {
             return;
@@ -713,17 +785,25 @@ function App() {
 
     const entrarComEmail = async () => {
 
-        const email = emailInput.trim();
-        const senha = senhaInput;
+        const email =
+            emailInput.trim();
+
+        const senha =
+            senhaInput;
 
         if (!email || !senha) {
-            alert("Digite seu e-mail e sua senha.");
+
+            alert(
+                "Digite seu e-mail e sua senha."
+            );
+
             return;
         }
 
         setCarregandoAuth(true);
 
         try {
+
             const result =
                 await signInWithEmailAndPassword(
                     auth,
@@ -731,12 +811,30 @@ function App() {
                     senha
                 );
 
-            console.log("Login com e-mail realizado:", {
-                uid: result.user.uid,
-                email: result.user.email,
-            });
+            console.log(
+                "Login com e-mail realizado:",
+                {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                }
+            );
 
-            window.location.href = "/aluno.html";
+            const sincronizado =
+                await sincronizarUsuarioComSupabase(
+                    result.user
+                );
+
+            if (!sincronizado) {
+
+                alert(
+                    "Login realizado, mas não foi possível sincronizar seu perfil."
+                );
+
+                return;
+            }
+
+            window.location.href =
+                "/aluno.html";
 
         } catch (error: any) {
 
@@ -746,54 +844,112 @@ function App() {
             );
 
             if (
-                error.code === "auth/invalid-credential" ||
-                error.code === "auth/wrong-password" ||
-                error.code === "auth/user-not-found"
+                error.code ===
+                    "auth/invalid-credential" ||
+                error.code ===
+                    "auth/wrong-password" ||
+                error.code ===
+                    "auth/user-not-found"
             ) {
-                alert("E-mail ou senha incorretos.");
-            } else if (error.code === "auth/invalid-email") {
-                alert("Digite um e-mail válido.");
-            } else if (error.code === "auth/too-many-requests") {
-                alert("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
+
+                alert(
+                    "E-mail ou senha incorretos."
+                );
+
+            } else if (
+                error.code ===
+                "auth/invalid-email"
+            ) {
+
+                alert(
+                    "Digite um e-mail válido."
+                );
+
+            } else if (
+                error.code ===
+                "auth/too-many-requests"
+            ) {
+
+                alert(
+                    "Muitas tentativas. Aguarde alguns minutos e tente novamente."
+                );
+
             } else {
-                alert("Não foi possível entrar. Tente novamente.");
+
+                alert(
+                    "Não foi possível entrar. Tente novamente."
+                );
+
             }
 
         } finally {
+
             setCarregandoAuth(false);
+
         }
     };
 
     const criarConta = async () => {
 
-        const nome = nomeInput.trim();
-        const email = emailInput.trim();
-        const senha = senhaInput;
-        const confirmarSenha = confirmarSenhaInput;
+        const nome =
+            nomeInput.trim();
+
+        const email =
+            emailInput.trim();
+
+        const senha =
+            senhaInput;
+
+        const confirmarSenha =
+            confirmarSenhaInput;
 
         if (!nome) {
-            alert("Digite seu nome.");
+
+            alert(
+                "Digite seu nome."
+            );
+
             return;
         }
 
-        if (!email || !senha || !confirmarSenha) {
-            alert("Preencha todos os campos.");
+        if (
+            !email ||
+            !senha ||
+            !confirmarSenha
+        ) {
+
+            alert(
+                "Preencha todos os campos."
+            );
+
             return;
         }
 
         if (senha.length < 6) {
-            alert("A senha precisa ter pelo menos 6 caracteres.");
+
+            alert(
+                "A senha precisa ter pelo menos 6 caracteres."
+            );
+
             return;
         }
 
-        if (senha !== confirmarSenha) {
-            alert("As senhas não coincidem.");
+        if (
+            senha !==
+            confirmarSenha
+        ) {
+
+            alert(
+                "As senhas não coincidem."
+            );
+
             return;
         }
 
         setCarregandoAuth(true);
 
         try {
+
             const result =
                 await createUserWithEmailAndPassword(
                     auth,
@@ -801,19 +957,55 @@ function App() {
                     senha
                 );
 
-            await sendEmailVerification(result.user);
+            await updateProfile(
+                result.user,
+                {
+                    displayName:
+                        nome,
+                }
+            );
 
-            console.log("Conta criada:", {
-                uid: result.user.uid,
-                email: result.user.email,
-            });
+            await sendEmailVerification(
+                result.user
+            );
+
+            const sincronizado =
+                await sincronizarUsuarioComSupabase(
+                    result.user
+                );
+
+            if (!sincronizado) {
+
+                console.warn(
+                    "Conta Firebase criada, mas o perfil não foi sincronizado com o Supabase."
+                );
+
+            }
+
+            console.log(
+                "Conta criada:",
+                {
+                    uid:
+                        result.user.uid,
+
+                    email:
+                        result.user.email,
+
+                    nome:
+                        result.user.displayName,
+                }
+            );
 
             alert(
                 "Conta criada com sucesso! Enviamos um e-mail de verificação para você. Depois de confirmar seu e-mail, você poderá entrar no laboratório."
             );
 
-            setModoAutenticacao("login");
+            setModoAutenticacao(
+                "login"
+            );
+
             setSenhaInput("");
+
             setConfirmarSenhaInput("");
 
         } catch (error: any) {
@@ -823,32 +1015,68 @@ function App() {
                 error
             );
 
-            if (error.code === "auth/email-already-in-use") {
-                alert("Este e-mail já possui uma conta. Tente entrar.");
-            } else if (error.code === "auth/invalid-email") {
-                alert("Digite um e-mail válido.");
-            } else if (error.code === "auth/weak-password") {
-                alert("A senha é muito fraca. Use pelo menos 6 caracteres.");
+            if (
+                error.code ===
+                "auth/email-already-in-use"
+            ) {
+
+                alert(
+                    "Este e-mail já possui uma conta. Tente entrar."
+                );
+
+            } else if (
+                error.code ===
+                "auth/invalid-email"
+            ) {
+
+                alert(
+                    "Digite um e-mail válido."
+                );
+
+            } else if (
+                error.code ===
+                "auth/weak-password"
+            ) {
+
+                alert(
+                    "A senha é muito fraca. Use pelo menos 6 caracteres."
+                );
+
             } else {
-                alert("Não foi possível criar a conta. Tente novamente.");
+
+                alert(
+                    "Não foi possível criar a conta. Tente novamente."
+                );
+
             }
 
         } finally {
+
             setCarregandoAuth(false);
+
         }
     };
 
     const recuperarSenha = async () => {
 
-        const email = emailInput.trim();
+        const email =
+            emailInput.trim();
 
         if (!email) {
-            alert("Digite seu e-mail no campo acima para recuperar sua senha.");
+
+            alert(
+                "Digite seu e-mail no campo acima para recuperar sua senha."
+            );
+
             return;
         }
 
         try {
-            await sendPasswordResetEmail(auth, email);
+
+            await sendPasswordResetEmail(
+                auth,
+                email
+            );
 
             alert(
                 "Se existir uma conta com esse e-mail, enviaremos as instruções para redefinir sua senha."
@@ -861,18 +1089,37 @@ function App() {
                 error
             );
 
-            if (error.code === "auth/invalid-email") {
-                alert("Digite um e-mail válido.");
+            if (
+                error.code ===
+                "auth/invalid-email"
+            ) {
+
+                alert(
+                    "Digite um e-mail válido."
+                );
+
             } else {
-                alert("Não foi possível enviar o e-mail de recuperação.");
+
+                alert(
+                    "Não foi possível enviar o e-mail de recuperação."
+                );
+
             }
         }
     };
 
-    const alternarModoAutenticacao = (modo: "login" | "cadastro") => {
-        setModoAutenticacao(modo);
+    const alternarModoAutenticacao = (
+        modo: "login" | "cadastro"
+    ) => {
+
+        setModoAutenticacao(
+            modo
+        );
+
         setSenhaInput("");
+
         setConfirmarSenhaInput("");
+
     };
 
     /* =====================================================
@@ -985,8 +1232,13 @@ function App() {
                         onClick={
                             loginComGoogle
                         }
+                        disabled={
+                            carregandoAuth
+                        }
                     >
-                        Entrar com Google
+                        {carregandoAuth
+                            ? "Aguarde..."
+                            : "Entrar com Google"}
                     </button>
 
                     <a
@@ -1068,8 +1320,13 @@ function App() {
                         onClick={
                             loginComGoogle
                         }
+                        disabled={
+                            carregandoAuth
+                        }
                     >
-                        Entrar com Google
+                        {carregandoAuth
+                            ? "Aguarde..."
+                            : "Entrar com Google"}
                     </button>
 
                     <a href="/aluno.html">
@@ -1371,7 +1628,9 @@ function App() {
                                     onClick={loginComGoogle}
                                     disabled={carregandoAuth}
                                 >
-                                    Continuar com Google
+                                    {carregandoAuth
+                                        ? "Aguarde..."
+                                        : "Continuar com Google"}
                                 </button>
 
                             </div>
@@ -1415,10 +1674,6 @@ function App() {
 
                                 <span className="brain-corner brain-corner--br" />
 
-                                {/* ==============================
-                                    DESKTOP
-                                ============================== */}
-
                                 {isFull && (
                                     <Suspense
                                         fallback={
@@ -1428,10 +1683,6 @@ function App() {
                                         <OwlShowcase />
                                     </Suspense>
                                 )}
-
-                                {/* ==============================
-                                    MOBILE / REDUZIDO
-                                ============================== */}
 
                                 {!isFull && (
                                     <img
