@@ -53,8 +53,10 @@ export default async function handler(req, res) {
       await adminAuth.verifyIdToken(idToken);
 
     const firebaseUid = decodedToken.uid;
+
     const email =
       decodedToken.email || null;
+
     const nome =
       decodedToken.name || null;
 
@@ -63,8 +65,8 @@ export default async function handler(req, res) {
       .upsert(
         {
           firebase_uid: firebaseUid,
-          email,
-          nome,
+          email: email,
+          nome: nome,
         },
         {
           onConflict: "firebase_uid",
@@ -94,13 +96,17 @@ export default async function handler(req, res) {
   } catch (error) {
 
     console.error(
-      "Erro Firebase:",
+      "ERRO REAL API USUARIO:",
       error
     );
 
     return res.status(401).json({
       error:
-        "Token Firebase inválido ou expirado",
+        "Erro ao validar token Firebase",
+      details:
+        error instanceof Error
+          ? error.message
+          : String(error),
     });
   }
 }
