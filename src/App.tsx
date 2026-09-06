@@ -8,8 +8,11 @@ import {
 
 import { auth, googleProvider } from "./lib/firebase";
 import {
-    signInWithPopup,
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword,
+    signInWithPopup,
 } from "firebase/auth";
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -235,6 +238,18 @@ function App() {
 
     const [senhaInput, setSenhaInput] =
         useState("");
+
+    const [confirmarSenhaInput, setConfirmarSenhaInput] =
+        useState("");
+
+    const [nomeInput, setNomeInput] =
+        useState("");
+
+    const [modoAutenticacao, setModoAutenticacao] =
+        useState<"login" | "cadastro">("login");
+
+    const [carregandoAuth, setCarregandoAuth] =
+        useState(false);
 
     const [diagDescricao, setDiagDescricao] =
         useState("");
@@ -693,7 +708,7 @@ function App() {
     };
 
     /* =====================================================
-     * ACESSO
+     * AUTENTICAÇÃO — FIREBASE
      * ===================================================== */
 
     const entrarComEmail = async () => {
@@ -702,14 +717,13 @@ function App() {
         const senha = senhaInput;
 
         if (!email || !senha) {
-            alert(
-                "Digite seu e-mail e sua senha."
-            );
+            alert("Digite seu e-mail e sua senha.");
             return;
         }
 
-        try {
+        setCarregandoAuth(true);
 
+        try {
             const result =
                 await signInWithEmailAndPassword(
                     auth,
@@ -717,18 +731,12 @@ function App() {
                     senha
                 );
 
-            const user = result.user;
+            console.log("Login com e-mail realizado:", {
+                uid: result.user.uid,
+                email: result.user.email,
+            });
 
-            console.log(
-                "Login com e-mail realizado:",
-                {
-                    uid: user.uid,
-                    email: user.email,
-                }
-            );
-
-            window.location.href =
-                "/aluno.html";
+            window.location.href = "/aluno.html";
 
         } catch (error: any) {
 
@@ -737,45 +745,134 @@ function App() {
                 error
             );
 
-            switch (error.code) {
-
-                case "auth/invalid-credential":
-                    alert(
-                        "E-mail ou senha incorretos."
-                    );
-                    break;
-
-                case "auth/user-not-found":
-                    alert(
-                        "Não existe uma conta com este e-mail."
-                    );
-                    break;
-
-                case "auth/wrong-password":
-                    alert(
-                        "Senha incorreta."
-                    );
-                    break;
-
-                case "auth/invalid-email":
-                    alert(
-                        "Digite um e-mail válido."
-                    );
-                    break;
-
-                case "auth/too-many-requests":
-                    alert(
-                        "Muitas tentativas. Aguarde um pouco e tente novamente."
-                    );
-                    break;
-
-                default:
-                    alert(
-                        "Não foi possível entrar. Tente novamente."
-                    );
+            if (
+                error.code === "auth/invalid-credential" ||
+                error.code === "auth/wrong-password" ||
+                error.code === "auth/user-not-found"
+            ) {
+                alert("E-mail ou senha incorretos.");
+            } else if (error.code === "auth/invalid-email") {
+                alert("Digite um e-mail válido.");
+            } else if (error.code === "auth/too-many-requests") {
+                alert("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
+            } else {
+                alert("Não foi possível entrar. Tente novamente.");
             }
+
+        } finally {
+            setCarregandoAuth(false);
+        }
+    };
+
+    const criarConta = async () => {
+
+        const nome = nomeInput.trim();
+        const email = emailInput.trim();
+        const senha = senhaInput;
+        const confirmarSenha = confirmarSenhaInput;
+
+        if (!nome) {
+            alert("Digite seu nome.");
+            return;
         }
 
+        if (!email || !senha || !confirmarSenha) {
+            alert("Preencha todos os campos.");
+            return;
+        }
+
+        if (senha.length < 6) {
+            alert("A senha precisa ter pelo menos 6 caracteres.");
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            alert("As senhas não coincidem.");
+            return;
+        }
+
+        setCarregandoAuth(true);
+
+        try {
+            const result =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    senha
+                );
+
+            await sendEmailVerification(result.user);
+
+            console.log("Conta criada:", {
+                uid: result.user.uid,
+                email: result.user.email,
+            });
+
+            alert(
+                "Conta criada com sucesso! Enviamos um e-mail de verificação para você. Depois de confirmar seu e-mail, você poderá entrar no laboratório."
+            );
+
+            setModoAutenticacao("login");
+            setSenhaInput("");
+            setConfirmarSenhaInput("");
+
+        } catch (error: any) {
+
+            console.error(
+                "Erro ao criar conta:",
+                error
+            );
+
+            if (error.code === "auth/email-already-in-use") {
+                alert("Este e-mail já possui uma conta. Tente entrar.");
+            } else if (error.code === "auth/invalid-email") {
+                alert("Digite um e-mail válido.");
+            } else if (error.code === "auth/weak-password") {
+                alert("A senha é muito fraca. Use pelo menos 6 caracteres.");
+            } else {
+                alert("Não foi possível criar a conta. Tente novamente.");
+            }
+
+        } finally {
+            setCarregandoAuth(false);
+        }
+    };
+
+    const recuperarSenha = async () => {
+
+        const email = emailInput.trim();
+
+        if (!email) {
+            alert("Digite seu e-mail no campo acima para recuperar sua senha.");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+
+            alert(
+                "Se existir uma conta com esse e-mail, enviaremos as instruções para redefinir sua senha."
+            );
+
+        } catch (error: any) {
+
+            console.error(
+                "Erro ao recuperar senha:",
+                error
+            );
+
+            if (error.code === "auth/invalid-email") {
+                alert("Digite um e-mail válido.");
+            } else {
+                alert("Não foi possível enviar o e-mail de recuperação.");
+            }
+        }
+    };
+
+    const alternarModoAutenticacao = (modo: "login" | "cadastro") => {
+        setModoAutenticacao(modo);
+        setSenhaInput("");
+        setConfirmarSenhaInput("");
     };
 
     /* =====================================================
@@ -1107,8 +1204,70 @@ function App() {
                             <div className="access-card">
 
                                 <p className="access-card__title">
-                                    ACESSO AO LABORATÓRIO
+                                    {modoAutenticacao === "login"
+                                        ? "ENTRAR NO LABORATÓRIO"
+                                        : "CRIAR SUA CONTA"}
                                 </p>
+
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        gap: "8px",
+                                        marginBottom: "18px",
+                                    }}
+                                >
+                                    <button
+                                        type="button"
+                                        className={
+                                            modoAutenticacao === "login"
+                                                ? "btn-primary"
+                                                : "btn-ghost"
+                                        }
+                                        onClick={() =>
+                                            alternarModoAutenticacao("login")
+                                        }
+                                        style={{ flex: 1 }}
+                                    >
+                                        Entrar
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            modoAutenticacao === "cadastro"
+                                                ? "btn-primary"
+                                                : "btn-ghost"
+                                        }
+                                        onClick={() =>
+                                            alternarModoAutenticacao("cadastro")
+                                        }
+                                        style={{ flex: 1 }}
+                                    >
+                                        Criar conta
+                                    </button>
+                                </div>
+
+                                {modoAutenticacao === "cadastro" && (
+                                    <>
+                                        <label
+                                            className="field-label"
+                                            htmlFor="nomeInput"
+                                        >
+                                            Nome
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="nomeInput"
+                                            value={nomeInput}
+                                            onChange={(event) =>
+                                                setNomeInput(event.target.value)
+                                            }
+                                            placeholder="Digite seu nome"
+                                            autoComplete="name"
+                                        />
+                                    </>
+                                )}
 
                                 <label
                                     className="field-label"
@@ -1122,9 +1281,7 @@ function App() {
                                     id="emailInput"
                                     value={emailInput}
                                     onChange={(event) =>
-                                        setEmailInput(
-                                            event.target.value
-                                        )
+                                        setEmailInput(event.target.value)
                                     }
                                     placeholder="Digite seu e-mail"
                                     autoComplete="email"
@@ -1142,23 +1299,67 @@ function App() {
                                     id="senhaInput"
                                     value={senhaInput}
                                     onChange={(event) =>
-                                        setSenhaInput(
-                                            event.target.value
-                                        )
+                                        setSenhaInput(event.target.value)
                                     }
                                     placeholder="Digite sua senha"
-                                    autoComplete="current-password"
+                                    autoComplete={
+                                        modoAutenticacao === "login"
+                                            ? "current-password"
+                                            : "new-password"
+                                    }
                                 />
+
+                                {modoAutenticacao === "cadastro" && (
+                                    <>
+                                        <label
+                                            className="field-label"
+                                            htmlFor="confirmarSenhaInput"
+                                        >
+                                            Confirmar senha
+                                        </label>
+
+                                        <input
+                                            type="password"
+                                            id="confirmarSenhaInput"
+                                            value={confirmarSenhaInput}
+                                            onChange={(event) =>
+                                                setConfirmarSenhaInput(
+                                                    event.target.value
+                                                )
+                                            }
+                                            placeholder="Digite a senha novamente"
+                                            autoComplete="new-password"
+                                        />
+                                    </>
+                                )}
 
                                 <button
                                     type="button"
                                     className="btn-primary"
                                     onClick={
-                                        entrarComEmail
+                                        modoAutenticacao === "login"
+                                            ? entrarComEmail
+                                            : criarConta
                                     }
+                                    disabled={carregandoAuth}
                                 >
-                                    Entrar no laboratório
+                                    {carregandoAuth
+                                        ? "Aguarde..."
+                                        : modoAutenticacao === "login"
+                                            ? "Entrar no laboratório"
+                                            : "Criar conta"}
                                 </button>
+
+                                {modoAutenticacao === "login" && (
+                                    <button
+                                        type="button"
+                                        className="btn-ghost"
+                                        onClick={recuperarSenha}
+                                        style={{ marginTop: "10px" }}
+                                    >
+                                        Esqueci minha senha
+                                    </button>
+                                )}
 
                                 <div className="access-divider">
                                     ou
@@ -1167,9 +1368,8 @@ function App() {
                                 <button
                                     type="button"
                                     className="btn-ghost"
-                                    onClick={
-                                        loginComGoogle
-                                    }
+                                    onClick={loginComGoogle}
+                                    disabled={carregandoAuth}
                                 >
                                     Continuar com Google
                                 </button>
