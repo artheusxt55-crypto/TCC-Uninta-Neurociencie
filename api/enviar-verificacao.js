@@ -1,3 +1,4 @@
+
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
 
     const adminAuth = getFirebaseAdmin();
 
-    // Firebase cria o link REAL de verificação
+    // Firebase gera o link REAL de verificação
     const verificationLink =
       await adminAuth.generateEmailVerificationLink(email);
 
@@ -43,91 +44,442 @@ export default async function handler(req, res) {
       "https://api.resend.com/emails",
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         },
+
         body: JSON.stringify({
           from: "EducaCube <noreply@educacube.online>",
           to: [email],
-          subject: "Confirme seu e-mail — EducaCube",
+          subject: "Confirme seu e-mail • EducaCube",
+
           html: `
-            <!DOCTYPE html>
-            <html>
-              <body style="
-                margin:0;
-                padding:0;
-                background:#f5f3ff;
-                font-family:Arial,sans-serif;
-              ">
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-                <div style="
-                  max-width:600px;
-                  margin:40px auto;
-                  background:white;
-                  border-radius:16px;
-                  padding:40px;
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Confirme seu e-mail - EducaCube</title>
+</head>
+
+<body
+  style="
+    margin:0;
+    padding:0;
+    background-color:#f5f3ff;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#18181b;
+  "
+>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <table
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="
+      background-color:#f5f3ff;
+      padding:40px 15px;
+    "
+  >
+
+    <tr>
+
+      <td align="center">
+
+        <!-- EMAIL -->
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="
+            max-width:600px;
+            background-color:#ffffff;
+            border-radius:20px;
+            overflow:hidden;
+            box-shadow:0 10px 40px rgba(76,29,149,0.10);
+          "
+        >
+
+          <!-- BARRA ROXA SUPERIOR -->
+          <tr>
+            <td
+              style="
+                height:6px;
+                background-color:#7c3aed;
+                font-size:0;
+                line-height:0;
+              "
+            >
+              &nbsp;
+            </td>
+          </tr>
+
+
+          <!-- HEADER -->
+          <tr>
+
+            <td
+              align="center"
+              style="
+                padding:38px 35px 25px;
+              "
+            >
+
+              <!-- LOGO -->
+              <!--
+                Quando tiver sua logo hospedada,
+                substitua a imagem abaixo.
+              -->
+
+              <div
+                style="
+                  width:64px;
+                  height:64px;
+                  margin:0 auto 18px;
+                  background-color:#ede9fe;
+                  border-radius:18px;
                   text-align:center;
-                  box-shadow:0 5px 25px rgba(0,0,0,0.08);
-                ">
+                  line-height:64px;
+                  font-size:32px;
+                "
+              >
+                🦉
+              </div>
 
-                  <h1 style="
-                    color:#6d28d9;
-                    margin-bottom:10px;
-                  ">
-                    🦉 EducaCube
-                  </h1>
 
-                  <h2>
-                    Confirme seu e-mail
-                  </h2>
+              <!-- NOME -->
+              <div
+                style="
+                  color:#5b21b6;
+                  font-size:25px;
+                  font-weight:700;
+                  letter-spacing:-0.5px;
+                "
+              >
+                EducaCube
+              </div>
 
-                  <p style="
-                    color:#555;
-                    font-size:16px;
-                    line-height:1.6;
-                  ">
-                    Bem-vindo ao EducaCube!
-                  </p>
 
-                  <p style="
-                    color:#555;
-                    font-size:16px;
-                    line-height:1.6;
-                  ">
-                    Para ativar sua conta, confirme seu endereço
-                    de e-mail clicando no botão abaixo.
-                  </p>
+              <!-- SUBTÍTULO -->
+              <div
+                style="
+                  margin-top:6px;
+                  color:#8b5cf6;
+                  font-size:12px;
+                  font-weight:500;
+                  letter-spacing:0.5px;
+                "
+              >
+                EDUCAÇÃO • TECNOLOGIA • INOVAÇÃO
+              </div>
 
-                  <a
-                    href="${verificationLink}"
+            </td>
+
+          </tr>
+
+
+          <!-- CONTEÚDO -->
+          <tr>
+
+            <td
+              style="
+                padding:10px 45px 45px;
+              "
+            >
+
+              <!-- TÍTULO -->
+              <h1
+                style="
+                  margin:0 0 18px;
+                  color:#18181b;
+                  font-size:30px;
+                  line-height:1.2;
+                  font-weight:700;
+                  letter-spacing:-0.7px;
+                  text-align:center;
+                "
+              >
+                Confirme seu e-mail
+              </h1>
+
+
+              <!-- TEXTO -->
+              <p
+                style="
+                  margin:0 0 14px;
+                  color:#52525b;
+                  font-size:15px;
+                  line-height:1.7;
+                  text-align:center;
+                "
+              >
+                Bem-vindo ao
+                <strong style="color:#6d28d9;">
+                  EducaCube
+                </strong>.
+              </p>
+
+
+              <p
+                style="
+                  margin:0 0 28px;
+                  color:#71717a;
+                  font-size:15px;
+                  line-height:1.7;
+                  text-align:center;
+                "
+              >
+                Para ativar sua conta e começar a utilizar
+                a plataforma, confirme seu endereço de e-mail
+                clicando no botão abaixo.
+              </p>
+
+
+              <!-- BOTÃO -->
+              <table
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+              >
+
+                <tr>
+
+                  <td align="center">
+
+                    <a
+                      href="${verificationLink}"
+                      style="
+                        display:inline-block;
+                        background-color:#7c3aed;
+                        color:#ffffff;
+                        text-decoration:none;
+                        padding:15px 30px;
+                        border-radius:10px;
+                        font-size:14px;
+                        font-weight:700;
+                        letter-spacing:0.2px;
+                        box-shadow:0 6px 16px rgba(124,58,237,0.25);
+                      "
+                    >
+                      CONFIRMAR MEU E-MAIL
+                    </a>
+
+                  </td>
+
+                </tr>
+
+              </table>
+
+
+              <!-- ESPAÇO -->
+              <div style="height:32px;"></div>
+
+
+              <!-- AVISO -->
+              <table
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                style="
+                  background-color:#faf5ff;
+                  border:1px solid #ede9fe;
+                  border-radius:12px;
+                "
+              >
+
+                <tr>
+
+                  <td
                     style="
-                      display:inline-block;
-                      margin-top:20px;
-                      padding:14px 28px;
-                      background:#7c3aed;
-                      color:white;
-                      text-decoration:none;
-                      border-radius:10px;
-                      font-weight:bold;
+                      padding:18px 20px;
                     "
                   >
-                    VERIFICAR MEU E-MAIL
-                  </a>
 
-                  <p style="
-                    margin-top:30px;
-                    color:#888;
-                    font-size:13px;
-                  ">
-                    Se você não criou uma conta no EducaCube,
-                    ignore este e-mail.
-                  </p>
+                    <p
+                      style="
+                        margin:0;
+                        color:#6b21a8;
+                        font-size:13px;
+                        line-height:1.6;
+                      "
+                    >
+                      <strong>Importante:</strong><br>
 
-                </div>
+                      Este link foi gerado para confirmar
+                      o endereço de e-mail utilizado na criação
+                      da sua conta.
+                    </p>
 
-              </body>
-            </html>
+                  </td>
+
+                </tr>
+
+              </table>
+
+
+              <!-- LINK ALTERNATIVO -->
+              <p
+                style="
+                  margin:30px 0 8px;
+                  color:#a1a1aa;
+                  font-size:11px;
+                  line-height:1.5;
+                  text-align:center;
+                "
+              >
+                Se o botão não funcionar, copie e cole
+                o endereço abaixo no seu navegador:
+              </p>
+
+
+              <p
+                style="
+                  margin:0;
+                  word-break:break-all;
+                  text-align:center;
+                "
+              >
+
+                <a
+                  href="${verificationLink}"
+                  style="
+                    color:#7c3aed;
+                    font-size:11px;
+                    text-decoration:none;
+                  "
+                >
+                  ${verificationLink}
+                </a>
+
+              </p>
+
+            </td>
+
+          </tr>
+
+
+          <!-- DIVISÓRIA -->
+          <tr>
+
+            <td
+              style="
+                padding:0 45px;
+              "
+            >
+
+              <div
+                style="
+                  height:1px;
+                  background-color:#f4f4f5;
+                "
+              >
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- FOOTER -->
+          <tr>
+
+            <td
+              align="center"
+              style="
+                padding:28px 35px 35px;
+              "
+            >
+
+              <p
+                style="
+                  margin:0 0 8px;
+                  color:#6d28d9;
+                  font-size:14px;
+                  font-weight:700;
+                "
+              >
+                EducaCube
+              </p>
+
+
+              <p
+                style="
+                  margin:0 0 15px;
+                  color:#a1a1aa;
+                  font-size:11px;
+                  line-height:1.6;
+                "
+              >
+                Uma experiência criada para aprender,
+                explorar e evoluir.
+              </p>
+
+
+              <p
+                style="
+                  margin:0;
+                  color:#c4c4c8;
+                  font-size:10px;
+                  line-height:1.5;
+                "
+              >
+                Você recebeu este e-mail porque uma conta
+                foi criada no EducaCube.
+              </p>
+
+
+              <p
+                style="
+                  margin:12px 0 0;
+                  color:#d4d4d8;
+                  font-size:10px;
+                "
+              >
+                © 2026 EducaCube. Todos os direitos reservados.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </table>
+
+        <!-- TEXTO FORA DO CARD -->
+
+        <p
+          style="
+            margin:18px 0 0;
+            color:#a1a1aa;
+            font-size:10px;
+            text-align:center;
+          "
+        >
+          Este é um e-mail automático. Por favor,
+          não responda diretamente a esta mensagem.
+        </p>
+
+      </td>
+
+    </tr>
+
+  </table>
+
+</body>
+
+</html>
           `,
         }),
       }
@@ -150,10 +502,15 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error("ERRO API VERIFICAÇÃO:", error);
+
+    console.error(
+      "ERRO API VERIFICAÇÃO:",
+      error
+    );
 
     return res.status(500).json({
       error: "Erro interno ao enviar verificação",
+
       details:
         error instanceof Error
           ? error.message
@@ -161,3 +518,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
