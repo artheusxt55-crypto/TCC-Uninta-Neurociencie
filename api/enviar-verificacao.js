@@ -1,4 +1,3 @@
-
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
@@ -80,7 +79,7 @@ export default async function handler(req, res) {
   "
 >
 
-  <!-- CONTAINER PRINCIPAL -->
+  <!-- FUNDO -->
   <table
     width="100%"
     cellpadding="0"
@@ -96,7 +95,7 @@ export default async function handler(req, res) {
 
       <td align="center">
 
-        <!-- EMAIL -->
+        <!-- CARD PRINCIPAL -->
         <table
           width="100%"
           cellpadding="0"
@@ -111,8 +110,9 @@ export default async function handler(req, res) {
           "
         >
 
-          <!-- BARRA ROXA SUPERIOR -->
+          <!-- BARRA ROXA -->
           <tr>
+
             <td
               style="
                 height:6px;
@@ -123,6 +123,7 @@ export default async function handler(req, res) {
             >
               &nbsp;
             </td>
+
           </tr>
 
 
@@ -132,30 +133,52 @@ export default async function handler(req, res) {
             <td
               align="center"
               style="
-                padding:38px 35px 25px;
+                padding:38px 35px 28px;
               "
             >
 
-              <!-- LOGO -->
-              <!--
-                Quando tiver sua logo hospedada,
-                substitua a imagem abaixo.
-              -->
-
-              <div
+              <!-- LOGO EDUCACUBE -->
+              <table
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                align="center"
                 style="
-                  width:64px;
-                  height:64px;
                   margin:0 auto 18px;
-                  background-color:#ede9fe;
-                  border-radius:18px;
-                  text-align:center;
-                  line-height:64px;
-                  font-size:32px;
                 "
               >
-                🦉
-              </div>
+
+                <tr>
+
+                  <td
+                    align="center"
+                    valign="middle"
+                    style="
+                      text-align:center;
+                    "
+                  >
+
+                    <img
+                      src="https://github.com/artheusxt55-crypto/TCC-Uninta-Neurociencie/blob/main/public/logo-educacube.png?raw=true"
+                      alt="EducaCube"
+                      width="82"
+                      style="
+                        display:block;
+                        width:82px;
+                        max-width:82px;
+                        height:auto;
+                        margin:0 auto;
+                        border:0;
+                        outline:none;
+                        text-decoration:none;
+                      "
+                    >
+
+                  </td>
+
+                </tr>
+
+              </table>
 
 
               <!-- NOME -->
@@ -174,11 +197,11 @@ export default async function handler(req, res) {
               <!-- SUBTÍTULO -->
               <div
                 style="
-                  margin-top:6px;
+                  margin-top:7px;
                   color:#8b5cf6;
-                  font-size:12px;
-                  font-weight:500;
-                  letter-spacing:0.5px;
+                  font-size:11px;
+                  font-weight:600;
+                  letter-spacing:1px;
                 "
               >
                 EDUCAÇÃO • TECNOLOGIA • INOVAÇÃO
@@ -214,7 +237,7 @@ export default async function handler(req, res) {
               </h1>
 
 
-              <!-- TEXTO -->
+              <!-- TEXTO PRINCIPAL -->
               <p
                 style="
                   margin:0 0 14px;
@@ -316,11 +339,13 @@ export default async function handler(req, res) {
                         line-height:1.6;
                       "
                     >
+
                       <strong>Importante:</strong><br>
 
                       Este link foi gerado para confirmar
                       o endereço de e-mail utilizado na criação
                       da sua conta.
+
                     </p>
 
                   </td>
@@ -385,8 +410,7 @@ export default async function handler(req, res) {
                   height:1px;
                   background-color:#f4f4f5;
                 "
-              >
-              </div>
+              ></div>
 
             </td>
 
@@ -457,8 +481,8 @@ export default async function handler(req, res) {
 
         </table>
 
-        <!-- TEXTO FORA DO CARD -->
 
+        <!-- TEXTO FORA DO CARD -->
         <p
           style="
             margin:18px 0 0;
@@ -518,4 +542,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
