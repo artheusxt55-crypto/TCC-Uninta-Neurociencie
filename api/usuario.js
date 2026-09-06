@@ -48,20 +48,17 @@ export default async function handler(req, res) {
     const firebaseUid = decodedToken.uid;
     const email = decodedToken.email || null;
     const nome = decodedToken.name || null;
-    const foto = decodedToken.picture || null;
 
     const { data, error } = await supabase
-      .from("usuarios")
+      .from("perfil_usuario")
       .upsert(
         {
-          id_firebase: firebaseUid,
+          firebase_uid: firebaseUid,
           email,
           nome,
-          foto,
-          updated_at: new Date().toISOString(),
         },
         {
-          onConflict: "id_firebase",
+          onConflict: "firebase_uid",
         }
       )
       .select()
