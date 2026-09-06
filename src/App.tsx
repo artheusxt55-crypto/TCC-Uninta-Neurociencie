@@ -1,3 +1,4 @@
+
 import {
     lazy,
     Suspense,
@@ -9,7 +10,6 @@ import {
 import { auth, googleProvider } from "./lib/firebase";
 import {
     createUserWithEmailAndPassword,
-    sendEmailVerification,
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signInWithPopup,
@@ -375,6 +375,64 @@ function App() {
 
             console.error(
                 "Erro na sincronização com Supabase:",
+                error
+            );
+
+            return false;
+        }
+    };
+
+    /* =====================================================
+     * ENVIO DE VERIFICAÇÃO — RESEND
+     * ===================================================== */
+
+    const enviarEmailVerificacao = async (
+        user: any
+    ) => {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/enviar-verificacao",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        body: JSON.stringify({
+                            email: user.email,
+                        }),
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                console.error(
+                    "Erro ao enviar verificação:",
+                    data
+                );
+
+                return false;
+            }
+
+            console.log(
+                "E-mail personalizado enviado pelo Resend:",
+                data
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao chamar API de verificação:",
                 error
             );
 
@@ -887,6 +945,7 @@ function App() {
             setCarregandoAuth(false);
 
         }
+
     };
 
     const criarConta = async () => {
@@ -965,9 +1024,24 @@ function App() {
                 }
             );
 
-            await sendEmailVerification(
-                result.user
-            );
+            /* ==========================================
+             * RESEND
+             * Firebase gera o link.
+             * Resend envia o e-mail personalizado.
+             * ========================================== */
+
+            const emailEnviado =
+                await enviarEmailVerificacao(
+                    result.user
+                );
+
+            if (!emailEnviado) {
+
+                console.warn(
+                    "Conta criada, mas o e-mail de verificação não pôde ser enviado pelo Resend."
+                );
+
+            }
 
             const sincronizado =
                 await sincronizarUsuarioComSupabase(
@@ -1055,6 +1129,7 @@ function App() {
             setCarregandoAuth(false);
 
         }
+
     };
 
     const recuperarSenha = async () => {
@@ -1408,11 +1483,8 @@ function App() {
             {isFull && (
                 <>
                     <div className="video-purple-glow" />
-
                     <div className="architectural-grid" />
-
                     <div className="side-line" />
-
                     <div className="grain" />
                 </>
             )}
@@ -1473,6 +1545,7 @@ function App() {
                                         marginBottom: "18px",
                                     }}
                                 >
+
                                     <button
                                         type="button"
                                         className={
@@ -1502,6 +1575,7 @@ function App() {
                                     >
                                         Criar conta
                                     </button>
+
                                 </div>
 
                                 {modoAutenticacao === "cadastro" && (
@@ -1667,11 +1741,8 @@ function App() {
                             <div className="brain-frame">
 
                                 <span className="brain-corner brain-corner--tl" />
-
                                 <span className="brain-corner brain-corner--tr" />
-
                                 <span className="brain-corner brain-corner--bl" />
-
                                 <span className="brain-corner brain-corner--br" />
 
                                 {isFull && (
@@ -2455,3 +2526,4 @@ function App() {
 }
 
 export default App;
+
