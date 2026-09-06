@@ -7,7 +7,10 @@ import {
 } from "react";
 
 import { auth, googleProvider } from "./lib/firebase";
-import { signInWithPopup } from "firebase/auth";
+import {
+    signInWithPopup,
+    signInWithEmailAndPassword,
+} from "firebase/auth";
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
@@ -227,7 +230,10 @@ function App() {
     const [menuAberto, setMenuAberto] =
         useState(false);
 
-    const [idInput, setIdInput] =
+    const [emailInput, setEmailInput] =
+        useState("");
+
+    const [senhaInput, setSenhaInput] =
         useState("");
 
     const [diagDescricao, setDiagDescricao] =
@@ -690,27 +696,85 @@ function App() {
      * ACESSO
      * ===================================================== */
 
-    const validarAcesso = () => {
+    const entrarComEmail = async () => {
 
-        const valor =
-            idInput
-                .trim()
-                .toUpperCase();
+        const email = emailInput.trim();
+        const senha = senhaInput;
 
-        if (
-            valor === "MATH001" ||
-            valor.startsWith("PAC")
-        ) {
+        if (!email || !senha) {
+            alert(
+                "Digite seu e-mail e sua senha."
+            );
+            return;
+        }
+
+        try {
+
+            const result =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    senha
+                );
+
+            const user = result.user;
+
+            console.log(
+                "Login com e-mail realizado:",
+                {
+                    uid: user.uid,
+                    email: user.email,
+                }
+            );
 
             window.location.href =
                 "/aluno.html";
 
-            return;
-        }
+        } catch (error: any) {
 
-        alert(
-            "ID de acesso inválido."
-        );
+            console.error(
+                "Erro no login com e-mail:",
+                error
+            );
+
+            switch (error.code) {
+
+                case "auth/invalid-credential":
+                    alert(
+                        "E-mail ou senha incorretos."
+                    );
+                    break;
+
+                case "auth/user-not-found":
+                    alert(
+                        "Não existe uma conta com este e-mail."
+                    );
+                    break;
+
+                case "auth/wrong-password":
+                    alert(
+                        "Senha incorreta."
+                    );
+                    break;
+
+                case "auth/invalid-email":
+                    alert(
+                        "Digite um e-mail válido."
+                    );
+                    break;
+
+                case "auth/too-many-requests":
+                    alert(
+                        "Muitas tentativas. Aguarde um pouco e tente novamente."
+                    );
+                    break;
+
+                default:
+                    alert(
+                        "Não foi possível entrar. Tente novamente."
+                    );
+            }
+        }
 
     };
 
@@ -1048,30 +1112,49 @@ function App() {
 
                                 <label
                                     className="field-label"
-                                    htmlFor="idInput"
+                                    htmlFor="emailInput"
                                 >
-                                    Identificação
+                                    E-mail
                                 </label>
 
                                 <input
-                                    type="text"
-                                    id="idInput"
-                                    value={idInput}
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setIdInput(
+                                    type="email"
+                                    id="emailInput"
+                                    value={emailInput}
+                                    onChange={(event) =>
+                                        setEmailInput(
                                             event.target.value
                                         )
                                     }
-                                    placeholder="Digite seu ID de acesso"
-                                    autoComplete="off"
+                                    placeholder="Digite seu e-mail"
+                                    autoComplete="email"
+                                />
+
+                                <label
+                                    className="field-label"
+                                    htmlFor="senhaInput"
+                                >
+                                    Senha
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="senhaInput"
+                                    value={senhaInput}
+                                    onChange={(event) =>
+                                        setSenhaInput(
+                                            event.target.value
+                                        )
+                                    }
+                                    placeholder="Digite sua senha"
+                                    autoComplete="current-password"
                                 />
 
                                 <button
+                                    type="button"
                                     className="btn-primary"
                                     onClick={
-                                        validarAcesso
+                                        entrarComEmail
                                     }
                                 >
                                     Entrar no laboratório
