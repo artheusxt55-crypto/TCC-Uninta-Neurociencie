@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -10,7 +9,9 @@
     />
 
     <!-- Título da página -->
-    <title>EducaCube — Plataforma Educacional com Inteligência Artificial</title>
+    <title>
+        EducaCube — Plataforma Educacional com Inteligência Artificial
+    </title>
 
     <!-- Descrição para mecanismos de busca -->
     <meta
@@ -40,14 +41,56 @@
         "description": "Plataforma educacional que reúne recursos de aprendizagem, tecnologia e inteligência artificial para estudantes e educadores."
     }
     </script>
+
+    <!-- ===================================================== -->
+    <!-- GOOGLE ANALYTICS 4                                    -->
+    <!-- ===================================================== -->
+
+    <!-- Google tag (gtag.js) -->
+    <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-3ZRNDZFYER"
+    ></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        /*
+         * Inicializa o Google tag.
+         */
+        gtag('js', new Date());
+
+        /*
+         * Configura o Google Analytics.
+         *
+         * send_page_view: false
+         * evita enviar page_view automaticamente.
+         * O seu sistema de cookies/analytics.ts
+         * poderá controlar quando o Analytics deve enviar dados.
+         */
+        gtag('config', 'G-3ZRNDZFYER', {
+            send_page_view: false
+        });
+    </script>
+
+    <!-- ===================================================== -->
+
 </head>
 
 <body>
+
+    <!-- Aplicação React -->
     <div id="root"></div>
 
+    <!-- Entrada principal do React/Vite -->
     <script
         type="module"
         src="/src/main.tsx"
     ></script>
-</body>
 
+</body>
+</html>
