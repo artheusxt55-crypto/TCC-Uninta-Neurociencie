@@ -1,1555 +1,2709 @@
 <!DOCTYPE html>
 
-<html lang="pt-br">
+<html lang="pt-br" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<title>NeuroLib - Biblioteca Digital</title>
+<title>NeuroLib · EducaCube</title>
+<meta name="description" content="Biblioteca acadêmica do EducaCube para estudos em psicologia, neurociência e saúde mental.">
 
 <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';
-    connect-src 'self'
-        https://*.googleapis.com
-        https://*.firebaseio.com
-        https://securetoken.googleapis.com
-        https://identitytoolkit.googleapis.com
-        https://firestore.googleapis.com;
-    script-src 'self'
-        'unsafe-inline'
-        'unsafe-eval'
-        https://cdn.tailwindcss.com
-        https://unpkg.com
-        https://cdn.jsdelivr.net
-        https://www.gstatic.com;
-    img-src 'self' data: blob: https: https://*.googleusercontent.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
-    frame-src 'self'
-        https://drive.google.com
-        https://docs.google.com
-        https://google.com
-        https://*.google.com
-        https://*.firebaseapp.com;
-    worker-src 'self' blob:;
+ default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';
+ connect-src 'self'
+     https://*.googleapis.com
+     https://*.firebaseio.com
+     https://securetoken.googleapis.com
+     https://identitytoolkit.googleapis.com
+     https://firestore.googleapis.com;
+ script-src 'self'
+     'unsafe-inline'
+     'unsafe-eval'
+     https://cdn.tailwindcss.com
+     https://unpkg.com
+     https://cdn.jsdelivr.net
+     https://www.gstatic.com;
+ img-src 'self' data: blob: https: https://*.googleusercontent.com;
+ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+ font-src 'self' https://fonts.gstatic.com;
+ frame-src 'self'
+     https://drive.google.com
+     https://docs.google.com
+     https://google.com
+     https://*.google.com
+     https://*.firebaseapp.com;
+ worker-src 'self' blob:;
 ">
 
 <script src="https://cdn.tailwindcss.com"></script>
+
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
-    :root {
-        --primary: #e30613;
-        --background: #030303;
-        --sidebar: #0a0a0a;
-        --card-bg: #0d0d0d;
-    }
+:root,
+html[data-theme="dark"] {
+    --bg: #08070C;
+    --bg-raised: #0F0D16;
+    --surface: #15121F;
+    --surface-hover: #1B1729;
 
-    body {
-        background-color: var(--background);
-        color: white;
-        font-family: 'Inter', sans-serif;
-    }
+    --border: #29243A;
+    --border-soft: #1D1929;
 
-    .sidebar {
-        background-color: var(--sidebar);
-        border-right: 1px solid #1a1a1a;
-    }
+    --ink: #F3F1FA;
+    --ink-dim: #A79FBE;
+    --ink-faint: #6F6785;
 
-    .nav-button {
-        transition: all 0.2s;
-        color: #71717a;
-        text-align: left;
-    }
+    --violet: #7C3AED;
+    --violet-soft: #A78BFA;
+    --violet-deep: #4C1D95;
 
-    .nav-button:hover {
-        color: white;
-        background: rgba(255,255,255,0.05);
-    }
+    --violet-wash: rgba(124, 58, 237, 0.12);
+    --violet-wash-strong: rgba(124, 58, 237, 0.22);
 
-    .nav-button.active {
-        background: rgba(227, 6, 19, 0.1);
-        color: var(--primary);
-        border-right: 3px solid var(--primary);
-        border-radius: 0;
-    }
+    --good: #34D399;
+    --focus-ring: rgba(167, 139, 250, 0.40);
 
-    .header-glass {
-        background: rgba(3, 3, 3, 0.8);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid #1a1a1a;
-    }
+    --shadow-card: 0 18px 40px -22px rgba(76, 29, 149, 0.45);
+}
 
-    .card-book {
-        background: var(--card-bg);
-        border: 1px solid #1a1a1a;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+html[data-theme="light"] {
+    --bg: #FAF8FC;
+    --bg-raised: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-hover: #F4F1FA;
 
-    .card-book:hover {
-        transform: translateY(-4px);
-        border-color: var(--primary);
-        box-shadow: 0 10px 30px -10px rgba(227, 6, 19, 0.2);
-    }
+    --border: #E7E1F2;
+    --border-soft: #EFEAF7;
 
-    .modal-blur {
-        backdrop-filter: blur(12px);
-        background: rgba(0,0,0,0.85);
-    }
+    --ink: #211C31;
+    --ink-dim: #6A6280;
+    --ink-faint: #948CA6;
 
-    ::-webkit-scrollbar {
-        width: 6px;
-    }
+    --violet: #6D28D9;
+    --violet-soft: #7C3AED;
+    --violet-deep: #4C1D95;
 
-    ::-webkit-scrollbar-thumb {
-        background: #1a1a1a;
-        border-radius: 10px;
-    }
+    --violet-wash: rgba(109, 40, 217, 0.08);
+    --violet-wash-strong: rgba(109, 40, 217, 0.14);
 
-    .skeleton-pulse {
-        background: linear-gradient(
-            90deg,
-            #0d0d0d 25%,
-            #1a1a1a 50%,
-            #0d0d0d 75%
+    --good: #0F9D6D;
+    --focus-ring: rgba(109, 40, 217, 0.28);
+
+    --shadow-card: 0 18px 34px -22px rgba(76, 29, 149, 0.22);
+}
+
+* {
+    box-sizing: border-box;
+    scrollbar-color: var(--border) transparent;
+}
+
+html {
+    background: var(--bg);
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.font-display {
+    font-family: 'Fraunces', serif;
+}
+
+:focus-visible {
+    outline: 2px solid var(--violet-soft);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-faint);
+}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+
+.app-bg {
+    background-color: var(--bg);
+}
+
+.sidebar {
+    background-color: var(--bg-raised);
+    border-right: 1px solid var(--border-soft);
+}
+
+.nav-item {
+    color: var(--ink-dim);
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease;
+    border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+}
+
+.nav-item.active {
+    color: var(--violet-soft);
+    background: var(--violet-wash);
+    border-left-color: var(--violet);
+}
+
+.nav-item .count {
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+}
+
+.side-panel-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+}
+
+.side-panel-card:hover {
+    border-color: var(--border);
+}
+
+.header-glass {
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.field {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink);
+}
+
+.field::placeholder {
+    color: var(--ink-faint);
+}
+
+.field:focus {
+    border-color: var(--violet-soft);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.chip {
+    border: 1px solid var(--border);
+    color: var(--ink-dim);
+    background: var(--surface);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.chip:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+}
+
+.chip.active {
+    color: var(--violet-soft);
+    border-color: var(--violet);
+    background: var(--violet-wash);
+}
+
+.icon-btn {
+    color: var(--ink-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+    border-color: var(--ink-faint);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card-book {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    transition:
+        border-color 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.card-book:hover {
+    transform: translateY(-3px);
+    border-color: var(--violet-deep);
+    box-shadow: var(--shadow-card);
+}
+
+.card-book .cover-veil {
+    background:
+        linear-gradient(
+            to top,
+            var(--surface) 0%,
+            rgba(0, 0, 0, 0.05) 55%,
+            transparent 100%
         );
+}
 
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
+html[data-theme="light"] .card-book .cover-veil {
+    background:
+        linear-gradient(
+            to top,
+            var(--surface) 0%,
+            rgba(255, 255, 255, 0.05) 55%,
+            transparent 100%
+        );
+}
+
+.card-book .play-affordance {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.card-book:hover .play-affordance {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.card-book .cover-img {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-book:hover .cover-img {
+    transform: scale(1.06);
+}
+
+.fav-btn {
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: blur(6px);
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+.fav-btn:hover {
+    transform: scale(1.08);
+}
+
+.fav-btn.is-fav {
+    color: var(--violet-soft);
+}
+
+.btn-primary {
+    background: var(--violet);
+    color: #fff;
+    transition:
+        background 0.15s ease,
+        transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background: var(--violet-deep);
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-quiet {
+    background: var(--surface-hover);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    transition: all 0.15s ease;
+}
+
+.btn-quiet:hover {
+    border-color: var(--violet-soft);
+    color: var(--violet-soft);
+}
+
+.badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--good);
+}
+
+.modal-veil {
+    backdrop-filter: blur(14px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+}
+
+.skeleton-pulse {
+    background:
+        linear-gradient(
+            90deg,
+            var(--surface) 25%,
+            var(--surface-hover) 50%,
+            var(--surface) 75%
+        );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
     }
 
-    @keyframes shimmer {
-        0% {
-            background-position: 200% 0;
-        }
-
-        100% {
-            background-position: -200% 0;
-        }
+    100% {
+        background-position: -200% 0;
     }
+}
+
+.search-suggest {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.5);
+}
+
+.search-suggest button:hover {
+    background: var(--surface-hover);
+}
+
+kbd {
+    font-family: 'Inter', sans-serif;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--ink-faint);
+}
+
+.mobile-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
 </style>
-```
 
 </head>
 
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden app-bg">
 
-```
-<!-- ========================================================= -->
-<!-- MODAL PDF -->
-<!-- ========================================================= -->
+<!-- ============================================================
+     MODAL PDF
+     ============================================================ -->
 
 <div
     id="pdfModal"
-    class="fixed inset-0 z-[100] hidden modal-blur p-4 md:p-8 flex flex-col"
+    class="fixed inset-0 z-[100] hidden modal-veil p-4 md:p-8 flex flex-col"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+>
+    <div class="flex justify-between items-start mb-4 gap-4">
+
+```
+    <div class="min-w-0">
+        <p
+            id="modalCategory"
+            class="text-xs font-semibold tracking-wide mb-1"
+            style="color: var(--violet-soft);"
+        ></p>
+
+        <h2
+            id="modalTitle"
+            class="text-xl font-display font-semibold truncate"
+            style="color: var(--ink);"
+        >
+            Visualizando material
+        </h2>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+
+        <a
+            id="modalOpenNewTab"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icon-btn p-2 rounded-full"
+            aria-label="Abrir em nova aba"
+            title="Abrir em nova aba"
+        >
+            <i data-lucide="external-link" class="w-5 h-5"></i>
+        </a>
+
+        <button
+            id="closeModalButton"
+            type="button"
+            class="icon-btn p-2 rounded-full"
+            aria-label="Fechar leitor"
+            title="Fechar leitor"
+        >
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+    </div>
+</div>
+
+<div
+    class="flex-1 rounded-2xl overflow-hidden relative"
+    style="background: var(--surface); border: 1px solid var(--border);"
+>
+    <iframe
+        id="pdfFrame"
+        class="w-full h-full"
+        src=""
+        title="Leitor de material"
+        frameborder="0"
+        allow="autoplay"
+    ></iframe>
+</div>
+```
+
+</div>
+
+<!-- ============================================================
+     OVERLAY MOBILE
+     ============================================================ -->
+
+<div
+    id="mobileOverlay"
+    class="fixed inset-0 z-40 hidden mobile-overlay lg:hidden"
+    aria-hidden="true"
+></div>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+
+<aside
+    id="sidebar"
+    class="sidebar w-72 flex-col fixed lg:static inset-y-0 left-0 z-50 -translate-x-full lg:translate-x-0 transition-transform duration-200 flex overflow-y-auto"
 >
 
-    <div class="flex justify-between items-center mb-4">
+```
+<div class="p-6 flex items-center justify-between">
 
-        <div>
-            <h2
-                id="modalTitle"
-                class="text-xl font-bold truncate max-w-md"
+    <div class="flex items-center gap-3">
+
+        <div
+            class="w-9 h-9 rounded-xl flex items-center justify-center"
+            style="background: var(--violet-wash-strong);"
+        >
+            <i
+                data-lucide="library-big"
+                class="w-5 h-5"
+                style="color: var(--violet-soft);"
+            ></i>
+        </div>
+
+        <div class="leading-tight">
+            <p
+                class="font-display font-semibold text-lg"
+                style="color: var(--ink);"
             >
-                Visualizando Material
-            </h2>
+                NeuroLib
+            </p>
 
             <p
-                id="modalCategory"
-                class="text-xs text-red-500 font-bold uppercase tracking-widest"
-            ></p>
+                class="text-[10px] font-medium"
+                style="color: var(--ink-faint);"
+            >
+                por EducaCube
+            </p>
+        </div>
+
+    </div>
+
+    <button
+        id="mobileCloseButton"
+        type="button"
+        class="lg:hidden icon-btn p-1.5 rounded-lg"
+        aria-label="Fechar menu"
+    >
+        <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+
+</div>
+
+<nav
+    class="px-3 space-y-0.5"
+    aria-label="Categorias"
+>
+
+    <p
+        class="px-3 pt-3 pb-2 text-[11px] font-semibold"
+        style="color: var(--ink-faint);"
+    >
+        Navegação
+    </p>
+
+    <button
+        type="button"
+        data-cat="Todos"
+        class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
+    >
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+        <span class="flex-1 text-left">Todos os materiais</span>
+    </button>
+
+    <button
+        type="button"
+        data-cat="Favoritos"
+        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
+    >
+        <i data-lucide="heart" class="w-4 h-4"></i>
+        <span class="flex-1 text-left">Favoritos</span>
+        <span class="count text-xs" id="navCountFav">0</span>
+    </button>
+
+    <button
+        type="button"
+        data-cat="Recentes"
+        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
+    >
+        <i data-lucide="history" class="w-4 h-4"></i>
+        <span class="flex-1 text-left">Acessados recentemente</span>
+    </button>
+
+    <p
+        class="px-3 pt-4 pb-2 text-[11px] font-semibold"
+        style="color: var(--ink-faint);"
+    >
+        Áreas de conhecimento
+    </p>
+
+    <div id="dynamicCategories"></div>
+
+</nav>
+
+<div class="px-3 mt-6">
+
+    <p
+        class="px-3 pb-2 text-[11px] font-semibold"
+        style="color: var(--ink-faint);"
+    >
+        Sua biblioteca
+    </p>
+
+    <div
+        id="continueCard"
+        class="side-panel-card rounded-xl p-3 mb-2 cursor-pointer hidden"
+    >
+        <p
+            class="text-[10px] font-semibold mb-1"
+            style="color: var(--violet-soft);"
+        >
+            Continuar estudando
+        </p>
+
+        <p
+            id="continueTitle"
+            class="text-xs font-medium line-clamp-2"
+            style="color: var(--ink);"
+        ></p>
+    </div>
+
+    <div
+        id="recentList"
+        class="space-y-1"
+    ></div>
+
+</div>
+
+<div
+    class="p-6 mt-auto pt-4 border-t"
+    style="border-color: var(--border-soft);"
+>
+    <p
+        class="text-[10px] mb-3 font-medium text-center"
+        style="color: var(--ink-faint);"
+    >
+        Assistente · UNT Bot
+    </p>
+
+    <a
+        href="index.html"
+        class="flex items-center gap-2 text-xs font-medium justify-center transition"
+        style="color: var(--ink-dim);"
+    >
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        Voltar ao Lab
+    </a>
+</div>
+```
+
+</aside>
+
+<!-- ============================================================
+     CONTEÚDO PRINCIPAL
+     ============================================================ -->
+
+<main class="flex-1 flex flex-col overflow-hidden">
+
+```
+<header
+    class="header-glass px-4 sm:px-8 py-4 flex items-center gap-4 z-30"
+>
+
+    <button
+        id="mobileMenuButton"
+        type="button"
+        class="lg:hidden icon-btn p-2 rounded-lg"
+        aria-label="Abrir menu"
+    >
+        <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex-1 max-w-xl relative">
+
+        <i
+            data-lucide="search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+            style="color: var(--ink-faint);"
+        ></i>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Pesquisar título, autor ou categoria..."
+            autocomplete="off"
+            aria-label="Pesquisar materiais"
+            class="field w-full pl-10 pr-16 py-2.5 rounded-xl text-sm outline-none transition"
+        >
+
+        <kbd
+            class="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded font-medium"
+        >
+            Ctrl K
+        </kbd>
+
+        <div
+            id="searchSuggest"
+            class="search-suggest hidden absolute top-full mt-2 left-0 right-0 rounded-xl overflow-hidden z-40"
+        >
+
+            <button
+                type="button"
+                data-search-preset="AVASUS"
+                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                style="color: var(--ink-dim);"
+            >
+                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                Materiais AVASUS
+            </button>
+
+            <button
+                type="button"
+                data-category-preset="Recentes"
+                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                style="color: var(--ink-dim);"
+            >
+                <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                Acessados recentemente
+            </button>
+
+            <button
+                type="button"
+                data-category-preset="Favoritos"
+                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                style="color: var(--ink-dim);"
+            >
+                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                Seus favoritos
+            </button>
+
+        </div>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-4">
+
+        <div
+            class="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl"
+            style="background: var(--surface); border: 1px solid var(--border-soft);"
+        >
+
+            <div class="text-center leading-tight">
+                <p
+                    id="statTotal"
+                    class="text-sm font-semibold"
+                    style="color: var(--ink);"
+                >
+                    0
+                </p>
+
+                <p
+                    class="text-[9px] font-medium"
+                    style="color: var(--ink-faint);"
+                >
+                    materiais
+                </p>
+            </div>
+
+            <div
+                class="w-px h-7"
+                style="background: var(--border);"
+            ></div>
+
+            <button
+                id="statFavButton"
+                type="button"
+                class="text-center leading-tight"
+            >
+                <p
+                    id="statFav"
+                    class="text-sm font-semibold"
+                    style="color: var(--violet-soft);"
+                >
+                    0
+                </p>
+
+                <p
+                    class="text-[9px] font-medium"
+                    style="color: var(--ink-faint);"
+                >
+                    favoritos
+                </p>
+            </button>
+
         </div>
 
         <button
-            onclick="closeModal()"
-            class="p-2 hover:bg-white/10 rounded-full transition"
+            id="themeButton"
+            type="button"
+            class="icon-btn p-2.5 rounded-xl"
+            aria-label="Alternar tema claro e escuro"
+            title="Alternar tema"
         >
             <i
-                data-lucide="x"
-                class="w-6 h-6"
+                data-lucide="moon"
+                class="w-4 h-4"
+                id="themeIconDark"
+            ></i>
+
+            <i
+                data-lucide="sun"
+                class="w-4 h-4 hidden"
+                id="themeIconLight"
             ></i>
         </button>
+
+        <div
+            class="flex items-center gap-3 pl-3 sm:pl-4 border-l"
+            style="border-color: var(--border-soft);"
+        >
+
+            <div class="text-right leading-none hidden md:block">
+                <p
+                    class="text-xs font-semibold"
+                    style="color: var(--ink);"
+                >
+                    Mestre Matheus
+                </p>
+
+                <p
+                    class="text-[9px] font-medium"
+                    style="color: var(--ink-faint);"
+                >
+                    Uninta Tianguá
+                </p>
+            </div>
+
+            <div
+                class="w-9 h-9 rounded-full flex items-center justify-center"
+                style="background: var(--surface); border: 1px solid var(--border);"
+            >
+                <i
+                    data-lucide="user"
+                    class="w-4 h-4"
+                    style="color: var(--ink-faint);"
+                ></i>
+            </div>
+
+        </div>
+
+    </div>
+</header>
+
+<!-- ============================================================
+     BIBLIOTECA
+     ============================================================ -->
+
+<div class="flex-1 overflow-y-auto px-4 sm:px-8 pt-8 pb-4">
+
+    <div class="mb-8 max-w-2xl">
+
+        <p
+            class="text-[11px] uppercase tracking-[0.18em] font-semibold mb-2"
+            style="color: var(--violet-soft);"
+        >
+            EducaCube · NeuroLib
+        </p>
+
+        <h1
+            class="text-3xl sm:text-4xl font-display font-semibold tracking-tight mb-3"
+            style="color: var(--ink);"
+        >
+            Seu espaço de estudo
+        </h1>
+
+        <p
+            class="text-sm leading-relaxed"
+            style="color: var(--ink-dim);"
+        >
+            Materiais selecionados para aprofundar seus estudos em psicologia,
+            neurociência e saúde mental — organizados por área, prontos para
+            retomar de onde parou.
+        </p>
 
     </div>
 
     <div
-        class="flex-1 bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 relative"
+        id="chipRow"
+        class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1"
+        aria-label="Filtro rápido por categoria"
     >
-
-        <iframe
-            id="pdfFrame"
-            class="w-full h-full"
-            src=""
-            frameborder="0"
-            allow="autoplay"
-        ></iframe>
-
-    </div>
-
-</div>
-
-
-<!-- ========================================================= -->
-<!-- SIDEBAR -->
-<!-- ========================================================= -->
-
-<aside class="sidebar w-64 flex flex-col hidden lg:flex">
-
-    <div class="p-6 flex items-center gap-3">
-
-        <div
-            class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center"
-        >
-            <i
-                data-lucide="brain"
-                class="text-white w-5 h-5"
-            ></i>
-        </div>
-
-        <span class="font-bold text-xl tracking-tight">
-            NeuroLib
-        </span>
-
-    </div>
-
-
-    <nav class="flex-1 mt-4 space-y-1">
-
-        <p
-            class="px-6 py-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest"
-        >
-            Navegação
-        </p>
-
-
         <button
-            onclick="filterCategory('Todos')"
-            class="nav-button active w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"
+            type="button"
+            data-cat="Todos"
+            class="chip active px-3.5 py-1.5 rounded-full text-xs font-medium"
         >
-            <i
-                data-lucide="layout-grid"
-                class="w-4 h-4"
-            ></i>
-
             Todos
         </button>
+    </div>
 
-
-        <button
-            onclick="filterCategory('Favoritos')"
-            class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"
-        >
-            <i
-                data-lucide="heart"
-                class="w-4 h-4 text-red-500"
-            ></i>
-
-            Meus Favoritos
-        </button>
-
-
-        <button
-            onclick="filterCategory('TDAH')"
-            class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"
-        >
-            <i
-                data-lucide="focus"
-                class="w-4 h-4"
-            ></i>
-
-            TDAH
-        </button>
-
-
-        <button
-            onclick="filterCategory('TEA')"
-            class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"
-        >
-            <i
-                data-lucide="users"
-                class="w-4 h-4"
-            ></i>
-
-            TEA
-        </button>
-
-
-        <button
-            onclick="filterCategory('Psicofarmacologia')"
-            class="nav-button w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"
-        >
-            <i
-                data-lucide="pill"
-                class="w-4 h-4"
-            ></i>
-
-            Psicofarmacologia
-        </button>
-
-    </nav>
-
-
-    <div class="p-6 border-t border-zinc-900">
+    <div class="flex items-center justify-between mb-4">
 
         <p
-            class="text-[9px] text-zinc-600 mb-4 font-bold text-center"
+            class="text-sm font-medium"
+            id="bookCount"
+            style="color: var(--ink-dim);"
         >
-            ASSISTENTE: UNT BOT
+            Carregando biblioteca...
         </p>
 
-        <a
-            href="index.html"
-            class="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition justify-center"
-        >
-
-            <i
-                data-lucide="arrow-left"
-                class="w-3 h-3"
-            ></i>
-
-            Voltar ao Lab
-
-        </a>
-
     </div>
 
-</aside>
+    <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 pb-8"
+        id="bookGrid"
+    ></div>
 
-
-<!-- ========================================================= -->
-<!-- CONTEÚDO PRINCIPAL -->
-<!-- ========================================================= -->
-
-<main class="flex-1 flex flex-col overflow-hidden">
-
-    <header
-        class="header-glass px-8 py-4 flex items-center justify-between z-30"
-    >
-
-        <div class="flex-1 max-w-xl relative">
-
-            <i
-                data-lucide="search"
-                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
-            ></i>
-
-            <input
-                type="text"
-                id="searchInput"
-                oninput="handleSearch()"
-                placeholder="Pesquisar por título, autor ou instituição..."
-                class="w-full pl-10 pr-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm focus:border-red-600 outline-none transition text-white"
-            >
-
-        </div>
-
-
-        <div class="flex items-center gap-4">
-
-            <div
-                class="hidden sm:flex items-center gap-3 px-4 py-2 bg-zinc-900 rounded-xl border border-white/5"
-            >
-
-                <div class="text-center">
-
-                    <p
-                        id="statTotal"
-                        class="text-xs font-bold"
-                    >
-                        0
-                    </p>
-
-                    <p
-                        class="text-[8px] text-zinc-500 uppercase font-bold"
-                    >
-                        Obras
-                    </p>
-
-                </div>
-
-
-                <div class="w-px h-6 bg-zinc-800"></div>
-
-
-                <div
-                    class="text-center cursor-pointer hover:opacity-70"
-                    onclick="handleSearch('AVASUS')"
-                >
-
-                    <p
-                        id="statAvasus"
-                        class="text-xs font-bold text-green-500"
-                    >
-                        0
-                    </p>
-
-                    <p
-                        class="text-[8px] text-zinc-500 uppercase font-bold"
-                    >
-                        AVASUS
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div
-                class="flex items-center gap-3 pl-4 border-l border-zinc-800"
-            >
-
-                <div
-                    class="text-right leading-none hidden md:block"
-                >
-
-                    <p class="text-xs font-bold">
-                        Mestre Matheus
-                    </p>
-
-                    <p class="text-[9px] text-zinc-500 font-medium">
-                        Uninta Tianguá
-                    </p>
-
-                </div>
-
-
-                <div
-                    class="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900"
-                >
-
-                    <i
-                        data-lucide="user"
-                        class="w-5 h-5 text-zinc-400"
-                    ></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </header>
-
-
-    <!-- ===================================================== -->
-    <!-- BIBLIOTECA -->
-    <!-- ===================================================== -->
-
-    <div class="flex-1 overflow-y-auto p-8">
-
-        <div class="mb-10 flex justify-between items-end">
-
-            <div>
-
-                <h1 class="text-3xl font-bold tracking-tight">
-                    Acervo Digital
-                </h1>
-
-                <p
-                    class="text-zinc-500 text-sm mt-1"
-                    id="bookCount"
-                >
-                    Carregando dados do servidor...
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
-            id="bookGrid"
-        ></div>
-
-    </div>
+</div>
+```
 
 </main>
 
-
-<!-- ========================================================= -->
-<!-- FIREBASE + FIRESTORE -->
-<!-- ========================================================= -->
+<!-- ============================================================
+     FIREBASE + FIRESTORE
+     ============================================================ -->
 
 <script type="module">
 
-    import {
-        initializeApp
-    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
+import {
+    getFirestore,
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-    import {
-        getFirestore,
-        collection,
-        getDocs
-    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+/* ============================================================
+   CONFIGURAÇÃO FIREBASE
+   ============================================================ */
 
+const firebaseConfig = {
+    apiKey: "AIzaSyCH1xLBLj7bcIzMlBQugVwyvWEuqiNTo-A",
+    authDomain: "educacube.firebaseapp.com",
+    projectId: "educacube",
+    storageBucket: "educacube.firebasestorage.app",
+    messagingSenderId: "115827230411",
+    appId: "1:115827230411:web:a08e62e443cb2fc3fa3d4e",
+    measurementId: "G-3ZRNDZFYER"
+};
 
-    /*
-    ============================================================
-    CONFIGURAÇÃO REAL DO FIREBASE
-    ============================================================
-    */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const firebaseConfig = {
+/* ============================================================
+   ESTADO
+   ============================================================ */
 
-        apiKey: "AIzaSyCH1xLBLj7bcIzMlBQugVwyvWEuqiNTo-A",
+let allBooks = [];
+let currentCategory = "Todos";
+let searchTerm = "";
 
-        authDomain: "educacube.firebaseapp.com",
+let favorites = readLocalStorageArray(
+    "neurolib_favorites"
+);
 
-        projectId: "educacube",
+let recentIds = readLocalStorageArray(
+    "neurolib_recent"
+);
 
-        storageBucket: "educacube.firebasestorage.app",
+let continuing = readLocalStorageObject(
+    "neurolib_continue"
+);
 
-        messagingSenderId: "115827230411",
+/* ============================================================
+   UTILITÁRIOS DE LOCALSTORAGE
+   ============================================================ */
 
-        appId: "1:115827230411:web:a08e62e443cb2fc3fa3d4e",
+function readLocalStorageArray(key) {
 
-        measurementId: "G-3ZRNDZFYER"
+    try {
 
-    };
+        const value = JSON.parse(
+            localStorage.getItem(key) || "[]"
+        );
 
+        return Array.isArray(value)
+            ? value.map(String)
+            : [];
 
-    /*
-    ============================================================
-    INICIALIZA FIREBASE
-    ============================================================
-    */
+    } catch {
 
-    const app =
-        initializeApp(firebaseConfig);
+        return [];
 
+    }
+}
 
-    const db =
-        getFirestore(app);
+function readLocalStorageObject(key) {
 
+    try {
 
-    /*
-    ============================================================
-    ESTADO DA BIBLIOTECA
-    ============================================================
-    */
+        const value = JSON.parse(
+            localStorage.getItem(key) || "null"
+        );
 
-    let allBooks = [];
-
-    let currentCategory = "Todos";
-
-    let searchTerm = "";
-
-
-    let favorites = JSON.parse(
-        localStorage.getItem(
-            "neurolib_favorites"
-        ) || "[]"
-    );
-
-
-    /*
-    ============================================================
-    CAPA PADRÃO + GOOGLE DRIVE
-    ============================================================
-    */
-
-    const capaPadrao =
-        "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000";
-
-
-    function extrairDriveId(url) {
-
-        if (!url) return null;
-
-
-        const match =
-            String(url).match(
-                /(?:[?&]id=|\/d\/|\/file\/d\/)([-\w]{20,})/
-            );
-
-
-        return match
-            ? match[1]
+        return value && typeof value === "object"
+            ? value
             : null;
 
-    }
+    } catch {
 
-
-    function obterCapa(book) {
-
-        const original =
-            String(book.capa || "").trim();
-
-
-        if (!original) {
-
-            return capaPadrao;
-
-        }
-
-
-        const fileId =
-            extrairDriveId(original);
-
-
-        if (fileId) {
-
-            return `https://drive.google.com/uc?export=view&id=${fileId}`;
-
-        }
-
-
-        return original;
+        return null;
 
     }
+}
 
+/* ============================================================
+   TEMA
+   ============================================================ */
 
-    /*
-    ============================================================
-    CORES DOS BADGES
-    ============================================================
-    */
+function initTheme() {
 
-    const badgeColors = {
+    const saved =
+        localStorage.getItem("neurolib_theme") || "dark";
 
-        "USP":
-            "bg-blue-500/20 text-blue-400",
+    applyTheme(
+        saved === "light" ? "light" : "dark"
+    );
+}
 
-        "CBI":
-            "bg-purple-500/20 text-purple-400",
+function applyTheme(theme) {
 
-        "AVASUS":
-            "bg-green-500/20 text-green-400",
+    const normalized =
+        theme === "light" ? "light" : "dark";
 
-        "UFRGS":
-            "bg-orange-500/20 text-orange-400",
+    document.documentElement.setAttribute(
+        "data-theme",
+        normalized
+    );
 
-        "Padrao":
-            "bg-red-500/20 text-red-400"
+    localStorage.setItem(
+        "neurolib_theme",
+        normalized
+    );
 
-    };
+    const darkIcon =
+        document.getElementById("themeIconDark");
 
+    const lightIcon =
+        document.getElementById("themeIconLight");
 
-    /*
-    ============================================================
-    SKELETON
-    ============================================================
-    */
+    if (!darkIcon || !lightIcon) return;
 
-    function renderSkeletons() {
+    darkIcon.classList.toggle(
+        "hidden",
+        normalized !== "dark"
+    );
+
+    lightIcon.classList.toggle(
+        "hidden",
+        normalized !== "light"
+    );
+}
+
+function toggleTheme() {
+
+    const current =
+        document.documentElement.getAttribute(
+            "data-theme"
+        );
+
+    applyTheme(
+        current === "dark"
+            ? "light"
+            : "dark"
+    );
+}
+
+/* ============================================================
+   MENU MOBILE
+   ============================================================ */
+
+function toggleMobileMenu(open) {
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    const overlay =
+        document.getElementById("mobileOverlay");
+
+    if (!sidebar || !overlay) return;
+
+    sidebar.classList.toggle(
+        "-translate-x-full",
+        !open
+    );
+
+    overlay.classList.toggle(
+        "hidden",
+        !open
+    );
+
+    overlay.setAttribute(
+        "aria-hidden",
+        String(!open)
+    );
+}
+
+/* ============================================================
+   SUGESTÕES
+   ============================================================ */
+
+function showSuggestions(show) {
+
+    const box =
+        document.getElementById("searchSuggest");
+
+    if (!box) return;
+
+    box.classList.toggle(
+        "hidden",
+        !show
+    );
+}
+
+/* ============================================================
+   ESCAPE
+   ============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function escapeHtmlAttribute(value) {
+
+    return escapeHtml(value);
+}
+
+function escapeJs(value) {
+
+    return String(value ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
+}
+
+/* ============================================================
+   GOOGLE DRIVE
+   ============================================================ */
+
+const capaPadrao =
+    "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000";
+
+function extrairDriveId(url) {
+
+    if (!url) return null;
+
+    const value = String(url).trim();
+
+    const patterns = [
+        /[?&]id=([-\w]{10,})/,
+        /\/file\/d\/([-\w]{10,})/,
+        /\/d\/([-\w]{10,})/,
+        /\/uc\?.*?[?&]id=([-\w]{10,})/
+    ];
+
+    for (const pattern of patterns) {
+
+        const match = value.match(pattern);
+
+        if (match) {
+            return match[1];
+        }
+
+    }
+
+    return null;
+}
+
+function obterCapa(book) {
+
+    const original =
+        String(book?.capa || "").trim();
+
+    if (!original) {
+        return capaPadrao;
+    }
+
+    const fileId =
+        extrairDriveId(original);
+
+    if (fileId) {
+
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+
+    }
+
+    return original;
+}
+
+function obterUrlPdf(url) {
+
+    if (!url) return "";
+
+    const value =
+        String(url).trim();
+
+    const fileId =
+        extrairDriveId(value);
+
+    if (
+        fileId &&
+        value.includes("drive.google.com")
+    ) {
+
+        return `https://drive.google.com/file/d/${fileId}/preview`;
+
+    }
+
+    return value
+        .replace("export=download", "export=view")
+        .replace("export=view", "view");
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+const badgeColors = {
+
+    USP:
+        "background:rgba(59,130,246,.14);color:#60A5FA;",
+
+    CBI:
+        "background:rgba(45,212,191,.14);color:#2DD4BF;",
+
+    AVASUS:
+        "background:rgba(52,211,153,.14);color:#34D399;",
+
+    UFRGS:
+        "background:rgba(251,146,60,.14);color:#FB923C;",
+
+    Padrao:
+        "background:rgba(167,139,250,.14);color:#A78BFA;"
+};
+
+/* ============================================================
+   ÍCONE DAS CATEGORIAS
+   ============================================================ */
+
+const categoryIcons = {
+
+    "TDAH": "focus",
+    "TEA": "puzzle",
+    "Psicofarmacologia": "pill",
+    "Neurociência": "waves",
+    "Psicologia": "users",
+    "Desenvolvimento Humano": "sprout",
+
+    "default": "book-open"
+};
+
+/* ============================================================
+   SKELETON
+   ============================================================ */
+
+function renderSkeletons() {
+
+    const grid =
+        document.getElementById("bookGrid");
+
+    if (!grid) return;
+
+    grid.innerHTML =
+        Array(8)
+            .fill(null)
+            .map(() => `
+                <div class="card-book rounded-2xl overflow-hidden flex flex-col h-[320px]">
+                    <div class="skeleton-pulse h-40 w-full"></div>
+
+                    <div class="p-5 space-y-3 flex-1">
+                        <div class="skeleton-pulse h-3 w-1/4 rounded"></div>
+                        <div class="skeleton-pulse h-5 w-3/4 rounded"></div>
+                        <div class="skeleton-pulse h-3 w-1/2 rounded"></div>
+                        <div class="skeleton-pulse h-10 w-full mt-4 rounded-xl"></div>
+                    </div>
+                </div>
+            `)
+            .join("");
+}
+
+/* ============================================================
+   CARREGAR FIRESTORE
+   ============================================================ */
+
+async function fetchBooks() {
+
+    renderSkeletons();
+
+    try {
+
+        console.log(
+            "Buscando biblioteca no Firestore..."
+        );
+
+        const bibliotecaRef =
+            collection(db, "biblioteca");
+
+        const snapshot =
+            await getDocs(bibliotecaRef);
+
+        allBooks =
+            snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+        console.log(
+            "Biblioteca carregada:",
+            allBooks.length,
+            "materiais"
+        );
+
+        cleanupLocalData();
+
+        buildCategories();
+
+        updateStats();
+
+        renderSidebarLibrary();
+
+        renderBooks();
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar biblioteca:",
+            error
+        );
+
+        const count =
+            document.getElementById("bookCount");
 
         const grid =
-            document.getElementById(
-                "bookGrid"
-            );
+            document.getElementById("bookGrid");
 
+        if (count) {
+            count.innerText =
+                "Não foi possível carregar a biblioteca.";
+        }
 
-        grid.innerHTML =
-            Array(8).fill(`
+        if (grid) {
 
-                <div
-                    class="card-book rounded-2xl overflow-hidden flex flex-col h-[320px]"
-                >
-
-                    <div
-                        class="skeleton-pulse h-40 w-full"
-                    ></div>
-
-                    <div
-                        class="p-5 space-y-3 flex-1"
-                    >
-
-                        <div
-                            class="skeleton-pulse h-3 w-1/4"
-                        ></div>
-
-                        <div
-                            class="skeleton-pulse h-5 w-3/4"
-                        ></div>
-
-                        <div
-                            class="skeleton-pulse h-3 w-1/2"
-                        ></div>
-
-                        <div
-                            class="skeleton-pulse h-10 w-full mt-4 rounded-xl"
-                        ></div>
-
-                    </div>
-
-                </div>
-
-            `).join("");
-
-    }
-
-
-    /*
-    ============================================================
-    BUSCAR LIVROS NO FIRESTORE
-    ============================================================
-    */
-
-    async function fetchBooks() {
-
-        renderSkeletons();
-
-
-        try {
-
-            console.log(
-                "📚 Buscando biblioteca no Firestore..."
-            );
-
-
-            const bibliotecaRef =
-                collection(
-                    db,
-                    "biblioteca"
-                );
-
-
-            const snapshot =
-                await getDocs(
-                    bibliotecaRef
-                );
-
-
-            allBooks =
-                snapshot.docs.map(
-                    (doc) => {
-
-                        return {
-
-                            id: doc.id,
-
-                            ...doc.data()
-
-                        };
-
-                    }
-                );
-
-
-            console.log(
-                "✅ Biblioteca carregada:",
-                allBooks.length,
-                "materiais"
-            );
-
-
-            updateStats();
-
-
-            setTimeout(
-                renderBooks,
-                600
-            );
-
-
-        } catch (err) {
-
-            console.error(
-                "❌ Erro ao carregar biblioteca:",
-                err
-            );
-
-
-            document.getElementById(
-                "bookCount"
-            ).innerText =
-                "Erro ao conectar com o banco.";
-
-
-            document.getElementById(
-                "bookGrid"
-            ).innerHTML = `
-
+            grid.innerHTML = `
                 <div class="col-span-full text-center py-20">
 
                     <div
-                        class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-600/10 mb-4"
+                        class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+                        style="background:var(--violet-wash);"
                     >
-
                         <i
                             data-lucide="database-zap"
-                            class="w-7 h-7 text-red-500"
+                            class="w-7 h-7"
+                            style="color:var(--violet-soft);"
                         ></i>
-
                     </div>
 
                     <p
-                        class="text-red-500 font-bold mb-2"
+                        class="font-semibold mb-2"
+                        style="color:var(--ink);"
                     >
-                        Não foi possível carregar a biblioteca.
+                        Não foi possível carregar a biblioteca
                     </p>
 
                     <p
-                        class="text-zinc-600 text-sm"
+                        class="text-sm"
+                        style="color:var(--ink-dim);"
                     >
-                        Verifique as configurações e as regras do Firestore.
+                        Verifique sua conexão e tente novamente.
                     </p>
 
+                    <button
+                        type="button"
+                        id="retryButton"
+                        class="btn-primary mt-5 px-4 py-2 rounded-xl text-xs font-semibold"
+                    >
+                        Tentar novamente
+                    </button>
+
                 </div>
-
             `;
-
 
             lucide.createIcons();
 
-        }
-
-    }
-
-
-    /*
-    ============================================================
-    ESTATÍSTICAS
-    ============================================================
-    */
-
-    function updateStats() {
-
-        document.getElementById(
-            "statTotal"
-        ).innerText =
-            allBooks.length;
-
-
-        document.getElementById(
-            "statAvasus"
-        ).innerText =
-            allBooks.filter(
-                book =>
-                    (book.autor || "")
-                        .toUpperCase()
-                        .includes("AVASUS")
-            ).length;
-
-    }
-
-
-    /*
-    ============================================================
-    FAVORITOS
-    ============================================================
-    */
-
-    window.toggleFavorite =
-        function(id, e) {
-
-            e.stopPropagation();
-
-
-            const idString =
-                String(id);
-
-
-            const index =
-                favorites.indexOf(
-                    idString
-                );
-
-
-            if (index > -1) {
-
-                favorites.splice(
-                    index,
-                    1
-                );
-
-            } else {
-
-                favorites.push(
-                    idString
-                );
-
-            }
-
-
-            localStorage.setItem(
-                "neurolib_favorites",
-                JSON.stringify(
-                    favorites
-                )
-            );
-
-
-            renderBooks();
-
-        };
-
-
-    /*
-    ============================================================
-    ABRIR PDF
-    ============================================================
-    */
-
-    window.openModal =
-        function(
-            url,
-            titulo,
-            categoria
-        ) {
-
-            const modal =
-                document.getElementById(
-                    "pdfModal"
-                );
-
-
-            const frame =
-                document.getElementById(
-                    "pdfFrame"
-                );
-
-
-            document.getElementById(
-                "modalTitle"
-            ).innerText =
-                titulo ||
-                "Visualizando Material";
-
-
-            document.getElementById(
-                "modalCategory"
-            ).innerText =
-                categoria ||
-                "Material";
-
-
-            let viewUrl =
-                url;
-
-
-            if (
-                url &&
-                url.includes(
-                    "drive.google.com"
-                )
-            ) {
-
-                const fileId =
-                    url.match(
-                        /(?:[?&]id=|\/d\/|\/file\/d\/)([-\w]{20,})/
-                    );
-
-
-                if (fileId) {
-
-                    viewUrl =
-                        `https://drive.google.com/file/d/${fileId[1]}/preview`;
-
-                }
-
-            } else if (url) {
-
-                viewUrl =
-                    url
-                        .replace(
-                            "export=download",
-                            "view"
-                        )
-                        .replace(
-                            "export=view",
-                            "view"
-                        );
-
-            }
-
-
-            if (!viewUrl) {
-
-                alert(
-                    "Este material não possui um endereço PDF válido."
-                );
-
-                return;
-
-            }
-
-
-            frame.src =
-                viewUrl;
-
-
-            modal.classList.remove(
-                "hidden"
-            );
-
-        };
-
-
-    /*
-    ============================================================
-    FECHAR MODAL
-    ============================================================
-    */
-
-    window.closeModal =
-        function() {
-
-            document.getElementById(
-                "pdfModal"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "pdfFrame"
-            ).src =
-                "";
-
-        };
-
-
-    /*
-    ============================================================
-    RENDERIZAR LIVROS
-    ============================================================
-    */
-
-    function renderBooks() {
-
-        const grid =
-            document.getElementById(
-                "bookGrid"
-            );
-
-
-        const filtered =
-            allBooks.filter(
-                book => {
-
-                    const isFav =
-                        currentCategory === "Favoritos"
-                            ? favorites.includes(
-                                String(book.id)
-                            )
-                            : true;
-
-
-                    const matchesCat =
-                        currentCategory === "Todos" ||
-                        currentCategory === "Favoritos" ||
-                        book.categoria ===
-                            currentCategory;
-
-
-                    const titulo =
-                        (
-                            book.titulo ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const autor =
-                        (
-                            book.autor ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const matchesSearch =
-                        titulo.includes(
-                            searchTerm.toLowerCase()
-                        ) ||
-                        autor.includes(
-                            searchTerm.toLowerCase()
-                        );
-
-
-                    return (
-                        isFav &&
-                        matchesCat &&
-                        matchesSearch
-                    );
-
-                }
-            );
-
-
-        if (
-            filtered.length === 0
-        ) {
-
-            grid.innerHTML = `
-
-                <p
-                    class="text-zinc-500 col-span-full text-center py-20"
-                >
-                    Nenhum material encontrado.
-                </p>
-
-            `;
-
-        } else {
-
-            grid.innerHTML =
-                filtered.map(
-                    book => {
-
-                        const isFav =
-                            favorites.includes(
-                                String(book.id)
-                            );
-
-
-                        let badgeClass =
-                            badgeColors.Padrao;
-
-
-                        let fonteNome =
-                            "NeuroLib";
-
-
-                        const autorStr =
-                            book.autor ||
-                            "";
-
-
-                        if (
-                            autorStr.includes(
-                                "USP"
-                            )
-                        ) {
-
-                            badgeClass =
-                                badgeColors.USP;
-
-                            fonteNome =
-                                "USP";
-
-                        } else if (
-                            autorStr.includes(
-                                "AVASUS"
-                            )
-                        ) {
-
-                            badgeClass =
-                                badgeColors.AVASUS;
-
-                            fonteNome =
-                                "AVASUS";
-
-                        } else if (
-                            autorStr.includes(
-                                "CBI"
-                            )
-                        ) {
-
-                            badgeClass =
-                                badgeColors.CBI;
-
-                            fonteNome =
-                                "CBI";
-
-                        } else if (
-                            autorStr.includes(
-                                "UFRGS"
-                            )
-                        ) {
-
-                            badgeClass =
-                                badgeColors.UFRGS;
-
-                            fonteNome =
-                                "UFRGS";
-
-                        }
-
-
-                        const titulo =
-                            escapeHtml(
-                                book.titulo ||
-                                "Material sem título"
-                            );
-
-
-                        const autor =
-                            escapeHtml(
-                                book.autor ||
-                                "Autor do Acervo"
-                            );
-
-
-                        const categoria =
-                            escapeHtml(
-                                book.categoria ||
-                                "Geral"
-                            );
-
-
-                        const urlPdf =
-                            escapeHtmlAttribute(
-                                book.url_pdf ||
-                                ""
-                            );
-
-
-                        /*
-                        ====================================================
-                        CORREÇÃO DAS CAPAS
-                        ====================================================
-                        */
-
-                        const capa =
-                            escapeHtmlAttribute(
-                                obterCapa(book)
-                            );
-
-
-                        return `
-
-                            <div
-                                class="card-book rounded-2xl overflow-hidden flex flex-col h-full group relative"
-                            >
-
-                                <button
-                                    onclick="toggleFavorite('${escapeJs(String(book.id))}', event)"
-                                    class="absolute top-3 left-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/80 transition backdrop-blur-sm"
-                                >
-
-                                    <i
-                                        data-lucide="heart"
-                                        class="w-4 h-4 ${
-                                            isFav
-                                                ? "fill-red-500 text-red-500"
-                                                : "text-white"
-                                        }"
-                                    ></i>
-
-                                </button>
-
-
-                                <span
-                                    class="absolute top-3 right-3 z-10 text-[10px] font-bold px-2 py-1 rounded-md ${badgeClass} border border-white/5"
-                                >
-                                    ${fonteNome}
-                                </span>
-
-
-                                <div
-                                    class="relative h-44 overflow-hidden cursor-pointer"
-                                    onclick="openModal(
-                                        '${escapeJs(book.url_pdf || "")}',
-                                        '${escapeJs(book.titulo || "Material")}',
-                                        '${escapeJs(book.categoria || "Geral")}'
-                                    )"
-                                >
-
-                                    <img
-                                        src="${capa}"
-                                        class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500"
-                                        onerror="
-                                            this.onerror = null;
-                                            this.src = '${capaPadrao}';
-                                        "
-                                        alt="${titulo}"
-                                    >
-
-
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
-                                    >
-
-                                        <div
-                                            class="bg-red-600 p-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition"
-                                        >
-
-                                            <i
-                                                data-lucide="play"
-                                                class="w-5 h-5 text-white fill-white"
-                                            ></i>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div
-                                    class="p-5 flex flex-col flex-1"
-                                >
-
-                                    <span
-                                        class="text-[9px] uppercase font-black text-red-500 tracking-widest mb-1"
-                                    >
-                                        ${categoria}
-                                    </span>
-
-
-                                    <h3
-                                        class="font-bold text-zinc-100 text-sm leading-tight mb-1 line-clamp-2 group-hover:text-red-500 transition-colors cursor-pointer"
-                                        onclick="openModal(
-                                            '${escapeJs(book.url_pdf || "")}',
-                                            '${escapeJs(book.titulo || "Material")}',
-                                            '${escapeJs(book.categoria || "Geral")}'
-                                        )"
-                                    >
-                                        ${titulo}
-                                    </h3>
-
-
-                                    <p
-                                        class="text-zinc-500 text-[11px] mb-4"
-                                    >
-                                        ${autor}
-                                    </p>
-
-
-                                    <div
-                                        class="mt-auto flex gap-2"
-                                    >
-
-                                        <button
-                                            onclick="openModal(
-                                                '${escapeJs(book.url_pdf || "")}',
-                                                '${escapeJs(book.titulo || "Material")}',
-                                                '${escapeJs(book.categoria || "Geral")}'
-                                            )"
-                                            class="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl text-[10px] font-bold transition-all active:scale-95"
-                                        >
-
-                                            <i
-                                                data-lucide="eye"
-                                                class="w-3.5 h-3.5"
-                                            ></i>
-
-                                            LER AGORA
-
-                                        </button>
-
-
-                                        <a
-                                            href="${urlPdf}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="flex items-center justify-center bg-white text-black hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl transition-all active:scale-95 shadow-lg"
-                                        >
-
-                                            <i
-                                                data-lucide="download"
-                                                class="w-4 h-4"
-                                            ></i>
-
-                                        </a>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                ).join("");
-
-        }
-
-
-        document.getElementById(
-            "bookCount"
-        ).innerText =
-            `${filtered.length} Materiais Disponíveis`;
-
-
-        lucide.createIcons();
-
-    }
-
-
-    /*
-    ============================================================
-    FILTRO DE CATEGORIA
-    ============================================================
-    */
-
-    window.filterCategory =
-        function(cat) {
-
-            currentCategory =
-                cat;
-
-
             document
-                .querySelectorAll(
-                    ".nav-button"
-                )
-                .forEach(
-                    btn => {
-
-                        btn.classList.remove(
-                            "active"
-                        );
-
-
-                        if (
-                            btn.innerText
-                                .trim()
-                                .includes(cat)
-                        ) {
-
-                            btn.classList.add(
-                                "active"
-                            );
-
-                        }
-
-                    }
+                .getElementById("retryButton")
+                ?.addEventListener(
+                    "click",
+                    fetchBooks
                 );
-
-
-            renderBooks();
-
-        };
-
-
-    /*
-    ============================================================
-    PESQUISA
-    ============================================================
-    */
-
-    window.handleSearch =
-        function(
-            preset = ""
-        ) {
-
-            if (preset) {
-
-                document.getElementById(
-                    "searchInput"
-                ).value =
-                    preset;
-
-
-                searchTerm =
-                    preset;
-
-            } else {
-
-                searchTerm =
-                    document.getElementById(
-                        "searchInput"
-                    ).value;
-
-            }
-
-
-            renderBooks();
-
-        };
-
-
-    /*
-    ============================================================
-    PROTEÇÃO CONTRA HTML INJETADO
-    ============================================================
-    */
-
-    function escapeHtml(value) {
-
-        return String(value)
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
-            );
-
+        }
     }
+}
 
+/* ============================================================
+   LIMPEZA DE FAVORITOS / RECENTES
+   ============================================================ */
 
-    function escapeHtmlAttribute(value) {
+function cleanupLocalData() {
 
-        return escapeHtml(
-            value
+    const validIds =
+        new Set(
+            allBooks.map(
+                book => String(book.id)
+            )
         );
 
+    favorites =
+        favorites.filter(
+            id => validIds.has(String(id))
+        );
+
+    recentIds =
+        recentIds.filter(
+            id => validIds.has(String(id))
+        );
+
+    if (
+        continuing &&
+        !validIds.has(String(continuing.id))
+    ) {
+        continuing = null;
     }
 
-
-    function escapeJs(value) {
-
-        return String(value)
-            .replace(
-                /\\/g,
-                "\\\\"
-            )
-            .replace(
-                /'/g,
-                "\\'"
-            )
-            .replace(
-                /"/g,
-                '\\"'
-            )
-            .replace(
-                /\n/g,
-                "\\n"
-            )
-            .replace(
-                /\r/g,
-                "\\r"
-            );
-
-    }
-
-
-    /*
-    ============================================================
-    FECHAR MODAL COM ESC
-    ============================================================
-    */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                closeModal();
-
-            }
-
-        }
+    localStorage.setItem(
+        "neurolib_favorites",
+        JSON.stringify(favorites)
     );
 
+    localStorage.setItem(
+        "neurolib_recent",
+        JSON.stringify(recentIds)
+    );
 
-    /*
-    ============================================================
-    INICIAR
-    ============================================================
-    */
+    localStorage.setItem(
+        "neurolib_continue",
+        JSON.stringify(continuing)
+    );
+}
+
+/* ============================================================
+   CATEGORIAS DINÂMICAS
+   ============================================================ */
+
+function getCategories() {
+
+    const categories =
+        allBooks
+            .map(book =>
+                String(book.categoria || "").trim()
+            )
+            .filter(Boolean);
+
+    return [
+        ...new Set(categories)
+    ].sort((a, b) =>
+        a.localeCompare(
+            b,
+            "pt-BR",
+            { sensitivity: "base" }
+        )
+    );
+}
+
+function buildCategories() {
+
+    const categories =
+        getCategories();
+
+    const sidebar =
+        document.getElementById(
+            "dynamicCategories"
+        );
+
+    const chipRow =
+        document.getElementById(
+            "chipRow"
+        );
+
+    if (!sidebar || !chipRow) return;
+
+    sidebar.innerHTML =
+        categories
+            .map(category => {
+
+                const icon =
+                    categoryIcons[category] ||
+                    categoryIcons.default;
+
+                return `
+                    <button
+                        type="button"
+                        data-cat="${escapeHtmlAttribute(category)}"
+                        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
+                    >
+                        <i
+                            data-lucide="${escapeHtmlAttribute(icon)}"
+                            class="w-4 h-4"
+                        ></i>
+
+                        <span class="flex-1 text-left">
+                            ${escapeHtml(category)}
+                        </span>
+                    </button>
+                `;
+
+            })
+            .join("");
+
+    chipRow.innerHTML = `
+        <button
+            type="button"
+            data-cat="Todos"
+            class="chip active px-3.5 py-1.5 rounded-full text-xs font-medium"
+        >
+            Todos
+        </button>
+
+        ${categories
+            .map(category => `
+                <button
+                    type="button"
+                    data-cat="${escapeHtmlAttribute(category)}"
+                    class="chip px-3.5 py-1.5 rounded-full text-xs font-medium"
+                >
+                    ${escapeHtml(category)}
+                </button>
+            `)
+            .join("")
+        }
+    `;
 
     lucide.createIcons();
 
-    fetchBooks();
+    updateActiveCategory();
+}
+
+/* ============================================================
+   ESTATÍSTICAS
+   ============================================================ */
+
+function updateStats() {
+
+    const total =
+        document.getElementById("statTotal");
+
+    const fav =
+        document.getElementById("statFav");
+
+    const navFav =
+        document.getElementById("navCountFav");
+
+    if (total) {
+        total.innerText =
+            allBooks.length;
+    }
+
+    if (fav) {
+        fav.innerText =
+            favorites.length;
+    }
+
+    if (navFav) {
+        navFav.innerText =
+            favorites.length;
+    }
+}
+
+/* ============================================================
+   FAVORITOS
+   ============================================================ */
+
+function toggleFavorite(id, event) {
+
+    event?.stopPropagation();
+
+    const idString =
+        String(id);
+
+    const index =
+        favorites.indexOf(idString);
+
+    if (index >= 0) {
+
+        favorites.splice(index, 1);
+
+    } else {
+
+        favorites.push(idString);
+
+    }
+
+    localStorage.setItem(
+        "neurolib_favorites",
+        JSON.stringify(favorites)
+    );
+
+    updateStats();
+
+    renderBooks();
+}
+
+/* ============================================================
+   RECENTES
+   ============================================================ */
+
+function recordRecent(book) {
+
+    if (!book?.id) return;
+
+    const id =
+        String(book.id);
+
+    recentIds =
+        recentIds.filter(
+            item => item !== id
+        );
+
+    recentIds.unshift(id);
+
+    recentIds =
+        recentIds.slice(0, 8);
+
+    localStorage.setItem(
+        "neurolib_recent",
+        JSON.stringify(recentIds)
+    );
+
+    continuing = {
+        id,
+        titulo:
+            book.titulo ||
+            "Material sem título"
+    };
+
+    localStorage.setItem(
+        "neurolib_continue",
+        JSON.stringify(continuing)
+    );
+
+    renderSidebarLibrary();
+}
+
+/* ============================================================
+   SIDEBAR — RECENTES
+   ============================================================ */
+
+function renderSidebarLibrary() {
+
+    const continueCard =
+        document.getElementById(
+            "continueCard"
+        );
+
+    const continueTitle =
+        document.getElementById(
+            "continueTitle"
+        );
+
+    if (
+        continueCard &&
+        continueTitle
+    ) {
+
+        const book =
+            continuing
+                ? allBooks.find(
+                    item =>
+                        String(item.id) ===
+                        String(continuing.id)
+                )
+                : null;
+
+        if (book) {
+
+            continueCard.classList.remove(
+                "hidden"
+            );
+
+            continueTitle.innerText =
+                book.titulo ||
+                "Material sem título";
+
+            continueCard.onclick =
+                () => openBook(book);
+
+        } else {
+
+            continueCard.classList.add(
+                "hidden"
+            );
+
+        }
+    }
+
+    const list =
+        document.getElementById(
+            "recentList"
+        );
+
+    if (!list) return;
+
+    const recentBooks =
+        recentIds
+            .map(id =>
+                allBooks.find(
+                    book =>
+                        String(book.id) ===
+                        String(id)
+                )
+            )
+            .filter(Boolean)
+            .slice(0, 3);
+
+    if (!recentBooks.length) {
+
+        list.innerHTML = "";
+
+        return;
+    }
+
+    list.innerHTML =
+        recentBooks
+            .map(book => {
+
+                const title =
+                    escapeHtml(
+                        book.titulo ||
+                        "Material"
+                    );
+
+                return `
+                    <button
+                        type="button"
+                        data-recent-id="${escapeHtmlAttribute(book.id)}"
+                        class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 nav-item"
+                    >
+                        <i
+                            data-lucide="file-text"
+                            class="w-3.5 h-3.5 shrink-0"
+                        ></i>
+
+                        <span class="line-clamp-2">
+                            ${title}
+                        </span>
+                    </button>
+                `;
+
+            })
+            .join("");
+
+    lucide.createIcons();
+
+    list
+        .querySelectorAll("[data-recent-id]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const book =
+                        allBooks.find(
+                            item =>
+                                String(item.id) ===
+                                String(button.dataset.recentId)
+                        );
+
+                    if (book) {
+                        openBook(book);
+                    }
+
+                }
+            );
+
+        });
+}
+
+/* ============================================================
+   ABRIR MATERIAL
+   ============================================================ */
+
+function openBook(book) {
+
+    if (!book) return;
+
+    openModal(
+        book.url_pdf || "",
+        book.titulo || "Material",
+        book.categoria || "Geral",
+        book.id
+    );
+}
+
+function openModal(
+    url,
+    titulo,
+    categoria,
+    id
+) {
+
+    const modal =
+        document.getElementById(
+            "pdfModal"
+        );
+
+    const frame =
+        document.getElementById(
+            "pdfFrame"
+        );
+
+    const openNewTab =
+        document.getElementById(
+            "modalOpenNewTab"
+        );
+
+    if (!modal || !frame) return;
+
+    const originalUrl =
+        String(url || "").trim();
+
+    if (!originalUrl) {
+
+        alert(
+            "Este material não possui um endereço PDF válido."
+        );
+
+        return;
+    }
+
+    const viewUrl =
+        obterUrlPdf(originalUrl);
+
+    if (!viewUrl) {
+
+        alert(
+            "Não foi possível identificar o endereço deste material."
+        );
+
+        return;
+    }
+
+    document
+        .getElementById("modalTitle")
+        .innerText =
+        titulo || "Visualizando material";
+
+    document
+        .getElementById("modalCategory")
+        .innerText =
+        categoria || "Material";
+
+    frame.src = viewUrl;
+
+    if (openNewTab) {
+        openNewTab.href =
+            originalUrl;
+    }
+
+    modal.classList.remove(
+        "hidden"
+    );
+
+    document.body.classList.add(
+        "overflow-hidden"
+    );
+
+    if (id !== undefined) {
+
+        const book =
+            allBooks.find(
+                item =>
+                    String(item.id) ===
+                    String(id)
+            ) || {
+                id,
+                titulo,
+                categoria,
+                url_pdf: originalUrl
+            };
+
+        recordRecent(book);
+    }
+}
+
+/* ============================================================
+   FECHAR MODAL
+   ============================================================ */
+
+function closeModal() {
+
+    const modal =
+        document.getElementById(
+            "pdfModal"
+        );
+
+    const frame =
+        document.getElementById(
+            "pdfFrame"
+        );
+
+    if (frame) {
+        frame.src = "";
+    }
+
+    if (modal) {
+        modal.classList.add(
+            "hidden"
+        );
+    }
+
+    document.body.classList.remove(
+        "overflow-hidden"
+    );
+}
+
+/* ============================================================
+   RENDERIZAR LIVROS
+   ============================================================ */
+
+function renderBooks() {
+
+    const grid =
+        document.getElementById(
+            "bookGrid"
+        );
+
+    if (!grid) return;
+
+    const normalizedTerm =
+        searchTerm
+            .trim()
+            .toLocaleLowerCase(
+                "pt-BR"
+            );
+
+    const filtered =
+        allBooks.filter(book => {
+
+            const idStr =
+                String(book.id);
+
+            let matchesCategory;
+
+            if (
+                currentCategory ===
+                "Todos"
+            ) {
+
+                matchesCategory = true;
+
+            } else if (
+                currentCategory ===
+                "Favoritos"
+            ) {
+
+                matchesCategory =
+                    favorites.includes(
+                        idStr
+                    );
+
+            } else if (
+                currentCategory ===
+                "Recentes"
+            ) {
+
+                matchesCategory =
+                    recentIds.includes(
+                        idStr
+                    );
+
+            } else {
+
+                matchesCategory =
+                    String(
+                        book.categoria || ""
+                    ).trim() ===
+                    currentCategory;
+            }
+
+            if (!matchesCategory) {
+                return false;
+            }
+
+            if (!normalizedTerm) {
+                return true;
+            }
+
+            const searchable = [
+                book.titulo,
+                book.autor,
+                book.categoria
+            ]
+                .map(value =>
+                    String(value || "")
+                        .toLocaleLowerCase(
+                            "pt-BR"
+                        )
+                )
+                .join(" ");
+
+            return searchable.includes(
+                normalizedTerm
+            );
+
+        });
+
+    if (!filtered.length) {
+
+        const message =
+            normalizedTerm
+                ? `Nenhum material encontrado para "${escapeHtml(searchTerm)}".`
+                : "Nenhum material encontrado nesta categoria ainda.";
+
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-20">
+
+                <div
+                    class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+                    style="background:var(--violet-wash);"
+                >
+                    <i
+                        data-lucide="search-x"
+                        class="w-6 h-6"
+                        style="color:var(--violet-soft);"
+                    ></i>
+                </div>
+
+                <p
+                    class="text-sm font-medium"
+                    style="color:var(--ink-dim);"
+                >
+                    ${message}
+                </p>
+
+            </div>
+        `;
+
+    } else {
+
+        grid.innerHTML =
+            filtered
+                .map(renderBookCard)
+                .join("");
+
+    }
+
+    const count =
+        document.getElementById(
+            "bookCount"
+        );
+
+    if (count) {
+
+        count.innerText =
+            filtered.length === 1
+                ? "1 material encontrado"
+                : `${filtered.length} materiais encontrados`;
+
+    }
+
+    lucide.createIcons();
+
+    bindBookEvents();
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+function renderBookCard(book) {
+
+    const id =
+        String(book.id);
+
+    const isFav =
+        favorites.includes(id);
+
+    let badgeStyle =
+        badgeColors.Padrao;
+
+    let fonteNome =
+        "NeuroLib";
+
+    const autorStr =
+        String(book.autor || "");
+
+    if (
+        autorStr
+            .toLocaleUpperCase()
+            .includes("USP")
+    ) {
+
+        badgeStyle =
+            badgeColors.USP;
+
+        fonteNome =
+            "USP";
+
+    } else if (
+        autorStr
+            .toLocaleUpperCase()
+            .includes("AVASUS")
+    ) {
+
+        badgeStyle =
+            badgeColors.AVASUS;
+
+        fonteNome =
+            "AVASUS";
+
+    } else if (
+        autorStr
+            .toLocaleUpperCase()
+            .includes("CBI")
+    ) {
+
+        badgeStyle =
+            badgeColors.CBI;
+
+        fonteNome =
+            "CBI";
+
+    } else if (
+        autorStr
+            .toLocaleUpperCase()
+            .includes("UFRGS")
+    ) {
+
+        badgeStyle =
+            badgeColors.UFRGS;
+
+        fonteNome =
+            "UFRGS";
+    }
+
+    const titulo =
+        escapeHtml(
+            book.titulo ||
+            "Material sem título"
+        );
+
+    const autor =
+        escapeHtml(
+            book.autor ||
+            "Autor do acervo"
+        );
+
+    const categoria =
+        escapeHtml(
+            book.categoria ||
+            "Geral"
+        );
+
+    const rawPdf =
+        String(
+            book.url_pdf || ""
+        );
+
+    const urlPdf =
+        escapeHtmlAttribute(
+            rawPdf
+        );
+
+    const capa =
+        escapeHtmlAttribute(
+            obterCapa(book)
+        );
+
+    const safeId =
+        escapeHtmlAttribute(id);
+
+    return `
+        <article
+            class="card-book rounded-2xl overflow-hidden flex flex-col h-full group relative"
+        >
+
+            <button
+                type="button"
+                data-favorite-id="${safeId}"
+                class="fav-btn ${
+                    isFav
+                        ? "is-fav"
+                        : ""
+                } absolute top-3 left-3 z-20 p-2 rounded-full"
+                aria-label="${
+                    isFav
+                        ? "Remover dos favoritos"
+                        : "Adicionar aos favoritos"
+                }"
+                title="${
+                    isFav
+                        ? "Remover dos favoritos"
+                        : "Adicionar aos favoritos"
+                }"
+            >
+                <i
+                    data-lucide="heart"
+                    class="w-4 h-4"
+                    style="${
+                        isFav
+                            ? "fill:var(--violet-soft);"
+                            : "color:#fff;"
+                    }"
+                ></i>
+            </button>
+
+            <span
+                class="absolute top-3 right-3 z-10 text-[10px] font-semibold px-2 py-1 rounded-md"
+                style="${badgeStyle}"
+            >
+                ${escapeHtml(fonteNome)}
+            </span>
+
+            <button
+                type="button"
+                data-open-id="${safeId}"
+                class="relative h-44 overflow-hidden cursor-pointer text-left block w-full"
+                aria-label="Abrir ${titulo}"
+            >
+
+                <img
+                    src="${capa}"
+                    class="cover-img w-full h-full object-cover"
+                    alt="Capa de ${titulo}"
+                    loading="lazy"
+                    decoding="async"
+                    data-cover
+                >
+
+                <div
+                    class="cover-veil absolute inset-0 pointer-events-none"
+                ></div>
+
+                <div
+                    class="play-affordance absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                    <div
+                        class="btn-primary p-3 rounded-full shadow-lg"
+                    >
+                        <i
+                            data-lucide="play"
+                            class="w-5 h-5 fill-white"
+                        ></i>
+                    </div>
+                </div>
+
+            </button>
+
+            <div class="p-5 flex flex-col flex-1">
+
+                <div class="flex items-center gap-1.5 mb-2">
+
+                    <span class="badge-dot"></span>
+
+                    <span
+                        class="text-[11px] font-medium"
+                        style="color:var(--ink-faint);"
+                    >
+                        ${categoria} · Disponível
+                    </span>
+
+                </div>
+
+                <button
+                    type="button"
+                    data-open-id="${safeId}"
+                    class="text-left"
+                >
+                    <h3
+                        class="font-display font-semibold text-[15px] leading-snug mb-1 line-clamp-2"
+                        style="color:var(--ink);"
+                    >
+                        ${titulo}
+                    </h3>
+                </button>
+
+                <p
+                    class="text-xs mb-4"
+                    style="color:var(--ink-faint);"
+                >
+                    ${autor}
+                </p>
+
+                <div class="mt-auto flex gap-2">
+
+                    <button
+                        type="button"
+                        data-open-id="${safeId}"
+                        class="btn-quiet flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold"
+                    >
+                        <i
+                            data-lucide="book-open"
+                            class="w-3.5 h-3.5"
+                        ></i>
+
+                        Ler agora
+                    </button>
+
+                    <a
+                        href="${urlPdf || "#"}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn-primary flex items-center justify-center px-3.5 rounded-xl ${
+                            rawPdf
+                                ? ""
+                                : "opacity-50 pointer-events-none"
+                        }"
+                        aria-label="Abrir material em nova aba"
+                        title="Abrir em nova aba"
+                    >
+                        <i
+                            data-lucide="external-link"
+                            class="w-4 h-4"
+                        ></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+/* ============================================================
+   EVENTOS DOS CARDS
+   ============================================================ */
+
+function bindBookEvents() {
+
+    document
+        .querySelectorAll("[data-favorite-id]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    toggleFavorite(
+                        button.dataset.favoriteId,
+                        event
+                    );
+
+                }
+            );
+
+        });
+
+    document
+        .querySelectorAll("[data-open-id]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const book =
+                        allBooks.find(
+                            item =>
+                                String(item.id) ===
+                                String(button.dataset.openId)
+                        );
+
+                    if (book) {
+                        openBook(book);
+                    }
+
+                }
+            );
+
+        });
+
+    document
+        .querySelectorAll("[data-cover]")
+        .forEach(image => {
+
+            image.addEventListener(
+                "error",
+                () => {
+
+                    if (
+                        image.dataset.fallbackApplied ===
+                        "true"
+                    ) {
+                        return;
+                    }
+
+                    image.dataset.fallbackApplied =
+                        "true";
+
+                    image.src =
+                        capaPadrao;
+
+                },
+                {
+                    once: true
+                }
+            );
+
+        });
+}
+
+/* ============================================================
+   FILTRO
+   ============================================================ */
+
+function filterCategory(category) {
+
+    currentCategory =
+        category || "Todos";
+
+    updateActiveCategory();
+
+    showSuggestions(false);
+
+    renderBooks();
+
+    if (
+        window.innerWidth < 1024
+    ) {
+        toggleMobileMenu(false);
+    }
+}
+
+function updateActiveCategory() {
+
+    document
+        .querySelectorAll(
+            ".nav-item[data-cat], .chip[data-cat]"
+        )
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.cat ===
+                currentCategory
+            );
+
+        });
+}
+
+/* ============================================================
+   PESQUISA
+   ============================================================ */
+
+function handleSearch(preset = "") {
+
+    const input =
+        document.getElementById(
+            "searchInput"
+        );
+
+    if (preset) {
+
+        if (input) {
+            input.value = preset;
+        }
+
+        searchTerm =
+            preset;
+
+    } else {
+
+        searchTerm =
+            input
+                ? input.value
+                : "";
+
+    }
+
+    showSuggestions(false);
+
+    renderBooks();
+}
+
+/* ============================================================
+   EVENTOS GERAIS
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initTheme();
+
+        lucide.createIcons();
+
+        document
+            .getElementById(
+                "themeButton"
+            )
+            ?.addEventListener(
+                "click",
+                toggleTheme
+            );
+
+        document
+            .getElementById(
+                "mobileMenuButton"
+            )
+            ?.addEventListener(
+                "click",
+                () => toggleMobileMenu(true)
+            );
+
+        document
+            .getElementById(
+                "mobileCloseButton"
+            )
+            ?.addEventListener(
+                "click",
+                () => toggleMobileMenu(false)
+            );
+
+        document
+            .getElementById(
+                "mobileOverlay"
+            )
+            ?.addEventListener(
+                "click",
+                () => toggleMobileMenu(false)
+            );
+
+        document
+            .getElementById(
+                "closeModalButton"
+            )
+            ?.addEventListener(
+                "click",
+                closeModal
+            );
+
+        document
+            .getElementById(
+                "statFavButton"
+            )
+            ?.addEventListener(
+                "click",
+                () =>
+                    filterCategory(
+                        "Favoritos"
+                    )
+            );
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            );
+
+        searchInput?.addEventListener(
+            "input",
+            () => handleSearch()
+        );
+
+        searchInput?.addEventListener(
+            "focus",
+            () => showSuggestions(true)
+        );
+
+        document
+            .querySelectorAll(
+                "[data-cat]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        filterCategory(
+                            button.dataset.cat
+                        )
+                );
+
+            });
+
+        document
+            .getElementById(
+                "searchSuggest"
+            )
+            ?.querySelectorAll(
+                "[data-search-preset]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        handleSearch(
+                            button.dataset.searchPreset
+                        )
+                );
+
+            });
+
+        document
+            .getElementById(
+                "searchSuggest"
+            )
+            ?.querySelectorAll(
+                "[data-category-preset]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        filterCategory(
+                            button.dataset.categoryPreset
+                        )
+                );
+
+            });
+
+        document.addEventListener(
+            "click",
+            event => {
+
+                const wrapper =
+                    searchInput?.parentElement;
+
+                if (
+                    wrapper &&
+                    !wrapper.contains(
+                        event.target
+                    )
+                ) {
+                    showSuggestions(false);
+                }
+
+            }
+        );
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    (event.ctrlKey ||
+                        event.metaKey) &&
+                    event.key.toLowerCase() ===
+                        "k"
+                ) {
+
+                    event.preventDefault();
+
+                    searchInput?.focus();
+
+                    showSuggestions(true);
+
+                }
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeModal();
+
+                    showSuggestions(false);
+
+                    toggleMobileMenu(false);
+
+                }
+
+            }
+        );
+
+        fetchBooks();
+
+    }
+);
 
 </script>
-```
 
 </body>
 </html>
