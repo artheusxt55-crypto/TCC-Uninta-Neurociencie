@@ -1,21 +1,16 @@
-
 const GA_MEASUREMENT_ID = "G-3ZRNDZFYER";
 
 declare global {
     interface Window {
         dataLayer: any[];
         gtag: (...args: any[]) => void;
+        [key: `ga-disable-${string}`]: boolean | undefined;
     }
 }
 
 let analyticsInicializado = false;
 let scriptCarregando = false;
-let consentConfigurado = false;
 
-/**
- * Prepara o dataLayer e uma função gtag temporária.
- * Essa função é substituída/assumida pelo Google quando o gtag.js carregar.
- */
 function prepararGtag() {
     if (typeof window === "undefined") return;
 
@@ -28,17 +23,8 @@ function prepararGtag() {
     }
 }
 
-/**
- * Define o consentimento padrão como negado.
- *
- * Isso acontece antes do carregamento do Google Analytics.
- */
-function definirConsentimentoPadraoNegado() {
-    if (typeof window === "undefined") return;
-
+function definirConsentimentoNegado() {
     prepararGtag();
-
-    if (consentConfigurado) return;
 
     window.gtag("consent", "default", {
         analytics_storage: "denied",
@@ -47,20 +33,17 @@ function definirConsentimentoPadraoNegado() {
         ad_personalization: "denied",
         wait_for_update: 500,
     });
-
-    consentConfigurado = true;
 }
 
-/**
- * Inicializa o Google Analytics somente depois que o usuário aceitar.
- */
 export function aceitarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
-    definirConsentimentoPadraoNegado();
 
-    // Libera o armazenamento de Analytics.
+    // Remove bloqueio explícito do GA, caso exista.
+    window[`ga-disable-${GA_MEASUREMENT_ID}`] = false;
+
+    // Libera Analytics.
     window.gtag("consent", "update", {
         analytics_storage: "granted",
         ad_storage: "denied",
@@ -68,21 +51,14 @@ export function aceitarAnalytics() {
         ad_personalization: "denied",
     });
 
-    // Se já inicializou, não cria outro script.
-    if (analyticsInicializado) {
-        return;
-    }
-
-    // Se o script já está carregando, não cria outro.
-    if (scriptCarregando) {
+    if (analyticsInicializado || scriptCarregando) {
         return;
     }
 
     const scriptExistente = document.querySelector(
         `script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`
-    ) as HTMLScriptElement | null;
+    );
 
-    // Se o script já existe, consideramos que o Google já foi solicitado.
     if (scriptExistente) {
         analyticsInicializado = true;
 
@@ -106,10 +82,6 @@ export function aceitarAnalytics() {
     script.src =
         `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
 
-    /**
-     * Só consideramos o Analytics carregado quando
-     * o navegador confirma que o script do Google carregou.
-     */
     script.onload = () => {
         scriptCarregando = false;
         analyticsInicializado = true;
@@ -121,12 +93,15 @@ export function aceitarAnalytics() {
         });
 
         console.log("📊 Google Analytics carregado com sucesso.");
+
+        // Evento manual para confirmar que os hits estão funcionando.
+        window.gtag("event", "analytics_teste", {
+            origem: "educacube",
+        });
+
+        console.log("📤 Evento analytics_teste enviado.");
     };
 
-    /**
-     * Se o Google não conseguir carregar, não fingimos
-     * que o Analytics foi inicializado.
-     */
     script.onerror = () => {
         scriptCarregando = false;
         analyticsInicializado = false;
@@ -141,14 +116,14 @@ export function aceitarAnalytics() {
     console.log("⏳ Carregando Google Analytics...");
 }
 
-/**
- * Recusa o Analytics.
- */
 export function recusarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
-    definirConsentimentoPadraoNegado();
+
+    window[`ga-disable-${GA_MEASUREMENT_ID}`] = true;
+
+    definirConsentimentoNegado();
 
     window.gtag("consent", "update", {
         analytics_storage: "denied",
@@ -175,10 +150,7 @@ export function registrarEvento(
         return;
     }
 
-    window.gtag(
-        "event",
-        nome,
-        parametros || {}
-    );
-}
+    window.gtag("event", nome, parametros || {});
 
+    console.log("📤 Evento enviado:", nome);
+}
