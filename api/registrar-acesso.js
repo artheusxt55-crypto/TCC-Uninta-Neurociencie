@@ -1,4 +1,4 @@
-```javascript
+
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
@@ -297,4 +297,3 @@ export default async function handler(req, res) {
     });
   }
 }
-```
