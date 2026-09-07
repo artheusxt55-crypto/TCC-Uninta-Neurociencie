@@ -1,4 +1,4 @@
-```ts
+
 const GA_MEASUREMENT_ID = "G-3ZRNDZFYER";
 
 declare global {
@@ -181,4 +181,4 @@ export function registrarEvento(
         parametros || {}
     );
 }
-```
+
