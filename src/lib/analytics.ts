@@ -4,26 +4,25 @@ declare global {
     interface Window {
         dataLayer: any[];
         gtag: (...args: any[]) => void;
-        [key: `ga-disable-${string}`]: boolean | undefined;
     }
 }
 
-let analyticsInicializado = false;
-let scriptCarregando = false;
+let inicializado = false;
+let carregando = false;
 
 function prepararGtag() {
     if (typeof window === "undefined") return;
 
     window.dataLayer = window.dataLayer || [];
 
-    if (!window.gtag) {
-        window.gtag = function (...args: any[]) {
+    window.gtag =
+        window.gtag ||
+        function (...args: any[]) {
             window.dataLayer.push(args);
         };
-    }
 }
 
-function definirConsentimentoNegado() {
+function configurarConsentimentoInicial() {
     prepararGtag();
 
     window.gtag("consent", "default", {
@@ -40,10 +39,7 @@ export function aceitarAnalytics() {
 
     prepararGtag();
 
-    // Remove bloqueio explícito do GA, caso exista.
-    window[`ga-disable-${GA_MEASUREMENT_ID}`] = false;
-
-    // Libera Analytics.
+    // Libera o Analytics
     window.gtag("consent", "update", {
         analytics_storage: "granted",
         ad_storage: "denied",
@@ -51,29 +47,27 @@ export function aceitarAnalytics() {
         ad_personalization: "denied",
     });
 
-    if (analyticsInicializado || scriptCarregando) {
+    // Já inicializado
+    if (inicializado) {
         return;
     }
 
+    // Já está carregando
+    if (carregando) {
+        return;
+    }
+
+    // Verifica se o script já existe
     const scriptExistente = document.querySelector(
         `script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`
     );
 
     if (scriptExistente) {
-        analyticsInicializado = true;
-
-        window.gtag("js", new Date());
-
-        window.gtag("config", GA_MEASUREMENT_ID, {
-            anonymize_ip: true,
-        });
-
-        console.log("📊 Google Analytics já estava carregado.");
-
+        inicializarGoogleAnalytics();
         return;
     }
 
-    scriptCarregando = true;
+    carregando = true;
 
     const script = document.createElement("script");
 
@@ -83,37 +77,50 @@ export function aceitarAnalytics() {
         `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
 
     script.onload = () => {
-        scriptCarregando = false;
-        analyticsInicializado = true;
+        carregando = false;
 
-        window.gtag("js", new Date());
-
-        window.gtag("config", GA_MEASUREMENT_ID, {
-            anonymize_ip: true,
-        });
-
-        console.log("📊 Google Analytics carregado com sucesso.");
-
-        // Evento manual para confirmar que os hits estão funcionando.
-        window.gtag("event", "analytics_teste", {
-            origem: "educacube",
-        });
-
-        console.log("📤 Evento analytics_teste enviado.");
+        inicializarGoogleAnalytics();
     };
 
     script.onerror = () => {
-        scriptCarregando = false;
-        analyticsInicializado = false;
+        carregando = false;
 
         console.error(
-            "❌ Não foi possível carregar o Google Analytics."
+            "❌ Erro ao carregar Google Analytics."
         );
     };
 
     document.head.appendChild(script);
 
-    console.log("⏳ Carregando Google Analytics...");
+    console.log(
+        "⏳ Carregando Google Analytics..."
+    );
+}
+
+function inicializarGoogleAnalytics() {
+    if (typeof window === "undefined") return;
+
+    prepararGtag();
+
+    if (inicializado) return;
+
+    window.gtag("js", new Date());
+
+    window.gtag("config", GA_MEASUREMENT_ID);
+
+    inicializado = true;
+
+    console.log(
+        "📊 Google Analytics carregado com sucesso."
+    );
+
+    window.gtag("event", "analytics_teste", {
+        origem: "educacube",
+    });
+
+    console.log(
+        "📤 Evento analytics_teste enviado."
+    );
 }
 
 export function recusarAnalytics() {
@@ -121,9 +128,12 @@ export function recusarAnalytics() {
 
     prepararGtag();
 
-    window[`ga-disable-${GA_MEASUREMENT_ID}`] = true;
-
-    definirConsentimentoNegado();
+    window.gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+    });
 
     window.gtag("consent", "update", {
         analytics_storage: "denied",
@@ -132,7 +142,9 @@ export function recusarAnalytics() {
         ad_personalization: "denied",
     });
 
-    console.log("🚫 Analytics recusado.");
+    console.log(
+        "🚫 Analytics recusado."
+    );
 }
 
 export function registrarEvento(
@@ -141,16 +153,23 @@ export function registrarEvento(
 ) {
     if (typeof window === "undefined") return;
 
-    if (!analyticsInicializado) {
+    if (!inicializado) {
         console.warn(
-            "⚠️ Evento não enviado porque o Google Analytics ainda não foi inicializado:",
+            "⚠️ Analytics ainda não inicializado:",
             nome
         );
 
         return;
     }
 
-    window.gtag("event", nome, parametros || {});
+    window.gtag(
+        "event",
+        nome,
+        parametros || {}
+    );
 
-    console.log("📤 Evento enviado:", nome);
+    console.log(
+        "📤 Evento enviado:",
+        nome
+    );
 }
