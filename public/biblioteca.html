@@ -1,45 +1,58 @@
 <!DOCTYPE html>
-
 <html lang="pt-br" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>NeuroLib · EducaCube</title>
-<meta name="description" content="Biblioteca acadêmica do EducaCube para estudos em psicologia, neurociência e saúde mental.">
 
 <meta http-equiv="Content-Security-Policy" content="
- default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';
- connect-src 'self'
-     https://*.googleapis.com
-     https://*.firebaseio.com
-     https://securetoken.googleapis.com
-     https://identitytoolkit.googleapis.com
-     https://firestore.googleapis.com;
- script-src 'self'
-     'unsafe-inline'
-     'unsafe-eval'
-     https://cdn.tailwindcss.com
-     https://unpkg.com
-     https://cdn.jsdelivr.net
-     https://www.gstatic.com;
- img-src 'self' data: blob: https: https://*.googleusercontent.com;
- style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
- font-src 'self' https://fonts.gstatic.com;
- frame-src 'self'
-     https://drive.google.com
-     https://docs.google.com
-     https://google.com
-     https://*.google.com
-     https://*.firebaseapp.com;
- worker-src 'self' blob:;
+    default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';
+
+    connect-src 'self'
+        https://*.googleapis.com
+        https://*.firebaseio.com
+        https://securetoken.googleapis.com
+        https://identitytoolkit.googleapis.com
+        https://firestore.googleapis.com
+        https://unpkg.com
+        https://www.gstatic.com;
+
+    script-src 'self'
+        'unsafe-inline'
+        'unsafe-eval'
+        https://cdn.tailwindcss.com
+        https://unpkg.com
+        https://cdn.jsdelivr.net
+        https://www.gstatic.com;
+
+    img-src 'self'
+        data:
+        blob:
+        https:
+        https://*.googleusercontent.com;
+
+    style-src 'self'
+        'unsafe-inline'
+        https://fonts.googleapis.com;
+
+    font-src 'self'
+        https://fonts.gstatic.com;
+
+    frame-src 'self'
+        https://drive.google.com
+        https://docs.google.com
+        https://*.google.com
+        https://*.firebaseapp.com;
+
+    worker-src 'self' blob:;
 ">
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root,
@@ -50,7 +63,7 @@ html[data-theme="dark"] {
     --surface-hover: #1B1729;
 
     --border: #29243A;
-    --border-soft: #1D1929;
+    --border-soft: #1E1A2B;
 
     --ink: #F3F1FA;
     --ink-dim: #A79FBE;
@@ -60,13 +73,15 @@ html[data-theme="dark"] {
     --violet-soft: #A78BFA;
     --violet-deep: #4C1D95;
 
-    --violet-wash: rgba(124, 58, 237, 0.12);
-    --violet-wash-strong: rgba(124, 58, 237, 0.22);
+    --violet-wash: rgba(124,58,237,.12);
+    --violet-wash-strong: rgba(124,58,237,.22);
 
     --good: #34D399;
-    --focus-ring: rgba(167, 139, 250, 0.40);
 
-    --shadow-card: 0 18px 40px -22px rgba(76, 29, 149, 0.45);
+    --focus-ring: rgba(167,139,250,.35);
+
+    --shadow-card:
+        0 18px 40px -22px rgba(76,29,149,.65);
 }
 
 html[data-theme="light"] {
@@ -86,39 +101,33 @@ html[data-theme="light"] {
     --violet-soft: #7C3AED;
     --violet-deep: #4C1D95;
 
-    --violet-wash: rgba(109, 40, 217, 0.08);
-    --violet-wash-strong: rgba(109, 40, 217, 0.14);
+    --violet-wash: rgba(109,40,217,.08);
+    --violet-wash-strong: rgba(109,40,217,.14);
 
     --good: #0F9D6D;
-    --focus-ring: rgba(109, 40, 217, 0.28);
 
-    --shadow-card: 0 18px 34px -22px rgba(76, 29, 149, 0.22);
+    --focus-ring: rgba(109,40,217,.25);
+
+    --shadow-card:
+        0 18px 34px -22px rgba(76,29,149,.22);
 }
 
 * {
-    box-sizing: border-box;
     scrollbar-color: var(--border) transparent;
 }
 
-html {
-    background: var(--bg);
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
 }
 
 body {
-    margin: 0;
     background: var(--bg);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
-}
-
-button,
-input {
-    font: inherit;
-}
-
-button {
-    cursor: pointer;
 }
 
 .font-display {
@@ -128,7 +137,6 @@ button {
 :focus-visible {
     outline: 2px solid var(--violet-soft);
     outline-offset: 2px;
-    border-radius: 6px;
 }
 
 ::-webkit-scrollbar {
@@ -145,25 +153,25 @@ button {
     background: var(--ink-faint);
 }
 
-/* ============================================================
+/* =========================================================
    SHELL
-   ============================================================ */
+========================================================= */
 
 .app-bg {
-    background-color: var(--bg);
+    background: var(--bg);
 }
 
 .sidebar {
-    background-color: var(--bg-raised);
+    background: var(--bg-raised);
     border-right: 1px solid var(--border-soft);
 }
 
 .nav-item {
     color: var(--ink-dim);
     transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease;
+        background .15s ease,
+        color .15s ease,
+        border-color .15s ease;
     border-left: 2px solid transparent;
 }
 
@@ -180,7 +188,6 @@ button {
 
 .nav-item .count {
     color: var(--ink-faint);
-    font-variant-numeric: tabular-nums;
 }
 
 .side-panel-card {
@@ -188,14 +195,17 @@ button {
     border: 1px solid var(--border-soft);
 }
 
-.side-panel-card:hover {
-    border-color: var(--border);
-}
-
 .header-glass {
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    background: color-mix(
+        in srgb,
+        var(--bg) 88%,
+        transparent
+    );
+
     backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--border-soft);
+
+    border-bottom:
+        1px solid var(--border-soft);
 }
 
 .field {
@@ -210,14 +220,22 @@ button {
 
 .field:focus {
     border-color: var(--violet-soft);
-    box-shadow: 0 0 0 3px var(--focus-ring);
+    box-shadow:
+        0 0 0 3px var(--focus-ring);
 }
+
+/* =========================================================
+   CHIPS
+========================================================= */
 
 .chip {
     border: 1px solid var(--border);
     color: var(--ink-dim);
     background: var(--surface);
-    transition: all 0.15s ease;
+
+    transition:
+        all .15s ease;
+
     white-space: nowrap;
 }
 
@@ -232,11 +250,17 @@ button {
     background: var(--violet-wash);
 }
 
+/* =========================================================
+   BUTTONS
+========================================================= */
+
 .icon-btn {
     color: var(--ink-dim);
     background: var(--surface);
     border: 1px solid var(--border);
-    transition: all 0.15s ease;
+
+    transition:
+        all .15s ease;
 }
 
 .icon-btn:hover {
@@ -245,72 +269,138 @@ button {
     border-color: var(--ink-faint);
 }
 
-/* ============================================================
-   CARDS
-   ============================================================ */
+.btn-primary {
+    background: var(--violet);
+    color: white;
+
+    transition:
+        background .15s ease,
+        transform .1s ease;
+}
+
+.btn-primary:hover {
+    background: var(--violet-deep);
+}
+
+.btn-primary:active {
+    transform: scale(.97);
+}
+
+.btn-quiet {
+    background: var(--surface-hover);
+    color: var(--ink);
+
+    border:
+        1px solid var(--border);
+
+    transition:
+        all .15s ease;
+}
+
+.btn-quiet:hover {
+    color: var(--violet-soft);
+    border-color: var(--violet-soft);
+}
+
+/* =========================================================
+   BOOK CARDS
+========================================================= */
 
 .card-book {
     background: var(--surface);
-    border: 1px solid var(--border-soft);
+
+    border:
+        1px solid var(--border-soft);
+
     transition:
-        border-color 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+        transform .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
 }
 
 .card-book:hover {
     transform: translateY(-3px);
-    border-color: var(--violet-deep);
-    box-shadow: var(--shadow-card);
+
+    border-color:
+        var(--violet-deep);
+
+    box-shadow:
+        var(--shadow-card);
 }
 
-.card-book .cover-veil {
+.cover-wrapper {
+    height: 180px;
     background:
         linear-gradient(
-            to top,
-            var(--surface) 0%,
-            rgba(0, 0, 0, 0.05) 55%,
-            transparent 100%
+            135deg,
+            var(--surface-hover),
+            var(--surface)
         );
 }
 
-html[data-theme="light"] .card-book .cover-veil {
-    background:
-        linear-gradient(
-            to top,
-            var(--surface) 0%,
-            rgba(255, 255, 255, 0.05) 55%,
-            transparent 100%
-        );
-}
-
-.card-book .play-affordance {
-    opacity: 0;
-    transform: translateY(6px) scale(0.94);
+.cover-img {
     transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+        transform .5s cubic-bezier(.4,0,.2,1),
+        opacity .25s ease;
+}
+
+.card-book:hover .cover-img {
+    transform: scale(1.05);
+}
+
+.cover-veil {
+    background:
+        linear-gradient(
+            to top,
+            var(--surface) 0%,
+            rgba(0,0,0,.10) 55%,
+            transparent 100%
+        );
+}
+
+html[data-theme="light"] .cover-veil {
+    background:
+        linear-gradient(
+            to top,
+            var(--surface) 0%,
+            rgba(255,255,255,.08) 55%,
+            transparent 100%
+        );
+}
+
+.play-affordance {
+    opacity: 0;
+
+    transform:
+        translateY(6px)
+        scale(.94);
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
 }
 
 .card-book:hover .play-affordance {
     opacity: 1;
-    transform: translateY(0) scale(1);
-}
 
-.card-book .cover-img {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-book:hover .cover-img {
-    transform: scale(1.06);
+    transform:
+        translateY(0)
+        scale(1);
 }
 
 .fav-btn {
-    background: color-mix(in srgb, var(--bg) 55%, transparent);
-    backdrop-filter: blur(6px);
+    background:
+        color-mix(
+            in srgb,
+            var(--bg) 60%,
+            transparent
+        );
+
+    backdrop-filter: blur(7px);
+
     transition:
-        transform 0.15s ease,
-        background 0.15s ease;
+        transform .15s ease,
+        background .15s ease;
 }
 
 .fav-btn:hover {
@@ -321,46 +411,24 @@ html[data-theme="light"] .card-book .cover-veil {
     color: var(--violet-soft);
 }
 
-.btn-primary {
-    background: var(--violet);
-    color: #fff;
-    transition:
-        background 0.15s ease,
-        transform 0.1s ease;
-}
-
-.btn-primary:hover {
-    background: var(--violet-deep);
-}
-
-.btn-primary:active {
-    transform: scale(0.97);
-}
-
-.btn-quiet {
-    background: var(--surface-hover);
-    color: var(--ink);
-    border: 1px solid var(--border);
-    transition: all 0.15s ease;
-}
-
-.btn-quiet:hover {
-    border-color: var(--violet-soft);
-    color: var(--violet-soft);
-}
-
-.badge-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--good);
-}
+/* =========================================================
+   MODAL
+========================================================= */
 
 .modal-veil {
+    background:
+        color-mix(
+            in srgb,
+            var(--bg) 90%,
+            transparent
+        );
+
     backdrop-filter: blur(14px);
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
 }
+
+/* =========================================================
+   SKELETON
+========================================================= */
 
 .skeleton-pulse {
     background:
@@ -370,11 +438,16 @@ html[data-theme="light"] .card-book .cover-veil {
             var(--surface-hover) 50%,
             var(--surface) 75%
         );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+
+    background-size:
+        200% 100%;
+
+    animation:
+        shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
+
     0% {
         background-position: 200% 0;
     }
@@ -382,12 +455,19 @@ html[data-theme="light"] .card-book .cover-veil {
     100% {
         background-position: -200% 0;
     }
+
 }
+
+/* =========================================================
+   SEARCH
+========================================================= */
 
 .search-suggest {
     background: var(--bg-raised);
     border: 1px solid var(--border);
-    box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.5);
+
+    box-shadow:
+        0 20px 45px -20px rgba(0,0,0,.5);
 }
 
 .search-suggest button:hover {
@@ -395,547 +475,780 @@ html[data-theme="light"] .card-book .cover-veil {
 }
 
 kbd {
-    font-family: 'Inter', sans-serif;
-    background: var(--surface-hover);
-    border: 1px solid var(--border);
-    color: var(--ink-faint);
+    font-family: Inter, sans-serif;
+
+    background:
+        var(--surface-hover);
+
+    border:
+        1px solid var(--border);
+
+    color:
+        var(--ink-faint);
 }
 
 .mobile-overlay {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px);
+    background:
+        rgba(0,0,0,.6);
+
+    backdrop-filter:
+        blur(2px);
 }
 
 .line-clamp-2 {
     display: -webkit-box;
+
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+
     overflow: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
-        animation-duration: 0.001ms !important;
-        transition-duration: 0.001ms !important;
+
+        animation-duration:
+            .001ms !important;
+
+        transition-duration:
+            .001ms !important;
     }
 }
-</style>
 
+</style>
 </head>
 
 <body class="flex h-screen overflow-hidden app-bg">
 
-<!-- ============================================================
-     MODAL PDF
-     ============================================================ -->
+<!-- =========================================================
+     PDF MODAL
+========================================================= -->
 
 <div
     id="pdfModal"
-    class="fixed inset-0 z-[100] hidden modal-veil p-4 md:p-8 flex flex-col"
+    class="fixed inset-0 z-[100] hidden modal-veil p-3 md:p-6 flex flex-col"
     role="dialog"
     aria-modal="true"
     aria-labelledby="modalTitle"
 >
+
     <div class="flex justify-between items-start mb-4 gap-4">
 
-```
-    <div class="min-w-0">
-        <p
-            id="modalCategory"
-            class="text-xs font-semibold tracking-wide mb-1"
-            style="color: var(--violet-soft);"
-        ></p>
+        <div class="min-w-0">
 
-        <h2
-            id="modalTitle"
-            class="text-xl font-display font-semibold truncate"
-            style="color: var(--ink);"
-        >
-            Visualizando material
-        </h2>
+            <p
+                id="modalCategory"
+                class="text-xs font-semibold tracking-wide mb-1"
+                style="color:var(--violet-soft)"
+            ></p>
+
+            <h2
+                id="modalTitle"
+                class="text-xl font-display font-semibold truncate"
+            >
+                Visualizando material
+            </h2>
+
+        </div>
+
+        <div class="flex items-center gap-2">
+
+            <a
+                id="modalOpenNewTab"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-btn p-2 rounded-full"
+                aria-label="Abrir em nova aba"
+            >
+                <i data-lucide="external-link" class="w-5 h-5"></i>
+            </a>
+
+            <button
+                id="closeModalButton"
+                class="icon-btn p-2 rounded-full"
+                aria-label="Fechar leitor"
+            >
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+        </div>
+
     </div>
 
-    <div class="flex items-center gap-2 shrink-0">
+    <div
+        class="flex-1 rounded-2xl overflow-hidden relative"
+        style="
+            background:var(--surface);
+            border:1px solid var(--border);
+        "
+    >
 
-        <a
-            id="modalOpenNewTab"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="icon-btn p-2 rounded-full"
-            aria-label="Abrir em nova aba"
-            title="Abrir em nova aba"
-        >
-            <i data-lucide="external-link" class="w-5 h-5"></i>
-        </a>
+        <iframe
+            id="pdfFrame"
+            class="w-full h-full"
+            src=""
+            title="Leitor de material"
+            frameborder="0"
+            allow="autoplay"
+        ></iframe>
 
-        <button
-            id="closeModalButton"
-            type="button"
-            class="icon-btn p-2 rounded-full"
-            aria-label="Fechar leitor"
-            title="Fechar leitor"
+        <div
+            id="pdfFallback"
+            class="hidden absolute inset-0 flex items-center justify-center p-6"
+            style="background:var(--surface)"
         >
-            <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+
+            <div class="text-center max-w-md">
+
+                <div
+                    class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4"
+                    style="background:var(--violet-wash)"
+                >
+                    <i
+                        data-lucide="file-text"
+                        class="w-7 h-7"
+                        style="color:var(--violet-soft)"
+                    ></i>
+                </div>
+
+                <h3
+                    class="font-semibold mb-2"
+                >
+                    Não foi possível visualizar aqui
+                </h3>
+
+                <p
+                    class="text-sm mb-5"
+                    style="color:var(--ink-dim)"
+                >
+                    O Google Drive pode impedir a visualização incorporada deste arquivo.
+                </p>
+
+                <a
+                    id="fallbackLink"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                >
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    Abrir material
+                </a>
+
+            </div>
+
+        </div>
 
     </div>
-</div>
-
-<div
-    class="flex-1 rounded-2xl overflow-hidden relative"
-    style="background: var(--surface); border: 1px solid var(--border);"
->
-    <iframe
-        id="pdfFrame"
-        class="w-full h-full"
-        src=""
-        title="Leitor de material"
-        frameborder="0"
-        allow="autoplay"
-    ></iframe>
-</div>
-```
 
 </div>
 
-<!-- ============================================================
-     OVERLAY MOBILE
-     ============================================================ -->
+
+<!-- =========================================================
+     MOBILE OVERLAY
+========================================================= -->
 
 <div
     id="mobileOverlay"
     class="fixed inset-0 z-40 hidden mobile-overlay lg:hidden"
-    aria-hidden="true"
 ></div>
 
-<!-- ============================================================
+
+<!-- =========================================================
      SIDEBAR
-     ============================================================ -->
+========================================================= -->
 
 <aside
     id="sidebar"
-    class="sidebar w-72 flex-col fixed lg:static inset-y-0 left-0 z-50 -translate-x-full lg:translate-x-0 transition-transform duration-200 flex overflow-y-auto"
+    class="
+        sidebar
+        w-72
+        flex-col
+        fixed
+        lg:static
+        inset-y-0
+        left-0
+        z-50
+        -translate-x-full
+        lg:translate-x-0
+        transition-transform
+        duration-200
+        flex
+        overflow-y-auto
+    "
 >
 
-```
-<div class="p-6 flex items-center justify-between">
+    <div class="p-6 flex items-center justify-between">
 
-    <div class="flex items-center gap-3">
-
-        <div
-            class="w-9 h-9 rounded-xl flex items-center justify-center"
-            style="background: var(--violet-wash-strong);"
-        >
-            <i
-                data-lucide="library-big"
-                class="w-5 h-5"
-                style="color: var(--violet-soft);"
-            ></i>
-        </div>
-
-        <div class="leading-tight">
-            <p
-                class="font-display font-semibold text-lg"
-                style="color: var(--ink);"
-            >
-                NeuroLib
-            </p>
-
-            <p
-                class="text-[10px] font-medium"
-                style="color: var(--ink-faint);"
-            >
-                por EducaCube
-            </p>
-        </div>
-
-    </div>
-
-    <button
-        id="mobileCloseButton"
-        type="button"
-        class="lg:hidden icon-btn p-1.5 rounded-lg"
-        aria-label="Fechar menu"
-    >
-        <i data-lucide="x" class="w-4 h-4"></i>
-    </button>
-
-</div>
-
-<nav
-    class="px-3 space-y-0.5"
-    aria-label="Categorias"
->
-
-    <p
-        class="px-3 pt-3 pb-2 text-[11px] font-semibold"
-        style="color: var(--ink-faint);"
-    >
-        Navegação
-    </p>
-
-    <button
-        type="button"
-        data-cat="Todos"
-        class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
-    >
-        <i data-lucide="layout-grid" class="w-4 h-4"></i>
-        <span class="flex-1 text-left">Todos os materiais</span>
-    </button>
-
-    <button
-        type="button"
-        data-cat="Favoritos"
-        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
-    >
-        <i data-lucide="heart" class="w-4 h-4"></i>
-        <span class="flex-1 text-left">Favoritos</span>
-        <span class="count text-xs" id="navCountFav">0</span>
-    </button>
-
-    <button
-        type="button"
-        data-cat="Recentes"
-        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
-    >
-        <i data-lucide="history" class="w-4 h-4"></i>
-        <span class="flex-1 text-left">Acessados recentemente</span>
-    </button>
-
-    <p
-        class="px-3 pt-4 pb-2 text-[11px] font-semibold"
-        style="color: var(--ink-faint);"
-    >
-        Áreas de conhecimento
-    </p>
-
-    <div id="dynamicCategories"></div>
-
-</nav>
-
-<div class="px-3 mt-6">
-
-    <p
-        class="px-3 pb-2 text-[11px] font-semibold"
-        style="color: var(--ink-faint);"
-    >
-        Sua biblioteca
-    </p>
-
-    <div
-        id="continueCard"
-        class="side-panel-card rounded-xl p-3 mb-2 cursor-pointer hidden"
-    >
-        <p
-            class="text-[10px] font-semibold mb-1"
-            style="color: var(--violet-soft);"
-        >
-            Continuar estudando
-        </p>
-
-        <p
-            id="continueTitle"
-            class="text-xs font-medium line-clamp-2"
-            style="color: var(--ink);"
-        ></p>
-    </div>
-
-    <div
-        id="recentList"
-        class="space-y-1"
-    ></div>
-
-</div>
-
-<div
-    class="p-6 mt-auto pt-4 border-t"
-    style="border-color: var(--border-soft);"
->
-    <p
-        class="text-[10px] mb-3 font-medium text-center"
-        style="color: var(--ink-faint);"
-    >
-        Assistente · UNT Bot
-    </p>
-
-    <a
-        href="index.html"
-        class="flex items-center gap-2 text-xs font-medium justify-center transition"
-        style="color: var(--ink-dim);"
-    >
-        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-        Voltar ao Lab
-    </a>
-</div>
-```
-
-</aside>
-
-<!-- ============================================================
-     CONTEÚDO PRINCIPAL
-     ============================================================ -->
-
-<main class="flex-1 flex flex-col overflow-hidden">
-
-```
-<header
-    class="header-glass px-4 sm:px-8 py-4 flex items-center gap-4 z-30"
->
-
-    <button
-        id="mobileMenuButton"
-        type="button"
-        class="lg:hidden icon-btn p-2 rounded-lg"
-        aria-label="Abrir menu"
-    >
-        <i data-lucide="menu" class="w-5 h-5"></i>
-    </button>
-
-    <div class="flex-1 max-w-xl relative">
-
-        <i
-            data-lucide="search"
-            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-            style="color: var(--ink-faint);"
-        ></i>
-
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Pesquisar título, autor ou categoria..."
-            autocomplete="off"
-            aria-label="Pesquisar materiais"
-            class="field w-full pl-10 pr-16 py-2.5 rounded-xl text-sm outline-none transition"
-        >
-
-        <kbd
-            class="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded font-medium"
-        >
-            Ctrl K
-        </kbd>
-
-        <div
-            id="searchSuggest"
-            class="search-suggest hidden absolute top-full mt-2 left-0 right-0 rounded-xl overflow-hidden z-40"
-        >
-
-            <button
-                type="button"
-                data-search-preset="AVASUS"
-                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
-                style="color: var(--ink-dim);"
-            >
-                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
-                Materiais AVASUS
-            </button>
-
-            <button
-                type="button"
-                data-category-preset="Recentes"
-                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
-                style="color: var(--ink-dim);"
-            >
-                <i data-lucide="history" class="w-3.5 h-3.5"></i>
-                Acessados recentemente
-            </button>
-
-            <button
-                type="button"
-                data-category-preset="Favoritos"
-                class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
-                style="color: var(--ink-dim);"
-            >
-                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                Seus favoritos
-            </button>
-
-        </div>
-    </div>
-
-    <div class="flex items-center gap-2 sm:gap-4">
-
-        <div
-            class="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl"
-            style="background: var(--surface); border: 1px solid var(--border-soft);"
-        >
-
-            <div class="text-center leading-tight">
-                <p
-                    id="statTotal"
-                    class="text-sm font-semibold"
-                    style="color: var(--ink);"
-                >
-                    0
-                </p>
-
-                <p
-                    class="text-[9px] font-medium"
-                    style="color: var(--ink-faint);"
-                >
-                    materiais
-                </p>
-            </div>
+        <div class="flex items-center gap-3">
 
             <div
-                class="w-px h-7"
-                style="background: var(--border);"
-            ></div>
-
-            <button
-                id="statFavButton"
-                type="button"
-                class="text-center leading-tight"
-            >
-                <p
-                    id="statFav"
-                    class="text-sm font-semibold"
-                    style="color: var(--violet-soft);"
-                >
-                    0
-                </p>
-
-                <p
-                    class="text-[9px] font-medium"
-                    style="color: var(--ink-faint);"
-                >
-                    favoritos
-                </p>
-            </button>
-
-        </div>
-
-        <button
-            id="themeButton"
-            type="button"
-            class="icon-btn p-2.5 rounded-xl"
-            aria-label="Alternar tema claro e escuro"
-            title="Alternar tema"
-        >
-            <i
-                data-lucide="moon"
-                class="w-4 h-4"
-                id="themeIconDark"
-            ></i>
-
-            <i
-                data-lucide="sun"
-                class="w-4 h-4 hidden"
-                id="themeIconLight"
-            ></i>
-        </button>
-
-        <div
-            class="flex items-center gap-3 pl-3 sm:pl-4 border-l"
-            style="border-color: var(--border-soft);"
-        >
-
-            <div class="text-right leading-none hidden md:block">
-                <p
-                    class="text-xs font-semibold"
-                    style="color: var(--ink);"
-                >
-                    Mestre Matheus
-                </p>
-
-                <p
-                    class="text-[9px] font-medium"
-                    style="color: var(--ink-faint);"
-                >
-                    Uninta Tianguá
-                </p>
-            </div>
-
-            <div
-                class="w-9 h-9 rounded-full flex items-center justify-center"
-                style="background: var(--surface); border: 1px solid var(--border);"
+                class="w-9 h-9 rounded-xl flex items-center justify-center"
+                style="background:var(--violet-wash-strong)"
             >
                 <i
-                    data-lucide="user"
-                    class="w-4 h-4"
-                    style="color: var(--ink-faint);"
+                    data-lucide="library-big"
+                    class="w-5 h-5"
+                    style="color:var(--violet-soft)"
                 ></i>
             </div>
 
+            <div class="leading-tight">
+
+                <p
+                    class="font-display font-semibold text-lg"
+                >
+                    NeuroLib
+                </p>
+
+                <p
+                    class="text-[10px] font-medium"
+                    style="color:var(--ink-faint)"
+                >
+                    por EducaCube
+                </p>
+
+            </div>
+
         </div>
 
-    </div>
-</header>
-
-<!-- ============================================================
-     BIBLIOTECA
-     ============================================================ -->
-
-<div class="flex-1 overflow-y-auto px-4 sm:px-8 pt-8 pb-4">
-
-    <div class="mb-8 max-w-2xl">
-
-        <p
-            class="text-[11px] uppercase tracking-[0.18em] font-semibold mb-2"
-            style="color: var(--violet-soft);"
-        >
-            EducaCube · NeuroLib
-        </p>
-
-        <h1
-            class="text-3xl sm:text-4xl font-display font-semibold tracking-tight mb-3"
-            style="color: var(--ink);"
-        >
-            Seu espaço de estudo
-        </h1>
-
-        <p
-            class="text-sm leading-relaxed"
-            style="color: var(--ink-dim);"
-        >
-            Materiais selecionados para aprofundar seus estudos em psicologia,
-            neurociência e saúde mental — organizados por área, prontos para
-            retomar de onde parou.
-        </p>
-
-    </div>
-
-    <div
-        id="chipRow"
-        class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1"
-        aria-label="Filtro rápido por categoria"
-    >
         <button
-            type="button"
-            data-cat="Todos"
-            class="chip active px-3.5 py-1.5 rounded-full text-xs font-medium"
+            id="closeMobileMenu"
+            class="lg:hidden icon-btn p-1.5 rounded-lg"
+            aria-label="Fechar menu"
         >
-            Todos
+            <i data-lucide="x" class="w-4 h-4"></i>
         </button>
+
     </div>
 
-    <div class="flex items-center justify-between mb-4">
+
+    <nav
+        class="px-3 space-y-0.5"
+        aria-label="Categorias"
+    >
 
         <p
-            class="text-sm font-medium"
-            id="bookCount"
-            style="color: var(--ink-dim);"
+            class="px-3 pt-3 pb-2 text-[11px] font-semibold"
+            style="color:var(--ink-faint)"
         >
-            Carregando biblioteca...
+            Navegação
         </p>
+
+        <button data-cat="Todos" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Todos os materiais</span>
+        </button>
+
+        <button data-cat="Favoritos" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="heart" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Favoritos</span>
+            <span id="navCountFav" class="count text-xs">0</span>
+        </button>
+
+        <button data-cat="Recentes" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Acessados recentemente</span>
+        </button>
+
+
+        <p
+            class="px-3 pt-4 pb-2 text-[11px] font-semibold"
+            style="color:var(--ink-faint)"
+        >
+            Áreas de conhecimento
+        </p>
+
+        <button data-cat="TDAH" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="focus" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">TDAH</span>
+        </button>
+
+        <button data-cat="TEA" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="puzzle" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">TEA</span>
+        </button>
+
+        <button data-cat="Psicofarmacologia" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="pill" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Psicofarmacologia</span>
+        </button>
+
+        <button data-cat="Neurociência" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="waves" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Neurociência</span>
+        </button>
+
+        <button data-cat="Psicologia" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Psicologia</span>
+        </button>
+
+        <button data-cat="Desenvolvimento Humano" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+            <i data-lucide="sprout" class="w-4 h-4"></i>
+            <span class="flex-1 text-left">Desenvolvimento Humano</span>
+        </button>
+
+    </nav>
+
+
+    <div class="px-3 mt-6">
+
+        <p
+            class="px-3 pb-2 text-[11px] font-semibold"
+            style="color:var(--ink-faint)"
+        >
+            Sua biblioteca
+        </p>
+
+        <div
+            id="continueCard"
+            class="side-panel-card rounded-xl p-3 mb-2 cursor-pointer hidden"
+        >
+            <p
+                class="text-[10px] font-semibold mb-1"
+                style="color:var(--violet-soft)"
+            >
+                Continuar estudando
+            </p>
+
+            <p
+                id="continueTitle"
+                class="text-xs font-medium line-clamp-2"
+            ></p>
+        </div>
+
+        <div
+            id="recentList"
+            class="space-y-1"
+        ></div>
 
     </div>
 
-    <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 pb-8"
-        id="bookGrid"
-    ></div>
 
-</div>
-```
+    <div
+        class="p-6 mt-auto pt-4 border-t"
+        style="border-color:var(--border-soft)"
+    >
+
+        <p
+            class="text-[10px] mb-3 font-medium text-center"
+            style="color:var(--ink-faint)"
+        >
+            Assistente · UNT Bot
+        </p>
+
+        <a
+            href="index.html"
+            class="flex items-center gap-2 text-xs font-medium justify-center"
+            style="color:var(--ink-dim)"
+        >
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            Voltar ao Lab
+        </a>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="flex-1 flex flex-col overflow-hidden">
+
+    <header
+        class="
+            header-glass
+            px-4
+            sm:px-8
+            py-4
+            flex
+            items-center
+            gap-4
+            z-30
+        "
+    >
+
+        <button
+            id="openMobileMenu"
+            class="lg:hidden icon-btn p-2 rounded-lg"
+            aria-label="Abrir menu"
+        >
+            <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
+
+        <div class="flex-1 max-w-xl relative">
+
+            <i
+                data-lucide="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                style="color:var(--ink-faint)"
+            ></i>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Pesquisar título, autor ou categoria..."
+                autocomplete="off"
+                aria-label="Pesquisar materiais"
+                class="field w-full pl-10 pr-16 py-2.5 rounded-xl text-sm outline-none transition"
+            >
+
+            <kbd
+                class="
+                    hidden
+                    sm:flex
+                    absolute
+                    right-3
+                    top-1/2
+                    -translate-y-1/2
+                    text-[10px]
+                    px-1.5
+                    py-0.5
+                    rounded
+                    font-medium
+                "
+            >
+                Ctrl K
+            </kbd>
+
+            <div
+                id="searchSuggest"
+                class="
+                    search-suggest
+                    hidden
+                    absolute
+                    top-full
+                    mt-2
+                    left-0
+                    right-0
+                    rounded-xl
+                    overflow-hidden
+                    z-40
+                "
+            >
+
+                <button
+                    data-search="AVASUS"
+                    class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                    style="color:var(--ink-dim)"
+                >
+                    <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                    Materiais AVASUS
+                </button>
+
+                <button
+                    data-cat-search="Recentes"
+                    class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                    style="color:var(--ink-dim)"
+                >
+                    <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                    Acessados recentemente
+                </button>
+
+                <button
+                    data-cat-search="Favoritos"
+                    class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+                    style="color:var(--ink-dim)"
+                >
+                    <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                    Seus favoritos
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="flex items-center gap-2 sm:gap-4">
+
+            <div
+                class="
+                    hidden
+                    sm:flex
+                    items-center
+                    gap-4
+                    px-4
+                    py-2
+                    rounded-xl
+                "
+                style="
+                    background:var(--surface);
+                    border:1px solid var(--border-soft);
+                "
+            >
+
+                <div class="text-center leading-tight">
+
+                    <p
+                        id="statTotal"
+                        class="text-sm font-semibold"
+                    >
+                        0
+                    </p>
+
+                    <p
+                        class="text-[9px] font-medium"
+                        style="color:var(--ink-faint)"
+                    >
+                        materiais
+                    </p>
+
+                </div>
+
+                <div
+                    class="w-px h-7"
+                    style="background:var(--border)"
+                ></div>
+
+                <button
+                    id="statFavButton"
+                    class="text-center leading-tight"
+                >
+
+                    <p
+                        id="statFav"
+                        class="text-sm font-semibold"
+                        style="color:var(--violet-soft)"
+                    >
+                        0
+                    </p>
+
+                    <p
+                        class="text-[9px] font-medium"
+                        style="color:var(--ink-faint)"
+                    >
+                        favoritos
+                    </p>
+
+                </button>
+
+            </div>
+
+
+            <button
+                id="themeButton"
+                class="icon-btn p-2.5 rounded-xl"
+                aria-label="Alternar tema"
+                title="Alternar tema"
+            >
+                <i
+                    data-lucide="moon"
+                    class="w-4 h-4"
+                    id="themeIconDark"
+                ></i>
+
+                <i
+                    data-lucide="sun"
+                    class="w-4 h-4 hidden"
+                    id="themeIconLight"
+                ></i>
+            </button>
+
+
+            <div
+                class="
+                    flex
+                    items-center
+                    gap-3
+                    pl-3
+                    sm:pl-4
+                    border-l
+                "
+                style="border-color:var(--border-soft)"
+            >
+
+                <div
+                    class="
+                        text-right
+                        leading-none
+                        hidden
+                        md:block
+                    "
+                >
+
+                    <p
+                        class="text-xs font-semibold"
+                    >
+                        Mestre Matheus
+                    </p>
+
+                    <p
+                        class="text-[9px] font-medium"
+                        style="color:var(--ink-faint)"
+                    >
+                        Uninta Tianguá
+                    </p>
+
+                </div>
+
+                <div
+                    class="
+                        w-9
+                        h-9
+                        rounded-full
+                        flex
+                        items-center
+                        justify-center
+                    "
+                    style="
+                        background:var(--surface);
+                        border:1px solid var(--border);
+                    "
+                >
+                    <i
+                        data-lucide="user"
+                        class="w-4 h-4"
+                        style="color:var(--ink-faint)"
+                    ></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         CONTENT
+    ====================================================== -->
+
+    <div
+        class="
+            flex-1
+            overflow-y-auto
+            px-4
+            sm:px-8
+            pt-8
+            pb-4
+        "
+    >
+
+        <div class="mb-8 max-w-2xl">
+
+            <p
+                class="
+                    text-[11px]
+                    uppercase
+                    tracking-[.18em]
+                    font-semibold
+                    mb-2
+                "
+                style="color:var(--violet-soft)"
+            >
+                EDUCACUBE · NEUROLIB
+            </p>
+
+            <h1
+                class="
+                    text-3xl
+                    sm:text-4xl
+                    font-display
+                    font-semibold
+                    tracking-tight
+                    mb-3
+                "
+            >
+                Seu espaço de estudo
+            </h1>
+
+            <p
+                class="text-sm leading-relaxed"
+                style="color:var(--ink-dim)"
+            >
+                Materiais selecionados para aprofundar seus estudos
+                em psicologia, neurociência e saúde mental.
+            </p>
+
+        </div>
+
+
+        <div
+            id="chipRow"
+            class="
+                flex
+                items-center
+                gap-2
+                overflow-x-auto
+                pb-2
+                mb-6
+            "
+            aria-label="Filtro rápido"
+        >
+
+            <button data-cat="Todos" class="chip active px-3.5 py-1.5 rounded-full text-xs font-medium">
+                Todos
+            </button>
+
+            <button data-cat="TDAH" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                TDAH
+            </button>
+
+            <button data-cat="TEA" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                TEA
+            </button>
+
+            <button data-cat="Psicofarmacologia" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                Psicofarmacologia
+            </button>
+
+            <button data-cat="Neurociência" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                Neurociência
+            </button>
+
+            <button data-cat="Psicologia" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                Psicologia
+            </button>
+
+            <button data-cat="Desenvolvimento Humano" class="chip px-3.5 py-1.5 rounded-full text-xs font-medium">
+                Desenvolvimento Humano
+            </button>
+
+        </div>
+
+
+        <div class="flex items-center justify-between mb-4">
+
+            <p
+                id="bookCount"
+                class="text-sm font-medium"
+                style="color:var(--ink-dim)"
+            >
+                Carregando biblioteca...
+            </p>
+
+        </div>
+
+
+        <div
+            id="bookGrid"
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                md:grid-cols-3
+                xl:grid-cols-4
+                gap-6
+                pb-8
+            "
+        ></div>
+
+    </div>
 
 </main>
 
-<!-- ============================================================
-     FIREBASE + FIRESTORE
-     ============================================================ -->
+
+<!-- =========================================================
+     FIREBASE
+========================================================= -->
 
 <script type="module">
 
@@ -949,197 +1262,80 @@ import {
     getDocs
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-/* ============================================================
-   CONFIGURAÇÃO FIREBASE
-   ============================================================ */
+
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCH1xLBLj7bcIzMlBQugVwyvWEuqiNTo-A",
-    authDomain: "educacube.firebaseapp.com",
-    projectId: "educacube",
-    storageBucket: "educacube.firebasestorage.app",
-    messagingSenderId: "115827230411",
-    appId: "1:115827230411:web:a08e62e443cb2fc3fa3d4e",
-    measurementId: "G-3ZRNDZFYER"
+
+    apiKey:
+        "AIzaSyCH1xLBLj7bcIzMlBQugVwyvWEuqiNTo-A",
+
+    authDomain:
+        "educacube.firebaseapp.com",
+
+    projectId:
+        "educacube",
+
+    storageBucket:
+        "educacube.firebasestorage.app",
+
+    messagingSenderId:
+        "115827230411",
+
+    appId:
+        "1:115827230411:web:a08e62e443cb2fc3fa3d4e",
+
+    measurementId:
+        "G-3ZRNDZFYER"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-/* ============================================================
+const app =
+    initializeApp(firebaseConfig);
+
+const db =
+    getFirestore(app);
+
+
+/* =========================================================
    ESTADO
-   ============================================================ */
+========================================================= */
 
 let allBooks = [];
-let currentCategory = "Todos";
-let searchTerm = "";
 
-let favorites = readLocalStorageArray(
-    "neurolib_favorites"
-);
+let currentCategory =
+    "Todos";
 
-let recentIds = readLocalStorageArray(
-    "neurolib_recent"
-);
+let searchTerm =
+    "";
 
-let continuing = readLocalStorageObject(
-    "neurolib_continue"
-);
-
-/* ============================================================
-   UTILITÁRIOS DE LOCALSTORAGE
-   ============================================================ */
-
-function readLocalStorageArray(key) {
-
-    try {
-
-        const value = JSON.parse(
-            localStorage.getItem(key) || "[]"
-        );
-
-        return Array.isArray(value)
-            ? value.map(String)
-            : [];
-
-    } catch {
-
-        return [];
-
-    }
-}
-
-function readLocalStorageObject(key) {
-
-    try {
-
-        const value = JSON.parse(
-            localStorage.getItem(key) || "null"
-        );
-
-        return value && typeof value === "object"
-            ? value
-            : null;
-
-    } catch {
-
-        return null;
-
-    }
-}
-
-/* ============================================================
-   TEMA
-   ============================================================ */
-
-function initTheme() {
-
-    const saved =
-        localStorage.getItem("neurolib_theme") || "dark";
-
-    applyTheme(
-        saved === "light" ? "light" : "dark"
-    );
-}
-
-function applyTheme(theme) {
-
-    const normalized =
-        theme === "light" ? "light" : "dark";
-
-    document.documentElement.setAttribute(
-        "data-theme",
-        normalized
+let favorites =
+    JSON.parse(
+        localStorage.getItem(
+            "neurolib_favorites"
+        ) || "[]"
     );
 
-    localStorage.setItem(
-        "neurolib_theme",
-        normalized
+let recentIds =
+    JSON.parse(
+        localStorage.getItem(
+            "neurolib_recent"
+        ) || "[]"
     );
 
-    const darkIcon =
-        document.getElementById("themeIconDark");
-
-    const lightIcon =
-        document.getElementById("themeIconLight");
-
-    if (!darkIcon || !lightIcon) return;
-
-    darkIcon.classList.toggle(
-        "hidden",
-        normalized !== "dark"
+let continuing =
+    JSON.parse(
+        localStorage.getItem(
+            "neurolib_continue"
+        ) || "null"
     );
 
-    lightIcon.classList.toggle(
-        "hidden",
-        normalized !== "light"
-    );
-}
 
-function toggleTheme() {
-
-    const current =
-        document.documentElement.getAttribute(
-            "data-theme"
-        );
-
-    applyTheme(
-        current === "dark"
-            ? "light"
-            : "dark"
-    );
-}
-
-/* ============================================================
-   MENU MOBILE
-   ============================================================ */
-
-function toggleMobileMenu(open) {
-
-    const sidebar =
-        document.getElementById("sidebar");
-
-    const overlay =
-        document.getElementById("mobileOverlay");
-
-    if (!sidebar || !overlay) return;
-
-    sidebar.classList.toggle(
-        "-translate-x-full",
-        !open
-    );
-
-    overlay.classList.toggle(
-        "hidden",
-        !open
-    );
-
-    overlay.setAttribute(
-        "aria-hidden",
-        String(!open)
-    );
-}
-
-/* ============================================================
-   SUGESTÕES
-   ============================================================ */
-
-function showSuggestions(show) {
-
-    const box =
-        document.getElementById("searchSuggest");
-
-    if (!box) return;
-
-    box.classList.toggle(
-        "hidden",
-        !show
-    );
-}
-
-/* ============================================================
-   ESCAPE
-   ============================================================ */
+/* =========================================================
+   UTILITÁRIOS
+========================================================= */
 
 function escapeHtml(value) {
 
@@ -1151,53 +1347,63 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
-function escapeHtmlAttribute(value) {
 
-    return escapeHtml(value);
-}
-
-function escapeJs(value) {
+function normalize(value) {
 
     return String(value ?? "")
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, "\\n")
-        .replace(/\r/g, "\\r");
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
 }
 
-/* ============================================================
-   GOOGLE DRIVE
-   ============================================================ */
 
-const capaPadrao =
-    "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000";
+/* =========================================================
+   DRIVE
+========================================================= */
 
 function extrairDriveId(url) {
 
-    if (!url) return null;
+    if (!url) {
+        return null;
+    }
 
-    const value = String(url).trim();
+    const text =
+        String(url).trim();
 
     const patterns = [
-        /[?&]id=([-\w]{10,})/,
-        /\/file\/d\/([-\w]{10,})/,
-        /\/d\/([-\w]{10,})/,
-        /\/uc\?.*?[?&]id=([-\w]{10,})/
+
+        /\/file\/d\/([a-zA-Z0-9_-]+)/,
+
+        /\/d\/([a-zA-Z0-9_-]+)/,
+
+        /[?&]id=([a-zA-Z0-9_-]+)/,
+
+        /\/uc\?.*id=([a-zA-Z0-9_-]+)/
+
     ];
 
     for (const pattern of patterns) {
 
-        const match = value.match(pattern);
+        const match =
+            text.match(pattern);
 
-        if (match) {
+        if (match && match[1]) {
             return match[1];
         }
-
     }
 
     return null;
 }
+
+
+/* =========================================================
+   CAPA PADRÃO
+========================================================= */
+
+const capaPadrao =
+    "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000&auto=format&fit=crop";
+
 
 function obterCapa(book) {
 
@@ -1208,403 +1414,400 @@ function obterCapa(book) {
         return capaPadrao;
     }
 
-    const fileId =
+    const driveId =
         extrairDriveId(original);
 
-    if (fileId) {
-
-        return `https://drive.google.com/uc?export=view&id=${fileId}`;
-
+    if (!driveId) {
+        return original;
     }
 
-    return original;
+    /*
+       Google Drive possui mais de uma forma de
+       disponibilizar uma imagem.
+
+       Começamos pelo thumbnail.
+    */
+
+    return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
 }
 
-function obterUrlPdf(url) {
 
-    if (!url) return "";
+/* =========================================================
+   FALLBACK DE IMAGEM
+========================================================= */
 
-    const value =
-        String(url).trim();
+window.handleCoverError =
+    function (img) {
 
-    const fileId =
-        extrairDriveId(value);
+        const stage =
+            Number(
+                img.dataset.fallbackStage || "0"
+            );
 
-    if (
-        fileId &&
-        value.includes("drive.google.com")
-    ) {
+        const driveId =
+            img.dataset.driveId || "";
 
-        return `https://drive.google.com/file/d/${fileId}/preview`;
+        if (stage === 0 && driveId) {
 
-    }
+            img.dataset.fallbackStage =
+                "1";
 
-    return value
-        .replace("export=download", "export=view")
-        .replace("export=view", "view");
-}
+            img.src =
+                `https://drive.google.com/uc?export=view&id=${driveId}`;
 
-/* ============================================================
-   BADGES
-   ============================================================ */
-
-const badgeColors = {
-
-    USP:
-        "background:rgba(59,130,246,.14);color:#60A5FA;",
-
-    CBI:
-        "background:rgba(45,212,191,.14);color:#2DD4BF;",
-
-    AVASUS:
-        "background:rgba(52,211,153,.14);color:#34D399;",
-
-    UFRGS:
-        "background:rgba(251,146,60,.14);color:#FB923C;",
-
-    Padrao:
-        "background:rgba(167,139,250,.14);color:#A78BFA;"
-};
-
-/* ============================================================
-   ÍCONE DAS CATEGORIAS
-   ============================================================ */
-
-const categoryIcons = {
-
-    "TDAH": "focus",
-    "TEA": "puzzle",
-    "Psicofarmacologia": "pill",
-    "Neurociência": "waves",
-    "Psicologia": "users",
-    "Desenvolvimento Humano": "sprout",
-
-    "default": "book-open"
-};
-
-/* ============================================================
-   SKELETON
-   ============================================================ */
-
-function renderSkeletons() {
-
-    const grid =
-        document.getElementById("bookGrid");
-
-    if (!grid) return;
-
-    grid.innerHTML =
-        Array(8)
-            .fill(null)
-            .map(() => `
-                <div class="card-book rounded-2xl overflow-hidden flex flex-col h-[320px]">
-                    <div class="skeleton-pulse h-40 w-full"></div>
-
-                    <div class="p-5 space-y-3 flex-1">
-                        <div class="skeleton-pulse h-3 w-1/4 rounded"></div>
-                        <div class="skeleton-pulse h-5 w-3/4 rounded"></div>
-                        <div class="skeleton-pulse h-3 w-1/2 rounded"></div>
-                        <div class="skeleton-pulse h-10 w-full mt-4 rounded-xl"></div>
-                    </div>
-                </div>
-            `)
-            .join("");
-}
-
-/* ============================================================
-   CARREGAR FIRESTORE
-   ============================================================ */
-
-async function fetchBooks() {
-
-    renderSkeletons();
-
-    try {
-
-        console.log(
-            "Buscando biblioteca no Firestore..."
-        );
-
-        const bibliotecaRef =
-            collection(db, "biblioteca");
-
-        const snapshot =
-            await getDocs(bibliotecaRef);
-
-        allBooks =
-            snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-        console.log(
-            "Biblioteca carregada:",
-            allBooks.length,
-            "materiais"
-        );
-
-        cleanupLocalData();
-
-        buildCategories();
-
-        updateStats();
-
-        renderSidebarLibrary();
-
-        renderBooks();
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao carregar biblioteca:",
-            error
-        );
-
-        const count =
-            document.getElementById("bookCount");
-
-        const grid =
-            document.getElementById("bookGrid");
-
-        if (count) {
-            count.innerText =
-                "Não foi possível carregar a biblioteca.";
+            return;
         }
 
-        if (grid) {
+        if (stage === 1 && driveId) {
 
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-20">
+            img.dataset.fallbackStage =
+                "2";
 
-                    <div
-                        class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
-                        style="background:var(--violet-wash);"
-                    >
-                        <i
-                            data-lucide="database-zap"
-                            class="w-7 h-7"
-                            style="color:var(--violet-soft);"
-                        ></i>
-                    </div>
+            img.src =
+                `https://lh3.googleusercontent.com/d/${driveId}=w1000`;
 
-                    <p
-                        class="font-semibold mb-2"
-                        style="color:var(--ink);"
-                    >
-                        Não foi possível carregar a biblioteca
-                    </p>
-
-                    <p
-                        class="text-sm"
-                        style="color:var(--ink-dim);"
-                    >
-                        Verifique sua conexão e tente novamente.
-                    </p>
-
-                    <button
-                        type="button"
-                        id="retryButton"
-                        class="btn-primary mt-5 px-4 py-2 rounded-xl text-xs font-semibold"
-                    >
-                        Tentar novamente
-                    </button>
-
-                </div>
-            `;
-
-            lucide.createIcons();
-
-            document
-                .getElementById("retryButton")
-                ?.addEventListener(
-                    "click",
-                    fetchBooks
-                );
+            return;
         }
+
+        img.onerror = null;
+
+        img.src =
+            capaPadrao;
+    };
+
+
+/* =========================================================
+   TEMA
+========================================================= */
+
+function applyTheme(theme) {
+
+    document.documentElement
+        .setAttribute(
+            "data-theme",
+            theme
+        );
+
+    localStorage.setItem(
+        "neurolib_theme",
+        theme
+    );
+
+    const dark =
+        document.getElementById(
+            "themeIconDark"
+        );
+
+    const light =
+        document.getElementById(
+            "themeIconLight"
+        );
+
+    if (!dark || !light) {
+        return;
+    }
+
+    if (theme === "dark") {
+
+        dark.classList.remove("hidden");
+        light.classList.add("hidden");
+
+    } else {
+
+        dark.classList.add("hidden");
+        light.classList.remove("hidden");
+
     }
 }
 
-/* ============================================================
-   LIMPEZA DE FAVORITOS / RECENTES
-   ============================================================ */
 
-function cleanupLocalData() {
+function initTheme() {
 
-    const validIds =
-        new Set(
-            allBooks.map(
-                book => String(book.id)
-            )
-        );
+    const saved =
+        localStorage.getItem(
+            "neurolib_theme"
+        ) || "dark";
 
-    favorites =
-        favorites.filter(
-            id => validIds.has(String(id))
-        );
-
-    recentIds =
-        recentIds.filter(
-            id => validIds.has(String(id))
-        );
-
-    if (
-        continuing &&
-        !validIds.has(String(continuing.id))
-    ) {
-        continuing = null;
-    }
-
-    localStorage.setItem(
-        "neurolib_favorites",
-        JSON.stringify(favorites)
-    );
-
-    localStorage.setItem(
-        "neurolib_recent",
-        JSON.stringify(recentIds)
-    );
-
-    localStorage.setItem(
-        "neurolib_continue",
-        JSON.stringify(continuing)
-    );
+    applyTheme(saved);
 }
 
-/* ============================================================
-   CATEGORIAS DINÂMICAS
-   ============================================================ */
 
-function getCategories() {
+document
+    .getElementById("themeButton")
+    .addEventListener(
+        "click",
+        () => {
 
-    const categories =
-        allBooks
-            .map(book =>
-                String(book.categoria || "").trim()
-            )
-            .filter(Boolean);
+            const current =
+                document.documentElement
+                    .getAttribute("data-theme");
 
-    return [
-        ...new Set(categories)
-    ].sort((a, b) =>
-        a.localeCompare(
-            b,
-            "pt-BR",
-            { sensitivity: "base" }
-        )
+            applyTheme(
+                current === "dark"
+                    ? "light"
+                    : "dark"
+            );
+        }
     );
-}
 
-function buildCategories() {
 
-    const categories =
-        getCategories();
+/* =========================================================
+   MOBILE
+========================================================= */
+
+function toggleMobileMenu(open) {
 
     const sidebar =
         document.getElementById(
-            "dynamicCategories"
+            "sidebar"
         );
 
-    const chipRow =
+    const overlay =
         document.getElementById(
-            "chipRow"
+            "mobileOverlay"
         );
 
-    if (!sidebar || !chipRow) return;
+    if (open) {
 
-    sidebar.innerHTML =
-        categories
-            .map(category => {
+        sidebar.classList.remove(
+            "-translate-x-full"
+        );
 
-                const icon =
-                    categoryIcons[category] ||
-                    categoryIcons.default;
+        overlay.classList.remove(
+            "hidden"
+        );
 
-                return `
-                    <button
-                        type="button"
-                        data-cat="${escapeHtmlAttribute(category)}"
-                        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium"
-                    >
-                        <i
-                            data-lucide="${escapeHtmlAttribute(icon)}"
-                            class="w-4 h-4"
-                        ></i>
+    } else {
 
-                        <span class="flex-1 text-left">
-                            ${escapeHtml(category)}
-                        </span>
-                    </button>
-                `;
+        sidebar.classList.add(
+            "-translate-x-full"
+        );
 
-            })
-            .join("");
-
-    chipRow.innerHTML = `
-        <button
-            type="button"
-            data-cat="Todos"
-            class="chip active px-3.5 py-1.5 rounded-full text-xs font-medium"
-        >
-            Todos
-        </button>
-
-        ${categories
-            .map(category => `
-                <button
-                    type="button"
-                    data-cat="${escapeHtmlAttribute(category)}"
-                    class="chip px-3.5 py-1.5 rounded-full text-xs font-medium"
-                >
-                    ${escapeHtml(category)}
-                </button>
-            `)
-            .join("")
-        }
-    `;
-
-    lucide.createIcons();
-
-    updateActiveCategory();
+        overlay.classList.add(
+            "hidden"
+        );
+    }
 }
 
-/* ============================================================
-   ESTATÍSTICAS
-   ============================================================ */
+
+document
+    .getElementById("openMobileMenu")
+    .addEventListener(
+        "click",
+        () => toggleMobileMenu(true)
+    );
+
+document
+    .getElementById("closeMobileMenu")
+    .addEventListener(
+        "click",
+        () => toggleMobileMenu(false)
+    );
+
+document
+    .getElementById("mobileOverlay")
+    .addEventListener(
+        "click",
+        () => toggleMobileMenu(false)
+    );
+
+
+/* =========================================================
+   PESQUISA
+========================================================= */
+
+function showSuggestions(show) {
+
+    const box =
+        document.getElementById(
+            "searchSuggest"
+        );
+
+    box.classList.toggle(
+        "hidden",
+        !show
+    );
+}
+
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+
+searchInput.addEventListener(
+    "focus",
+    () => showSuggestions(true)
+);
+
+
+searchInput.addEventListener(
+    "input",
+    () => {
+
+        searchTerm =
+            searchInput.value;
+
+        /*
+           Ao pesquisar, mostra todos os materiais
+           em vez de manter uma categoria escondida.
+        */
+
+        if (searchTerm.trim()) {
+            currentCategory = "Todos";
+            updateFilterVisuals();
+        }
+
+        renderBooks();
+    }
+);
+
+
+document.addEventListener(
+    "click",
+    (event) => {
+
+        const wrapper =
+            searchInput.parentElement;
+
+        if (!wrapper.contains(event.target)) {
+
+            showSuggestions(false);
+        }
+    }
+);
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+function updateFilterVisuals() {
+
+    document
+        .querySelectorAll(
+            "[data-cat]"
+        )
+        .forEach((button) => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.cat ===
+                    currentCategory
+            );
+        });
+}
+
+
+function filterCategory(category) {
+
+    currentCategory =
+        category;
+
+    searchTerm = "";
+
+    searchInput.value = "";
+
+    updateFilterVisuals();
+
+    showSuggestions(false);
+
+    toggleMobileMenu(false);
+
+    renderBooks();
+}
+
+
+document
+    .querySelectorAll(
+        "[data-cat]"
+    )
+    .forEach((button) => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                filterCategory(
+                    button.dataset.cat
+                );
+            }
+        );
+    });
+
+
+document
+    .querySelectorAll(
+        "[data-cat-search]"
+    )
+    .forEach((button) => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                filterCategory(
+                    button.dataset.catSearch
+                );
+            }
+        );
+    });
+
+
+document
+    .querySelectorAll(
+        "[data-search]"
+    )
+    .forEach((button) => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                searchInput.value =
+                    button.dataset.search;
+
+                searchTerm =
+                    button.dataset.search;
+
+                currentCategory =
+                    "Todos";
+
+                updateFilterVisuals();
+
+                showSuggestions(false);
+
+                renderBooks();
+            }
+        );
+    });
+
+
+/* =========================================================
+   FAVORITOS
+========================================================= */
 
 function updateStats() {
 
-    const total =
-        document.getElementById("statTotal");
+    document.getElementById(
+        "statTotal"
+    ).innerText =
+        allBooks.length;
 
-    const fav =
-        document.getElementById("statFav");
+    document.getElementById(
+        "statFav"
+    ).innerText =
+        favorites.length;
 
-    const navFav =
-        document.getElementById("navCountFav");
-
-    if (total) {
-        total.innerText =
-            allBooks.length;
-    }
-
-    if (fav) {
-        fav.innerText =
-            favorites.length;
-    }
-
-    if (navFav) {
-        navFav.innerText =
-            favorites.length;
-    }
+    document.getElementById(
+        "navCountFav"
+    ).innerText =
+        favorites.length;
 }
 
-/* ============================================================
-   FAVORITOS
-   ============================================================ */
 
-function toggleFavorite(id, event) {
-
-    event?.stopPropagation();
+function toggleFavorite(id) {
 
     const idString =
         String(id);
@@ -1614,12 +1817,16 @@ function toggleFavorite(id, event) {
 
     if (index >= 0) {
 
-        favorites.splice(index, 1);
+        favorites.splice(
+            index,
+            1
+        );
 
     } else {
 
-        favorites.push(idString);
-
+        favorites.push(
+            idString
+        );
     }
 
     localStorage.setItem(
@@ -1632,13 +1839,16 @@ function toggleFavorite(id, event) {
     renderBooks();
 }
 
-/* ============================================================
+
+/* =========================================================
    RECENTES
-   ============================================================ */
+========================================================= */
 
 function recordRecent(book) {
 
-    if (!book?.id) return;
+    if (!book) {
+        return;
+    }
 
     const id =
         String(book.id);
@@ -1659,10 +1869,13 @@ function recordRecent(book) {
     );
 
     continuing = {
-        id,
+
+        id: id,
+
         titulo:
             book.titulo ||
             "Material sem título"
+
     };
 
     localStorage.setItem(
@@ -1673,9 +1886,6 @@ function recordRecent(book) {
     renderSidebarLibrary();
 }
 
-/* ============================================================
-   SIDEBAR — RECENTES
-   ============================================================ */
 
 function renderSidebarLibrary() {
 
@@ -1689,60 +1899,69 @@ function renderSidebarLibrary() {
             "continueTitle"
         );
 
+
     if (
-        continueCard &&
-        continueTitle
+        continuing &&
+        allBooks.some(
+            book =>
+                String(book.id) ===
+                String(continuing.id)
+        )
     ) {
 
-        const book =
-            continuing
-                ? allBooks.find(
-                    item =>
-                        String(item.id) ===
-                        String(continuing.id)
-                )
-                : null;
+        continueCard.classList.remove(
+            "hidden"
+        );
 
-        if (book) {
+        continueTitle.innerText =
+            continuing.titulo;
 
-            continueCard.classList.remove(
-                "hidden"
-            );
+        continueCard.onclick =
+            () => {
 
-            continueTitle.innerText =
-                book.titulo ||
-                "Material sem título";
+                const book =
+                    allBooks.find(
+                        b =>
+                            String(b.id) ===
+                            String(continuing.id)
+                    );
 
-            continueCard.onclick =
-                () => openBook(book);
+                if (book) {
 
-        } else {
+                    openModal(book);
+                }
+            };
 
-            continueCard.classList.add(
-                "hidden"
-            );
+    } else {
 
-        }
+        continueCard.classList.add(
+            "hidden"
+        );
     }
+
 
     const list =
         document.getElementById(
             "recentList"
         );
 
-    if (!list) return;
 
     const recentBooks =
         recentIds
-            .map(id =>
-                allBooks.find(
-                    book =>
-                        String(book.id) ===
-                        String(id)
-                )
+
+            .map(
+                id =>
+                    allBooks.find(
+                        book =>
+                            String(book.id) ===
+                            String(id)
+                    )
             )
+
             .filter(Boolean)
+
             .slice(0, 3);
+
 
     if (!recentBooks.length) {
 
@@ -1751,40 +1970,35 @@ function renderSidebarLibrary() {
         return;
     }
 
+
     list.innerHTML =
         recentBooks
-            .map(book => {
+            .map(
+                book => `
 
-                const title =
-                    escapeHtml(
-                        book.titulo ||
-                        "Material"
-                    );
-
-                return `
                     <button
-                        type="button"
-                        data-recent-id="${escapeHtmlAttribute(book.id)}"
-                        class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 nav-item"
+                        class="recent-book w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 nav-item"
+                        data-id="${escapeHtml(book.id)}"
                     >
+
                         <i
                             data-lucide="file-text"
                             class="w-3.5 h-3.5 shrink-0"
                         ></i>
 
                         <span class="line-clamp-2">
-                            ${title}
+                            ${escapeHtml(book.titulo || "Material")}
                         </span>
-                    </button>
-                `;
 
-            })
+                    </button>
+
+                `
+            )
             .join("");
 
-    lucide.createIcons();
 
     list
-        .querySelectorAll("[data-recent-id]")
+        .querySelectorAll(".recent-book")
         .forEach(button => {
 
             button.addEventListener(
@@ -1795,41 +2009,61 @@ function renderSidebarLibrary() {
                         allBooks.find(
                             item =>
                                 String(item.id) ===
-                                String(button.dataset.recentId)
+                                String(button.dataset.id)
                         );
 
                     if (book) {
-                        openBook(book);
+                        openModal(book);
                     }
-
                 }
             );
-
         });
+
+
+    lucide.createIcons();
 }
 
-/* ============================================================
-   ABRIR MATERIAL
-   ============================================================ */
 
-function openBook(book) {
+/* =========================================================
+   PDF
+========================================================= */
 
-    if (!book) return;
+function createPdfUrl(url) {
 
-    openModal(
-        book.url_pdf || "",
-        book.titulo || "Material",
-        book.categoria || "Geral",
-        book.id
-    );
+    if (!url) {
+        return null;
+    }
+
+    const driveId =
+        extrairDriveId(url);
+
+    if (driveId) {
+
+        return `https://drive.google.com/file/d/${driveId}/preview`;
+    }
+
+    return String(url);
 }
 
-function openModal(
-    url,
-    titulo,
-    categoria,
-    id
-) {
+
+function openModal(book) {
+
+    if (!book) {
+        return;
+    }
+
+    const url =
+        String(book.url_pdf || "").trim();
+
+    if (!url) {
+
+        alert(
+            "Este material não possui um PDF configurado."
+        );
+
+        return;
+    }
+
 
     const modal =
         document.getElementById(
@@ -1841,83 +2075,77 @@ function openModal(
             "pdfFrame"
         );
 
-    const openNewTab =
+    const fallback =
+        document.getElementById(
+            "pdfFallback"
+        );
+
+    const fallbackLink =
+        document.getElementById(
+            "fallbackLink"
+        );
+
+    const newTab =
         document.getElementById(
             "modalOpenNewTab"
         );
 
-    if (!modal || !frame) return;
 
-    const originalUrl =
-        String(url || "").trim();
+    document.getElementById(
+        "modalTitle"
+    ).innerText =
+        book.titulo ||
+        "Visualizando material";
 
-    if (!originalUrl) {
 
-        alert(
-            "Este material não possui um endereço PDF válido."
-        );
+    document.getElementById(
+        "modalCategory"
+    ).innerText =
+        book.categoria ||
+        "Material";
 
-        return;
-    }
 
     const viewUrl =
-        obterUrlPdf(originalUrl);
+        createPdfUrl(url);
 
-    if (!viewUrl) {
 
-        alert(
-            "Não foi possível identificar o endereço deste material."
-        );
+    newTab.href =
+        url;
 
-        return;
-    }
+    fallbackLink.href =
+        url;
 
-    document
-        .getElementById("modalTitle")
-        .innerText =
-        titulo || "Visualizando material";
+    fallback.classList.add(
+        "hidden"
+    );
 
-    document
-        .getElementById("modalCategory")
-        .innerText =
-        categoria || "Material";
+    frame.classList.remove(
+        "hidden"
+    );
 
-    frame.src = viewUrl;
 
-    if (openNewTab) {
-        openNewTab.href =
-            originalUrl;
-    }
+    frame.onload =
+        () => {
+
+            console.log(
+                "Leitor carregado:",
+                book.titulo
+            );
+        };
+
+
+    frame.src =
+        viewUrl;
+
 
     modal.classList.remove(
         "hidden"
     );
 
-    document.body.classList.add(
-        "overflow-hidden"
-    );
 
-    if (id !== undefined) {
-
-        const book =
-            allBooks.find(
-                item =>
-                    String(item.id) ===
-                    String(id)
-            ) || {
-                id,
-                titulo,
-                categoria,
-                url_pdf: originalUrl
-            };
-
-        recordRecent(book);
-    }
+    recordRecent(book);
 }
 
-/* ============================================================
-   FECHAR MODAL
-   ============================================================ */
 
 function closeModal() {
 
@@ -1931,24 +2159,105 @@ function closeModal() {
             "pdfFrame"
         );
 
-    if (frame) {
-        frame.src = "";
-    }
 
-    if (modal) {
-        modal.classList.add(
-            "hidden"
-        );
-    }
-
-    document.body.classList.remove(
-        "overflow-hidden"
+    modal.classList.add(
+        "hidden"
     );
+
+    frame.src = "";
 }
 
-/* ============================================================
-   RENDERIZAR LIVROS
-   ============================================================ */
+
+document
+    .getElementById(
+        "closeModalButton"
+    )
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+/* =========================================================
+   RENDER SKELETON
+========================================================= */
+
+function renderSkeletons() {
+
+    const grid =
+        document.getElementById(
+            "bookGrid"
+        );
+
+
+    grid.innerHTML =
+        Array(8)
+            .fill(0)
+            .map(
+                () => `
+
+                    <div
+                        class="card-book rounded-2xl overflow-hidden flex flex-col h-[340px]"
+                    >
+
+                        <div
+                            class="skeleton-pulse h-44 w-full"
+                        ></div>
+
+                        <div class="p-5 space-y-3 flex-1">
+
+                            <div
+                                class="skeleton-pulse h-3 w-1/4 rounded"
+                            ></div>
+
+                            <div
+                                class="skeleton-pulse h-5 w-3/4 rounded"
+                            ></div>
+
+                            <div
+                                class="skeleton-pulse h-3 w-1/2 rounded"
+                            ></div>
+
+                            <div
+                                class="skeleton-pulse h-10 w-full mt-4 rounded-xl"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                `
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+const badgeColors = {
+
+    USP:
+        "background:rgba(59,130,246,.14);color:#60A5FA",
+
+    CBI:
+        "background:rgba(45,212,191,.14);color:#2DD4BF",
+
+    AVASUS:
+        "background:rgba(52,211,153,.14);color:#34D399",
+
+    UFRGS:
+        "background:rgba(251,146,60,.14);color:#FB923C",
+
+    Padrao:
+        "background:rgba(167,139,250,.14);color:#A78BFA"
+};
+
+
+/* =========================================================
+   RENDER BOOKS
+========================================================= */
 
 function renderBooks() {
 
@@ -1957,39 +2266,69 @@ function renderBooks() {
             "bookGrid"
         );
 
-    if (!grid) return;
 
-    const normalizedTerm =
-        searchTerm
-            .trim()
-            .toLocaleLowerCase(
-                "pt-BR"
-            );
+    if (!allBooks.length) {
+
+        grid.innerHTML = `
+
+            <div class="col-span-full text-center py-20">
+
+                <div
+                    class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+                    style="background:var(--violet-wash)"
+                >
+                    <i
+                        data-lucide="library"
+                        class="w-7 h-7"
+                        style="color:var(--violet-soft)"
+                    ></i>
+                </div>
+
+                <p
+                    class="font-semibold mb-2"
+                >
+                    Biblioteca vazia
+                </p>
+
+                <p
+                    class="text-sm"
+                    style="color:var(--ink-dim)"
+                >
+                    Nenhum material foi encontrado no Firestore.
+                </p>
+
+            </div>
+
+        `;
+
+        lucide.createIcons();
+
+        return;
+    }
+
+
+    const term =
+        normalize(searchTerm);
+
 
     const filtered =
         allBooks.filter(book => {
 
-            const idStr =
+            const id =
                 String(book.id);
 
-            let matchesCategory;
+
+            let matchesCategory =
+                true;
+
 
             if (
-                currentCategory ===
-                "Todos"
-            ) {
-
-                matchesCategory = true;
-
-            } else if (
                 currentCategory ===
                 "Favoritos"
             ) {
 
                 matchesCategory =
-                    favorites.includes(
-                        idStr
-                    );
+                    favorites.includes(id);
 
             } else if (
                 currentCategory ===
@@ -1997,711 +2336,747 @@ function renderBooks() {
             ) {
 
                 matchesCategory =
-                    recentIds.includes(
-                        idStr
-                    );
+                    recentIds.includes(id);
 
-            } else {
+            } else if (
+                currentCategory !==
+                "Todos"
+            ) {
 
                 matchesCategory =
-                    String(
-                        book.categoria || ""
-                    ).trim() ===
-                    currentCategory;
+                    normalize(
+                        book.categoria
+                    ) ===
+                    normalize(
+                        currentCategory
+                    );
             }
+
 
             if (!matchesCategory) {
                 return false;
             }
 
-            if (!normalizedTerm) {
+
+            if (!term) {
                 return true;
             }
 
-            const searchable = [
-                book.titulo,
-                book.autor,
-                book.categoria
-            ]
-                .map(value =>
-                    String(value || "")
-                        .toLocaleLowerCase(
-                            "pt-BR"
-                        )
-                )
-                .join(" ");
 
-            return searchable.includes(
-                normalizedTerm
+            const titulo =
+                normalize(
+                    book.titulo
+                );
+
+            const autor =
+                normalize(
+                    book.autor
+                );
+
+            const categoria =
+                normalize(
+                    book.categoria
+                );
+
+
+            return (
+
+                titulo.includes(term) ||
+
+                autor.includes(term) ||
+
+                categoria.includes(term)
             );
-
         });
+
 
     if (!filtered.length) {
 
-        const message =
-            normalizedTerm
-                ? `Nenhum material encontrado para "${escapeHtml(searchTerm)}".`
-                : "Nenhum material encontrado nesta categoria ainda.";
-
         grid.innerHTML = `
+
             <div class="col-span-full text-center py-20">
 
                 <div
                     class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
-                    style="background:var(--violet-wash);"
+                    style="background:var(--violet-wash)"
                 >
                     <i
                         data-lucide="search-x"
                         class="w-6 h-6"
-                        style="color:var(--violet-soft);"
+                        style="color:var(--violet-soft)"
                     ></i>
                 </div>
 
                 <p
                     class="text-sm font-medium"
-                    style="color:var(--ink-dim);"
+                    style="color:var(--ink-dim)"
                 >
-                    ${message}
+                    ${
+                        term
+                            ? `Nenhum material encontrado para "${escapeHtml(searchTerm)}".`
+                            : "Nenhum material encontrado nesta categoria."
+                    }
                 </p>
 
             </div>
+
         `;
 
-    } else {
-
-        grid.innerHTML =
-            filtered
-                .map(renderBookCard)
-                .join("");
-
-    }
-
-    const count =
         document.getElementById(
             "bookCount"
-        );
+        ).innerText =
+            "0 materiais encontrados";
 
-    if (count) {
+        lucide.createIcons();
 
-        count.innerText =
-            filtered.length === 1
-                ? "1 material encontrado"
-                : `${filtered.length} materiais encontrados`;
-
+        return;
     }
 
-    lucide.createIcons();
 
-    bindBookEvents();
-}
+    grid.innerHTML =
+        filtered
+            .map(book => {
 
-/* ============================================================
-   CARD
-   ============================================================ */
+                const id =
+                    String(book.id);
 
-function renderBookCard(book) {
+                const titulo =
+                    escapeHtml(
+                        book.titulo ||
+                        "Material sem título"
+                    );
 
-    const id =
-        String(book.id);
+                const autor =
+                    escapeHtml(
+                        book.autor ||
+                        "Autor do acervo"
+                    );
 
-    const isFav =
-        favorites.includes(id);
+                const categoria =
+                    escapeHtml(
+                        book.categoria ||
+                        "Geral"
+                    );
 
-    let badgeStyle =
-        badgeColors.Padrao;
 
-    let fonteNome =
-        "NeuroLib";
+                const capa =
+                    obterCapa(book);
 
-    const autorStr =
-        String(book.autor || "");
+                const driveId =
+                    extrairDriveId(
+                        book.capa
+                    );
 
-    if (
-        autorStr
-            .toLocaleUpperCase()
-            .includes("USP")
-    ) {
 
-        badgeStyle =
-            badgeColors.USP;
+                const isFav =
+                    favorites.includes(
+                        id
+                    );
 
-        fonteNome =
-            "USP";
 
-    } else if (
-        autorStr
-            .toLocaleUpperCase()
-            .includes("AVASUS")
-    ) {
+                let badgeStyle =
+                    badgeColors.Padrao;
 
-        badgeStyle =
-            badgeColors.AVASUS;
+                let fonteNome =
+                    "NeuroLib";
 
-        fonteNome =
-            "AVASUS";
 
-    } else if (
-        autorStr
-            .toLocaleUpperCase()
-            .includes("CBI")
-    ) {
+                const autorRaw =
+                    String(
+                        book.autor ||
+                        ""
+                    );
 
-        badgeStyle =
-            badgeColors.CBI;
 
-        fonteNome =
-            "CBI";
+                if (
+                    autorRaw
+                        .toUpperCase()
+                        .includes("USP")
+                ) {
 
-    } else if (
-        autorStr
-            .toLocaleUpperCase()
-            .includes("UFRGS")
-    ) {
+                    badgeStyle =
+                        badgeColors.USP;
 
-        badgeStyle =
-            badgeColors.UFRGS;
+                    fonteNome =
+                        "USP";
 
-        fonteNome =
-            "UFRGS";
-    }
+                } else if (
+                    autorRaw
+                        .toUpperCase()
+                        .includes("AVASUS")
+                ) {
 
-    const titulo =
-        escapeHtml(
-            book.titulo ||
-            "Material sem título"
-        );
+                    badgeStyle =
+                        badgeColors.AVASUS;
 
-    const autor =
-        escapeHtml(
-            book.autor ||
-            "Autor do acervo"
-        );
+                    fonteNome =
+                        "AVASUS";
 
-    const categoria =
-        escapeHtml(
-            book.categoria ||
-            "Geral"
-        );
+                } else if (
+                    autorRaw
+                        .toUpperCase()
+                        .includes("CBI")
+                ) {
 
-    const rawPdf =
-        String(
-            book.url_pdf || ""
-        );
+                    badgeStyle =
+                        badgeColors.CBI;
 
-    const urlPdf =
-        escapeHtmlAttribute(
-            rawPdf
-        );
+                    fonteNome =
+                        "CBI";
 
-    const capa =
-        escapeHtmlAttribute(
-            obterCapa(book)
-        );
+                } else if (
+                    autorRaw
+                        .toUpperCase()
+                        .includes("UFRGS")
+                ) {
 
-    const safeId =
-        escapeHtmlAttribute(id);
+                    badgeStyle =
+                        badgeColors.UFRGS;
 
-    return `
-        <article
-            class="card-book rounded-2xl overflow-hidden flex flex-col h-full group relative"
-        >
+                    fonteNome =
+                        "UFRGS";
+                }
 
-            <button
-                type="button"
-                data-favorite-id="${safeId}"
-                class="fav-btn ${
-                    isFav
-                        ? "is-fav"
-                        : ""
-                } absolute top-3 left-3 z-20 p-2 rounded-full"
-                aria-label="${
-                    isFav
-                        ? "Remover dos favoritos"
-                        : "Adicionar aos favoritos"
-                }"
-                title="${
-                    isFav
-                        ? "Remover dos favoritos"
-                        : "Adicionar aos favoritos"
-                }"
-            >
-                <i
-                    data-lucide="heart"
-                    class="w-4 h-4"
-                    style="${
-                        isFav
-                            ? "fill:var(--violet-soft);"
-                            : "color:#fff;"
-                    }"
-                ></i>
-            </button>
 
-            <span
-                class="absolute top-3 right-3 z-10 text-[10px] font-semibold px-2 py-1 rounded-md"
-                style="${badgeStyle}"
-            >
-                ${escapeHtml(fonteNome)}
-            </span>
+                return `
 
-            <button
-                type="button"
-                data-open-id="${safeId}"
-                class="relative h-44 overflow-hidden cursor-pointer text-left block w-full"
-                aria-label="Abrir ${titulo}"
-            >
-
-                <img
-                    src="${capa}"
-                    class="cover-img w-full h-full object-cover"
-                    alt="Capa de ${titulo}"
-                    loading="lazy"
-                    decoding="async"
-                    data-cover
-                >
-
-                <div
-                    class="cover-veil absolute inset-0 pointer-events-none"
-                ></div>
-
-                <div
-                    class="play-affordance absolute inset-0 flex items-center justify-center pointer-events-none"
-                >
-                    <div
-                        class="btn-primary p-3 rounded-full shadow-lg"
+                    <article
+                        class="
+                            card-book
+                            rounded-2xl
+                            overflow-hidden
+                            flex
+                            flex-col
+                            h-full
+                            group
+                        "
+                        data-book-id="${escapeHtml(id)}"
                     >
-                        <i
-                            data-lucide="play"
-                            class="w-5 h-5 fill-white"
-                        ></i>
-                    </div>
-                </div>
 
-            </button>
+                        <!-- CAPA -->
 
-            <div class="p-5 flex flex-col flex-1">
+                        <div
+                            class="
+                                relative
+                                cover-wrapper
+                                overflow-hidden
+                                cursor-pointer
+                            "
+                            data-action="open"
+                        >
 
-                <div class="flex items-center gap-1.5 mb-2">
+                            <img
+                                src="${escapeHtml(capa)}"
+                                data-drive-id="${escapeHtml(driveId || "")}"
+                                data-fallback-stage="0"
+                                class="cover-img w-full h-full object-cover"
+                                alt="Capa de ${titulo}"
+                                loading="lazy"
+                                onerror="handleCoverError(this)"
+                            >
 
-                    <span class="badge-dot"></span>
+                            <div
+                                class="
+                                    cover-veil
+                                    absolute
+                                    inset-0
+                                "
+                            ></div>
 
-                    <span
-                        class="text-[11px] font-medium"
-                        style="color:var(--ink-faint);"
-                    >
-                        ${categoria} · Disponível
-                    </span>
 
-                </div>
+                            <!-- FAVORITO -->
 
-                <button
-                    type="button"
-                    data-open-id="${safeId}"
-                    class="text-left"
-                >
-                    <h3
-                        class="font-display font-semibold text-[15px] leading-snug mb-1 line-clamp-2"
-                        style="color:var(--ink);"
-                    >
-                        ${titulo}
-                    </h3>
-                </button>
+                            <button
+                                type="button"
+                                data-action="favorite"
+                                class="
+                                    fav-btn
+                                    absolute
+                                    top-3
+                                    left-3
+                                    z-20
+                                    p-2
+                                    rounded-full
+                                "
+                                aria-label="${
+                                    isFav
+                                        ? "Remover dos favoritos"
+                                        : "Adicionar aos favoritos"
+                                }"
+                            >
 
-                <p
-                    class="text-xs mb-4"
-                    style="color:var(--ink-faint);"
-                >
-                    ${autor}
-                </p>
+                                <i
+                                    data-lucide="heart"
+                                    class="w-4 h-4"
+                                    style="${
+                                        isFav
+                                            ? "fill:var(--violet-soft);color:var(--violet-soft)"
+                                            : "color:white"
+                                    }"
+                                ></i>
 
-                <div class="mt-auto flex gap-2">
+                            </button>
 
-                    <button
-                        type="button"
-                        data-open-id="${safeId}"
-                        class="btn-quiet flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold"
-                    >
-                        <i
-                            data-lucide="book-open"
-                            class="w-3.5 h-3.5"
-                        ></i>
 
-                        Ler agora
-                    </button>
+                            <!-- FONTE -->
 
-                    <a
-                        href="${urlPdf || "#"}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn-primary flex items-center justify-center px-3.5 rounded-xl ${
-                            rawPdf
-                                ? ""
-                                : "opacity-50 pointer-events-none"
-                        }"
-                        aria-label="Abrir material em nova aba"
-                        title="Abrir em nova aba"
-                    >
-                        <i
-                            data-lucide="external-link"
-                            class="w-4 h-4"
-                        ></i>
-                    </a>
+                            <span
+                                class="
+                                    absolute
+                                    top-3
+                                    right-3
+                                    z-10
+                                    text-[10px]
+                                    font-semibold
+                                    px-2
+                                    py-1
+                                    rounded-md
+                                "
+                                style="${badgeStyle}"
+                            >
+                                ${fonteNome}
+                            </span>
 
-                </div>
 
-            </div>
+                            <!-- PLAY -->
 
-        </article>
-    `;
-}
+                            <div
+                                class="
+                                    play-affordance
+                                    absolute
+                                    inset-0
+                                    flex
+                                    items-center
+                                    justify-center
+                                "
+                            >
 
-/* ============================================================
-   EVENTOS DOS CARDS
-   ============================================================ */
+                                <div
+                                    class="
+                                        btn-primary
+                                        p-3
+                                        rounded-full
+                                        shadow-lg
+                                    "
+                                >
 
-function bindBookEvents() {
+                                    <i
+                                        data-lucide="play"
+                                        class="w-5 h-5 fill-white"
+                                    ></i>
 
-    document
-        .querySelectorAll("[data-favorite-id]")
-        .forEach(button => {
+                                </div>
 
-            button.addEventListener(
+                            </div>
+
+                        </div>
+
+
+                        <!-- INFORMAÇÕES -->
+
+                        <div
+                            class="
+                                p-5
+                                flex
+                                flex-col
+                                flex-1
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    items-center
+                                    gap-1.5
+                                    mb-2
+                                "
+                            >
+
+                                <span
+                                    class="badge-dot"
+                                ></span>
+
+                                <span
+                                    class="text-[11px] font-medium"
+                                    style="color:var(--ink-faint)"
+                                >
+                                    ${categoria}
+                                    ·
+                                    Disponível
+                                </span>
+
+                            </div>
+
+
+                            <h3
+                                data-action="open"
+                                class="
+                                    font-display
+                                    font-semibold
+                                    text-[15px]
+                                    leading-snug
+                                    mb-1
+                                    line-clamp-2
+                                    cursor-pointer
+                                "
+                            >
+                                ${titulo}
+                            </h3>
+
+
+                            <p
+                                class="
+                                    text-xs
+                                    mb-4
+                                "
+                                style="color:var(--ink-faint)"
+                            >
+                                ${autor}
+                            </p>
+
+
+                            <div
+                                class="
+                                    mt-auto
+                                    flex
+                                    gap-2
+                                "
+                            >
+
+                                <button
+                                    type="button"
+                                    data-action="open"
+                                    class="
+                                        btn-quiet
+                                        flex-1
+                                        flex
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        py-2
+                                        rounded-xl
+                                        text-xs
+                                        font-semibold
+                                    "
+                                >
+
+                                    <i
+                                        data-lucide="book-open"
+                                        class="w-3.5 h-3.5"
+                                    ></i>
+
+                                    Ler agora
+
+                                </button>
+
+
+                                <a
+                                    href="${escapeHtml(book.url_pdf || "#")}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="
+                                        btn-primary
+                                        flex
+                                        items-center
+                                        justify-center
+                                        px-3.5
+                                        rounded-xl
+                                    "
+                                    aria-label="Abrir material"
+                                >
+
+                                    <i
+                                        data-lucide="external-link"
+                                        class="w-4 h-4"
+                                    ></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                `;
+
+            })
+            .join("");
+
+
+    /*
+       IMPORTANTE:
+
+       Não usamos mais onclick com os dados do Firestore.
+
+       Isso evita que um título contendo aspas,
+       apóstrofos ou caracteres especiais quebre
+       TODA a grade.
+    */
+
+    grid
+        .querySelectorAll(
+            "[data-action]"
+        )
+        .forEach(element => {
+
+            element.addEventListener(
                 "click",
                 event => {
 
-                    toggleFavorite(
-                        button.dataset.favoriteId,
-                        event
-                    );
+                    event.stopPropagation();
 
-                }
-            );
+                    const card =
+                        element.closest(
+                            "[data-book-id]"
+                        );
 
-        });
-
-    document
-        .querySelectorAll("[data-open-id]")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
+                    if (!card) {
+                        return;
+                    }
 
                     const book =
                         allBooks.find(
                             item =>
                                 String(item.id) ===
-                                String(button.dataset.openId)
+                                String(card.dataset.bookId)
                         );
 
-                    if (book) {
-                        openBook(book);
-                    }
-
-                }
-            );
-
-        });
-
-    document
-        .querySelectorAll("[data-cover]")
-        .forEach(image => {
-
-            image.addEventListener(
-                "error",
-                () => {
-
-                    if (
-                        image.dataset.fallbackApplied ===
-                        "true"
-                    ) {
+                    if (!book) {
                         return;
                     }
 
-                    image.dataset.fallbackApplied =
-                        "true";
 
-                    image.src =
-                        capaPadrao;
+                    const action =
+                        element.dataset.action;
 
-                },
-                {
-                    once: true
+
+                    if (
+                        action ===
+                        "favorite"
+                    ) {
+
+                        toggleFavorite(
+                            book.id
+                        );
+
+                    } else if (
+                        action ===
+                        "open"
+                    ) {
+
+                        openModal(
+                            book
+                        );
+                    }
+
                 }
             );
 
         });
+
+
+    document.getElementById(
+        "bookCount"
+    ).innerText =
+
+        filtered.length === 1
+
+            ? "1 material encontrado"
+
+            : `${filtered.length} materiais encontrados`;
+
+
+    lucide.createIcons();
 }
 
-/* ============================================================
-   FILTRO
-   ============================================================ */
 
-function filterCategory(category) {
+/* =========================================================
+   FIRESTORE
+========================================================= */
 
-    currentCategory =
-        category || "Todos";
+async function fetchBooks() {
 
-    updateActiveCategory();
+    renderSkeletons();
 
-    showSuggestions(false);
 
-    renderBooks();
+    try {
 
-    if (
-        window.innerWidth < 1024
-    ) {
-        toggleMobileMenu(false);
-    }
-}
-
-function updateActiveCategory() {
-
-    document
-        .querySelectorAll(
-            ".nav-item[data-cat], .chip[data-cat]"
-        )
-        .forEach(button => {
-
-            button.classList.toggle(
-                "active",
-                button.dataset.cat ===
-                currentCategory
-            );
-
-        });
-}
-
-/* ============================================================
-   PESQUISA
-   ============================================================ */
-
-function handleSearch(preset = "") {
-
-    const input =
-        document.getElementById(
-            "searchInput"
+        console.log(
+            "Buscando biblioteca no Firestore..."
         );
 
-    if (preset) {
 
-        if (input) {
-            input.value = preset;
-        }
+        const bibliotecaRef =
+            collection(
+                db,
+                "biblioteca"
+            );
 
-        searchTerm =
-            preset;
 
-    } else {
+        const snapshot =
+            await getDocs(
+                bibliotecaRef
+            );
 
-        searchTerm =
-            input
-                ? input.value
-                : "";
 
-    }
+        allBooks =
+            snapshot.docs.map(
+                document => ({
 
-    showSuggestions(false);
+                    id:
+                        document.id,
 
-    renderBooks();
-}
+                    ...document.data()
 
-/* ============================================================
-   EVENTOS GERAIS
-   ============================================================ */
+                })
+            );
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
 
-        initTheme();
+        console.log(
+            "Biblioteca carregada:",
+            allBooks.length,
+            "materiais"
+        );
+
+
+        updateStats();
+
+        renderSidebarLibrary();
+
+        renderBooks();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar biblioteca:",
+            error
+        );
+
+
+        document.getElementById(
+            "bookCount"
+        ).innerText =
+            "Erro ao carregar biblioteca";
+
+
+        document.getElementById(
+            "bookGrid"
+        ).innerHTML = `
+
+            <div
+                class="col-span-full text-center py-20"
+            >
+
+                <div
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        w-14
+                        h-14
+                        rounded-full
+                        mb-4
+                    "
+                    style="background:var(--violet-wash)"
+                >
+
+                    <i
+                        data-lucide="database-zap"
+                        class="w-7 h-7"
+                        style="color:var(--violet-soft)"
+                    ></i>
+
+                </div>
+
+
+                <p
+                    class="font-semibold mb-2"
+                >
+                    Não foi possível carregar a biblioteca
+                </p>
+
+
+                <p
+                    class="text-sm"
+                    style="color:var(--ink-dim)"
+                >
+                    Verifique a conexão com o Firestore.
+                </p>
+
+            </div>
+
+        `;
+
 
         lucide.createIcons();
+    }
+}
 
-        document
-            .getElementById(
-                "themeButton"
-            )
-            ?.addEventListener(
-                "click",
-                toggleTheme
-            );
 
-        document
-            .getElementById(
-                "mobileMenuButton"
-            )
-            ?.addEventListener(
-                "click",
-                () => toggleMobileMenu(true)
-            );
+/* =========================================================
+   FAVORITOS HEADER
+========================================================= */
 
-        document
-            .getElementById(
-                "mobileCloseButton"
-            )
-            ?.addEventListener(
-                "click",
-                () => toggleMobileMenu(false)
-            );
+document
+    .getElementById(
+        "statFavButton"
+    )
+    .addEventListener(
+        "click",
+        () => filterCategory(
+            "Favoritos"
+        )
+    );
 
-        document
-            .getElementById(
-                "mobileOverlay"
-            )
-            ?.addEventListener(
-                "click",
-                () => toggleMobileMenu(false)
-            );
 
-        document
-            .getElementById(
-                "closeModalButton"
-            )
-            ?.addEventListener(
-                "click",
-                closeModal
-            );
+/* =========================================================
+   ATALHOS
+========================================================= */
 
-        document
-            .getElementById(
-                "statFavButton"
-            )
-            ?.addEventListener(
-                "click",
-                () =>
-                    filterCategory(
-                        "Favoritos"
-                    )
-            );
+document.addEventListener(
+    "keydown",
+    event => {
 
-        const searchInput =
-            document.getElementById(
-                "searchInput"
-            );
+        if (
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "k"
+        ) {
 
-        searchInput?.addEventListener(
-            "input",
-            () => handleSearch()
-        );
+            event.preventDefault();
 
-        searchInput?.addEventListener(
-            "focus",
-            () => showSuggestions(true)
-        );
+            searchInput.focus();
 
-        document
-            .querySelectorAll(
-                "[data-cat]"
-            )
-            .forEach(button => {
+            showSuggestions(true);
+        }
 
-                button.addEventListener(
-                    "click",
-                    () =>
-                        filterCategory(
-                            button.dataset.cat
-                        )
-                );
 
-            });
+        if (
+            event.key ===
+            "Escape"
+        ) {
 
-        document
-            .getElementById(
-                "searchSuggest"
-            )
-            ?.querySelectorAll(
-                "[data-search-preset]"
-            )
-            .forEach(button => {
+            closeModal();
 
-                button.addEventListener(
-                    "click",
-                    () =>
-                        handleSearch(
-                            button.dataset.searchPreset
-                        )
-                );
+            showSuggestions(false);
 
-            });
-
-        document
-            .getElementById(
-                "searchSuggest"
-            )
-            ?.querySelectorAll(
-                "[data-category-preset]"
-            )
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    () =>
-                        filterCategory(
-                            button.dataset.categoryPreset
-                        )
-                );
-
-            });
-
-        document.addEventListener(
-            "click",
-            event => {
-
-                const wrapper =
-                    searchInput?.parentElement;
-
-                if (
-                    wrapper &&
-                    !wrapper.contains(
-                        event.target
-                    )
-                ) {
-                    showSuggestions(false);
-                }
-
-            }
-        );
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    (event.ctrlKey ||
-                        event.metaKey) &&
-                    event.key.toLowerCase() ===
-                        "k"
-                ) {
-
-                    event.preventDefault();
-
-                    searchInput?.focus();
-
-                    showSuggestions(true);
-
-                }
-
-                if (
-                    event.key ===
-                    "Escape"
-                ) {
-
-                    closeModal();
-
-                    showSuggestions(false);
-
-                    toggleMobileMenu(false);
-
-                }
-
-            }
-        );
-
-        fetchBooks();
-
+            toggleMobileMenu(false);
+        }
     }
 );
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+initTheme();
+
+lucide.createIcons();
+
+fetchBooks();
 
 </script>
 
