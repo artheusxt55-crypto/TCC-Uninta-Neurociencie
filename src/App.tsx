@@ -30,6 +30,11 @@ import {
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
+import {
+    aceitarAnalytics,
+    recusarAnalytics,
+} from "./lib/analytics";
+
 /* =========================================================
  * COMPONENTES PESADOS
  * ========================================================= */
@@ -118,7 +123,13 @@ function IconPlanejamento() {
             strokeWidth="1.5"
             aria-hidden="true"
         >
-            <rect x="4" y="4" width="16" height="16" rx="1" />
+            <rect
+                x="4"
+                y="4"
+                width="16"
+                height="16"
+                rx="1"
+            />
             <path d="M8 9 H16 M8 13 H16 M8 17 H12.5" />
         </svg>
     );
@@ -295,7 +306,7 @@ function App() {
         useState(false);
 
     /* =====================================================
-     * COOKIES / PRIVACIDADE
+     * COOKIES / PRIVACIDADE / ANALYTICS
      * ===================================================== */
 
     useEffect(() => {
@@ -306,7 +317,29 @@ function App() {
             );
 
         if (!consentimento) {
+
             setShowCookieBanner(true);
+
+            /*
+             * Analytics permanece bloqueado
+             * até o usuário escolher.
+             */
+            recusarAnalytics();
+
+            return;
+        }
+
+        if (
+            consentimento ===
+            "aceito"
+        ) {
+
+            aceitarAnalytics();
+
+        } else {
+
+            recusarAnalytics();
+
         }
 
     }, []);
@@ -326,7 +359,21 @@ function App() {
             `Path=/; ` +
             `SameSite=Lax`;
 
+        if (
+            escolha ===
+            "aceito"
+        ) {
+
+            aceitarAnalytics();
+
+        } else {
+
+            recusarAnalytics();
+
+        }
+
         setShowCookieBanner(false);
+
     };
 
     const abrirConfiguracoesCookies = () => {
@@ -338,13 +385,6 @@ function App() {
 
     /* =====================================================
      * FIREBASE → FIRESTORE
-     *
-     * O perfil fica em:
-     *
-     * usuarios/{uid}
-     *
-     * A senha NÃO é armazenada no Firestore.
-     * A senha permanece no Firebase Authentication.
      * ===================================================== */
 
     const salvarUsuarioNoFirestore = async (
@@ -353,7 +393,10 @@ function App() {
 
         try {
 
-            if (!user || !user.uid) {
+            if (
+                !user ||
+                !user.uid
+            ) {
 
                 console.error(
                     "Usuário Firebase inválido."
@@ -374,7 +417,9 @@ function App() {
                     usuarioRef
                 );
 
-            if (!usuarioExistente.exists()) {
+            if (
+                !usuarioExistente.exists()
+            ) {
 
                 await setDoc(
                     usuarioRef,
@@ -448,16 +493,7 @@ function App() {
     };
 
     /* =====================================================
-     * REGISTRAR ACESSO — VERCEL + FIREBASE ADMIN
-     *
-     * O frontend NÃO coleta o IP.
-     * O frontend envia somente o ID Token.
-     *
-     * A API /api/registrar-acesso:
-     * - valida o usuário;
-     * - identifica o IP;
-     * - obtém localização aproximada;
-     * - grava o acesso no Firestore.
+     * REGISTRAR ACESSO
      * ===================================================== */
 
     const registrarAcesso = async () => {
@@ -583,7 +619,7 @@ function App() {
     };
 
     /* =====================================================
-     * LOGIN GOOGLE — FIREBASE + FIRESTORE + ACESSO
+     * LOGIN GOOGLE
      * ===================================================== */
 
     const loginComGoogle = async () => {
@@ -628,10 +664,6 @@ function App() {
 
                 return;
             }
-
-            /* ==========================================
-             * REGISTRAR ACESSO
-             * ========================================== */
 
             await registrarAcesso();
 
@@ -701,14 +733,20 @@ function App() {
             return;
         }
 
-        videos.forEach((video, index) => {
+        videos.forEach(
+            (
+                video,
+                index
+            ) => {
 
-            video.muted = true;
-            video.playsInline = true;
-            video.preload = "auto";
-            video.loop = index === 2;
+                video.muted = true;
+                video.playsInline = true;
+                video.preload = "auto";
+                video.loop =
+                    index === 2;
 
-        });
+            }
+        );
 
         const firstVideo =
             videos[0];
@@ -729,12 +767,17 @@ function App() {
             Array<() => void> = [];
 
         videos.forEach(
-            (video, index) => {
+            (
+                video,
+                index
+            ) => {
 
                 const handleEnded =
                     () => {
 
-                        if (index === 2) {
+                        if (
+                            index === 2
+                        ) {
                             return;
                         }
 
@@ -752,10 +795,14 @@ function App() {
                         }
 
                         const nextIndex =
-                            (index + 1) as VideoIndex;
+                            (
+                                index + 1
+                            ) as VideoIndex;
 
                         const nextVideo =
-                            videos[nextIndex];
+                            videos[
+                                nextIndex
+                            ];
 
                         if (!nextVideo) {
                             return;
@@ -828,7 +875,9 @@ function App() {
         return () => {
 
             cleanups.forEach(
-                (cleanup) =>
+                (
+                    cleanup
+                ) =>
                     cleanup()
             );
 
@@ -845,7 +894,10 @@ function App() {
 
         };
 
-    }, [currentVideo, isFull]);
+    }, [
+        currentVideo,
+        isFull,
+    ]);
 
     /* =====================================================
      * TECLA ESC
@@ -854,7 +906,9 @@ function App() {
     useEffect(() => {
 
         const handleKeyDown =
-            (event: KeyboardEvent) => {
+            (
+                event: KeyboardEvent
+            ) => {
 
                 if (
                     event.key ===
@@ -863,7 +917,9 @@ function App() {
 
                     closeModule();
 
-                    setMenuAberto(false);
+                    setMenuAberto(
+                        false
+                    );
 
                 }
 
@@ -900,7 +956,9 @@ function App() {
         }
 
         setResultado(
-            (prev) => ({
+            (
+                prev
+            ) => ({
                 ...prev,
 
                 diagnostico:
@@ -928,7 +986,9 @@ function App() {
         }
 
         setResultado(
-            (prev) => ({
+            (
+                prev
+            ) => ({
                 ...prev,
 
                 bncc:
@@ -957,7 +1017,9 @@ function App() {
         }
 
         setResultado(
-            (prev) => ({
+            (
+                prev
+            ) => ({
                 ...prev,
 
                 planejamento:
@@ -985,7 +1047,9 @@ function App() {
         }
 
         setResultado(
-            (prev) => ({
+            (
+                prev
+            ) => ({
                 ...prev,
 
                 intervencao:
@@ -1007,7 +1071,10 @@ function App() {
         const senha =
             senhaInput;
 
-        if (!email || !senha) {
+        if (
+            !email ||
+            !senha
+        ) {
 
             alert(
                 "Digite seu e-mail e sua senha."
@@ -1051,10 +1118,6 @@ function App() {
 
                 return;
             }
-
-            /* ==========================================
-             * REGISTRAR ACESSO
-             * ========================================== */
 
             await registrarAcesso();
 
@@ -1116,7 +1179,7 @@ function App() {
     };
 
     /* =====================================================
-     * CRIAR CONTA — FIREBASE AUTH + FIRESTORE + ACESSO
+     * CRIAR CONTA
      * ===================================================== */
 
     const criarConta = async () => {
@@ -1155,7 +1218,9 @@ function App() {
             return;
         }
 
-        if (senha.length < 6) {
+        if (
+            senha.length < 6
+        ) {
 
             alert(
                 "A senha precisa ter pelo menos 6 caracteres."
@@ -1195,10 +1260,6 @@ function App() {
                 }
             );
 
-            /* ==========================================
-             * SALVAR PERFIL NO FIRESTORE
-             * ========================================== */
-
             const salvo =
                 await salvarUsuarioNoFirestore(
                     result.user
@@ -1212,18 +1273,7 @@ function App() {
 
             }
 
-            /* ==========================================
-             * REGISTRAR PRIMEIRO ACESSO
-             * ========================================== */
-
             await registrarAcesso();
-
-            /* ==========================================
-             * RESEND
-             *
-             * Firebase gera o link.
-             * Resend envia o e-mail personalizado.
-             * ========================================== */
 
             const emailEnviado =
                 await enviarEmailVerificacao(
@@ -1366,11 +1416,15 @@ function App() {
                 );
 
             }
+
         }
+
     };
 
     const alternarModoAutenticacao = (
-        modo: "login" | "cadastro"
+        modo:
+            | "login"
+            | "cadastro"
     ) => {
 
         setModoAutenticacao(
@@ -1388,47 +1442,89 @@ function App() {
      * ===================================================== */
 
     const modulos: Array<{
-        id: Exclude<ModuleName, null>;
+        id:
+            Exclude<
+                ModuleName,
+                null
+            >;
+
         numero: string;
+
         nome: string;
+
         descricao: string;
-        Icone: () => JSX.Element;
+
+        Icone: () =>
+            JSX.Element;
+
     }> = [
 
         {
-            id: "diagnostico",
-            numero: "01",
-            nome: "Diagnóstico",
+            id:
+                "diagnostico",
+
+            numero:
+                "01",
+
+            nome:
+                "Diagnóstico",
+
             descricao:
                 "Leitura do processo de aprendizagem.",
-            Icone: IconDiagnostico,
+
+            Icone:
+                IconDiagnostico,
         },
 
         {
-            id: "bncc",
-            numero: "02",
-            nome: "BNCC",
+            id:
+                "bncc",
+
+            numero:
+                "02",
+
+            nome:
+                "BNCC",
+
             descricao:
                 "Consulta à base curricular.",
-            Icone: IconBncc,
+
+            Icone:
+                IconBncc,
         },
 
         {
-            id: "planejamento",
-            numero: "03",
-            nome: "Planejamento",
+            id:
+                "planejamento",
+
+            numero:
+                "03",
+
+            nome:
+                "Planejamento",
+
             descricao:
                 "Construção de planos de aula.",
-            Icone: IconPlanejamento,
+
+            Icone:
+                IconPlanejamento,
         },
 
         {
-            id: "intervencao",
-            numero: "04",
-            nome: "Intervenção",
+            id:
+                "intervencao",
+
+            numero:
+                "04",
+
+            nome:
+                "Intervenção",
+
             descricao:
                 "Estratégias pedagógicas dirigidas.",
-            Icone: IconIntervencao,
+
+            Icone:
+                IconIntervencao,
         },
 
     ];
@@ -1524,7 +1620,9 @@ function App() {
                     }
                     onClick={() =>
                         setMenuAberto(
-                            (valor) =>
+                            (
+                                valor
+                            ) =>
                                 !valor
                         )
                     }
@@ -1721,16 +1819,22 @@ function App() {
 
                                 <div
                                     style={{
-                                        display: "flex",
-                                        gap: "8px",
-                                        marginBottom: "18px",
+                                        display:
+                                            "flex",
+
+                                        gap:
+                                            "8px",
+
+                                        marginBottom:
+                                            "18px",
                                     }}
                                 >
 
                                     <button
                                         type="button"
                                         className={
-                                            modoAutenticacao === "login"
+                                            modoAutenticacao ===
+                                            "login"
                                                 ? "btn-primary"
                                                 : "btn-ghost"
                                         }
@@ -1740,7 +1844,8 @@ function App() {
                                             )
                                         }
                                         style={{
-                                            flex: 1,
+                                            flex:
+                                                1,
                                         }}
                                     >
                                         Entrar
@@ -1749,7 +1854,8 @@ function App() {
                                     <button
                                         type="button"
                                         className={
-                                            modoAutenticacao === "cadastro"
+                                            modoAutenticacao ===
+                                            "cadastro"
                                                 ? "btn-primary"
                                                 : "btn-ghost"
                                         }
@@ -1759,7 +1865,8 @@ function App() {
                                             )
                                         }
                                         style={{
-                                            flex: 1,
+                                            flex:
+                                                1,
                                         }}
                                     >
                                         Criar conta
@@ -1767,7 +1874,8 @@ function App() {
 
                                 </div>
 
-                                {modoAutenticacao === "cadastro" && (
+                                {modoAutenticacao ===
+                                    "cadastro" && (
                                     <>
                                         <label
                                             className="field-label"
@@ -1786,7 +1894,9 @@ function App() {
                                                 event
                                             ) =>
                                                 setNomeInput(
-                                                    event.target.value
+                                                    event
+                                                        .target
+                                                        .value
                                                 )
                                             }
                                             placeholder="Digite seu nome"
@@ -1812,7 +1922,9 @@ function App() {
                                         event
                                     ) =>
                                         setEmailInput(
-                                            event.target.value
+                                            event
+                                                .target
+                                                .value
                                         )
                                     }
                                     placeholder="Digite seu e-mail"
@@ -1836,7 +1948,9 @@ function App() {
                                         event
                                     ) =>
                                         setSenhaInput(
-                                            event.target.value
+                                            event
+                                                .target
+                                                .value
                                         )
                                     }
                                     placeholder="Digite sua senha"
@@ -1848,7 +1962,8 @@ function App() {
                                     }
                                 />
 
-                                {modoAutenticacao === "cadastro" && (
+                                {modoAutenticacao ===
+                                    "cadastro" && (
                                     <>
                                         <label
                                             className="field-label"
@@ -1867,7 +1982,9 @@ function App() {
                                                 event
                                             ) =>
                                                 setConfirmarSenhaInput(
-                                                    event.target.value
+                                                    event
+                                                        .target
+                                                        .value
                                                 )
                                             }
                                             placeholder="Digite a senha novamente"
@@ -1897,7 +2014,8 @@ function App() {
                                             : "Criar conta"}
                                 </button>
 
-                                {modoAutenticacao === "login" && (
+                                {modoAutenticacao ===
+                                    "login" && (
                                     <button
                                         type="button"
                                         className="btn-ghost"
@@ -2120,6 +2238,10 @@ function App() {
                 }
             />
 
+            {/* =================================================
+                DIAGNÓSTICO
+            ================================================= */}
+
             <div
                 className={`tool-panel ${
                     activeModule ===
@@ -2173,7 +2295,8 @@ function App() {
 
                             {Array.from(
                                 {
-                                    length: 9,
+                                    length:
+                                        9,
                                 },
                                 (
                                     _,
@@ -2181,9 +2304,14 @@ function App() {
                                 ) => (
 
                                     <option
-                                        key={index}
+                                        key={
+                                            index
+                                        }
                                     >
-                                        {index + 1}º Ano
+                                        {
+                                            index +
+                                            1
+                                        }º Ano
                                     </option>
 
                                 )
@@ -2239,7 +2367,9 @@ function App() {
                         event
                     ) =>
                         setDiagDescricao(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="Descreva o que foi observado no processo de aprendizagem..."
@@ -2272,6 +2402,10 @@ function App() {
                 )}
 
             </div>
+
+            {/* =================================================
+                BNCC
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -2327,7 +2461,9 @@ function App() {
                         event
                     ) =>
                         setBuscaBNCC(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="Ex.: interpretação de texto, frações..."
@@ -2391,6 +2527,10 @@ function App() {
 
             </div>
 
+            {/* =================================================
+                PLANEJAMENTO
+            ================================================= */}
+
             <div
                 className={`tool-panel ${
                     activeModule ===
@@ -2444,7 +2584,9 @@ function App() {
                         event
                     ) =>
                         setTemaPlano(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="Ex.: interpretação textual"
@@ -2458,7 +2600,8 @@ function App() {
 
                     {Array.from(
                         {
-                            length: 9,
+                            length:
+                                9,
                         },
                         (
                             _,
@@ -2466,9 +2609,14 @@ function App() {
                         ) => (
 
                             <option
-                                key={index}
+                                key={
+                                    index
+                                }
                             >
-                                {index + 1}º Ano
+                                {
+                                    index +
+                                    1
+                                }º Ano
                             </option>
 
                         )
@@ -2488,7 +2636,9 @@ function App() {
                         event
                     ) =>
                         setObjetivoPlano(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="O que o aluno deverá desenvolver?"
@@ -2521,6 +2671,10 @@ function App() {
                 )}
 
             </div>
+
+            {/* =================================================
+                INTERVENÇÃO
+            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -2575,7 +2729,9 @@ function App() {
                         event
                     ) =>
                         setNecessidadeIntervencao(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="Descreva a dificuldade ou necessidade observada..."
@@ -2593,7 +2749,9 @@ function App() {
                         event
                     ) =>
                         setContextoIntervencao(
-                            event.target.value
+                            event
+                                .target
+                                .value
                         )
                     }
                     placeholder="Informe o contexto da turma ou do estudante..."
@@ -2627,6 +2785,10 @@ function App() {
 
             </div>
 
+            {/* =================================================
+                BANNER DE COOKIES
+            ================================================= */}
+
             {showCookieBanner && (
 
                 <div
@@ -2651,16 +2813,28 @@ function App() {
                                 O EducaCube utiliza cookies
                                 e tecnologias semelhantes
                                 para manter funcionalidades
-                                da plataforma, autenticação
-                                e preferências.
+                                da plataforma, autenticação,
+                                preferências e, caso autorizado,
+                                estatísticas de uso.
                             </p>
 
-                            <a
-                                href="/cookies.html"
-                                className="cookie-link"
-                            >
-                                Política de Cookies
-                            </a>
+                            <div className="cookie-links">
+
+                                <a
+                                    href="/privacidade.html"
+                                    className="cookie-link"
+                                >
+                                    Política de Privacidade
+                                </a>
+
+                                <a
+                                    href="/cookies.html"
+                                    className="cookie-link"
+                                >
+                                    Política de Cookies
+                                </a>
+
+                            </div>
 
                         </div>
 
