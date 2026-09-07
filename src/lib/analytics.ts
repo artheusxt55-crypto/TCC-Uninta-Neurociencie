@@ -1,4 +1,4 @@
-
+```ts
 const GA_MEASUREMENT_ID = "G-3ZRNDZFYER";
 
 declare global {
@@ -9,8 +9,13 @@ declare global {
 }
 
 let analyticsInicializado = false;
+let scriptCarregando = false;
 let consentConfigurado = false;
 
+/**
+ * Prepara o dataLayer e uma função gtag temporária.
+ * Essa função é substituída/assumida pelo Google quando o gtag.js carregar.
+ */
 function prepararGtag() {
     if (typeof window === "undefined") return;
 
@@ -23,6 +28,11 @@ function prepararGtag() {
     }
 }
 
+/**
+ * Define o consentimento padrão como negado.
+ *
+ * Isso acontece antes do carregamento do Google Analytics.
+ */
 function definirConsentimentoPadraoNegado() {
     if (typeof window === "undefined") return;
 
@@ -35,18 +45,22 @@ function definirConsentimentoPadraoNegado() {
         ad_storage: "denied",
         ad_user_data: "denied",
         ad_personalization: "denied",
+        wait_for_update: 500,
     });
 
     consentConfigurado = true;
 }
 
+/**
+ * Inicializa o Google Analytics somente depois que o usuário aceitar.
+ */
 export function aceitarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
-
     definirConsentimentoPadraoNegado();
 
+    // Libera o armazenamento de Analytics.
     window.gtag("consent", "update", {
         analytics_storage: "granted",
         ad_storage: "denied",
@@ -54,41 +68,86 @@ export function aceitarAnalytics() {
         ad_personalization: "denied",
     });
 
+    // Se já inicializou, não cria outro script.
     if (analyticsInicializado) {
+        return;
+    }
+
+    // Se o script já está carregando, não cria outro.
+    if (scriptCarregando) {
         return;
     }
 
     const scriptExistente = document.querySelector(
         `script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`
-    );
+    ) as HTMLScriptElement | null;
 
-    if (!scriptExistente) {
-        const script = document.createElement("script");
+    // Se o script já existe, consideramos que o Google já foi solicitado.
+    if (scriptExistente) {
+        analyticsInicializado = true;
 
-        script.async = true;
+        window.gtag("js", new Date());
 
-        script.src =
-            `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+        window.gtag("config", GA_MEASUREMENT_ID, {
+            anonymize_ip: true,
+        });
 
-        document.head.appendChild(script);
+        console.log("📊 Google Analytics já estava carregado.");
+
+        return;
     }
 
-    window.gtag("js", new Date());
+    scriptCarregando = true;
 
-    window.gtag("config", GA_MEASUREMENT_ID, {
-        anonymize_ip: true,
-    });
+    const script = document.createElement("script");
 
-    analyticsInicializado = true;
+    script.async = true;
 
-    console.log("📊 Google Analytics inicializado.");
+    script.src =
+        `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+
+    /**
+     * Só consideramos o Analytics carregado quando
+     * o navegador confirma que o script do Google carregou.
+     */
+    script.onload = () => {
+        scriptCarregando = false;
+        analyticsInicializado = true;
+
+        window.gtag("js", new Date());
+
+        window.gtag("config", GA_MEASUREMENT_ID, {
+            anonymize_ip: true,
+        });
+
+        console.log("📊 Google Analytics carregado com sucesso.");
+    };
+
+    /**
+     * Se o Google não conseguir carregar, não fingimos
+     * que o Analytics foi inicializado.
+     */
+    script.onerror = () => {
+        scriptCarregando = false;
+        analyticsInicializado = false;
+
+        console.error(
+            "❌ Não foi possível carregar o Google Analytics."
+        );
+    };
+
+    document.head.appendChild(script);
+
+    console.log("⏳ Carregando Google Analytics...");
 }
 
+/**
+ * Recusa o Analytics.
+ */
 export function recusarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
-
     definirConsentimentoPadraoNegado();
 
     window.gtag("consent", "update", {
@@ -107,8 +166,19 @@ export function registrarEvento(
 ) {
     if (typeof window === "undefined") return;
 
-    if (!analyticsInicializado) return;
+    if (!analyticsInicializado) {
+        console.warn(
+            "⚠️ Evento não enviado porque o Google Analytics ainda não foi inicializado:",
+            nome
+        );
 
-    window.gtag("event", nome, parametros || {});
+        return;
+    }
+
+    window.gtag(
+        "event",
+        nome,
+        parametros || {}
+    );
 }
-
+```
