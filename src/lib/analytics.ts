@@ -1,3 +1,4 @@
+
 const GA_MEASUREMENT_ID = "G-3ZRNDZFYER";
 
 declare global {
@@ -8,8 +9,9 @@ declare global {
 }
 
 let analyticsInicializado = false;
+let consentConfigurado = false;
 
-function criarGtag() {
+function prepararGtag() {
     if (typeof window === "undefined") return;
 
     window.dataLayer = window.dataLayer || [];
@@ -21,12 +23,40 @@ function criarGtag() {
     }
 }
 
-export function inicializarAnalytics() {
+function definirConsentimentoPadraoNegado() {
     if (typeof window === "undefined") return;
 
-    if (analyticsInicializado) return;
+    prepararGtag();
 
-    criarGtag();
+    if (consentConfigurado) return;
+
+    window.gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+    });
+
+    consentConfigurado = true;
+}
+
+export function aceitarAnalytics() {
+    if (typeof window === "undefined") return;
+
+    prepararGtag();
+
+    definirConsentimentoPadraoNegado();
+
+    window.gtag("consent", "update", {
+        analytics_storage: "granted",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+    });
+
+    if (analyticsInicializado) {
+        return;
+    }
 
     const scriptExistente = document.querySelector(
         `script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`
@@ -45,55 +75,28 @@ export function inicializarAnalytics() {
 
     window.gtag("js", new Date());
 
-    window.gtag(
-        "config",
-        GA_MEASUREMENT_ID,
-        {
-            anonymize_ip: true,
-        }
-    );
+    window.gtag("config", GA_MEASUREMENT_ID, {
+        anonymize_ip: true,
+    });
 
     analyticsInicializado = true;
 
     console.log("📊 Google Analytics inicializado.");
 }
 
-export function aceitarAnalytics() {
-    if (typeof window === "undefined") return;
-
-    criarGtag();
-
-    inicializarAnalytics();
-
-    window.gtag(
-        "consent",
-        "update",
-        {
-            analytics_storage: "granted",
-            ad_storage: "denied",
-            ad_user_data: "denied",
-            ad_personalization: "denied",
-        }
-    );
-
-    console.log("🍪 Analytics autorizado.");
-}
-
 export function recusarAnalytics() {
     if (typeof window === "undefined") return;
 
-    criarGtag();
+    prepararGtag();
 
-    window.gtag(
-        "consent",
-        "update",
-        {
-            analytics_storage: "denied",
-            ad_storage: "denied",
-            ad_user_data: "denied",
-            ad_personalization: "denied",
-        }
-    );
+    definirConsentimentoPadraoNegado();
+
+    window.gtag("consent", "update", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+    });
 
     console.log("🚫 Analytics recusado.");
 }
@@ -106,9 +109,6 @@ export function registrarEvento(
 
     if (!analyticsInicializado) return;
 
-    window.gtag(
-        "event",
-        nome,
-        parametros || {}
-    );
+    window.gtag("event", nome, parametros || {});
 }
+
