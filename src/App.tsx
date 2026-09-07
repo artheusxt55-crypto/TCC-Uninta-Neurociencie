@@ -1,3 +1,4 @@
+
 import {
     lazy,
     Suspense,
@@ -31,7 +32,6 @@ import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
 /* =========================================================
  * COMPONENTES PESADOS
- * Só são carregados quando realmente necessários.
  * ========================================================= */
 
 const OwlShowcase = lazy(
@@ -374,10 +374,6 @@ function App() {
                     usuarioRef
                 );
 
-            /* ==========================================
-             * PRIMEIRO LOGIN / PRIMEIRA CRIAÇÃO
-             * ========================================== */
-
             if (!usuarioExistente.exists()) {
 
                 await setDoc(
@@ -407,13 +403,7 @@ function App() {
                     "✅ Perfil criado no Firestore."
                 );
 
-            }
-
-            /* ==========================================
-             * USUÁRIO JÁ EXISTE
-             * ========================================== */
-
-            else {
+            } else {
 
                 await setDoc(
                     usuarioRef,
@@ -454,6 +444,82 @@ function App() {
             );
 
             return false;
+        }
+    };
+
+    /* =====================================================
+     * REGISTRAR ACESSO — VERCEL + FIREBASE ADMIN
+     *
+     * O frontend NÃO coleta o IP.
+     * O frontend envia somente o ID Token.
+     *
+     * A API /api/registrar-acesso:
+     * - valida o usuário;
+     * - identifica o IP;
+     * - obtém localização aproximada;
+     * - grava o acesso no Firestore.
+     * ===================================================== */
+
+    const registrarAcesso = async () => {
+
+        try {
+
+            const user =
+                auth.currentUser;
+
+            if (!user) {
+
+                console.warn(
+                    "⚠️ Não foi possível registrar acesso: usuário não autenticado."
+                );
+
+                return;
+            }
+
+            const idToken =
+                await user.getIdToken();
+
+            const response =
+                await fetch(
+                    "/api/registrar-acesso",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            Authorization:
+                                `Bearer ${idToken}`,
+
+                            "Content-Type":
+                                "application/json",
+                        },
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                console.error(
+                    "❌ Erro ao registrar acesso:",
+                    data
+                );
+
+                return;
+            }
+
+            console.log(
+                "✅ Acesso registrado:",
+                data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Erro ao registrar acesso:",
+                error
+            );
+
         }
     };
 
@@ -517,7 +583,7 @@ function App() {
     };
 
     /* =====================================================
-     * LOGIN GOOGLE — FIREBASE + FIRESTORE
+     * LOGIN GOOGLE — FIREBASE + FIRESTORE + ACESSO
      * ===================================================== */
 
     const loginComGoogle = async () => {
@@ -562,6 +628,12 @@ function App() {
 
                 return;
             }
+
+            /* ==========================================
+             * REGISTRAR ACESSO
+             * ========================================== */
+
+            await registrarAcesso();
 
             alert(
                 `Bem-vindo, ${
@@ -924,7 +996,7 @@ function App() {
     };
 
     /* =====================================================
-     * AUTENTICAÇÃO — FIREBASE + FIRESTORE
+     * AUTENTICAÇÃO — LOGIN E-MAIL
      * ===================================================== */
 
     const entrarComEmail = async () => {
@@ -979,6 +1051,12 @@ function App() {
 
                 return;
             }
+
+            /* ==========================================
+             * REGISTRAR ACESSO
+             * ========================================== */
+
+            await registrarAcesso();
 
             window.location.href =
                 "/aluno.html";
@@ -1038,7 +1116,7 @@ function App() {
     };
 
     /* =====================================================
-     * CRIAR CONTA — FIREBASE AUTH + FIRESTORE
+     * CRIAR CONTA — FIREBASE AUTH + FIRESTORE + ACESSO
      * ===================================================== */
 
     const criarConta = async () => {
@@ -1133,6 +1211,12 @@ function App() {
                 );
 
             }
+
+            /* ==========================================
+             * REGISTRAR PRIMEIRO ACESSO
+             * ========================================== */
+
+            await registrarAcesso();
 
             /* ==========================================
              * RESEND
@@ -1515,7 +1599,6 @@ function App() {
 
             {/* =================================================
                 VÍDEOS
-                SOMENTE DESKTOP FULL
             ================================================= */}
 
             {isFull && (
@@ -1596,10 +1679,6 @@ function App() {
             ================================================= */}
 
             <main className="main-container">
-
-                {/* =================================================
-                    HERO
-                ================================================= */}
 
                 <section
                     className="hero"
@@ -1875,10 +1954,6 @@ function App() {
 
                         </div>
 
-                        {/* =================================================
-                            CORUJA
-                        ================================================= */}
-
                         <section
                             id="brain-viewport"
                             aria-label="Modelo tridimensional da coruja do EducaCube"
@@ -1929,10 +2004,6 @@ function App() {
 
                 </section>
 
-                {/* =================================================
-                    TRANSFORM PARTICLES
-                ================================================= */}
-
                 {isFull && (
                     <section className="transform-section">
 
@@ -1950,9 +2021,7 @@ function App() {
 
                         <div className="transform-particles-wrapper">
 
-                            <Suspense
-                                fallback={null}
-                            >
+                            <Suspense fallback={null}>
                                 <TransformDesktop />
                             </Suspense>
 
@@ -1960,10 +2029,6 @@ function App() {
 
                     </section>
                 )}
-
-                {/* =================================================
-                    MÓDULOS
-                ================================================= */}
 
                 <section
                     className="workspace-section"
@@ -2044,10 +2109,6 @@ function App() {
 
             </main>
 
-            {/* =================================================
-                OVERLAY
-            ================================================= */}
-
             <div
                 className={`overlay ${
                     activeModule
@@ -2058,10 +2119,6 @@ function App() {
                     closeModule
                 }
             />
-
-            {/* =================================================
-                DIAGNÓSTICO
-            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -2216,10 +2273,6 @@ function App() {
 
             </div>
 
-            {/* =================================================
-                BNCC
-            ================================================= */}
-
             <div
                 className={`tool-panel ${
                     activeModule ===
@@ -2337,10 +2390,6 @@ function App() {
                 )}
 
             </div>
-
-            {/* =================================================
-                PLANEJAMENTO
-            ================================================= */}
 
             <div
                 className={`tool-panel ${
@@ -2473,10 +2522,6 @@ function App() {
 
             </div>
 
-            {/* =================================================
-                INTERVENÇÃO
-            ================================================= */}
-
             <div
                 className={`tool-panel ${
                     activeModule ===
@@ -2582,10 +2627,6 @@ function App() {
 
             </div>
 
-            {/* =================================================
-                BANNER DE COOKIES
-            ================================================= */}
-
             {showCookieBanner && (
 
                 <div
@@ -2672,3 +2713,4 @@ function App() {
 }
 
 export default App;
+
