@@ -1,0 +1,1613 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="Política de Privacidade da EducaCube. Saiba como seus dados pessoais são tratados, protegidos e utilizados na plataforma.">
+
+    <meta name="theme-color" content="#7c3aed">
+
+    <title>Política de Privacidade — EducaCube</title>
+
+    <style>
+        :root {
+            --bg: #08080c;
+            --bg-secondary: #0f0f16;
+            --card: #12121b;
+            --card-hover: #171722;
+            --text: #f5f5f7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255,255,255,.08);
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --purple-dark: #6d28d9;
+            --purple-soft: rgba(139,92,246,.12);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --max-width: 1250px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(124,58,237,.18),
+                    transparent 38%
+                ),
+                var(--bg);
+
+            color: var(--text);
+            line-height: 1.75;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            height: 72px;
+
+            background: rgba(8,8,12,.82);
+            backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-inner {
+            width: min(var(--max-width), calc(100% - 40px));
+            height: 100%;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--purple-light),
+                    var(--purple-dark)
+                );
+
+            box-shadow:
+                0 8px 25px rgba(124,58,237,.25);
+
+            font-size: 19px;
+        }
+
+        .brand-name {
+            letter-spacing: -.4px;
+        }
+
+        .brand-name span {
+            color: var(--purple-light);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-btn {
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.04);
+
+            color: var(--text-secondary);
+
+            width: 40px;
+            height: 40px;
+
+            border-radius: 11px;
+
+            cursor: pointer;
+
+            transition: .2s ease;
+        }
+
+        .header-btn:hover {
+            background: var(--purple-soft);
+            color: var(--text);
+            border-color: rgba(139,92,246,.3);
+        }
+
+        .back-btn {
+            padding: 9px 15px;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: rgba(255,255,255,.04);
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+
+            transition: .2s ease;
+        }
+
+        .back-btn:hover {
+            color: white;
+            border-color: rgba(139,92,246,.4);
+            background: var(--purple-soft);
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            width: min(var(--max-width), calc(100% - 40px));
+
+            margin: 0 auto;
+
+            padding: 75px 0 55px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 12px;
+
+            border: 1px solid rgba(139,92,246,.22);
+
+            background: var(--purple-soft);
+
+            color: var(--purple-light);
+
+            border-radius: 999px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            max-width: 850px;
+
+            font-size:
+                clamp(38px, 5vw, 66px);
+
+            line-height: 1.05;
+
+            letter-spacing: -2.8px;
+
+            margin-bottom: 22px;
+        }
+
+        .hero h1 span {
+            background:
+                linear-gradient(
+                    90deg,
+                    #c4b5fd,
+                    #8b5cf6
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .hero-description {
+            max-width: 760px;
+
+            color: var(--text-secondary);
+
+            font-size: 18px;
+
+            line-height: 1.7;
+        }
+
+        .hero-date {
+            margin-top: 25px;
+
+            color: var(--text-muted);
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           LAYOUT
+        ========================= */
+
+        .page {
+            width: min(var(--max-width), calc(100% - 40px));
+
+            margin: 0 auto 80px;
+
+            display: grid;
+
+            grid-template-columns: 260px minmax(0, 1fr);
+
+            gap: 55px;
+
+            align-items: start;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: sticky;
+            top: 100px;
+
+            padding: 20px;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(18,18,27,.7);
+
+            border-radius: 18px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .1em;
+
+            color: var(--text-muted);
+
+            font-weight: 700;
+
+            margin-bottom: 12px;
+        }
+
+        .toc {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .toc a {
+            padding: 9px 11px;
+
+            border-radius: 9px;
+
+            color: var(--text-secondary);
+
+            font-size: 13px;
+
+            transition: .2s ease;
+        }
+
+        .toc a:hover {
+            color: white;
+
+            background:
+                rgba(139,92,246,.1);
+        }
+
+        .toc a.active {
+            color: var(--purple-light);
+
+            background:
+                rgba(139,92,246,.12);
+
+            font-weight: 600;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            min-width: 0;
+        }
+
+        .intro-card {
+            padding: 25px 27px;
+
+            margin-bottom: 45px;
+
+            border:
+                1px solid rgba(139,92,246,.18);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(139,92,246,.10),
+                    rgba(255,255,255,.025)
+                );
+
+            border-radius: 18px;
+        }
+
+        .intro-card strong {
+            color: var(--purple-light);
+        }
+
+        .policy-section {
+            padding-bottom: 42px;
+
+            margin-bottom: 42px;
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+        .policy-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-number {
+            color: var(--purple-light);
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            margin-bottom: 5px;
+        }
+
+        .policy-section h2 {
+            font-size: 28px;
+
+            letter-spacing: -.7px;
+
+            line-height: 1.25;
+
+            margin-bottom: 17px;
+        }
+
+        .policy-section h3 {
+            font-size: 18px;
+
+            margin:
+                25px 0 10px;
+        }
+
+        .policy-section p {
+            color: var(--text-secondary);
+
+            margin-bottom: 15px;
+        }
+
+        .policy-section ul {
+            margin:
+                15px 0 18px 22px;
+
+            color: var(--text-secondary);
+        }
+
+        .policy-section li {
+            margin-bottom: 8px;
+
+            padding-left: 5px;
+        }
+
+        .highlight {
+            padding: 18px 20px;
+
+            margin: 22px 0;
+
+            border-left:
+                3px solid var(--purple);
+
+            background:
+                rgba(139,92,246,.07);
+
+            border-radius: 0 12px 12px 0;
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        .data-card {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+
+            gap: 12px;
+
+            margin-top: 20px;
+        }
+
+        .data-item {
+            padding: 17px;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(255,255,255,.025);
+
+            border-radius: 13px;
+        }
+
+        .data-item strong {
+            display: block;
+
+            color: var(--text);
+
+            font-size: 14px;
+
+            margin-bottom: 4px;
+        }
+
+        .data-item span {
+            color: var(--text-secondary);
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           CONTACT CARD
+        ========================= */
+
+        .contact-card {
+            margin-top: 15px;
+
+            padding: 25px;
+
+            border:
+                1px solid rgba(139,92,246,.2);
+
+            border-radius: 17px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(139,92,246,.1),
+                    rgba(255,255,255,.025)
+                );
+        }
+
+        .contact-card strong {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 17px;
+        }
+
+        .contact-card p {
+            margin-bottom: 5px;
+        }
+
+        .email {
+            color: var(--purple-light);
+
+            font-weight: 600;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            border-top:
+                1px solid var(--border);
+
+            background:
+                rgba(0,0,0,.2);
+        }
+
+        .footer-inner {
+            width:
+                min(var(--max-width), calc(100% - 40px));
+
+            margin: auto;
+
+            padding: 35px 0;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            color: var(--text-muted);
+
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+
+            gap: 18px;
+
+            flex-wrap: wrap;
+        }
+
+        .footer-links a:hover {
+            color: var(--purple-light);
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+            .page {
+                grid-template-columns: 1fr;
+
+                gap: 25px;
+            }
+
+            .sidebar {
+                position: static;
+
+                overflow-x: auto;
+            }
+
+            .toc {
+                flex-direction: row;
+
+                min-width: max-content;
+            }
+
+            .sidebar-title {
+                display: none;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .header-inner,
+            .hero,
+            .page,
+            .footer-inner {
+                width:
+                    min(100% - 28px, var(--max-width));
+            }
+
+            .hero {
+                padding: 50px 0 35px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1.7px;
+            }
+
+            .hero-description {
+                font-size: 16px;
+            }
+
+            .back-btn {
+                display: none;
+            }
+
+            .data-card {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+            }
+
+            .policy-section h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+
+        <a href="/" class="brand">
+            <div class="brand-icon">🦉</div>
+
+            <div class="brand-name">
+                Educa<span>Cube</span>
+            </div>
+        </a>
+
+        <div class="header-actions">
+
+            <a href="/" class="back-btn">
+                ← Voltar para a EducaCube
+            </a>
+
+            <button
+                class="header-btn"
+                id="themeBtn"
+                aria-label="Alternar tema"
+                title="Alternar tema"
+            >
+                ☼
+            </button>
+
+        </div>
+
+    </div>
+</header>
+
+
+<section class="hero">
+
+    <div class="hero-badge">
+        🔒 Privacidade e segurança
+    </div>
+
+    <h1>
+        Política de <span>Privacidade</span>
+    </h1>
+
+    <p class="hero-description">
+        Transparência é parte da experiência EducaCube.
+        Nesta página você encontra informações sobre os dados
+        que podemos coletar, como são utilizados e quais são
+        os seus direitos.
+    </p>
+
+    <p class="hero-date">
+        Última atualização: <strong>7 de setembro de 2026</strong>
+    </p>
+
+</section>
+
+
+<main class="page">
+
+    <!-- =========================
+         ÍNDICE
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            Nesta política
+        </div>
+
+        <nav class="toc">
+
+            <a href="#quem-somos">1. Quem somos</a>
+
+            <a href="#dados">2. Dados coletados</a>
+
+            <a href="#finalidades">3. Finalidades</a>
+
+            <a href="#bases">4. Bases legais</a>
+
+            <a href="#login">5. Autenticação</a>
+
+            <a href="#armazenamento">6. Armazenamento</a>
+
+            <a href="#email">7. E-mails</a>
+
+            <a href="#biblioteca">8. Biblioteca</a>
+
+            <a href="#compartilhamento">9. Compartilhamento</a>
+
+            <a href="#internacional">10. Transferência internacional</a>
+
+            <a href="#seguranca">11. Segurança</a>
+
+            <a href="#menores">12. Menores</a>
+
+            <a href="#cookies">13. Cookies</a>
+
+            <a href="#retencao">14. Retenção</a>
+
+            <a href="#exclusao">15. Exclusão</a>
+
+            <a href="#direitos">16. Seus direitos</a>
+
+            <a href="#solicitacao">17. Solicitações</a>
+
+            <a href="#encarregado">18. Encarregado</a>
+
+            <a href="#terceiros">19. Terceiros</a>
+
+            <a href="#alteracoes">20. Alterações</a>
+
+            <a href="#contato">21. Contato</a>
+
+            <a href="#legislacao">22. Legislação</a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         POLÍTICA
+    ========================== -->
+
+    <article class="content">
+
+        <div class="intro-card">
+
+            <p>
+                A <strong>EducaCube</strong> valoriza a privacidade,
+                a segurança e a transparência no tratamento de dados
+                pessoais.
+            </p>
+
+            <p>
+                Esta Política explica como os dados podem ser
+                coletados, utilizados, armazenados e protegidos
+                durante a utilização da plataforma.
+            </p>
+
+        </div>
+
+
+        <section class="policy-section" id="quem-somos">
+
+            <div class="section-number">01</div>
+
+            <h2>Quem somos</h2>
+
+            <p>
+                A EducaCube é uma plataforma educacional desenvolvida
+                para apoiar estudantes, professores e demais pessoas
+                interessadas em educação, aprendizagem e conteúdos
+                pedagógicos.
+            </p>
+
+            <p>
+                Para fins da Lei nº 13.709/2018 — Lei Geral de
+                Proteção de Dados Pessoais (LGPD), determinadas
+                operações realizadas pela plataforma podem envolver
+                o tratamento de dados pessoais.
+            </p>
+
+            <div class="contact-card">
+
+                <strong>Responsável pela plataforma</strong>
+
+                <p>
+                    Nome: <strong>[NOME DO RESPONSÁVEL OU RAZÃO SOCIAL]</strong>
+                </p>
+
+                <p>
+                    CPF/CNPJ:
+                    <strong>[CPF OU CNPJ, SE APLICÁVEL]</strong>
+                </p>
+
+                <p>
+                    E-mail:
+                    <span class="email">[E-MAIL OFICIAL]</span>
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="dados">
+
+            <div class="section-number">02</div>
+
+            <h2>Quais dados podem ser coletados</h2>
+
+            <p>
+                Dependendo da forma como você utiliza a EducaCube,
+                diferentes tipos de informações poderão ser tratados.
+            </p>
+
+            <div class="data-card">
+
+                <div class="data-item">
+                    <strong>Dados de cadastro</strong>
+                    <span>
+                        Nome, e-mail, foto de perfil e identificador
+                        da conta.
+                    </span>
+                </div>
+
+                <div class="data-item">
+                    <strong>Dados de acesso</strong>
+                    <span>
+                        IP, data, horário, navegador e informações
+                        técnicas.
+                    </span>
+                </div>
+
+                <div class="data-item">
+                    <strong>Localização aproximada</strong>
+                    <span>
+                        País, estado e cidade aproximados derivados
+                        do endereço IP.
+                    </span>
+                </div>
+
+                <div class="data-item">
+                    <strong>Uso da plataforma</strong>
+                    <span>
+                        Materiais favoritos, acessados recentemente
+                        e preferências.
+                    </span>
+                </div>
+
+            </div>
+
+            <h3>Dados de cadastro</h3>
+
+            <p>
+                Ao criar uma conta, podemos receber informações como
+                nome, endereço de e-mail, foto de perfil, identificador
+                único e informações necessárias para autenticação.
+            </p>
+
+            <h3>Dados técnicos e de acesso</h3>
+
+            <p>
+                Para segurança, funcionamento e prevenção de abusos,
+                podemos registrar endereço IP, data e horário de
+                acesso, navegador e informações técnicas do dispositivo.
+            </p>
+
+            <h3>Localização aproximada</h3>
+
+            <p>
+                O endereço IP pode ser utilizado para obter uma
+                localização geográfica aproximada, como país, estado
+                ou cidade.
+            </p>
+
+            <div class="highlight">
+
+                <p>
+                    <strong>Importante:</strong>
+                    a localização obtida por IP é aproximada.
+                    A EducaCube não utiliza esse mecanismo para
+                    determinar a localização física exata do usuário.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="finalidades">
+
+            <div class="section-number">03</div>
+
+            <h2>Para que utilizamos os dados</h2>
+
+            <p>
+                Os dados tratados pela EducaCube poderão ser utilizados
+                para:
+            </p>
+
+            <ul>
+                <li>criar e administrar contas;</li>
+                <li>realizar autenticação;</li>
+                <li>permitir acesso aos recursos educacionais;</li>
+                <li>disponibilizar a biblioteca digital;</li>
+                <li>manter favoritos e histórico de utilização;</li>
+                <li>personalizar determinadas funcionalidades;</li>
+                <li>proteger a plataforma contra abusos;</li>
+                <li>detectar acessos suspeitos;</li>
+                <li>diagnosticar problemas técnicos;</li>
+                <li>melhorar o funcionamento da plataforma;</li>
+                <li>enviar comunicações relacionadas à conta;</li>
+                <li>cumprir obrigações legais;</li>
+                <li>exercer ou defender direitos.</li>
+            </ul>
+
+        </section>
+
+
+        <section class="policy-section" id="bases">
+
+            <div class="section-number">04</div>
+
+            <h2>Bases legais</h2>
+
+            <p>
+                O tratamento de dados pessoais poderá ocorrer com
+                fundamento nas hipóteses previstas na LGPD, conforme
+                a finalidade de cada operação.
+            </p>
+
+            <p>
+                Entre as possíveis bases legais estão:
+            </p>
+
+            <ul>
+                <li>execução de contrato ou procedimentos preliminares;</li>
+                <li>cumprimento de obrigação legal ou regulatória;</li>
+                <li>exercício regular de direitos;</li>
+                <li>legítimo interesse, quando aplicável;</li>
+                <li>consentimento, quando necessário.</li>
+            </ul>
+
+        </section>
+
+
+        <section class="policy-section" id="login">
+
+            <div class="section-number">05</div>
+
+            <h2>Autenticação e login</h2>
+
+            <p>
+                A EducaCube utiliza serviços de autenticação para
+                permitir que usuários criem e acessem suas contas.
+            </p>
+
+            <p>
+                A autenticação pode ocorrer por e-mail e senha ou
+                por meio de uma conta Google, conforme as opções
+                disponibilizadas na plataforma.
+            </p>
+
+            <p>
+                Quando o login Google é utilizado, algumas informações
+                podem ser fornecidas pelo próprio provedor de
+                autenticação, conforme as permissões concedidas.
+            </p>
+
+            <div class="highlight">
+
+                <p>
+                    A EducaCube não solicita a senha da sua conta Google.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="armazenamento">
+
+            <div class="section-number">06</div>
+
+            <h2>Armazenamento dos dados</h2>
+
+            <p>
+                Os dados relacionados às contas e ao funcionamento
+                da plataforma podem ser armazenados utilizando
+                serviços de infraestrutura em nuvem.
+            </p>
+
+            <p>
+                A EducaCube utiliza serviços tecnológicos de terceiros,
+                incluindo infraestrutura do Firebase/Google Cloud e
+                hospedagem da Vercel.
+            </p>
+
+            <p>
+                A plataforma busca utilizar configurações e mecanismos
+                de segurança adequados para proteger os dados tratados.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="email">
+
+            <div class="section-number">07</div>
+
+            <h2>Comunicações por e-mail</h2>
+
+            <p>
+                A EducaCube poderá utilizar serviços especializados
+                de envio de e-mails, incluindo o Resend.
+            </p>
+
+            <p>
+                Esses e-mails podem estar relacionados a:
+            </p>
+
+            <ul>
+                <li>confirmação de cadastro;</li>
+                <li>verificação da conta;</li>
+                <li>segurança da conta;</li>
+                <li>recuperação de acesso;</li>
+                <li>boas-vindas;</li>
+                <li>informações importantes sobre a plataforma.</li>
+            </ul>
+
+        </section>
+
+
+        <section class="policy-section" id="biblioteca">
+
+            <div class="section-number">08</div>
+
+            <h2>Biblioteca e conteúdos educacionais</h2>
+
+            <p>
+                A EducaCube disponibiliza materiais educacionais e
+                pedagógicos por meio de sua biblioteca digital.
+            </p>
+
+            <p>
+                Alguns materiais podem ser hospedados ou disponibilizados
+                por serviços externos, como o Google Drive.
+            </p>
+
+            <p>
+                Ao acessar determinados conteúdos, o usuário poderá
+                ser direcionado ou conectado a serviços externos.
+            </p>
+
+            <p>
+                Nesses casos, o tratamento realizado pelo serviço
+                externo estará sujeito também à política de privacidade
+                e aos termos desse fornecedor.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="compartilhamento">
+
+            <div class="section-number">09</div>
+
+            <h2>Compartilhamento de dados</h2>
+
+            <p>
+                A EducaCube poderá utilizar fornecedores tecnológicos
+                necessários para disponibilizar e manter a plataforma.
+            </p>
+
+            <ul>
+                <li>Google/Firebase — autenticação e banco de dados;</li>
+                <li>Vercel — hospedagem e infraestrutura;</li>
+                <li>Resend — envio de e-mails;</li>
+                <li>outros fornecedores técnicos necessários ao funcionamento.</li>
+            </ul>
+
+            <div class="highlight">
+
+                <p>
+                    A EducaCube não comercializa dados pessoais dos
+                    usuários.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="internacional">
+
+            <div class="section-number">10</div>
+
+            <h2>Transferência internacional</h2>
+
+            <p>
+                Alguns fornecedores tecnológicos utilizados pela
+                EducaCube podem processar ou armazenar informações
+                em servidores localizados fora do Brasil.
+            </p>
+
+            <p>
+                Quando aplicável, essas operações deverão observar
+                os requisitos estabelecidos pela legislação brasileira
+                de proteção de dados e as medidas adotadas pelos
+                respectivos fornecedores.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="seguranca">
+
+            <div class="section-number">11</div>
+
+            <h2>Segurança dos dados</h2>
+
+            <p>
+                A EducaCube adota medidas técnicas e administrativas
+                destinadas a proteger os dados pessoais contra
+                acessos não autorizados, perda, alteração indevida,
+                destruição ou divulgação não autorizada.
+            </p>
+
+            <p>
+                Entre as medidas podem estar:
+            </p>
+
+            <ul>
+                <li>autenticação de usuários;</li>
+                <li>controle de acesso;</li>
+                <li>conexões HTTPS;</li>
+                <li>regras de segurança do banco de dados;</li>
+                <li>proteção de credenciais e chaves de servidor;</li>
+                <li>monitoramento de eventos de segurança.</li>
+            </ul>
+
+            <p>
+                Apesar das medidas adotadas, nenhum sistema eletrônico
+                pode garantir segurança absoluta contra todos os
+                riscos existentes.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="menores">
+
+            <div class="section-number">12</div>
+
+            <h2>Crianças e adolescentes</h2>
+
+            <p>
+                A EducaCube é uma plataforma educacional e poderá
+                ser acessada por estudantes de diferentes faixas etárias.
+            </p>
+
+            <p>
+                Quando houver tratamento de dados pessoais de crianças
+                ou adolescentes, serão observadas as disposições
+                aplicáveis da legislação brasileira, especialmente
+                aquelas relacionadas à proteção do melhor interesse
+                da criança e do adolescente.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="cookies">
+
+            <div class="section-number">13</div>
+
+            <h2>Cookies e tecnologias semelhantes</h2>
+
+            <p>
+                A EducaCube poderá utilizar cookies, armazenamento
+                local do navegador e tecnologias semelhantes para
+                manter determinadas funcionalidades.
+            </p>
+
+            <p>
+                Essas tecnologias podem ser utilizadas para:
+            </p>
+
+            <ul>
+                <li>manter funcionalidades essenciais;</li>
+                <li>preservar preferências;</li>
+                <li>manter sessões de autenticação;</li>
+                <li>melhorar a experiência do usuário;</li>
+                <li>auxiliar na segurança da plataforma;</li>
+                <li>compreender aspectos técnicos do funcionamento.</li>
+            </ul>
+
+            <h3>Preferências de cookies</h3>
+
+            <p>
+                A EducaCube poderá disponibilizar um mecanismo para
+                que o usuário escolha suas preferências relacionadas
+                a tecnologias não essenciais, quando aplicável.
+            </p>
+
+            <div class="highlight">
+
+                <p>
+                    Algumas tecnologias estritamente necessárias
+                    podem ser utilizadas para que a plataforma
+                    funcione corretamente.
+                </p>
+
+            </div>
+
+            <p>
+                O usuário também pode controlar ou apagar dados
+                armazenados pelo navegador por meio das configurações
+                do próprio navegador.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="retencao">
+
+            <div class="section-number">14</div>
+
+            <h2>Retenção dos dados</h2>
+
+            <p>
+                Os dados pessoais serão mantidos pelo período necessário
+                para cumprir as finalidades para as quais foram coletados.
+            </p>
+
+            <p>
+                Após o encerramento da finalidade, os dados poderão
+                ser eliminados ou anonimizados, salvo quando houver
+                fundamento legal para sua conservação.
+            </p>
+
+            <p>
+                Determinadas informações poderão ser mantidas quando
+                necessárias para cumprimento de obrigação legal,
+                exercício regular de direitos, prevenção de fraudes
+                ou segurança.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="exclusao">
+
+            <div class="section-number">15</div>
+
+            <h2>Exclusão da conta e dos dados</h2>
+
+            <p>
+                O usuário poderá solicitar a exclusão de sua conta
+                e de seus dados pessoais, observadas as hipóteses
+                legais que permitam ou exijam a conservação de
+                determinadas informações.
+            </p>
+
+            <p>
+                Após receber uma solicitação válida, a EducaCube
+                avaliará quais informações poderão ser eliminadas
+                e quais eventualmente deverão ser mantidas por
+                obrigação legal ou outra base legal aplicável.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="direitos">
+
+            <div class="section-number">16</div>
+
+            <h2>Seus direitos</h2>
+
+            <p>
+                Nos termos da LGPD, o titular possui direitos relacionados
+                aos seus dados pessoais.
+            </p>
+
+            <ul>
+                <li>confirmação da existência de tratamento;</li>
+                <li>acesso aos dados pessoais;</li>
+                <li>correção de dados incompletos ou desatualizados;</li>
+                <li>anonimização, bloqueio ou eliminação, quando aplicável;</li>
+                <li>portabilidade, quando aplicável;</li>
+                <li>eliminação de dados tratados com consentimento, quando cabível;</li>
+                <li>informações sobre compartilhamento;</li>
+                <li>informações sobre o uso do consentimento;</li>
+                <li>revogação do consentimento, quando aplicável;</li>
+                <li>oposição ao tratamento nas hipóteses previstas em lei;</li>
+                <li>revisão de decisões automatizadas, quando aplicável.</li>
+            </ul>
+
+        </section>
+
+
+        <section class="policy-section" id="solicitacao">
+
+            <div class="section-number">17</div>
+
+            <h2>Como solicitar seus direitos</h2>
+
+            <p>
+                Para solicitar acesso, correção, exclusão ou outras
+                informações relacionadas aos seus dados pessoais,
+                entre em contato através do canal oficial indicado
+                nesta Política.
+            </p>
+
+            <p>
+                Para facilitar o atendimento, recomendamos informar:
+            </p>
+
+            <ul>
+                <li>nome utilizado na plataforma;</li>
+                <li>e-mail associado à conta;</li>
+                <li>direito que deseja exercer;</li>
+                <li>informações necessárias para localizar a conta.</li>
+            </ul>
+
+            <p>
+                Poderemos solicitar informações adicionais para
+                confirmar a identidade do solicitante e evitar
+                o fornecimento indevido de dados a terceiros.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="encarregado">
+
+            <div class="section-number">18</div>
+
+            <h2>Encarregado pelo tratamento de dados</h2>
+
+            <p>
+                Questões relacionadas à privacidade e proteção de
+                dados podem ser encaminhadas ao responsável indicado
+                pela EducaCube.
+            </p>
+
+            <div class="contact-card">
+
+                <strong>Canal de privacidade</strong>
+
+                <p>
+                    Responsável:
+                    <strong>[NOME DO RESPONSÁVEL]</strong>
+                </p>
+
+                <p>
+                    E-mail:
+                    <span class="email">[E-MAIL DE PRIVACIDADE]</span>
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="terceiros">
+
+            <div class="section-number">19</div>
+
+            <h2>Links e serviços de terceiros</h2>
+
+            <p>
+                A EducaCube pode conter links, conteúdos incorporados
+                ou integrações com serviços de terceiros.
+            </p>
+
+            <p>
+                Esses serviços podem possuir suas próprias políticas
+                de privacidade e termos de utilização.
+            </p>
+
+            <p>
+                A EducaCube não controla as práticas de privacidade
+                de serviços externos que não estejam sob seu controle.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="alteracoes">
+
+            <div class="section-number">20</div>
+
+            <h2>Alterações desta Política</h2>
+
+            <p>
+                Esta Política poderá ser atualizada periodicamente
+                para refletir alterações na legislação, na plataforma,
+                nos serviços utilizados ou nos procedimentos de
+                segurança e privacidade.
+            </p>
+
+            <p>
+                Quando houver alterações relevantes, a EducaCube
+                poderá comunicar os usuários por meio da plataforma
+                ou de outros canais apropriados.
+            </p>
+
+        </section>
+
+
+        <section class="policy-section" id="contato">
+
+            <div class="section-number">21</div>
+
+            <h2>Contato</h2>
+
+            <p>
+                Em caso de dúvidas, solicitações ou questões
+                relacionadas à privacidade e proteção de dados,
+                entre em contato:
+            </p>
+
+            <div class="contact-card">
+
+                <strong>EducaCube</strong>
+
+                <p>
+                    E-mail:
+                    <span class="email">[E-MAIL OFICIAL]</span>
+                </p>
+
+                <p>
+                    Site:
+                    <strong>[DOMÍNIO DA EDUCACUBE]</strong>
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="policy-section" id="legislacao">
+
+            <div class="section-number">22</div>
+
+            <h2>Legislação aplicável</h2>
+
+            <p>
+                Esta Política de Privacidade é regida pela legislação
+                brasileira, especialmente pela Lei nº 13.709/2018 —
+                Lei Geral de Proteção de Dados Pessoais (LGPD) e
+                demais normas aplicáveis à proteção de dados e privacidade.
+            </p>
+
+            <p>
+                A EducaCube buscará observar os princípios de finalidade,
+                adequação, necessidade, livre acesso, qualidade dos dados,
+                transparência, segurança, prevenção, não discriminação
+                e responsabilização previstos na legislação aplicável.
+            </p>
+
+        </section>
+
+
+    </article>
+
+</main>
+
+
+<footer>
+
+    <div class="footer-inner">
+
+        <div>
+            © 2026 EducaCube. Todos os direitos reservados.
+        </div>
+
+        <div class="footer-links">
+
+            <a href="/">
+                Início
+            </a>
+
+            <a href="/privacidade">
+                Política de Privacidade
+            </a>
+
+            <a href="/biblioteca">
+                Biblioteca
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+    /* =========================
+       TEMA
+    ========================== */
+
+    const themeBtn =
+        document.getElementById("themeBtn");
+
+    const savedTheme =
+        localStorage.getItem("educacube_privacidade_theme");
+
+    if (savedTheme === "light") {
+        document.body.classList.add("light-mode");
+    }
+
+    themeBtn.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        const isLight =
+            document.body.classList.contains("light-mode");
+
+        localStorage.setItem(
+            "educacube_privacidade_theme",
+            isLight ? "light" : "dark"
+        );
+
+    });
+
+
+    /* =========================
+       ÍNDICE ATIVO
+    ========================== */
+
+    const sections =
+        document.querySelectorAll(".policy-section");
+
+    const links =
+        document.querySelectorAll(".toc a");
+
+    const observer =
+        new IntersectionObserver(
+            entries => {
+
+                entries.forEach(entry => {
+
+                    if (!entry.isIntersecting)
+                        return;
+
+                    links.forEach(link =>
+                        link.classList.remove("active")
+                    );
+
+                    const active =
+                        document.querySelector(
+                            `.toc a[href="#${entry.target.id}"]`
+                        );
+
+                    if (active) {
+                        active.classList.add("active");
+                    }
+
+                });
+
+            },
+            {
+                rootMargin: "-100px 0px -65% 0px"
+            }
+        );
+
+    sections.forEach(section =>
+        observer.observe(section)
+    );
+
+</script>
+
+</body>
+</html>
+
