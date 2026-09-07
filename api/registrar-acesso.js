@@ -1,11 +1,7 @@
-javascript
+```javascript
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
-
-// ========================================
-// FIREBASE ADMIN
-// ========================================
 
 if (!getApps().length) {
   const chave = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -26,50 +22,35 @@ if (!getApps().length) {
 const adminAuth = getAuth();
 const db = getFirestore();
 
-// ========================================
-// PEGAR IP REAL DO USUÁRIO
-// ========================================
-
 function pegarIP(req) {
   const forwarded = req.headers["x-forwarded-for"];
 
   if (forwarded) {
-    const primeiroIP = forwarded.split(",")[0].trim();
+    const ip = forwarded.split(",")[0].trim();
 
-    if (primeiroIP) {
-      return primeiroIP;
+    if (ip) {
+      return ip;
     }
   }
 
-  const realIP = req.headers["x-real-ip"];
-
-  if (realIP) {
-    return realIP;
-  }
-
-  return req.socket?.remoteAddress || null;
+  return (
+    req.headers["x-real-ip"] ||
+    req.socket?.remoteAddress ||
+    null
+  );
 }
-
-// ========================================
-// NORMALIZAR IP
-// ========================================
 
 function normalizarIP(ip) {
   if (!ip) return null;
 
   let resultado = String(ip).trim();
 
-  // IPv4 vindo como IPv6
   if (resultado.startsWith("::ffff:")) {
     resultado = resultado.replace("::ffff:", "");
   }
 
   return resultado;
 }
-
-// ========================================
-// GEOLOCALIZAÇÃO
-// ========================================
 
 async function localizarIP(ip) {
   const resultado = {
@@ -84,33 +65,6 @@ async function localizarIP(ip) {
     return resultado;
   }
 
-  // IPs locais não podem ser geolocalizados
-  if (
-    ip === "127.0.0.1" ||
-    ip === "::1" ||
-    ip.startsWith("192.168.") ||
-    ip.startsWith("10.") ||
-    ip.startsWith("172.16.") ||
-    ip.startsWith("172.17.") ||
-    ip.startsWith("172.18.") ||
-    ip.startsWith("172.19.") ||
-    ip.startsWith("172.20.") ||
-    ip.startsWith("172.21.") ||
-    ip.startsWith("172.22.") ||
-    ip.startsWith("172.23.") ||
-    ip.startsWith("172.24.") ||
-    ip.startsWith("172.25.") ||
-    ip.startsWith("172.26.") ||
-    ip.startsWith("172.27.") ||
-    ip.startsWith("172.28.") ||
-    ip.startsWith("172.29.") ||
-    ip.startsWith("172.30.") ||
-    ip.startsWith("172.31.")
-  ) {
-    console.log("IP local detectado:", ip);
-    return resultado;
-  }
-
   try {
     const resposta = await fetch(
       `https://ipwho.is/${encodeURIComponent(ip)}`
@@ -118,7 +72,7 @@ async function localizarIP(ip) {
 
     if (!resposta.ok) {
       console.error(
-        "ipwho.is respondeu:",
+        "ipwho.is retornou status:",
         resposta.status
       );
 
@@ -129,7 +83,7 @@ async function localizarIP(ip) {
 
     if (!geo || geo.success !== true) {
       console.error(
-        "Não foi possível localizar o IP:",
+        "IP não localizado:",
         geo
       );
 
@@ -148,7 +102,10 @@ async function localizarIP(ip) {
       resultado.longitude = geo.longitude;
     }
 
-    console.log("🌎 Geolocalização:", resultado);
+    console.log(
+      "Geolocalização:",
+      resultado
+    );
 
     return resultado;
 
@@ -162,13 +119,8 @@ async function localizarIP(ip) {
   }
 }
 
-// ========================================
-// API
-// ========================================
-
 export default async function handler(req, res) {
 
-  // Somente POST
   if (req.method !== "POST") {
     return res.status(405).json({
       sucesso: false,
@@ -177,10 +129,6 @@ export default async function handler(req, res) {
   }
 
   try {
-
-    // ========================================
-    // TOKEN
-    // ========================================
 
     const authorization =
       req.headers.authorization || "";
@@ -192,7 +140,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const token = authorization.substring(7).trim();
+    const token =
+      authorization.substring(7).trim();
 
     if (!token) {
       return res.status(401).json({
@@ -201,23 +150,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // ========================================
-    // VALIDAR TOKEN FIREBASE
-    // ========================================
-
     const decodedToken =
       await adminAuth.verifyIdToken(token);
 
     const uid = decodedToken.uid;
 
     console.log(
-      "🔐 Usuário autenticado:",
+      "Usuário autenticado:",
       uid
     );
-
-    // ========================================
-    // DADOS DO USUÁRIO
-    // ========================================
 
     const nome =
       decodedToken.name || "";
@@ -228,67 +169,47 @@ export default async function handler(req, res) {
     const foto =
       decodedToken.picture || "";
 
-    // ========================================
-    // IP
-    // ========================================
-
-    const ip = normalizarIP(
-      pegarIP(req)
-    );
+    const ip =
+      normalizarIP(pegarIP(req));
 
     console.log(
-      "🌐 IP detectado:",
+      "IP detectado:",
       ip
     );
 
-    // ========================================
-    // GEOLOCALIZAÇÃO
-    // ========================================
-
-    const geo = await localizarIP(ip);
-
-    // ========================================
-    // REFERÊNCIA DO USUÁRIO
-    // ========================================
+    const geo =
+      await localizarIP(ip);
 
     const usuarioRef = db
       .collection("usuarios")
       .doc(uid);
 
-    // ========================================
-    // DATA
-    // ========================================
-
-    const agora =
-      FieldValue.serverTimestamp();
-
-    // ========================================
-    // ATUALIZAR USUÁRIO
-    // ========================================
-
     await usuarioRef.set(
       {
         uid,
-
         nome,
-
         email,
-
         foto,
 
-        ultimoAcesso: agora,
+        ultimoAcesso:
+          FieldValue.serverTimestamp(),
 
         ultimoIP: ip,
 
-        ultimoPais: geo.pais,
+        ultimoPais:
+          geo.pais,
 
-        ultimoEstado: geo.estado,
+        ultimoEstado:
+          geo.estado,
 
-        ultimaCidade: geo.cidade,
+        ultimaCidade:
+          geo.cidade,
 
-        ultimaLatitude: geo.latitude,
+        ultimaLatitude:
+          geo.latitude,
 
-        ultimaLongitude: geo.longitude,
+        ultimaLongitude:
+          geo.longitude,
 
         atualizadoEm:
           FieldValue.serverTimestamp(),
@@ -299,45 +220,43 @@ export default async function handler(req, res) {
     );
 
     console.log(
-      "✅ Perfil atualizado no Firestore"
+      "Perfil atualizado no Firestore."
     );
 
-    // ========================================
-    // HISTÓRICO DE ACESSO
-    // ========================================
+    const acessoRef =
+      await usuarioRef
+        .collection("acessos")
+        .add({
+          data:
+            FieldValue.serverTimestamp(),
 
-    const acessoRef = await usuarioRef
-      .collection("acessos")
-      .add({
-        data:
-          FieldValue.serverTimestamp(),
+          ip,
 
-        ip,
+          pais:
+            geo.pais,
 
-        pais: geo.pais,
+          estado:
+            geo.estado,
 
-        estado: geo.estado,
+          cidade:
+            geo.cidade,
 
-        cidade: geo.cidade,
+          latitude:
+            geo.latitude,
 
-        latitude: geo.latitude,
+          longitude:
+            geo.longitude,
 
-        longitude: geo.longitude,
+          userAgent:
+            req.headers["user-agent"] || "",
 
-        userAgent:
-          req.headers["user-agent"] || "",
-
-        uid,
-      });
+          uid,
+        });
 
     console.log(
-      "✅ Acesso criado:",
+      "Acesso registrado:",
       acessoRef.id
     );
-
-    // ========================================
-    // RESPOSTA
-    // ========================================
 
     return res.status(200).json({
       sucesso: true,
@@ -365,7 +284,7 @@ export default async function handler(req, res) {
   } catch (erro) {
 
     console.error(
-      "❌ ERRO COMPLETO AO REGISTRAR ACESSO:",
+      "Erro ao registrar acesso:",
       erro
     );
 
@@ -378,4 +297,4 @@ export default async function handler(req, res) {
     });
   }
 }
-
+```
