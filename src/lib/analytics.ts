@@ -7,9 +7,14 @@ declare global {
     }
 }
 
-let inicializado = false;
-let carregando = false;
+let analyticsInicializado = false;
 
+/**
+ * Garante que o gtag e o dataLayer existam.
+ *
+ * O gtag.js já é carregado pelo index.html.
+ * Esta função apenas garante que podemos chamar gtag().
+ */
 function prepararGtag() {
     if (typeof window === "undefined") return;
 
@@ -22,17 +27,13 @@ function prepararGtag() {
     }
 }
 
+/**
+ * Define o consentimento inicial como negado.
+ */
 export function recusarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
-
-    window.gtag("consent", "default", {
-        analytics_storage: "denied",
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-    });
 
     window.gtag("consent", "update", {
         analytics_storage: "denied",
@@ -44,12 +45,15 @@ export function recusarAnalytics() {
     console.log("🚫 Analytics recusado.");
 }
 
+/**
+ * Ativa o Google Analytics depois que o usuário aceita os cookies.
+ */
 export function aceitarAnalytics() {
     if (typeof window === "undefined") return;
 
     prepararGtag();
 
-    // 1. LIBERA O ANALYTICS
+    // Libera o armazenamento do Analytics.
     window.gtag("consent", "update", {
         analytics_storage: "granted",
         ad_storage: "denied",
@@ -57,95 +61,66 @@ export function aceitarAnalytics() {
         ad_personalization: "denied",
     });
 
-    // 2. Não inicializa duas vezes
-    if (inicializado || carregando) {
+    // Evita inicializar duas vezes.
+    if (analyticsInicializado) {
+        console.log("📊 Analytics já estava inicializado.");
         return;
     }
 
-    // 3. Se o Google já estiver na página, usa ele
-    const existente = document.querySelector(
-        'script[src*="googletagmanager.com/gtag/js"]'
-    );
-
-    if (existente) {
-        finalizarInicializacao();
-        return;
-    }
-
-    // 4. Carrega o gtag.js
-    carregando = true;
-
-    const script = document.createElement("script");
-
-    script.async = true;
-
-    script.src =
-        `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-
-    script.onload = () => {
-        carregando = false;
-        finalizarInicializacao();
-    };
-
-    script.onerror = () => {
-        carregando = false;
-
-        console.error(
-            "❌ Google Analytics não conseguiu carregar."
-        );
-    };
-
-    document.head.appendChild(script);
-
-    console.log("⏳ Carregando Google Analytics...");
-}
-
-function finalizarInicializacao() {
-    if (typeof window === "undefined") return;
-
-    prepararGtag();
-
-    if (inicializado) return;
-
-    // Inicializa o Google
-    window.gtag("js", new Date());
-
+    /*
+     * O gtag.js já foi carregado pelo index.html.
+     * Agora configuramos o GA4.
+     */
     window.gtag("config", GA_MEASUREMENT_ID, {
         send_page_view: true,
+        anonymize_ip: true,
     });
 
-    inicializado = true;
+    analyticsInicializado = true;
 
     console.log(
         "📊 Google Analytics inicializado:",
         GA_MEASUREMENT_ID
     );
 
-    // Teste real
+    /*
+     * Evento de teste.
+     * Pode ser removido depois que confirmarmos
+     * que o Analytics está funcionando.
+     */
     window.gtag("event", "analytics_teste", {
         origem: "educacube",
     });
 
-    console.log(
-        "📤 analytics_teste enviado para o gtag."
-    );
+    console.log("📤 analytics_teste enviado.");
 }
 
+/**
+ * Registra eventos personalizados.
+ */
 export function registrarEvento(
     nome: string,
     parametros?: Record<string, any>
 ) {
     if (typeof window === "undefined") return;
 
-    if (!inicializado) {
+    if (!analyticsInicializado) {
         console.warn(
-            "⚠️ Analytics ainda não inicializado:",
+            "⚠️ Evento não enviado porque o Analytics ainda não foi aceito/inicializado:",
             nome
         );
+
         return;
     }
 
-    window.gtag("event", nome, parametros || {});
+    window.gtag(
+        "event",
+        nome,
+        parametros || {}
+    );
 
-    console.log("📤 Evento enviado:", nome);
+    console.log(
+        "📤 Evento enviado:",
+        nome
+    );
 }
