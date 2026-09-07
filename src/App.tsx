@@ -1,4 +1,3 @@
-
 import {
     lazy,
     Suspense,
@@ -7,7 +6,12 @@ import {
     useState,
 } from "react";
 
-import { auth, googleProvider } from "./lib/firebase";
+import {
+    auth,
+    googleProvider,
+    db,
+} from "./lib/firebase";
+
 import {
     createUserWithEmailAndPassword,
     sendPasswordResetEmail,
@@ -15,6 +19,13 @@ import {
     signInWithPopup,
     updateProfile,
 } from "firebase/auth";
+
+import {
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
@@ -167,6 +178,7 @@ function IconCookie() {
             aria-hidden="true"
         >
             <circle cx="12" cy="12" r="8.5" />
+
             <circle
                 cx="9"
                 cy="10"
@@ -174,6 +186,7 @@ function IconCookie() {
                 fill="currentColor"
                 stroke="none"
             />
+
             <circle
                 cx="14"
                 cy="9"
@@ -181,6 +194,7 @@ function IconCookie() {
                 fill="currentColor"
                 stroke="none"
             />
+
             <circle
                 cx="13"
                 cy="14.5"
@@ -323,58 +337,119 @@ function App() {
     };
 
     /* =====================================================
-     * SINCRONIZAÇÃO FIREBASE → SUPABASE
+     * FIREBASE → FIRESTORE
+     *
+     * O perfil fica em:
+     *
+     * usuarios/{uid}
+     *
+     * A senha NÃO é armazenada no Firestore.
+     * A senha permanece no Firebase Authentication.
      * ===================================================== */
 
-    const sincronizarUsuarioComSupabase = async (
+    const salvarUsuarioNoFirestore = async (
         user: any
     ) => {
 
         try {
 
-            const idToken =
-                await user.getIdToken();
-
-            const response =
-                await fetch(
-                    "/api/usuario",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            Authorization:
-                                `Bearer ${idToken}`,
-                        },
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
+            if (!user || !user.uid) {
 
                 console.error(
-                    "Erro ao sincronizar usuário:",
-                    data
+                    "Usuário Firebase inválido."
                 );
 
                 return false;
             }
 
-            console.log(
-                "Usuário sincronizado com Supabase:",
-                data.usuario
-            );
+            const usuarioRef =
+                doc(
+                    db,
+                    "usuarios",
+                    user.uid
+                );
+
+            const usuarioExistente =
+                await getDoc(
+                    usuarioRef
+                );
+
+            /* ==========================================
+             * PRIMEIRO LOGIN / PRIMEIRA CRIAÇÃO
+             * ========================================== */
+
+            if (!usuarioExistente.exists()) {
+
+                await setDoc(
+                    usuarioRef,
+                    {
+                        uid:
+                            user.uid,
+
+                        nome:
+                            user.displayName || "",
+
+                        email:
+                            user.email || "",
+
+                        foto:
+                            user.photoURL || "",
+
+                        criadoEm:
+                            serverTimestamp(),
+
+                        ultimoLogin:
+                            serverTimestamp(),
+                    }
+                );
+
+                console.log(
+                    "✅ Perfil criado no Firestore."
+                );
+
+            }
+
+            /* ==========================================
+             * USUÁRIO JÁ EXISTE
+             * ========================================== */
+
+            else {
+
+                await setDoc(
+                    usuarioRef,
+                    {
+                        uid:
+                            user.uid,
+
+                        nome:
+                            user.displayName || "",
+
+                        email:
+                            user.email || "",
+
+                        foto:
+                            user.photoURL || "",
+
+                        ultimoLogin:
+                            serverTimestamp(),
+                    },
+                    {
+                        merge: true,
+                    }
+                );
+
+                console.log(
+                    "✅ Perfil atualizado no Firestore."
+                );
+
+            }
 
             return true;
 
         } catch (error) {
 
             console.error(
-                "Erro na sincronização com Supabase:",
+                "❌ Erro ao salvar usuário no Firestore:",
                 error
             );
 
@@ -404,7 +479,8 @@ function App() {
                         },
 
                         body: JSON.stringify({
-                            email: user.email,
+                            email:
+                                user.email,
                         }),
                     }
                 );
@@ -441,7 +517,7 @@ function App() {
     };
 
     /* =====================================================
-     * LOGIN GOOGLE — FIREBASE
+     * LOGIN GOOGLE — FIREBASE + FIRESTORE
      * ===================================================== */
 
     const loginComGoogle = async () => {
@@ -462,21 +538,26 @@ function App() {
             console.log(
                 "Login Firebase realizado:",
                 {
-                    uid: user.uid,
-                    nome: user.displayName,
-                    email: user.email,
+                    uid:
+                        user.uid,
+
+                    nome:
+                        user.displayName,
+
+                    email:
+                        user.email,
                 }
             );
 
-            const sincronizado =
-                await sincronizarUsuarioComSupabase(
+            const salvo =
+                await salvarUsuarioNoFirestore(
                     user
                 );
 
-            if (!sincronizado) {
+            if (!salvo) {
 
                 alert(
-                    "Login realizado, mas não foi possível sincronizar seu perfil."
+                    "Login realizado, mas não foi possível salvar seu perfil no Firestore."
                 );
 
                 return;
@@ -484,7 +565,8 @@ function App() {
 
             alert(
                 `Bem-vindo, ${
-                    user.displayName || "usuário"
+                    user.displayName ||
+                    "usuário"
                 }!`
             );
 
@@ -748,6 +830,7 @@ function App() {
         setResultado(
             (prev) => ({
                 ...prev,
+
                 diagnostico:
                     "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
             })
@@ -775,6 +858,7 @@ function App() {
         setResultado(
             (prev) => ({
                 ...prev,
+
                 bncc:
                     "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
             })
@@ -803,6 +887,7 @@ function App() {
         setResultado(
             (prev) => ({
                 ...prev,
+
                 planejamento:
                     "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
             })
@@ -830,6 +915,7 @@ function App() {
         setResultado(
             (prev) => ({
                 ...prev,
+
                 intervencao:
                     "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
             })
@@ -838,7 +924,7 @@ function App() {
     };
 
     /* =====================================================
-     * AUTENTICAÇÃO — FIREBASE
+     * AUTENTICAÇÃO — FIREBASE + FIRESTORE
      * ===================================================== */
 
     const entrarComEmail = async () => {
@@ -872,20 +958,23 @@ function App() {
             console.log(
                 "Login com e-mail realizado:",
                 {
-                    uid: result.user.uid,
-                    email: result.user.email,
+                    uid:
+                        result.user.uid,
+
+                    email:
+                        result.user.email,
                 }
             );
 
-            const sincronizado =
-                await sincronizarUsuarioComSupabase(
+            const salvo =
+                await salvarUsuarioNoFirestore(
                     result.user
                 );
 
-            if (!sincronizado) {
+            if (!salvo) {
 
                 alert(
-                    "Login realizado, mas não foi possível sincronizar seu perfil."
+                    "Login realizado, mas não foi possível salvar seu perfil no Firestore."
                 );
 
                 return;
@@ -947,6 +1036,10 @@ function App() {
         }
 
     };
+
+    /* =====================================================
+     * CRIAR CONTA — FIREBASE AUTH + FIRESTORE
+     * ===================================================== */
 
     const criarConta = async () => {
 
@@ -1025,7 +1118,25 @@ function App() {
             );
 
             /* ==========================================
+             * SALVAR PERFIL NO FIRESTORE
+             * ========================================== */
+
+            const salvo =
+                await salvarUsuarioNoFirestore(
+                    result.user
+                );
+
+            if (!salvo) {
+
+                console.warn(
+                    "Conta Firebase criada, mas o perfil não foi salvo no Firestore."
+                );
+
+            }
+
+            /* ==========================================
              * RESEND
+             *
              * Firebase gera o link.
              * Resend envia o e-mail personalizado.
              * ========================================== */
@@ -1039,19 +1150,6 @@ function App() {
 
                 console.warn(
                     "Conta criada, mas o e-mail de verificação não pôde ser enviado pelo Resend."
-                );
-
-            }
-
-            const sincronizado =
-                await sincronizarUsuarioComSupabase(
-                    result.user
-                );
-
-            if (!sincronizado) {
-
-                console.warn(
-                    "Conta Firebase criada, mas o perfil não foi sincronizado com o Supabase."
                 );
 
             }
@@ -1131,6 +1229,10 @@ function App() {
         }
 
     };
+
+    /* =====================================================
+     * RECUPERAÇÃO DE SENHA
+     * ===================================================== */
 
     const recuperarSenha = async () => {
 
@@ -1554,9 +1656,13 @@ function App() {
                                                 : "btn-ghost"
                                         }
                                         onClick={() =>
-                                            alternarModoAutenticacao("login")
+                                            alternarModoAutenticacao(
+                                                "login"
+                                            )
                                         }
-                                        style={{ flex: 1 }}
+                                        style={{
+                                            flex: 1,
+                                        }}
                                     >
                                         Entrar
                                     </button>
@@ -1569,9 +1675,13 @@ function App() {
                                                 : "btn-ghost"
                                         }
                                         onClick={() =>
-                                            alternarModoAutenticacao("cadastro")
+                                            alternarModoAutenticacao(
+                                                "cadastro"
+                                            )
                                         }
-                                        style={{ flex: 1 }}
+                                        style={{
+                                            flex: 1,
+                                        }}
                                     >
                                         Criar conta
                                     </button>
@@ -1590,9 +1700,15 @@ function App() {
                                         <input
                                             type="text"
                                             id="nomeInput"
-                                            value={nomeInput}
-                                            onChange={(event) =>
-                                                setNomeInput(event.target.value)
+                                            value={
+                                                nomeInput
+                                            }
+                                            onChange={(
+                                                event
+                                            ) =>
+                                                setNomeInput(
+                                                    event.target.value
+                                                )
                                             }
                                             placeholder="Digite seu nome"
                                             autoComplete="name"
@@ -1610,9 +1726,15 @@ function App() {
                                 <input
                                     type="email"
                                     id="emailInput"
-                                    value={emailInput}
-                                    onChange={(event) =>
-                                        setEmailInput(event.target.value)
+                                    value={
+                                        emailInput
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setEmailInput(
+                                            event.target.value
+                                        )
                                     }
                                     placeholder="Digite seu e-mail"
                                     autoComplete="email"
@@ -1628,13 +1750,20 @@ function App() {
                                 <input
                                     type="password"
                                     id="senhaInput"
-                                    value={senhaInput}
-                                    onChange={(event) =>
-                                        setSenhaInput(event.target.value)
+                                    value={
+                                        senhaInput
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setSenhaInput(
+                                            event.target.value
+                                        )
                                     }
                                     placeholder="Digite sua senha"
                                     autoComplete={
-                                        modoAutenticacao === "login"
+                                        modoAutenticacao ===
+                                        "login"
                                             ? "current-password"
                                             : "new-password"
                                     }
@@ -1652,8 +1781,12 @@ function App() {
                                         <input
                                             type="password"
                                             id="confirmarSenhaInput"
-                                            value={confirmarSenhaInput}
-                                            onChange={(event) =>
+                                            value={
+                                                confirmarSenhaInput
+                                            }
+                                            onChange={(
+                                                event
+                                            ) =>
                                                 setConfirmarSenhaInput(
                                                     event.target.value
                                                 )
@@ -1668,15 +1801,19 @@ function App() {
                                     type="button"
                                     className="btn-primary"
                                     onClick={
-                                        modoAutenticacao === "login"
+                                        modoAutenticacao ===
+                                        "login"
                                             ? entrarComEmail
                                             : criarConta
                                     }
-                                    disabled={carregandoAuth}
+                                    disabled={
+                                        carregandoAuth
+                                    }
                                 >
                                     {carregandoAuth
                                         ? "Aguarde..."
-                                        : modoAutenticacao === "login"
+                                        : modoAutenticacao ===
+                                          "login"
                                             ? "Entrar no laboratório"
                                             : "Criar conta"}
                                 </button>
@@ -1685,8 +1822,13 @@ function App() {
                                     <button
                                         type="button"
                                         className="btn-ghost"
-                                        onClick={recuperarSenha}
-                                        style={{ marginTop: "10px" }}
+                                        onClick={
+                                            recuperarSenha
+                                        }
+                                        style={{
+                                            marginTop:
+                                                "10px",
+                                        }}
                                     >
                                         Esqueci minha senha
                                     </button>
@@ -1699,8 +1841,12 @@ function App() {
                                 <button
                                     type="button"
                                     className="btn-ghost"
-                                    onClick={loginComGoogle}
-                                    disabled={carregandoAuth}
+                                    onClick={
+                                        loginComGoogle
+                                    }
+                                    disabled={
+                                        carregandoAuth
+                                    }
                                 >
                                     {carregandoAuth
                                         ? "Aguarde..."
@@ -2526,4 +2672,3 @@ function App() {
 }
 
 export default App;
-
