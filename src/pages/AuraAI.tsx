@@ -34,15 +34,15 @@ interface AuraMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
-  timestamp: number;
+  timestamp: Date;
 }
 
 interface AuraConversation {
   id: string;
   title: string;
   messages: AuraMessage[];
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 function generateId(): string {
@@ -52,7 +52,7 @@ function generateId(): string {
 }
 
 function createConversation(): AuraConversation {
-  const now = Date.now();
+  const now = new Date();
 
   return {
     id: generateId(),
@@ -61,6 +61,22 @@ function createConversation(): AuraConversation {
     createdAt: now,
     updatedAt: now,
   };
+}
+
+function normalizeDate(value: unknown): Date {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const date = new Date(value);
+
+    if (!Number.isNaN(date.getTime())) {
+      return date;
+    }
+  }
+
+  return new Date();
 }
 
 export default function AuraAI() {
@@ -103,26 +119,113 @@ export default function AuraAI() {
   } = useAudioAnalyzer();
 
   /*
-   * Carrega o histórico.
+   * CARREGAR HISTÓRICO
    */
   useEffect(() => {
     const saved =
-      buscarDoRedis<AuraConversation[]>(userId);
+      buscarDoRedis<unknown>(userId);
 
-    if (saved && Array.isArray(saved) && saved.length > 0) {
-      setConversations(saved);
-      setActiveConversationId(saved[0].id);
-      return;
+    if (Array.isArray(saved) && saved.length > 0) {
+      const normalized: AuraConversation[] = saved
+        .map((rawConversation) => {
+          if (
+            !rawConversation ||
+            typeof rawConversation !== "object"
+          ) {
+            return null;
+          }
+
+          const conversation =
+            rawConversation as Record<string, unknown>;
+
+          const rawMessages = Array.isArray(
+            conversation.messages
+          )
+            ? conversation.messages
+            : [];
+
+          const messages: AuraMessage[] = rawMessages
+            .map((rawMessage) => {
+              if (
+                !rawMessage ||
+                typeof rawMessage !== "object"
+              ) {
+                return null;
+              }
+
+              const message =
+                rawMessage as Record<string, unknown>;
+
+              const role =
+                message.role === "assistant"
+                  ? "assistant"
+                  : "user";
+
+              return {
+                id:
+                  typeof message.id === "string"
+                    ? message.id
+                    : generateId(),
+                role,
+                content:
+                  typeof message.content === "string"
+                    ? message.content
+                    : "",
+                timestamp: normalizeDate(
+                  message.timestamp
+                ),
+              };
+            })
+            .filter(
+              (
+                message
+              ): message is AuraMessage =>
+                message !== null
+            );
+
+          return {
+            id:
+              typeof conversation.id === "string"
+                ? conversation.id
+                : generateId(),
+            title:
+              typeof conversation.title === "string"
+                ? conversation.title
+                : "Nova conversa",
+            messages,
+            createdAt: normalizeDate(
+              conversation.createdAt
+            ),
+            updatedAt: normalizeDate(
+              conversation.updatedAt
+            ),
+          };
+        })
+        .filter(
+          (
+            conversation
+          ): conversation is AuraConversation =>
+            conversation !== null
+        );
+
+      if (normalized.length > 0) {
+        setConversations(normalized);
+        setActiveConversationId(normalized[0].id);
+        return;
+      }
     }
 
-    const initialConversation = createConversation();
+    const initialConversation =
+      createConversation();
 
     setConversations([initialConversation]);
-    setActiveConversationId(initialConversation.id);
+    setActiveConversationId(
+      initialConversation.id
+    );
   }, [userId]);
 
   /*
-   * Salva o histórico.
+   * SALVAR HISTÓRICO
    */
   useEffect(() => {
     if (conversations.length === 0) {
@@ -133,7 +236,7 @@ export default function AuraAI() {
   }, [conversations, userId]);
 
   /*
-   * Para a voz ao desmontar a página.
+   * PARAR VOZ AO SAIR
    */
   useEffect(() => {
     return () => {
@@ -141,32 +244,43 @@ export default function AuraAI() {
     };
   }, []);
 
+  /*
+   * CONVERSA ATUAL
+   */
   const activeConversation = useMemo(() => {
     return conversations.find(
       (conversation) =>
         conversation.id === activeConversationId
     );
-  }, [conversations, activeConversationId]);
+  }, [
+    conversations,
+    activeConversationId,
+  ]);
 
   /*
-   * Cria uma nova conversa.
+   * NOVA CONVERSA
    */
   function handleNewConversation() {
-    const newConversation = createConversation();
+    const newConversation =
+      createConversation();
 
     setConversations((current) => [
       newConversation,
       ...current,
     ]);
 
-    setActiveConversationId(newConversation.id);
+    setActiveConversationId(
+      newConversation.id
+    );
+
     setInput("");
     setSidebarOpen(false);
+
     pararFala();
   }
 
   /*
-   * Atualiza uma conversa.
+   * ATUALIZAR CONVERSA
    */
   function updateConversation(
     conversationId: string,
@@ -184,7 +298,7 @@ export default function AuraAI() {
   }
 
   /*
-   * Envia mensagem.
+   * ENVIAR MENSAGEM
    */
   async function handleSend() {
     const text = input.trim();
@@ -196,8 +310,7 @@ export default function AuraAI() {
     let conversation = activeConversation;
 
     /*
-     * Segurança para o caso de ainda não existir
-     * uma conversa ativa.
+     * Caso não exista conversa ativa.
      */
     if (!conversation) {
       conversation = createConversation();
@@ -207,47 +320,53 @@ export default function AuraAI() {
         ...current,
       ]);
 
-      setActiveConversationId(conversation.id);
+      setActiveConversationId(
+        conversation.id
+      );
     }
 
     const userMessage: AuraMessage = {
       id: generateId(),
       role: "user",
       content: text,
-      timestamp: Date.now(),
+      timestamp: new Date(),
     };
 
-    const messagesBeforeAI = [
+    const messagesBeforeAI: AuraMessage[] = [
       ...conversation.messages,
       userMessage,
     ];
 
-    updateConversation(conversation.id, (current) => ({
-      ...current,
-      title:
-        current.messages.length === 0
-          ? text.length > 50
-            ? `${text.substring(0, 50)}...`
-            : text
-          : current.title,
-      messages: messagesBeforeAI,
-      updatedAt: Date.now(),
-    }));
+    updateConversation(
+      conversation.id,
+      (current) => ({
+        ...current,
+        title:
+          current.messages.length === 0
+            ? text.length > 50
+              ? `${text.substring(0, 50)}...`
+              : text
+            : current.title,
+        messages: messagesBeforeAI,
+        updatedAt: new Date(),
+      })
+    );
 
     setInput("");
     setLoading(true);
 
     try {
-      const contexto = messagesBeforeAI
-        .slice(-12)
-        .map((message) => {
-          const speaker =
-            message.role === "user"
-              ? "Usuário"
-              : "AURA";
+      const contexto =
+        messagesBeforeAI
+          .slice(-12)
+          .map((message) => {
+            const speaker =
+              message.role === "user"
+                ? "Usuário"
+                : "AURA";
 
-          return `${speaker}: ${message.content}`;
-        });
+            return `${speaker}: ${message.content}`;
+          });
 
       const result = await analisarComGroq(
         text,
@@ -262,17 +381,20 @@ export default function AuraAI() {
         id: generateId(),
         role: "assistant",
         content: responseText,
-        timestamp: Date.now(),
+        timestamp: new Date(),
       };
 
-      updateConversation(conversation.id, (current) => ({
-        ...current,
-        messages: [
-          ...current.messages,
-          assistantMessage,
-        ],
-        updatedAt: Date.now(),
-      }));
+      updateConversation(
+        conversation.id,
+        (current) => ({
+          ...current,
+          messages: [
+            ...current.messages,
+            assistantMessage,
+          ],
+          updatedAt: new Date(),
+        })
+      );
 
       if (voiceEnabled) {
         falarTexto(responseText);
@@ -288,37 +410,44 @@ export default function AuraAI() {
         role: "assistant",
         content:
           "⚠️ Não consegui conectar ao sistema de inteligência da AURA. Verifique a API e tente novamente.",
-        timestamp: Date.now(),
+        timestamp: new Date(),
       };
 
-      updateConversation(conversation.id, (current) => ({
-        ...current,
-        messages: [
-          ...current.messages,
-          errorMessage,
-        ],
-        updatedAt: Date.now(),
-      }));
+      updateConversation(
+        conversation.id,
+        (current) => ({
+          ...current,
+          messages: [
+            ...current.messages,
+            errorMessage,
+          ],
+          updatedAt: new Date(),
+        })
+      );
     } finally {
       setLoading(false);
     }
   }
 
   /*
-   * Enter envia.
-   * Shift + Enter cria nova linha.
+   * ENTER = ENVIAR
+   * SHIFT + ENTER = NOVA LINHA
    */
   function handleInputKeyDown(
     event: KeyboardEvent<HTMLTextAreaElement>
   ) {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
+
       void handleSend();
     }
   }
 
   /*
-   * Copiar resposta.
+   * COPIAR
    */
   async function handleCopy(
     message: AuraMessage
@@ -335,14 +464,14 @@ export default function AuraAI() {
       }, 1500);
     } catch (error) {
       console.error(
-        "Erro ao copiar mensagem:",
+        "Erro ao copiar:",
         error
       );
     }
   }
 
   /*
-   * Voz.
+   * VOZ
    */
   function handleVoiceToggle() {
     if (voiceEnabled) {
@@ -355,7 +484,7 @@ export default function AuraAI() {
   }
 
   /*
-   * Microfone.
+   * MICROFONE
    */
   async function handleMicrophone() {
     try {
@@ -374,21 +503,21 @@ export default function AuraAI() {
   }
 
   /*
-   * Dados simplificados para a sidebar.
-   *
-   * A página mantém sua própria estrutura completa de
-   * conversas e passa somente os dados necessários para
-   * exibição.
+   * DADOS DA SIDEBAR
    */
-  const sidebarConversations = conversations.map(
-    (conversation) => ({
-      id: conversation.id,
-      title: conversation.title,
-      updatedAt: conversation.updatedAt,
-      createdAt: conversation.createdAt,
-      messages: conversation.messages,
-    })
-  );
+  const sidebarConversations =
+    conversations.map(
+      (conversation) => ({
+        id: conversation.id,
+        title: conversation.title,
+        createdAt:
+          conversation.createdAt,
+        updatedAt:
+          conversation.updatedAt,
+        messages:
+          conversation.messages,
+      })
+    );
 
   return (
     <div className="h-screen overflow-hidden bg-[#05060a] text-white">
@@ -397,11 +526,15 @@ export default function AuraAI() {
         {/* SIDEBAR DESKTOP */}
         <aside className="hidden md:flex">
           <ChatSidebar
-            conversations={sidebarConversations}
+            conversations={
+              sidebarConversations
+            }
             activeConversationId={
               activeConversationId
             }
-            onSelectConversation={(id: string) => {
+            onSelectConversation={(
+              id: string
+            ) => {
               setActiveConversationId(id);
             }}
             onNewConversation={
@@ -413,6 +546,7 @@ export default function AuraAI() {
         {/* SIDEBAR MOBILE */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-[100] md:hidden">
+
             <button
               type="button"
               aria-label="Fechar menu"
@@ -471,6 +605,7 @@ export default function AuraAI() {
 
                 <div>
                   <div className="flex items-center gap-2">
+
                     <h1 className="text-sm font-semibold">
                       AURA AI
                     </h1>
@@ -479,6 +614,7 @@ export default function AuraAI() {
                       size={13}
                       className="text-violet-400"
                     />
+
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-white/40">
@@ -533,15 +669,15 @@ export default function AuraAI() {
             </div>
           </header>
 
-          {/* ÁREA DO CHAT */}
+          {/* CHAT */}
           <section className="relative min-h-0 flex-1 overflow-hidden">
 
-            {/* BACKGROUND */}
+            {/* FUNDO */}
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(99,102,241,0.13),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(6,182,212,0.08),transparent_35%)]" />
 
             <div className="relative flex h-full flex-col">
 
-              {/* ESTADO INICIAL */}
+              {/* TELA INICIAL */}
               {(!activeConversation ||
                 activeConversation.messages
                   .length === 0) && (
@@ -571,9 +707,10 @@ export default function AuraAI() {
                     </h2>
 
                     <p className="mt-3 text-sm leading-6 text-white/40">
-                      Converse com a AURA sobre
-                      psicologia, neurociência,
-                      estudos, pesquisas e
+                      Converse com a AURA
+                      sobre psicologia,
+                      neurociência, estudos,
+                      pesquisas e
                       conhecimento científico.
                     </p>
 
@@ -585,159 +722,159 @@ export default function AuraAI() {
               {activeConversation &&
                 activeConversation.messages
                   .length > 0 && (
-                  <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
 
-                    <div className="mx-auto max-w-4xl space-y-6">
+                  <div className="mx-auto max-w-4xl space-y-6">
 
-                      {activeConversation.messages.map(
-                        (message) => (
+                    {activeConversation.messages.map(
+                      (message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.role ===
+                            "user"
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+
                           <div
-                            key={message.id}
-                            className={`flex ${
+                            className={
                               message.role ===
                               "user"
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
+                                ? "max-w-[90%] rounded-2xl rounded-br-md bg-violet-600 px-4 py-3 shadow-lg shadow-violet-900/10 sm:max-w-[80%]"
+                                : "max-w-[95%] rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.045] px-4 py-4 sm:max-w-[85%] sm:px-5"
+                            }
                           >
 
-                            <div
-                              className={
-                                message.role ===
-                                "user"
-                                  ? "max-w-[90%] rounded-2xl rounded-br-md bg-violet-600 px-4 py-3 shadow-lg shadow-violet-900/10 sm:max-w-[80%]"
-                                  : "max-w-[95%] rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.045] px-4 py-4 sm:max-w-[85%] sm:px-5"
-                              }
-                            >
+                            {message.role ===
+                            "assistant" ? (
+                              <div className="flex gap-3">
 
-                              {message.role ===
-                              "assistant" ? (
-                                <div className="flex gap-3">
+                                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500">
+                                  <Bot
+                                    size={16}
+                                  />
+                                </div>
 
-                                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500">
-                                    <Bot
-                                      size={16}
-                                    />
+                                <div className="min-w-0 flex-1">
+
+                                  <div className="prose prose-invert max-w-none text-sm leading-7 prose-p:my-2 prose-headings:mb-3 prose-headings:mt-4 prose-li:my-0 prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-black/40 prose-code:text-cyan-300">
+
+                                    <ReactMarkdown
+                                      remarkPlugins={[
+                                        remarkGfm,
+                                      ]}
+                                      components={{
+                                        a: ({
+                                          href,
+                                          children,
+                                        }) => (
+                                          <a
+                                            href={
+                                              href
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 hover:text-cyan-300"
+                                          >
+                                            {
+                                              children
+                                            }
+                                          </a>
+                                        ),
+                                      }}
+                                    >
+                                      {
+                                        message.content
+                                      }
+                                    </ReactMarkdown>
+
                                   </div>
 
-                                  <div className="min-w-0 flex-1">
+                                  <div className="mt-3 flex items-center gap-1">
 
-                                    <div className="prose prose-invert max-w-none text-sm leading-7 prose-p:my-2 prose-headings:mb-3 prose-headings:mt-4 prose-li:my-0 prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-black/40 prose-code:text-cyan-300">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        void handleCopy(
+                                          message
+                                        )
+                                      }
+                                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-white/30 transition hover:bg-white/10 hover:text-white/70"
+                                    >
+                                      <Copy
+                                        size={13}
+                                      />
 
-                                      <ReactMarkdown
-                                        remarkPlugins={[
-                                          remarkGfm,
-                                        ]}
-                                        components={{
-                                          a: ({
-                                            href,
-                                            children,
-                                          }) => (
-                                            <a
-                                              href={
-                                                href
-                                              }
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 hover:text-cyan-300"
-                                            >
-                                              {
-                                                children
-                                              }
-                                            </a>
-                                          ),
-                                        }}
-                                      >
-                                        {
-                                          message.content
-                                        }
-                                      </ReactMarkdown>
+                                      {copiedId ===
+                                      message.id
+                                        ? "Copiado"
+                                        : "Copiar"}
+                                    </button>
 
-                                    </div>
-
-                                    <div className="mt-3 flex items-center gap-1">
-
+                                    {voiceEnabled && (
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          void handleCopy(
-                                            message
+                                          falarTexto(
+                                            message.content
                                           )
                                         }
-                                        className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-white/30 transition hover:bg-white/10 hover:text-white/70"
+                                        className="rounded-lg p-1.5 text-white/30 transition hover:bg-white/10 hover:text-white/70"
+                                        title="Ouvir resposta"
+                                        aria-label="Ouvir resposta"
                                       >
-                                        <Copy
-                                          size={13}
+                                        <Volume2
+                                          size={14}
                                         />
-
-                                        {copiedId ===
-                                        message.id
-                                          ? "Copiado"
-                                          : "Copiar"}
                                       </button>
-
-                                      {voiceEnabled && (
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            falarTexto(
-                                              message.content
-                                            )
-                                          }
-                                          className="rounded-lg p-1.5 text-white/30 transition hover:bg-white/10 hover:text-white/70"
-                                          title="Ouvir resposta"
-                                        >
-                                          <Volume2
-                                            size={14}
-                                          />
-                                        </button>
-                                      )}
-
-                                    </div>
+                                    )}
 
                                   </div>
+
                                 </div>
-                              ) : (
-                                <p className="whitespace-pre-wrap text-sm leading-6">
-                                  {
-                                    message.content
-                                  }
-                                </p>
-                              )}
+                              </div>
+                            ) : (
+                              <p className="whitespace-pre-wrap text-sm leading-6">
+                                {
+                                  message.content
+                                }
+                              </p>
+                            )}
 
-                            </div>
                           </div>
-                        )
-                      )}
+                        </div>
+                      )
+                    )}
 
-                      {/* LOADING */}
-                      {loading && (
-                        <div className="flex justify-start">
+                    {/* PROCESSAMENTO */}
+                    {loading && (
+                      <div className="flex justify-start">
 
-                          <div className="rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.045] px-5 py-4">
+                        <div className="rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.045] px-5 py-4">
 
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2">
 
-                              <div className="h-2 w-2 animate-pulse rounded-full bg-violet-400" />
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-violet-400" />
 
-                              <div className="h-2 w-2 animate-pulse rounded-full bg-cyan-400 [animation-delay:150ms]" />
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-cyan-400 [animation-delay:150ms]" />
 
-                              <div className="h-2 w-2 animate-pulse rounded-full bg-violet-400 [animation-delay:300ms]" />
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-violet-400 [animation-delay:300ms]" />
 
-                              <span className="ml-2 text-xs text-white/40">
-                                AURA está processando...
-                              </span>
-
-                            </div>
+                            <span className="ml-2 text-xs text-white/40">
+                              AURA está processando...
+                            </span>
 
                           </div>
 
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                    </div>
                   </div>
-                )}
+                </div>
+              )}
 
               {/* INPUT */}
               <div className="shrink-0 px-4 pb-4 pt-3 sm:px-8 sm:pb-5">
@@ -822,7 +959,8 @@ export default function AuraAI() {
 
                   <p className="mt-2 text-center text-[10px] text-white/20">
                     AURA AI pode cometer erros.
-                    Verifique informações importantes.
+                    Verifique informações
+                    importantes.
                   </p>
 
                 </div>
