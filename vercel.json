@@ -6,8 +6,12 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/((?!api/|.*\\..*).*)",
-      "destination": "/login.html"
+      "source": "/aura",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/aura/",
+      "destination": "/index.html"
     }
   ]
 }
