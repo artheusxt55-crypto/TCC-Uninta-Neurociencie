@@ -1,4 +1,3 @@
-
 import {
     lazy,
     Suspense,
@@ -34,6 +33,12 @@ import {
     aceitarAnalytics,
     recusarAnalytics,
 } from "./lib/analytics";
+
+/* =========================================================
+ * AURA AI
+ * ========================================================= */
+
+import AuraAI from "./pages/AuraAI";
 
 /* =========================================================
  * COMPONENTES PESADOS
@@ -224,6 +229,20 @@ function IconCookie() {
 function App() {
 
     /* =====================================================
+     * ROTA DA AURA AI
+     * ===================================================== */
+
+    const caminhoAtual =
+        window.location.pathname;
+
+    if (
+        caminhoAtual === "/aura" ||
+        caminhoAtual === "/aura/"
+    ) {
+        return <AuraAI />;
+    }
+
+    /* =====================================================
      * PERFORMANCE
      * ===================================================== */
 
@@ -320,10 +339,6 @@ function App() {
 
             setShowCookieBanner(true);
 
-            /*
-             * Analytics permanece bloqueado
-             * até o usuário escolher.
-             */
             recusarAnalytics();
 
             return;
@@ -673,6 +688,13 @@ function App() {
                     "usuário"
                 }!`
             );
+
+            /* =============================================
+             * IR PARA A AURA AI
+             * ============================================= */
+
+            window.location.href =
+                "/aura";
 
         } catch (error) {
 
@@ -1121,8 +1143,12 @@ function App() {
 
             await registrarAcesso();
 
+            /* =============================================
+             * IR PARA A AURA AI
+             * ============================================= */
+
             window.location.href =
-                "/aluno.html";
+                "/aura";
 
         } catch (error: any) {
 
@@ -1599,10 +1625,10 @@ function App() {
                     </button>
 
                     <a
-                        href="/aluno.html"
+                        href="/aura"
                         className="btn-primary"
                     >
-                        Área do aluno
+                        AURA AI
                     </a>
 
                 </div>
@@ -1688,8 +1714,8 @@ function App() {
                             : "Entrar com Google"}
                     </button>
 
-                    <a href="/aluno.html">
-                        Área do aluno
+                    <a href="/aura">
+                        AURA AI
                     </a>
 
                 </div>
@@ -2887,4 +2913,3 @@ function App() {
 }
 
 export default App;
-
