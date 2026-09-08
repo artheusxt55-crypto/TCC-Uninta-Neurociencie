@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>404 · EducaCube</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Karla:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --bg: #1b1533;
+      --lavender: #a996f0;
+      --cream: #f7f2ff;
+      --muted: #8f80c2;
+      --border: #55488f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: "Karla", -apple-system, BlinkMacSystemFont, sans-serif;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 32px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1080px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 40px;
+    }
+
+    .art {
+      flex: 0 0 auto;
+      width: 46%;
+      max-width: 480px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .art img {
+      display: block;
+
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+
+      object-fit: contain;
+    }
+
+    .content {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      text-align: left;
+    }
+
+    .code {
+      margin: 0 0 10px;
+
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(70px, 8vw, 120px);
+      font-weight: 800;
+
+      line-height: 0.9;
+
+      color: var(--lavender);
+
+      letter-spacing: -2px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+
+      max-width: 15ch;
+
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(26px, 3vw, 38px);
+      font-weight: 700;
+
+      line-height: 1.2;
+
+      color: var(--cream);
+    }
+
+    .lede {
+      margin: 0 0 30px;
+
+      max-width: 30ch;
+
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(16px, 1.6vw, 18px);
+      font-weight: 500;
+
+      line-height: 1.5;
+
+      color: var(--muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 10px;
+
+      padding: 14px 24px;
+
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+
+      background: transparent;
+
+      color: var(--cream);
+
+      text-decoration: none;
+
+      font-family: "Baloo 2", sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+
+      transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+
+      flex-shrink: 0;
+    }
+
+    .btn:hover {
+      background: rgba(169, 150, 240, 0.12);
+      border-color: var(--lavender);
+
+      transform: translateY(-1px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--lavender);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 24px;
+      }
+
+      .page {
+        flex-direction: column;
+
+        gap: 10px;
+
+        text-align: center;
+      }
+
+      .art {
+        width: 100%;
+        max-width: 340px;
+      }
+
+      .art img {
+        max-width: 320px;
+      }
+
+      .content {
+        align-items: center;
+
+        text-align: center;
+      }
+
+      h1 {
+        max-width: 18ch;
+      }
+
+      .lede {
+        max-width: 30ch;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <div class="art">
+      <img
+        src="/owl-404.png"
+        alt="Coruja do EducaCube"
+      >
+    </div>
+
+    <div class="content">
+
+      <p class="code">404</p>
+
+      <h1>
+        Ops... Parece que Sua Página Se Perdeu Pelo Caminho
+      </h1>
+
+      <p class="lede">
+        A página que você procura não foi encontrada.
+      </p>
+
+      <a class="btn" href="/">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 11.5L12 4L20 11.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <path
+            d="M6 10V19C6 19.5523 6.44772 20 7 20H10C10.5523 20 11 19.5523 11 19V15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15V19C13 19.5523 13.4477 20 14 20H17C17.5523 20 18 19.5523 18 19V10"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        Voltar à página inicial
+
+      </a>
+
+    </div>
+
+  </main>
+
+</body>
+</html>
