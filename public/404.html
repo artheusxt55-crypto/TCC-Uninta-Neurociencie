@@ -16,10 +16,10 @@
 
   <style>
     :root {
-      --bg: #1b1533;
+      --bg: #17132d;
       --lavender: #a996f0;
       --cream: #f7f2ff;
-      --muted: #8f80c2;
+      --muted: #9588c2;
       --border: #55488f;
     }
 
@@ -31,23 +31,110 @@
     body {
       margin: 0;
       padding: 0;
+      width: 100%;
       min-height: 100%;
     }
 
     body {
       min-height: 100vh;
-      background: var(--bg);
+
+      background:
+        radial-gradient(
+          ellipse 70% 45% at 50% 0%,
+          rgba(91, 72, 145, 0.18) 0%,
+          rgba(55, 43, 91, 0.10) 45%,
+          transparent 75%
+        ),
+        radial-gradient(
+          ellipse 55% 35% at 25% 90%,
+          rgba(125, 101, 190, 0.28) 0%,
+          rgba(74, 58, 125, 0.16) 35%,
+          transparent 70%
+        ),
+        radial-gradient(
+          ellipse 80% 65% at 50% 100%,
+          #29204d 0%,
+          #211a3d 42%,
+          #17132d 100%
+        );
+
       color: var(--cream);
-      font-family: "Karla", -apple-system, BlinkMacSystemFont, sans-serif;
+
+      font-family:
+        "Karla",
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
 
       display: flex;
       align-items: center;
       justify-content: center;
 
       padding: 32px;
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    /*
+      Atmosfera suave no topo,
+      deixando o fundo parecido com um céu
+      roxeado e escuro.
+    */
+    body::before {
+      content: "";
+
+      position: fixed;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse 70% 45% at 50% 0%,
+          rgba(112, 91, 170, 0.14),
+          transparent 70%
+        );
+
+      z-index: 0;
+    }
+
+    /*
+      Brilho muito discreto na parte inferior,
+      ajudando a criar profundidade.
+    */
+    body::after {
+      content: "";
+
+      position: fixed;
+
+      left: 50%;
+      bottom: -15%;
+
+      width: 75%;
+      height: 35%;
+
+      transform: translateX(-50%);
+
+      background:
+        radial-gradient(
+          ellipse,
+          rgba(109, 88, 163, 0.16) 0%,
+          rgba(72, 56, 119, 0.08) 35%,
+          transparent 72%
+        );
+
+      filter: blur(30px);
+
+      pointer-events: none;
+
+      z-index: 0;
     }
 
     .page {
+      position: relative;
+      z-index: 1;
+
       width: 100%;
       max-width: 1080px;
 
@@ -59,12 +146,48 @@
 
     .art {
       flex: 0 0 auto;
+
       width: 46%;
       max-width: 480px;
 
       display: flex;
       align-items: center;
       justify-content: center;
+
+      position: relative;
+    }
+
+    /*
+      Efeito de chão sob a coruja.
+      É propositalmente difuso para não parecer
+      uma plataforma ou um objeto artificial.
+    */
+    .art::after {
+      content: "";
+
+      position: absolute;
+
+      width: 75%;
+      height: 55px;
+
+      left: 50%;
+      bottom: 3%;
+
+      transform: translateX(-50%);
+
+      background:
+        radial-gradient(
+          ellipse,
+          rgba(132, 110, 190, 0.32) 0%,
+          rgba(105, 84, 158, 0.18) 35%,
+          transparent 72%
+        );
+
+      border-radius: 50%;
+
+      filter: blur(16px);
+
+      z-index: -1;
     }
 
     .art img {
@@ -72,9 +195,13 @@
 
       width: 100%;
       max-width: 480px;
+
       height: auto;
 
       object-fit: contain;
+
+      position: relative;
+      z-index: 1;
     }
 
     .content {
@@ -91,7 +218,9 @@
       margin: 0 0 10px;
 
       font-family: "Baloo 2", sans-serif;
+
       font-size: clamp(70px, 8vw, 120px);
+
       font-weight: 800;
 
       line-height: 0.9;
@@ -107,7 +236,9 @@
       max-width: 15ch;
 
       font-family: "Baloo 2", sans-serif;
+
       font-size: clamp(26px, 3vw, 38px);
+
       font-weight: 700;
 
       line-height: 1.2;
@@ -121,7 +252,9 @@
       max-width: 30ch;
 
       font-family: "Baloo 2", sans-serif;
+
       font-size: clamp(16px, 1.6vw, 18px);
+
       font-weight: 500;
 
       line-height: 1.5;
@@ -131,6 +264,7 @@
 
     .btn {
       display: inline-flex;
+
       align-items: center;
       justify-content: center;
 
@@ -139,6 +273,7 @@
       padding: 14px 24px;
 
       border: 1.5px solid var(--border);
+
       border-radius: 999px;
 
       background: transparent;
@@ -148,7 +283,9 @@
       text-decoration: none;
 
       font-family: "Baloo 2", sans-serif;
+
       font-size: 15px;
+
       font-weight: 600;
 
       transition:
@@ -166,6 +303,7 @@
 
     .btn:hover {
       background: rgba(169, 150, 240, 0.12);
+
       border-color: var(--lavender);
 
       transform: translateY(-1px);
@@ -173,9 +311,19 @@
 
     .btn:focus-visible {
       outline: 3px solid var(--lavender);
+
       outline-offset: 3px;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        transition: none;
+      }
+    }
+
+    /*
+      MOBILE
+    */
     @media (max-width: 720px) {
       body {
         padding: 24px;
@@ -191,11 +339,20 @@
 
       .art {
         width: 100%;
+
         max-width: 340px;
       }
 
       .art img {
         max-width: 320px;
+      }
+
+      .art::after {
+        width: 70%;
+
+        height: 45px;
+
+        bottom: 4%;
       }
 
       .content {
@@ -212,12 +369,6 @@
         max-width: 30ch;
       }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      .btn {
-        transition: none;
-      }
-    }
   </style>
 </head>
 
@@ -225,6 +376,7 @@
 
   <main class="page">
 
+    <!-- CORUJA -->
     <div class="art">
       <img
         src="/owl-404.png"
@@ -232,9 +384,12 @@
       >
     </div>
 
+    <!-- CONTEÚDO -->
     <div class="content">
 
-      <p class="code">404</p>
+      <p class="code">
+        404
+      </p>
 
       <h1>
         Ops... Parece que Sua Página Se Perdeu Pelo Caminho
@@ -244,7 +399,10 @@
         A página que você procura não foi encontrada.
       </p>
 
-      <a class="btn" href="/">
+      <a
+        class="btn"
+        href="/"
+      >
 
         <svg
           viewBox="0 0 24 24"
@@ -261,7 +419,7 @@
           />
 
           <path
-            d="M6 10V19C6 19.5523 6.44772 20 7 20H10C10.5523 20 11 19.5523 11 19V15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15V19C13 19.5523 13.4477 20 14 20H17C17.5523 20 18 19.5523 18 19V10"
+            d="M6 10V19C6 19.5523 6.44772 20 7 20H10C10.5523 20 11 19.4477 11 19V15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15V19C13 19.5523 14 20 14 20H17C17.5523 20 18 19.5523 18 19V10"
             stroke="currentColor"
             stroke-width="1.8"
             stroke-linecap="round"
