@@ -1,3 +1,4 @@
+
 import {
     lazy,
     Suspense,
@@ -229,11 +230,10 @@ function IconCookie() {
 }
 
 /* =========================================================
- * LAB PAGE (antigo conteúdo do App)
+ * LAB PAGE
  * ========================================================= */
 
 function LabPage() {
-
     /* =====================================================
      * PERFORMANCE
      * ===================================================== */
@@ -321,40 +321,27 @@ function LabPage() {
      * ===================================================== */
 
     useEffect(() => {
-
         const consentimento =
             localStorage.getItem(
                 "educacube_cookie_consent"
             );
 
         if (!consentimento) {
-
             setShowCookieBanner(true);
-
             recusarAnalytics();
-
             return;
         }
 
-        if (
-            consentimento ===
-            "aceito"
-        ) {
-
+        if (consentimento === "aceito") {
             aceitarAnalytics();
-
         } else {
-
             recusarAnalytics();
-
         }
-
     }, []);
 
     const salvarConsentimento = (
         escolha: "aceito" | "recusado"
     ) => {
-
         localStorage.setItem(
             "educacube_cookie_consent",
             escolha
@@ -366,28 +353,18 @@ function LabPage() {
             `Path=/; ` +
             `SameSite=Lax`;
 
-        if (
-            escolha ===
-            "aceito"
-        ) {
-
+        if (escolha === "aceito") {
             aceitarAnalytics();
-
         } else {
-
             recusarAnalytics();
-
         }
 
         setShowCookieBanner(false);
-
     };
 
     const abrirConfiguracoesCookies = () => {
-
         window.location.href =
             "/cookies.html";
-
     };
 
     /* =====================================================
@@ -397,14 +374,8 @@ function LabPage() {
     const salvarUsuarioNoFirestore = async (
         user: any
     ) => {
-
         try {
-
-            if (
-                !user ||
-                !user.uid
-            ) {
-
+            if (!user || !user.uid) {
                 console.error(
                     "Usuário Firebase inválido."
                 );
@@ -424,56 +395,31 @@ function LabPage() {
                     usuarioRef
                 );
 
-            if (
-                !usuarioExistente.exists()
-            ) {
-
+            if (!usuarioExistente.exists()) {
                 await setDoc(
                     usuarioRef,
                     {
-                        uid:
-                            user.uid,
-
-                        nome:
-                            user.displayName || "",
-
-                        email:
-                            user.email || "",
-
-                        foto:
-                            user.photoURL || "",
-
-                        criadoEm:
-                            serverTimestamp(),
-
-                        ultimoLogin:
-                            serverTimestamp(),
+                        uid: user.uid,
+                        nome: user.displayName || "",
+                        email: user.email || "",
+                        foto: user.photoURL || "",
+                        criadoEm: serverTimestamp(),
+                        ultimoLogin: serverTimestamp(),
                     }
                 );
 
                 console.log(
                     "✅ Perfil criado no Firestore."
                 );
-
             } else {
-
                 await setDoc(
                     usuarioRef,
                     {
-                        uid:
-                            user.uid,
-
-                        nome:
-                            user.displayName || "",
-
-                        email:
-                            user.email || "",
-
-                        foto:
-                            user.photoURL || "",
-
-                        ultimoLogin:
-                            serverTimestamp(),
+                        uid: user.uid,
+                        nome: user.displayName || "",
+                        email: user.email || "",
+                        foto: user.photoURL || "",
+                        ultimoLogin: serverTimestamp(),
                     },
                     {
                         merge: true,
@@ -483,13 +429,10 @@ function LabPage() {
                 console.log(
                     "✅ Perfil atualizado no Firestore."
                 );
-
             }
 
             return true;
-
         } catch (error) {
-
             console.error(
                 "❌ Erro ao salvar usuário no Firestore:",
                 error
@@ -504,14 +447,11 @@ function LabPage() {
      * ===================================================== */
 
     const registrarAcesso = async () => {
-
         try {
-
             const user =
                 auth.currentUser;
 
             if (!user) {
-
                 console.warn(
                     "⚠️ Não foi possível registrar acesso: usuário não autenticado."
                 );
@@ -527,7 +467,6 @@ function LabPage() {
                     "/api/registrar-acesso",
                     {
                         method: "POST",
-
                         headers: {
                             Authorization:
                                 `Bearer ${idToken}`,
@@ -542,7 +481,6 @@ function LabPage() {
                 await response.json();
 
             if (!response.ok) {
-
                 console.error(
                     "❌ Erro ao registrar acesso:",
                     data
@@ -555,14 +493,11 @@ function LabPage() {
                 "✅ Acesso registrado:",
                 data
             );
-
         } catch (error) {
-
             console.error(
                 "❌ Erro ao registrar acesso:",
                 error
             );
-
         }
     };
 
@@ -573,23 +508,19 @@ function LabPage() {
     const enviarEmailVerificacao = async (
         user: any
     ) => {
-
         try {
-
             const response =
                 await fetch(
                     "/api/enviar-verificacao",
                     {
                         method: "POST",
-
                         headers: {
                             "Content-Type":
                                 "application/json",
                         },
 
                         body: JSON.stringify({
-                            email:
-                                user.email,
+                            email: user.email,
                         }),
                     }
                 );
@@ -598,7 +529,6 @@ function LabPage() {
                 await response.json();
 
             if (!response.ok) {
-
                 console.error(
                     "Erro ao enviar verificação:",
                     data
@@ -613,9 +543,7 @@ function LabPage() {
             );
 
             return true;
-
         } catch (error) {
-
             console.error(
                 "Erro ao chamar API de verificação:",
                 error
@@ -630,9 +558,7 @@ function LabPage() {
      * ===================================================== */
 
     const loginComGoogle = async () => {
-
         try {
-
             setCarregandoAuth(true);
 
             const result =
@@ -647,14 +573,9 @@ function LabPage() {
             console.log(
                 "Login Firebase realizado:",
                 {
-                    uid:
-                        user.uid,
-
-                    nome:
-                        user.displayName,
-
-                    email:
-                        user.email,
+                    uid: user.uid,
+                    nome: user.displayName,
+                    email: user.email,
                 }
             );
 
@@ -664,7 +585,6 @@ function LabPage() {
                 );
 
             if (!salvo) {
-
                 alert(
                     "Login realizado, mas não foi possível salvar seu perfil no Firestore."
                 );
@@ -681,15 +601,9 @@ function LabPage() {
                 }!`
             );
 
-            /* =============================================
-             * IR PARA A AURA AI (navegação client-side)
-             * ============================================= */
-
             window.location.href =
                 "/aura";
-
         } catch (error) {
-
             console.error(
                 "Erro no login com Google:",
                 error
@@ -698,13 +612,9 @@ function LabPage() {
             alert(
                 "Não foi possível entrar com Google."
             );
-
         } finally {
-
             setCarregandoAuth(false);
-
         }
-
     };
 
     /* =====================================================
@@ -714,15 +624,11 @@ function LabPage() {
     const openModule = (
         name: Exclude<ModuleName, null>
     ) => {
-
         setActiveModule(name);
-
     };
 
     const closeModule = () => {
-
         setActiveModule(null);
-
     };
 
     /* =====================================================
@@ -730,7 +636,6 @@ function LabPage() {
      * ===================================================== */
 
     useEffect(() => {
-
         if (!isFull) {
             return;
         }
@@ -752,13 +657,11 @@ function LabPage() {
                 video,
                 index
             ) => {
-
                 video.muted = true;
                 video.playsInline = true;
                 video.preload = "auto";
                 video.loop =
                     index === 2;
-
             }
         );
 
@@ -770,11 +673,9 @@ function LabPage() {
         firstVideo
             .play()
             .catch(() => {
-
                 console.warn(
                     "O navegador bloqueou o autoplay."
                 );
-
             });
 
         const cleanups:
@@ -785,13 +686,9 @@ function LabPage() {
                 video,
                 index
             ) => {
-
                 const handleEnded =
                     () => {
-
-                        if (
-                            index === 2
-                        ) {
+                        if (index === 2) {
                             return;
                         }
 
@@ -831,7 +728,6 @@ function LabPage() {
                         nextVideo
                             .play()
                             .then(() => {
-
                                 nextVideo.classList.add(
                                     "active"
                                 );
@@ -839,7 +735,6 @@ function LabPage() {
                                 transitionTimeoutRef.current =
                                     window.setTimeout(
                                         () => {
-
                                             video.classList.remove(
                                                 "active"
                                             );
@@ -855,19 +750,14 @@ function LabPage() {
 
                                             transitioningRef.current =
                                                 false;
-
                                         },
                                         1400
                                     );
-
                             })
                             .catch(() => {
-
                                 transitioningRef.current =
                                     false;
-
                             });
-
                     };
 
                 video.addEventListener(
@@ -882,12 +772,10 @@ function LabPage() {
                             handleEnded
                         )
                 );
-
             }
         );
 
         return () => {
-
             cleanups.forEach(
                 (
                     cleanup
@@ -899,15 +787,11 @@ function LabPage() {
                 transitionTimeoutRef.current !==
                 null
             ) {
-
                 window.clearTimeout(
                     transitionTimeoutRef.current
                 );
-
             }
-
         };
-
     }, [
         currentVideo,
         isFull,
@@ -918,25 +802,20 @@ function LabPage() {
      * ===================================================== */
 
     useEffect(() => {
-
         const handleKeyDown =
             (
                 event: KeyboardEvent
             ) => {
-
                 if (
                     event.key ===
                     "Escape"
                 ) {
-
                     closeModule();
 
                     setMenuAberto(
                         false
                     );
-
                 }
-
             };
 
         document.addEventListener(
@@ -949,7 +828,6 @@ function LabPage() {
                 "keydown",
                 handleKeyDown
             );
-
     }, []);
 
     /* =====================================================
@@ -957,11 +835,9 @@ function LabPage() {
      * ===================================================== */
 
     const executarDiagnostico = () => {
-
         if (
             !diagDescricao.trim()
         ) {
-
             alert(
                 "Descreva a necessidade observada."
             );
@@ -979,7 +855,6 @@ function LabPage() {
                     "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
             })
         );
-
     };
 
     /* =====================================================
@@ -987,11 +862,9 @@ function LabPage() {
      * ===================================================== */
 
     const consultarBNCC = () => {
-
         if (
             !buscaBNCC.trim()
         ) {
-
             alert(
                 "Digite algo para pesquisar."
             );
@@ -1009,7 +882,6 @@ function LabPage() {
                     "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
             })
         );
-
     };
 
     /* =====================================================
@@ -1017,12 +889,10 @@ function LabPage() {
      * ===================================================== */
 
     const gerarPlano = () => {
-
         if (
             !temaPlano.trim() ||
             !objetivoPlano.trim()
         ) {
-
             alert(
                 "Informe o tema e o objetivo."
             );
@@ -1040,7 +910,6 @@ function LabPage() {
                     "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
             })
         );
-
     };
 
     /* =====================================================
@@ -1048,11 +917,9 @@ function LabPage() {
      * ===================================================== */
 
     const gerarIntervencao = () => {
-
         if (
             !necessidadeIntervencao.trim()
         ) {
-
             alert(
                 "Informe a necessidade identificada."
             );
@@ -1070,7 +937,6 @@ function LabPage() {
                     "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
             })
         );
-
     };
 
     /* =====================================================
@@ -1078,7 +944,6 @@ function LabPage() {
      * ===================================================== */
 
     const entrarComEmail = async () => {
-
         const email =
             emailInput.trim();
 
@@ -1089,7 +954,6 @@ function LabPage() {
             !email ||
             !senha
         ) {
-
             alert(
                 "Digite seu e-mail e sua senha."
             );
@@ -1100,7 +964,6 @@ function LabPage() {
         setCarregandoAuth(true);
 
         try {
-
             const result =
                 await signInWithEmailAndPassword(
                     auth,
@@ -1125,7 +988,6 @@ function LabPage() {
                 );
 
             if (!salvo) {
-
                 alert(
                     "Login realizado, mas não foi possível salvar seu perfil no Firestore."
                 );
@@ -1135,15 +997,9 @@ function LabPage() {
 
             await registrarAcesso();
 
-            /* =============================================
-             * IR PARA A AURA AI
-             * ============================================= */
-
             window.location.href =
                 "/aura";
-
         } catch (error: any) {
-
             console.error(
                 "Erro no login com e-mail:",
                 error
@@ -1157,43 +1013,31 @@ function LabPage() {
                 error.code ===
                     "auth/user-not-found"
             ) {
-
                 alert(
                     "E-mail ou senha incorretos."
                 );
-
             } else if (
                 error.code ===
                 "auth/invalid-email"
             ) {
-
                 alert(
                     "Digite um e-mail válido."
                 );
-
             } else if (
                 error.code ===
                 "auth/too-many-requests"
             ) {
-
                 alert(
                     "Muitas tentativas. Aguarde alguns minutos e tente novamente."
                 );
-
             } else {
-
                 alert(
                     "Não foi possível entrar. Tente novamente."
                 );
-
             }
-
         } finally {
-
             setCarregandoAuth(false);
-
         }
-
     };
 
     /* =====================================================
@@ -1201,7 +1045,6 @@ function LabPage() {
      * ===================================================== */
 
     const criarConta = async () => {
-
         const nome =
             nomeInput.trim();
 
@@ -1215,7 +1058,6 @@ function LabPage() {
             confirmarSenhaInput;
 
         if (!nome) {
-
             alert(
                 "Digite seu nome."
             );
@@ -1228,7 +1070,6 @@ function LabPage() {
             !senha ||
             !confirmarSenha
         ) {
-
             alert(
                 "Preencha todos os campos."
             );
@@ -1239,7 +1080,6 @@ function LabPage() {
         if (
             senha.length < 6
         ) {
-
             alert(
                 "A senha precisa ter pelo menos 6 caracteres."
             );
@@ -1251,7 +1091,6 @@ function LabPage() {
             senha !==
             confirmarSenha
         ) {
-
             alert(
                 "As senhas não coincidem."
             );
@@ -1262,7 +1101,6 @@ function LabPage() {
         setCarregandoAuth(true);
 
         try {
-
             const result =
                 await createUserWithEmailAndPassword(
                     auth,
@@ -1284,11 +1122,9 @@ function LabPage() {
                 );
 
             if (!salvo) {
-
                 console.warn(
                     "Conta Firebase criada, mas o perfil não foi salvo no Firestore."
                 );
-
             }
 
             await registrarAcesso();
@@ -1299,11 +1135,9 @@ function LabPage() {
                 );
 
             if (!emailEnviado) {
-
                 console.warn(
                     "Conta criada, mas o e-mail de verificação não pôde ser enviado pelo Resend."
                 );
-
             }
 
             console.log(
@@ -1331,9 +1165,7 @@ function LabPage() {
             setSenhaInput("");
 
             setConfirmarSenhaInput("");
-
         } catch (error: any) {
-
             console.error(
                 "Erro ao criar conta:",
                 error
@@ -1343,43 +1175,31 @@ function LabPage() {
                 error.code ===
                 "auth/email-already-in-use"
             ) {
-
                 alert(
                     "Este e-mail já possui uma conta. Tente entrar."
                 );
-
             } else if (
                 error.code ===
                 "auth/invalid-email"
             ) {
-
                 alert(
                     "Digite um e-mail válido."
                 );
-
             } else if (
                 error.code ===
                 "auth/weak-password"
             ) {
-
                 alert(
                     "A senha é muito fraca. Use pelo menos 6 caracteres."
                 );
-
             } else {
-
                 alert(
                     "Não foi possível criar a conta. Tente novamente."
                 );
-
             }
-
         } finally {
-
             setCarregandoAuth(false);
-
         }
-
     };
 
     /* =====================================================
@@ -1387,12 +1207,10 @@ function LabPage() {
      * ===================================================== */
 
     const recuperarSenha = async () => {
-
         const email =
             emailInput.trim();
 
         if (!email) {
-
             alert(
                 "Digite seu e-mail no campo acima para recuperar sua senha."
             );
@@ -1401,7 +1219,6 @@ function LabPage() {
         }
 
         try {
-
             await sendPasswordResetEmail(
                 auth,
                 email
@@ -1410,9 +1227,7 @@ function LabPage() {
             alert(
                 "Se existir uma conta com esse e-mail, enviaremos as instruções para redefinir sua senha."
             );
-
         } catch (error: any) {
-
             console.error(
                 "Erro ao recuperar senha:",
                 error
@@ -1422,21 +1237,15 @@ function LabPage() {
                 error.code ===
                 "auth/invalid-email"
             ) {
-
                 alert(
                     "Digite um e-mail válido."
                 );
-
             } else {
-
                 alert(
                     "Não foi possível enviar o e-mail de recuperação."
                 );
-
             }
-
         }
-
     };
 
     const alternarModoAutenticacao = (
@@ -1444,7 +1253,6 @@ function LabPage() {
             | "login"
             | "cadastro"
     ) => {
-
         setModoAutenticacao(
             modo
         );
@@ -1452,7 +1260,6 @@ function LabPage() {
         setSenhaInput("");
 
         setConfirmarSenhaInput("");
-
     };
 
     /* =====================================================
@@ -1461,7 +1268,7 @@ function LabPage() {
 
     const modulos: Array<{
         id:
-            Exclude
+            Exclude<
                 ModuleName,
                 null
             >;
@@ -1474,9 +1281,7 @@ function LabPage() {
 
         Icone: () =>
             JSX.Element;
-
     }> = [
-
         {
             id:
                 "diagnostico",
@@ -1544,7 +1349,6 @@ function LabPage() {
             Icone:
                 IconIntervencao,
         },
-
     ];
 
     /* =====================================================
@@ -1553,7 +1357,6 @@ function LabPage() {
 
     return (
         <>
-
             {/* =================================================
                 CABEÇALHO
             ================================================= */}
@@ -1616,7 +1419,7 @@ function LabPage() {
                             : "Entrar com Google"}
                     </button>
 
-                    
+                    <a
                         href="/aura"
                         className="btn-primary"
                     >
@@ -1662,7 +1465,7 @@ function LabPage() {
             {menuAberto && (
                 <div className="mobile-menu">
 
-                    
+                    <a
                         href="#inicio"
                         onClick={() =>
                             setMenuAberto(
@@ -1673,7 +1476,7 @@ function LabPage() {
                         Início
                     </a>
 
-                    
+                    <a
                         href="#ferramentas"
                         onClick={() =>
                             setMenuAberto(
@@ -2072,14 +1875,14 @@ function LabPage() {
 
                             <div className="hero-links">
 
-                                
+                                <a
                                     href="/biblioteca.html"
                                     className="chalk-link"
                                 >
                                     Biblioteca digital
                                 </a>
 
-                                
+                                <a
                                     href="/atlas.html"
                                     className="chalk-link"
                                 >
@@ -2808,7 +2611,6 @@ function LabPage() {
             ================================================= */}
 
             {showCookieBanner && (
-
                 <div
                     className="cookie-banner"
                     role="dialog"
@@ -2838,14 +2640,14 @@ function LabPage() {
 
                             <div className="cookie-links">
 
-                                
+                                <a
                                     href="/privacidade.html"
                                     className="cookie-link"
                                 >
                                     Política de Privacidade
                                 </a>
 
-                                
+                                <a
                                     href="/cookies.html"
                                     className="cookie-link"
                                 >
@@ -2897,7 +2699,6 @@ function LabPage() {
                     </div>
 
                 </div>
-
             )}
 
         </>
@@ -2912,9 +2713,22 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/aura" element={<AuraAI />} />
-                <Route path="/aura/" element={<AuraAI />} />
-                <Route path="/*" element={<LabPage />} />
+
+                <Route
+                    path="/aura"
+                    element={<AuraAI />}
+                />
+
+                <Route
+                    path="/aura/"
+                    element={<AuraAI />}
+                />
+
+                <Route
+                    path="/*"
+                    element={<LabPage />}
+                />
+
             </Routes>
         </BrowserRouter>
     );
