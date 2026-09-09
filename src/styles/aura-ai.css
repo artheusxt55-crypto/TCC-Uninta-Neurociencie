@@ -1,0 +1,857 @@
+/* =========================================================
+   AURA AI — EDUCACUBE
+   Interface principal da inteligência artificial
+   ========================================================= */
+
+.aura-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(77, 124, 255, 0.12),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 15% 80%,
+      rgba(0, 220, 255, 0.07),
+      transparent 30%
+    ),
+    #05070d;
+
+  color: #f5f7ff;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* =========================================================
+   FUNDO
+   ========================================================= */
+
+.aura-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+
+  background-size: 42px 42px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.8),
+    transparent
+  );
+}
+
+/* =========================================================
+   CONTAINER PRINCIPAL
+   ========================================================= */
+
+.aura-container {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.aura-header {
+  width: 100%;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+  background: rgba(5, 7, 13, 0.72);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  position: relative;
+  z-index: 20;
+}
+
+.aura-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aura-brand-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(93, 125, 255, 0.28),
+      rgba(0, 215, 255, 0.08)
+    );
+
+  border: 1px solid rgba(120, 150, 255, 0.2);
+
+  box-shadow:
+    0 0 25px rgba(75, 115, 255, 0.14);
+}
+
+.aura-brand-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.aura-brand-subtitle {
+  margin-top: 2px;
+
+  font-size: 11px;
+  color: rgba(220, 225, 240, 0.48);
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.aura-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 12px;
+  color: rgba(230, 235, 250, 0.58);
+}
+
+.aura-status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #57e389;
+
+  box-shadow:
+    0 0 8px rgba(87, 227, 137, 0.8),
+    0 0 18px rgba(87, 227, 137, 0.3);
+
+  animation: aura-pulse 2s infinite;
+}
+
+@keyframes aura-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+}
+
+/* =========================================================
+   ÁREA CENTRAL
+   ========================================================= */
+
+.aura-main {
+  flex: 1;
+
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
+}
+
+/* =========================================================
+   ORBE / ÁREA DA IA
+   ========================================================= */
+
+.aura-orb-area {
+  position: relative;
+
+  flex: 1;
+
+  min-height: 280px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 25px;
+}
+
+.aura-orb-wrapper {
+  position: relative;
+
+  width: min(420px, 80vw);
+  height: min(420px, 55vh);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Halo atrás do orbe */
+
+.aura-orb-wrapper::before {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(83, 119, 255, 0.17),
+      transparent 70%
+    );
+
+  filter: blur(25px);
+
+  animation: aura-glow 4s ease-in-out infinite;
+}
+
+@keyframes aura-glow {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   TÍTULO / ESTADO DA AURA
+   ========================================================= */
+
+.aura-welcome {
+  position: absolute;
+
+  top: 18px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(90%, 600px);
+
+  text-align: center;
+
+  pointer-events: none;
+}
+
+.aura-welcome h1 {
+  margin: 0;
+
+  font-size: clamp(24px, 3vw, 38px);
+
+  font-weight: 700;
+
+  letter-spacing: -0.04em;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff,
+      #b9c7ff,
+      #8cecff
+    );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+}
+
+.aura-welcome p {
+  margin: 9px 0 0;
+
+  color: rgba(220, 226, 245, 0.52);
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+
+.aura-chat {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
+}
+
+.aura-messages {
+  width: min(900px, calc(100% - 32px));
+
+  margin: 0 auto;
+
+  padding: 10px 0 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  max-height: 38vh;
+
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.aura-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.aura-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aura-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+
+  border-radius: 20px;
+}
+
+/* =========================================================
+   MENSAGENS
+   ========================================================= */
+
+.aura-message {
+  display: flex;
+
+  width: 100%;
+}
+
+.aura-message.user {
+  justify-content: flex-end;
+}
+
+.aura-message.assistant {
+  justify-content: flex-start;
+}
+
+.aura-message-content {
+  max-width: min(720px, 85%);
+
+  padding: 14px 17px;
+
+  border-radius: 18px;
+
+  font-size: 14px;
+  line-height: 1.65;
+
+  animation: aura-message-in 0.25s ease-out;
+}
+
+@keyframes aura-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.aura-message.user .aura-message-content {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(84, 112, 255, 0.32),
+      rgba(66, 87, 180, 0.2)
+    );
+
+  border: 1px solid rgba(120, 145, 255, 0.16);
+
+  border-bottom-right-radius: 6px;
+}
+
+.aura-message.assistant .aura-message-content {
+  background: rgba(255, 255, 255, 0.045);
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  border-bottom-left-radius: 6px;
+}
+
+/* Markdown */
+
+.aura-message-content p {
+  margin: 0 0 8px;
+}
+
+.aura-message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.aura-message-content strong {
+  color: #ffffff;
+}
+
+.aura-message-content code {
+  padding: 2px 6px;
+
+  border-radius: 6px;
+
+  background: rgba(0, 0, 0, 0.28);
+
+  font-family: monospace;
+}
+
+.aura-message-content pre {
+  overflow-x: auto;
+
+  padding: 13px;
+
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+   ÁREA DE INPUT
+   ========================================================= */
+
+.aura-input-area {
+  width: min(900px, calc(100% - 32px));
+
+  margin: 0 auto;
+
+  padding: 10px 0 24px;
+}
+
+.aura-input-box {
+  width: 100%;
+
+  min-height: 58px;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap: 10px;
+
+  padding: 9px;
+
+  border-radius: 20px;
+
+  background: rgba(15, 18, 29, 0.88);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  box-shadow:
+    0 15px 50px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.aura-input-box:focus-within {
+  border-color: rgba(105, 135, 255, 0.38);
+
+  box-shadow:
+    0 15px 50px rgba(0, 0, 0, 0.35),
+    0 0 0 3px rgba(80, 110, 255, 0.06);
+}
+
+.aura-input {
+  flex: 1;
+
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  resize: none;
+
+  min-height: 40px;
+  max-height: 140px;
+
+  padding: 10px 12px;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.aura-input::placeholder {
+  color: rgba(220, 225, 240, 0.35);
+}
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
+
+.aura-button {
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  color: rgba(235, 240, 255, 0.75);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s,
+    background 0.18s,
+    border-color 0.18s,
+    color 0.18s;
+}
+
+.aura-button:hover {
+  transform: translateY(-1px);
+
+  background: rgba(255, 255, 255, 0.09);
+
+  border-color: rgba(255, 255, 255, 0.16);
+
+  color: #ffffff;
+}
+
+.aura-button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.aura-button.primary {
+  background:
+    linear-gradient(
+      135deg,
+      #536fff,
+      #4167df
+    );
+
+  border-color: rgba(130, 155, 255, 0.35);
+
+  color: white;
+
+  box-shadow:
+    0 5px 20px rgba(68, 94, 230, 0.28);
+}
+
+.aura-button.primary:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #627cff,
+      #4b70ed
+    );
+
+  box-shadow:
+    0 7px 25px rgba(68, 94, 230, 0.4);
+}
+
+.aura-button:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.aura-sidebar {
+  position: fixed;
+
+  top: 72px;
+  left: 0;
+  bottom: 0;
+
+  width: 270px;
+
+  z-index: 30;
+
+  background: rgba(7, 9, 16, 0.93);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  transform: translateX(0);
+
+  transition: transform 0.25s ease;
+}
+
+.aura-sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+.aura-sidebar-header {
+  padding: 18px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.aura-sidebar-title {
+  font-size: 13px;
+
+  font-weight: 650;
+
+  color: rgba(240, 243, 255, 0.8);
+}
+
+.aura-sidebar-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 12px;
+}
+
+.aura-sidebar-item {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border-radius: 11px;
+
+  border: 1px solid transparent;
+
+  background: transparent;
+
+  color: rgba(230, 235, 250, 0.58);
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s,
+    color 0.18s,
+    border-color 0.18s;
+}
+
+.aura-sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.045);
+
+  color: #ffffff;
+}
+
+.aura-sidebar-item.active {
+  background: rgba(83, 111, 255, 0.1);
+
+  border-color: rgba(95, 120, 255, 0.14);
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.aura-loading {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.aura-loading span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: rgba(220, 228, 255, 0.7);
+
+  animation: aura-loading 1.2s infinite ease-in-out;
+}
+
+.aura-loading span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.aura-loading span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes aura-loading {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .aura-header {
+    padding: 0 18px;
+  }
+
+  .aura-sidebar {
+    width: 250px;
+  }
+
+  .aura-orb-area {
+    min-height: 240px;
+  }
+
+  .aura-messages {
+    max-height: 42vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .aura-header {
+    height: 62px;
+  }
+
+  .aura-brand-title {
+    font-size: 15px;
+  }
+
+  .aura-brand-subtitle {
+    display: none;
+  }
+
+  .aura-status {
+    font-size: 10px;
+  }
+
+  .aura-orb-area {
+    min-height: 210px;
+
+    padding: 15px;
+  }
+
+  .aura-orb-wrapper {
+    width: 280px;
+    height: 230px;
+  }
+
+  .aura-welcome {
+    top: 8px;
+  }
+
+  .aura-welcome h1 {
+    font-size: 23px;
+  }
+
+  .aura-welcome p {
+    font-size: 11px;
+  }
+
+  .aura-messages {
+    width: calc(100% - 20px);
+
+    max-height: 43vh;
+  }
+
+  .aura-message-content {
+    max-width: 90%;
+
+    font-size: 13px;
+
+    padding: 12px 14px;
+  }
+
+  .aura-input-area {
+    width: calc(100% - 20px);
+
+    padding-bottom: 14px;
+  }
+
+  .aura-input-box {
+    border-radius: 17px;
+  }
+
+  .aura-sidebar {
+    top: 62px;
+
+    width: min(290px, 85vw);
+  }
+}
+
+/* =========================================================
+   ACESSIBILIDADE
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
