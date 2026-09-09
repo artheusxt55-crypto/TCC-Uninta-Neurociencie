@@ -1,50 +1,41 @@
 /* ============================================================
    AURA AI — EducaCube
-   Identidade: inteligência em penumbra violeta.
-   Preto profundo e roxo não são duas cores lado a lado —
-   são a mesma superfície vista em graus diferentes de luz.
-   Toda sombra tem um resíduo de violeta; todo violeta nasce
-   de dentro do preto, nunca é aplicado por cima.
+   Identidade: inteligência premium, precisão, profundidade.
+   Fusão preto + violeta — camadas de superfície, não um fundo
+   preto com adornos roxos. Um único acento (violeta), variado
+   em tonalidade e opacidade para hierarquia. Sem neon.
    ============================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 .aura-page {
-  /* ---- superfícies: preto que respira violeta ---- */
-  --aura-void: #050308;
-  --aura-bg: #07040d;
-  --aura-panel: linear-gradient(
-    165deg,
-    rgba(26, 16, 46, 0.94) 0%,
-    rgba(13, 8, 24, 0.96) 55%,
-    rgba(8, 5, 15, 0.97) 100%
-  );
-  --aura-panel-raised: linear-gradient(
-    155deg,
-    rgba(35, 22, 61, 0.95) 0%,
-    rgba(17, 11, 30, 0.96) 100%
-  );
-  --aura-border: rgba(160, 130, 232, 0.12);
-  --aura-border-strong: rgba(166, 138, 236, 0.24);
+  /* ---- superfícies: cada camada recebe mais violeta ---- */
+  --aura-void: #08060f;
+  --aura-panel: #110b1d;
+  --aura-panel-raised: #181026;
+  --aura-panel-sunken: #050308;
 
-  /* ---- acento único, em dois graus de temperatura ---- */
-  --aura-brass: #8d74ee;
-  --aura-brass-soft: #bcaaf8;
-  --aura-brass-dim: rgba(141, 116, 238, 0.16);
-  --aura-moss: #c17fd6;
-  --aura-moss-dim: rgba(193, 127, 214, 0.16);
+  --aura-border: rgba(196, 181, 253, 0.07);
+  --aura-border-strong: rgba(196, 181, 253, 0.16);
 
-  /* ---- alerta funcional (mesma família, mais quente) ---- */
-  --aura-ember: #dd6ea0;
-  --aura-ember-dim: rgba(221, 110, 160, 0.16);
+  /* ---- acento único: violeta, variado em tom/opacidade ---- */
+  --aura-violet: #8868f0;
+  --aura-violet-soft: #b6a4ff;
+  --aura-violet-dim: rgba(136, 104, 240, 0.16);
+  --aura-violet-line: rgba(182, 164, 255, 0.42);
+  --aura-violet-deep: #4b2a86;
 
-  /* ---- texto: branco que nunca esqueceu o violeta ---- */
-  --aura-text: #efe9fb;
-  --aura-muted: rgba(239, 233, 251, 0.46);
-  --aura-muted-strong: rgba(239, 233, 251, 0.7);
+  /* ---- sinal funcional (gravação de voz) — não decorativo ---- */
+  --aura-signal: #e2607a;
+  --aura-signal-dim: rgba(226, 96, 122, 0.15);
+
+  /* ---- texto ---- */
+  --aura-text: #f1edfb;
+  --aura-muted: rgba(241, 237, 251, 0.46);
+  --aura-muted-strong: rgba(241, 237, 251, 0.7);
 
   /* ---- tipografia ---- */
-  --aura-font-display: "Bricolage Grotesque", ui-sans-serif, system-ui,
+  --aura-font-display: "Space Grotesk", ui-sans-serif, system-ui,
     -apple-system, sans-serif;
   --aura-font-ui: "Inter", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
@@ -56,7 +47,17 @@
 
   overflow: hidden;
 
-  background: var(--aura-bg);
+  background: radial-gradient(
+      ellipse 65% 45% at 50% -8%,
+      rgba(136, 104, 240, 0.17),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 105% 105%,
+      rgba(75, 42, 134, 0.16),
+      transparent 55%
+    ),
+    var(--aura-void);
 
   color: var(--aura-text);
 
@@ -71,53 +72,11 @@
   box-sizing: border-box;
 }
 
-/* Atmosfera de fundo — a fonte real da mistura preto/roxo.
-   Três luzes difusas e distantes sobre um degradê quase-preto;
-   tudo o que está em cima disso (painéis, header, bolhas) é
-   translúcido o bastante para deixar essa luz atravessar. */
-
-.aura-page::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  z-index: 0;
-
-  pointer-events: none;
-
-  background: radial-gradient(
-      ellipse 62% 48% at 10% -8%,
-      rgba(124, 92, 240, 0.24),
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 68% 58% at 104% 12%,
-      rgba(184, 96, 208, 0.16),
-      transparent 58%
-    ),
-    radial-gradient(
-      ellipse 78% 66% at 46% 118%,
-      rgba(98, 60, 196, 0.2),
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      var(--aura-void) 0%,
-      var(--aura-bg) 45%,
-      #08050f 100%
-    );
-}
-
 /* ============================================================
    LAYOUT
    ============================================================ */
 
 .aura-layout {
-  position: relative;
-
-  z-index: 1;
-
   display: flex;
 
   width: 100%;
@@ -136,12 +95,11 @@
 
   border-right: 1px solid var(--aura-border);
 
-  background: var(--aura-panel);
-
-  box-shadow: inset -1px 0 0 rgba(141, 116, 238, 0.06);
-
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  background: linear-gradient(
+    180deg,
+    var(--aura-panel) 0%,
+    #0d0817 100%
+  );
 }
 
 .aura-main {
@@ -176,17 +134,36 @@
 
   border-bottom: 1px solid var(--aura-border);
 
-  background: linear-gradient(
-    180deg,
-    rgba(11, 7, 20, 0.82) 0%,
-    rgba(8, 5, 14, 0.72) 100%
-  );
+  background: rgba(8, 6, 15, 0.82);
 
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 
   position: relative;
   z-index: 10;
+}
+
+.aura-header::after {
+  content: "";
+
+  pointer-events: none;
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -1px;
+
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--aura-violet-line) 18%,
+    transparent 60%
+  );
+
+  opacity: 0.5;
 }
 
 .aura-header-left {
@@ -219,14 +196,19 @@
   justify-content: center;
 
   border: 1px solid var(--aura-border-strong);
-  border-radius: 9px;
+  border-radius: 10px;
 
-  background: var(--aura-panel-raised);
+  background: radial-gradient(
+      circle at 30% 20%,
+      rgba(136, 104, 240, 0.35),
+      transparent 65%
+    ),
+    var(--aura-panel-raised);
 
-  box-shadow: 0 0 0 1px rgba(141, 116, 238, 0.06) inset,
-    0 4px 14px rgba(80, 50, 180, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(136, 104, 240, 0.08);
 
-  color: var(--aura-brass-soft);
+  color: var(--aura-violet-soft);
 }
 
 .aura-brand-info {
@@ -250,7 +232,7 @@
 
   font-family: var(--aura-font-display);
 
-  font-size: 19px;
+  font-size: 18px;
 
   line-height: 1;
 
@@ -291,9 +273,9 @@
 
   border-radius: 50%;
 
-  background: var(--aura-brass);
+  background: var(--aura-violet-soft);
 
-  box-shadow: 0 0 9px rgba(141, 116, 238, 0.9);
+  box-shadow: 0 0 9px rgba(182, 164, 255, 0.9);
 
   animation: aura-status-pulse 2.4s ease-in-out infinite;
 }
@@ -301,7 +283,7 @@
 @keyframes aura-status-pulse {
   0%,
   100% {
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   50% {
@@ -362,11 +344,11 @@
 }
 
 .aura-icon-button-active {
-  color: var(--aura-brass-soft);
+  color: var(--aura-violet-soft);
 
-  border-color: rgba(141, 116, 238, 0.38);
+  border-color: rgba(136, 104, 240, 0.38);
 
-  background: var(--aura-brass-dim);
+  background: var(--aura-violet-dim);
 }
 
 .aura-new-chat-button {
@@ -398,18 +380,15 @@
   cursor: pointer;
 
   transition: background 0.18s ease, border-color 0.18s ease,
-    color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+    color 0.18s ease, transform 0.15s ease;
 }
 
 .aura-new-chat-button:hover {
-  border-color: rgba(141, 116, 238, 0.45);
+  border-color: rgba(136, 104, 240, 0.42);
 
-  background: var(--aura-brass-dim);
+  background: var(--aura-violet-dim);
 
-  color: var(--aura-brass-soft);
-
-  box-shadow: 0 0 0 1px rgba(141, 116, 238, 0.12) inset,
-    0 6px 18px rgba(90, 60, 200, 0.22);
+  color: var(--aura-violet-soft);
 }
 
 .aura-new-chat-button:active {
@@ -452,9 +431,9 @@
   z-index: 2;
 }
 
-/* Campo atmosférico da área de chat — reforça a luz que já vem
-   de trás da página com uma trama fina de partículas violeta,
-   como poeira suspensa numa sala com uma única fonte de luz. */
+/* Atmosfera: reticulado fino de pontos + duas manchas difusas
+   de violeta, mascaradas para desaparecer nas bordas. Um único
+   motivo, moderado — profundidade, não decoração. */
 
 .aura-field {
   pointer-events: none;
@@ -464,35 +443,35 @@
 
   z-index: 0;
 
-  opacity: 0.7;
+  opacity: 0.65;
 
   background-image: radial-gradient(
       circle at 1px 1px,
-      rgba(200, 178, 245, 0.06) 1px,
+      rgba(241, 237, 251, 0.055) 1px,
       transparent 1px
     ),
     radial-gradient(
-      circle at 78% 12%,
-      rgba(141, 116, 238, 0.14),
+      circle at 78% 8%,
+      rgba(136, 104, 240, 0.14),
       transparent 42%
     ),
     radial-gradient(
-      circle at 12% 88%,
-      rgba(193, 127, 214, 0.1),
-      transparent 45%
+      circle at 8% 96%,
+      rgba(75, 42, 134, 0.13),
+      transparent 44%
     );
 
   background-size: 30px 30px, 100% 100%, 100% 100%;
 
   mask-image: radial-gradient(
     ellipse 90% 75% at 50% 30%,
-    black 45%,
+    black 42%,
     transparent 92%
   );
 
   -webkit-mask-image: radial-gradient(
     ellipse 90% 75% at 50% 30%,
-    black 45%,
+    black 42%,
     transparent 92%
   );
 }
@@ -534,19 +513,23 @@
 .aura-orb-wrapper::before {
   content: "";
 
+  pointer-events: none;
+
   position: absolute;
 
-  inset: -30%;
+  inset: -46px;
 
   z-index: -1;
 
+  border-radius: 50%;
+
   background: radial-gradient(
     circle,
-    rgba(141, 116, 238, 0.22),
-    transparent 68%
+    rgba(136, 104, 240, 0.22),
+    transparent 70%
   );
 
-  filter: blur(18px);
+  filter: blur(2px);
 }
 
 .aura-welcome-text {
@@ -567,9 +550,9 @@
 
   font-family: var(--aura-font-display);
 
-  font-size: 29px;
+  font-size: 28px;
 
-  line-height: 1.28;
+  line-height: 1.3;
 
   font-weight: 600;
 
@@ -673,9 +656,8 @@
   line-height: 1.65;
 }
 
-/* Mensagem do usuário: um bloco que parece recortado da própria
-   penumbra — gradiente preto→violeta, borda que acende à direita
-   e um brilho externo baixo, quase um resquício de luz. */
+/* Mensagem do usuário: superfície sólida, alinhada à direita,
+   com um fio violeta discreto — não um balão de chat comum. */
 
 .aura-user-message {
   display: flex;
@@ -689,23 +671,17 @@
   padding: 12px 15px;
 
   border: 1px solid var(--aura-border-strong);
-  border-right: 2px solid var(--aura-brass);
+  border-right: 2px solid var(--aura-violet);
 
   border-radius: 12px 3px 12px 12px;
 
-  background: linear-gradient(
-    155deg,
-    rgba(37, 24, 64, 0.9) 0%,
-    rgba(18, 12, 32, 0.92) 100%
-  );
-
-  box-shadow: 0 8px 24px rgba(60, 30, 130, 0.18);
+  background: var(--aura-panel-raised);
 
   color: var(--aura-text);
 }
 
-/* Mensagem da AURA: painel aberto, sem balão, com uma régua
-   violeta como margem — a resposta nasce direto da atmosfera. */
+/* Mensagem da AURA: painel editorial com régua sutil — não um
+   balão de chat, uma resposta com identidade de produto. */
 
 .aura-assistant-message {
   max-width: 100%;
@@ -726,7 +702,7 @@
 .aura-user-time {
   margin-top: 6px;
 
-  color: rgba(239, 233, 251, 0.32);
+  color: rgba(241, 237, 251, 0.32);
 
   font-size: 10px;
 }
@@ -759,17 +735,18 @@
   border: 1px solid var(--aura-border-strong);
   border-radius: 8px;
 
-  background: var(--aura-panel-raised);
+  background: radial-gradient(
+      circle at 30% 25%,
+      rgba(136, 104, 240, 0.3),
+      transparent 65%
+    ),
+    var(--aura-panel-raised);
 
-  box-shadow: 0 0 12px rgba(141, 116, 238, 0.22);
-
-  color: var(--aura-moss);
+  color: var(--aura-violet-soft);
 }
 
 .aura-message-avatar-ghost {
   color: var(--aura-muted);
-
-  box-shadow: none;
 }
 
 .aura-message-body {
@@ -795,6 +772,8 @@
 .aura-message-author {
   color: var(--aura-muted-strong);
 
+  font-family: var(--aura-font-display);
+
   font-size: 11.5px;
 
   font-weight: 600;
@@ -802,7 +781,7 @@
 }
 
 .aura-message-time {
-  color: rgba(239, 233, 251, 0.3);
+  color: rgba(241, 237, 251, 0.3);
 
   font-size: 10px;
 }
@@ -812,7 +791,7 @@
    ============================================================ */
 
 .aura-markdown {
-  color: rgba(239, 233, 251, 0.88);
+  color: rgba(241, 237, 251, 0.88);
 
   font-size: 14px;
 
@@ -850,15 +829,15 @@
 }
 
 .aura-markdown h1 {
-  font-size: 21px;
+  font-size: 20px;
 }
 
 .aura-markdown h2 {
-  font-size: 18px;
+  font-size: 17.5px;
 }
 
 .aura-markdown h3 {
-  font-size: 15.5px;
+  font-size: 15px;
 }
 
 .aura-markdown ul,
@@ -887,19 +866,19 @@
 
   padding: 10px 14px;
 
-  border-left: 2px solid var(--aura-brass);
+  border-left: 2px solid var(--aura-violet);
 
-  background: var(--aura-brass-dim);
+  background: var(--aura-violet-dim);
 
   color: var(--aura-muted-strong);
 }
 
 .aura-markdown a {
-  color: var(--aura-brass-soft);
+  color: var(--aura-violet-soft);
 
   text-decoration: underline;
 
-  text-decoration-color: rgba(188, 170, 248, 0.35);
+  text-decoration-color: rgba(182, 164, 255, 0.38);
 
   text-underline-offset: 3px;
 
@@ -907,7 +886,7 @@
 }
 
 .aura-markdown a:hover {
-  color: var(--aura-brass);
+  color: var(--aura-text);
 }
 
 .aura-markdown code {
@@ -917,7 +896,7 @@
 
   background: rgba(0, 0, 0, 0.36);
 
-  color: var(--aura-moss);
+  color: var(--aura-violet-soft);
 
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
@@ -935,7 +914,7 @@
 
   border-radius: 10px;
 
-  background: rgba(0, 0, 0, 0.38);
+  background: var(--aura-panel-sunken);
 
   scrollbar-width: thin;
 }
@@ -947,7 +926,7 @@
 
   background: transparent;
 
-  color: rgba(198, 175, 246, 0.95);
+  color: rgba(200, 187, 255, 0.92);
 
   font-size: 12px;
 
@@ -1020,7 +999,7 @@
 
   background: transparent;
 
-  color: rgba(239, 233, 251, 0.3);
+  color: rgba(241, 237, 251, 0.3);
 
   font-family: inherit;
 
@@ -1073,19 +1052,19 @@
 
   border-radius: 50%;
 
-  background: var(--aura-brass);
+  background: var(--aura-violet);
 
   animation: aura-processing-pulse 1.1s ease-in-out infinite;
 }
 
 .aura-processing-dots span:nth-child(2) {
-  background: var(--aura-moss);
+  background: var(--aura-violet-soft);
 
   animation-delay: 150ms;
 }
 
 .aura-processing-dots span:nth-child(3) {
-  background: var(--aura-brass);
+  background: var(--aura-violet);
 
   animation-delay: 300ms;
 }
@@ -1135,18 +1114,23 @@
 
   border-radius: 13px;
 
-  background: var(--aura-panel);
+  background: linear-gradient(
+      180deg,
+      rgba(136, 104, 240, 0.05),
+      transparent 40%
+    ),
+    var(--aura-panel);
 
-  box-shadow: 0 10px 30px rgba(30, 12, 70, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .aura-input-wrapper:focus-within {
-  border-color: rgba(141, 116, 238, 0.55);
+  border-color: rgba(136, 104, 240, 0.55);
 
-  box-shadow: 0 0 0 3px var(--aura-brass-dim),
-    0 10px 30px rgba(30, 12, 70, 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 0 0 3px var(--aura-violet-dim), 0 0 22px -6px rgba(136, 104, 240, 0.55);
 }
 
 .aura-textarea {
@@ -1176,7 +1160,7 @@
 }
 
 .aura-textarea::placeholder {
-  color: rgba(239, 233, 251, 0.28);
+  color: rgba(241, 237, 251, 0.28);
 }
 
 .aura-textarea:disabled {
@@ -1217,7 +1201,7 @@
 
   background: transparent;
 
-  color: rgba(239, 233, 251, 0.36);
+  color: rgba(241, 237, 251, 0.36);
 
   cursor: pointer;
 
@@ -1235,19 +1219,19 @@
 }
 
 .aura-microphone-active {
-  background: var(--aura-ember-dim);
+  background: var(--aura-signal-dim);
 
-  color: var(--aura-ember);
+  color: var(--aura-signal);
 }
 
 .aura-microphone-active:hover {
-  background: rgba(221, 110, 160, 0.24);
+  background: rgba(226, 96, 122, 0.22);
 
-  color: #e792b3;
+  color: #ec8194;
 }
 
 .aura-microphone-status {
-  color: var(--aura-moss);
+  color: var(--aura-violet-soft);
 
   font-size: 10.5px;
 
@@ -1276,20 +1260,25 @@
 
   border-radius: 9px;
 
-  background: linear-gradient(145deg, var(--aura-brass-soft) 0%, var(--aura-brass) 100%);
+  background: linear-gradient(
+    160deg,
+    var(--aura-violet-soft),
+    var(--aura-violet) 60%,
+    var(--aura-violet-deep)
+  );
 
-  color: #140b23;
+  color: #0a0611;
 
   cursor: pointer;
 
-  box-shadow: 0 4px 16px rgba(141, 116, 238, 0.35);
+  box-shadow: 0 4px 14px -4px rgba(136, 104, 240, 0.55);
 
-  transition: transform 0.18s ease, background 0.18s ease,
-    opacity 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
 
 .aura-send-button:hover:not(:disabled) {
-  box-shadow: 0 6px 22px rgba(141, 116, 238, 0.5);
+  box-shadow: 0 6px 18px -4px rgba(136, 104, 240, 0.7);
 
   transform: translateY(-1px);
 }
@@ -1305,9 +1294,9 @@
 
   background: var(--aura-panel-raised);
 
-  box-shadow: none;
-
   color: var(--aura-muted);
+
+  box-shadow: none;
 }
 
 .aura-disclaimer {
@@ -1318,7 +1307,7 @@
 
   text-align: center;
 
-  color: rgba(239, 233, 251, 0.24);
+  color: rgba(241, 237, 251, 0.24);
 
   font-size: 9.5px;
 
@@ -1370,10 +1359,11 @@
 
   border-right: 1px solid var(--aura-border);
 
-  background: var(--aura-panel);
-
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  background: linear-gradient(
+    180deg,
+    var(--aura-panel) 0%,
+    #0d0817 100%
+  );
 }
 
 /* ============================================================
@@ -1382,7 +1372,7 @@
 
 .aura-page button:focus-visible,
 .aura-page textarea:focus-visible {
-  outline: 2px solid rgba(141, 116, 238, 0.75);
+  outline: 2px solid rgba(136, 104, 240, 0.8);
   outline-offset: 2px;
 }
 
@@ -1445,7 +1435,7 @@
   }
 
   .aura-brand-title h1 {
-    font-size: 16px;
+    font-size: 15.5px;
   }
 
   .aura-brand-suffix {
@@ -1487,7 +1477,7 @@
   }
 
   .aura-welcome-text h2 {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .aura-welcome-text p {
@@ -1595,7 +1585,7 @@
   }
 
   .aura-welcome-text h2 {
-    font-size: 21px;
+    font-size: 20px;
   }
 
   .aura-welcome-text p {
