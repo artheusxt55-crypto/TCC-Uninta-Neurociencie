@@ -50,11 +50,25 @@ export default function ChatSidebar({
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "Agora";
-    if (minutes < 60) return `${minutes} min`;
-    if (hours < 24) return `${hours} h`;
-    if (days === 1) return "Ontem";
-    if (days < 7) return `${days} dias`;
+    if (minutes < 1) {
+      return "Agora";
+    }
+
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+
+    if (hours < 24) {
+      return `${hours} h`;
+    }
+
+    if (days === 1) {
+      return "Ontem";
+    }
+
+    if (days < 7) {
+      return `${days} dias`;
+    }
 
     return date.toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -65,11 +79,12 @@ export default function ChatSidebar({
 
   return (
     <>
-      {/* =========================
-          DESKTOP SIDEBAR
-      ========================== */}
+      {/* =====================================================
+          SIDEBAR DESKTOP
+      ====================================================== */}
+
       <aside className="aura-sidebar aura-sidebar-desktop">
-        {/* Logo */}
+        {/* Header / Logo */}
         <div className="aura-sidebar-header">
           <div className="aura-sidebar-brand">
             <div className="aura-sidebar-logo">
@@ -78,7 +93,7 @@ export default function ChatSidebar({
               <div className="aura-sidebar-logo-glow" />
             </div>
 
-            <div>
+            <div className="aura-sidebar-brand-text">
               <h2>AURA AI</h2>
 
               <p>NEURAL LAB</p>
@@ -94,11 +109,12 @@ export default function ChatSidebar({
             className="aura-new-conversation"
           >
             <Plus size={18} />
+
             <span>Nova conversa</span>
           </button>
         </div>
 
-        {/* Conversas */}
+        {/* Lista de conversas */}
         <div className="aura-sidebar-conversations">
           {conversations.length === 0 ? (
             <div className="aura-empty-conversations">
@@ -127,6 +143,7 @@ export default function ChatSidebar({
                         : ""
                     }`}
                   >
+                    {/* Ícone */}
                     <div
                       className={`aura-conversation-icon ${
                         active
@@ -137,6 +154,7 @@ export default function ChatSidebar({
                       <MessageSquare size={16} />
                     </div>
 
+                    {/* Conteúdo */}
                     <div className="aura-conversation-content">
                       <p
                         className={`aura-conversation-title ${
@@ -187,7 +205,7 @@ export default function ChatSidebar({
           <div className="aura-system-status">
             <div className="aura-status-dot" />
 
-            <div>
+            <div className="aura-system-status-text">
               <p>Sistema online</p>
 
               <span>AURA PROTOCOL 7.0</span>
@@ -196,9 +214,10 @@ export default function ChatSidebar({
         </div>
       </aside>
 
-      {/* =========================
-          MOBILE SIDEBAR
-      ========================== */}
+      {/* =====================================================
+          SIDEBAR MOBILE
+      ====================================================== */}
+
       <AnimatePresence>
         {isOpen && (
           <>
@@ -211,6 +230,7 @@ export default function ChatSidebar({
               onClick={onClose}
             />
 
+            {/* Sidebar */}
             <motion.aside
               initial={{
                 x: -320,
@@ -238,7 +258,7 @@ export default function ChatSidebar({
                     <Sparkles size={20} />
                   </div>
 
-                  <div>
+                  <div className="aura-sidebar-brand-text">
                     <h2>AURA AI</h2>
 
                     <p>NEURAL LAB</p>
@@ -255,7 +275,7 @@ export default function ChatSidebar({
                 </button>
               </div>
 
-              {/* Nova conversa */}
+              {/* Nova conversa mobile */}
               <div className="aura-sidebar-new">
                 <button
                   type="button"
@@ -266,6 +286,7 @@ export default function ChatSidebar({
                   className="aura-new-conversation"
                 >
                   <Plus size={18} />
+
                   <span>Nova conversa</span>
                 </button>
               </div>
@@ -294,6 +315,7 @@ export default function ChatSidebar({
                               onSelect(
                                 conversation.id
                               );
+
                               onClose();
                             }}
                             className={`aura-conversation ${
@@ -302,6 +324,7 @@ export default function ChatSidebar({
                                 : ""
                             }`}
                           >
+                            {/* Ícone */}
                             <div
                               className={`aura-conversation-icon ${
                                 active
@@ -312,9 +335,18 @@ export default function ChatSidebar({
                               <MessageSquare size={16} />
                             </div>
 
+                            {/* Conteúdo */}
                             <div className="aura-conversation-content">
-                              <p className="aura-conversation-title aura-conversation-title-active">
-                                {conversation.title}
+                              <p
+                                className={`aura-conversation-title ${
+                                  active
+                                    ? "aura-conversation-title-active"
+                                    : ""
+                                }`}
+                              >
+                                {
+                                  conversation.title
+                                }
                               </p>
 
                               <p className="aura-mobile-message-count">
@@ -325,7 +357,7 @@ export default function ChatSidebar({
                                 mensagens
                               </p>
                             </div>
-                          </div>
+                          </button>
                         );
                       }
                     )}
@@ -338,7 +370,7 @@ export default function ChatSidebar({
                 <div className="aura-system-status">
                   <div className="aura-status-dot" />
 
-                  <div>
+                  <div className="aura-system-status-text">
                     <p>Sistema online</p>
 
                     <span>
