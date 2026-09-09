@@ -1,43 +1,49 @@
 /* ============================================================
-   AURA AI
-   NEURAL LAB
+   AURA AI — EDUCACUBE
+   Identidade visual: Preto + Roxo
    ============================================================ */
 
 .aura-page {
-  --aura-bg: #05060a;
-  --aura-panel: #090b12;
-  --aura-panel-light: rgba(255, 255, 255, 0.045);
-  --aura-border: rgba(255, 255, 255, 0.09);
+  --aura-black: #030204;
+  --aura-bg: #07050a;
+  --aura-surface: #0b0810;
+  --aura-surface-2: #100b17;
+  --aura-surface-3: #160d20;
 
-  --aura-violet: #7c3aed;
-  --aura-violet-light: #8b5cf6;
-  --aura-cyan: #06b6d4;
+  --aura-purple: #7c3aed;
+  --aura-purple-bright: #9333ea;
+  --aura-purple-light: #a855f7;
+  --aura-purple-soft: #c084fc;
 
-  --aura-text: #ffffff;
-  --aura-muted: rgba(255, 255, 255, 0.42);
-  --aura-muted-light: rgba(255, 255, 255, 0.65);
+  --aura-white: #ffffff;
+  --aura-text: rgba(255, 255, 255, 0.92);
+  --aura-muted: rgba(255, 255, 255, 0.45);
+  --aura-subtle: rgba(255, 255, 255, 0.27);
 
-  position: relative;
+  --aura-border: rgba(168, 85, 247, 0.13);
+  --aura-border-strong: rgba(168, 85, 247, 0.28);
 
   width: 100%;
   height: 100vh;
 
+  position: relative;
+
   overflow: hidden;
+
+  color: var(--aura-text);
 
   background:
     radial-gradient(
-      circle at 50% 15%,
-      rgba(99, 102, 241, 0.10),
-      transparent 34%
+      ellipse 700px 500px at 50% -10%,
+      rgba(124, 58, 237, 0.17),
+      transparent 68%
     ),
     radial-gradient(
-      circle at 50% 90%,
-      rgba(6, 182, 212, 0.06),
-      transparent 35%
+      ellipse 500px 400px at 85% 100%,
+      rgba(147, 51, 234, 0.08),
+      transparent 70%
     ),
-    #05060a;
-
-  color: var(--aura-text);
+    var(--aura-black);
 
   font-family:
     Inter,
@@ -76,19 +82,26 @@
   height: 100%;
 
   position: relative;
-  z-index: 20;
+
+  z-index: 30;
 }
 
 .aura-main {
   display: flex;
 
-  min-width: 0;
-
   flex: 1;
+
+  min-width: 0;
+  height: 100%;
 
   flex-direction: column;
 
-  height: 100%;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 5, 10, 0.98),
+      rgba(3, 2, 4, 1)
+    );
 }
 
 /* ============================================================
@@ -98,33 +111,55 @@
 .aura-header {
   display: flex;
 
-  flex-shrink: 0;
+  height: 68px;
 
-  height: 64px;
+  flex-shrink: 0;
 
   align-items: center;
   justify-content: space-between;
 
   padding: 0 24px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-
-  background:
-    rgba(5, 6, 10, 0.72);
-
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-
   position: relative;
   z-index: 10;
+
+  border-bottom: 1px solid rgba(168, 85, 247, 0.10);
+
+  background:
+    rgba(5, 3, 7, 0.82);
+
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+.aura-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -1px;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(168, 85, 247, 0.22),
+      transparent
+    );
+
+  pointer-events: none;
 }
 
 .aura-header-left {
   display: flex;
 
-  align-items: center;
-
   min-width: 0;
+
+  align-items: center;
 
   gap: 12px;
 }
@@ -134,34 +169,60 @@
 
   align-items: center;
 
-  gap: 12px;
+  gap: 11px;
 }
 
 .aura-brand-icon {
   display: flex;
 
-  width: 40px;
-  height: 40px;
+  width: 39px;
+  height: 39px;
 
   flex-shrink: 0;
 
   align-items: center;
   justify-content: center;
 
+  position: relative;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(192, 132, 252, 0.24);
+
   border-radius: 12px;
 
   background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(192, 132, 252, 0.45),
+      transparent 40%
+    ),
     linear-gradient(
-      135deg,
-      #7c3aed,
-      #06b6d4
+      145deg,
+      #8b2be2,
+      #4c1d95
     );
 
   color: white;
 
   box-shadow:
-    0 8px 30px
-    rgba(124, 58, 237, 0.20);
+    0 0 0 1px rgba(124, 58, 237, 0.08),
+    0 8px 30px rgba(124, 58, 237, 0.28);
+}
+
+.aura-brand-icon::before {
+  content: "";
+
+  position: absolute;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255, 255, 255, 0.20);
+
+  opacity: 0.8;
 }
 
 .aura-brand-info {
@@ -183,17 +244,19 @@
 .aura-brand-title h1 {
   margin: 0;
 
+  color: #fff;
+
   font-size: 14px;
 
   line-height: 1.2;
 
-  font-weight: 700;
+  font-weight: 750;
 
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .aura-brand-title svg {
-  color: #a78bfa;
+  color: var(--aura-purple-light);
 }
 
 .aura-status {
@@ -203,9 +266,9 @@
 
   gap: 7px;
 
-  color: rgba(255, 255, 255, 0.40);
+  color: rgba(255, 255, 255, 0.34);
 
-  font-size: 11px;
+  font-size: 10px;
 
   line-height: 1;
 }
@@ -214,26 +277,30 @@
   width: 6px;
   height: 6px;
 
+  flex-shrink: 0;
+
   border-radius: 50%;
 
-  background: #34d399;
+  background: var(--aura-purple-light);
 
   box-shadow:
-    0 0 10px
-    rgba(52, 211, 153, 0.75);
+    0 0 7px rgba(168, 85, 247, 0.90),
+    0 0 16px rgba(124, 58, 237, 0.50);
 
   animation:
-    aura-status-pulse 2.2s ease-in-out infinite;
+    aura-status-pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes aura-status-pulse {
   0%,
   100% {
     opacity: 0.55;
+    transform: scale(0.9);
   }
 
   50% {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -246,7 +313,7 @@
 
   align-items: center;
 
-  gap: 7px;
+  gap: 6px;
 }
 
 .aura-icon-button,
@@ -256,70 +323,11 @@
   align-items: center;
   justify-content: center;
 
-  border: 0;
+  border: 1px solid transparent;
 
   background: transparent;
 
-  color: rgba(255, 255, 255, 0.48);
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.aura-icon-button {
-  width: 38px;
-  height: 38px;
-
-  border-radius: 11px;
-}
-
-.aura-icon-button:hover,
-.aura-menu-button:hover {
-  background: rgba(255, 255, 255, 0.07);
-
-  color: white;
-}
-
-.aura-icon-button:active,
-.aura-menu-button:active {
-  transform: scale(0.95);
-}
-
-.aura-icon-button-active {
-  color: #a78bfa;
-  background: rgba(124, 58, 237, 0.12);
-}
-
-.aura-new-chat-button {
-  display: flex;
-
-  height: 38px;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  padding: 0 13px;
-
-  border: 1px solid rgba(255, 255, 255, 0.10);
-
-  border-radius: 11px;
-
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  color: rgba(255, 255, 255, 0.75);
-
-  font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.40);
 
   cursor: pointer;
 
@@ -330,27 +338,110 @@
     transform 0.2s ease;
 }
 
-.aura-new-chat-button:hover {
-  background:
-    rgba(255, 255, 255, 0.09);
+.aura-icon-button {
+  width: 37px;
+  height: 37px;
 
-  border-color:
-    rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.aura-icon-button:hover,
+.aura-menu-button:hover {
+  border-color: rgba(168, 85, 247, 0.12);
+
+  background:
+    rgba(168, 85, 247, 0.08);
 
   color: white;
 }
 
+.aura-icon-button:active,
+.aura-menu-button:active {
+  transform: scale(0.94);
+}
+
+.aura-icon-button-active {
+  color: var(--aura-purple-soft);
+
+  border-color:
+    rgba(168, 85, 247, 0.18);
+
+  background:
+    rgba(124, 58, 237, 0.12);
+
+  box-shadow:
+    inset 0 0 18px rgba(124, 58, 237, 0.06);
+}
+
+.aura-new-chat-button {
+  display: flex;
+
+  height: 37px;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 13px;
+
+  border: 1px solid rgba(168, 85, 247, 0.17);
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.13),
+      rgba(124, 58, 237, 0.05)
+    );
+
+  color: rgba(255, 255, 255, 0.68);
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.aura-new-chat-button:hover {
+  border-color:
+    rgba(168, 85, 247, 0.38);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.22),
+      rgba(124, 58, 237, 0.08)
+    );
+
+  color: white;
+
+  box-shadow:
+    0 6px 22px rgba(124, 58, 237, 0.13);
+}
+
 .aura-new-chat-button:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .aura-menu-button {
   display: none;
 
-  width: 38px;
-  height: 38px;
+  width: 37px;
+  height: 37px;
 
-  border-radius: 11px;
+  border-radius: 10px;
 }
 
 /* ============================================================
@@ -368,8 +459,6 @@
 }
 
 .aura-chat-container {
-  position: relative;
-
   display: flex;
 
   width: 100%;
@@ -377,44 +466,62 @@
 
   flex-direction: column;
 
+  position: relative;
+
   z-index: 2;
 }
+
+/* ============================================================
+   AMBIENTE AURA
+   ============================================================ */
 
 .aura-background-glow {
   pointer-events: none;
 
   position: absolute;
 
-  width: 500px;
-  height: 500px;
-
   border-radius: 50%;
 
   filter: blur(100px);
 
-  opacity: 0.18;
-
   z-index: 0;
+
+  opacity: 0.20;
 }
 
 .aura-glow-one {
-  top: -300px;
+  width: 560px;
+  height: 560px;
+
+  top: -390px;
   left: 50%;
 
   transform: translateX(-50%);
 
-  background: #6366f1;
+  background:
+    radial-gradient(
+      circle,
+      rgba(124, 58, 237, 0.62),
+      rgba(124, 58, 237, 0.05) 60%,
+      transparent 72%
+    );
 }
 
 .aura-glow-two {
-  bottom: -360px;
-  left: 50%;
+  width: 460px;
+  height: 460px;
 
-  transform: translateX(-50%);
+  right: -250px;
+  bottom: -300px;
 
-  background: #06b6d4;
+  background:
+    radial-gradient(
+      circle,
+      rgba(168, 85, 247, 0.22),
+      transparent 70%
+    );
 
-  opacity: 0.10;
+  opacity: 0.13;
 }
 
 /* ============================================================
@@ -447,11 +554,17 @@
   justify-content: center;
 
   position: relative;
+
+  filter:
+    drop-shadow(
+      0 0 35px
+      rgba(124, 58, 237, 0.18)
+    );
 }
 
 .aura-welcome-text {
   width: 100%;
-  max-width: 520px;
+  max-width: 590px;
 
   margin-top: 28px;
 
@@ -463,26 +576,52 @@
 
   color: white;
 
-  font-size: 30px;
+  font-size: 31px;
 
-  line-height: 1.2;
+  line-height: 1.15;
 
-  font-weight: 700;
+  font-weight: 760;
 
-  letter-spacing: -0.035em;
+  letter-spacing: -0.045em;
+}
+
+.aura-welcome-text h2::after {
+  content: "";
+
+  display: block;
+
+  width: 46px;
+  height: 2px;
+
+  margin: 13px auto 0;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--aura-purple-light),
+      transparent
+    );
+
+  box-shadow:
+    0 0 14px rgba(168, 85, 247, 0.45);
 }
 
 .aura-welcome-text p {
-  max-width: 500px;
+  max-width: 520px;
 
-  margin: 12px auto 0;
+  margin: 13px auto 0;
 
   color:
-    rgba(255, 255, 255, 0.38);
+    rgba(255, 255, 255, 0.39);
 
-  font-size: 14px;
+  font-size: 13px;
 
-  line-height: 1.75;
+  line-height: 1.8;
+
+  letter-spacing: 0.005em;
 }
 
 /* ============================================================
@@ -496,7 +635,7 @@
 
   overflow-y: auto;
 
-  padding: 26px 24px;
+  padding: 28px 24px;
 
   position: relative;
 
@@ -505,12 +644,12 @@
   scrollbar-width: thin;
 
   scrollbar-color:
-    rgba(255, 255, 255, 0.10)
+    rgba(168, 85, 247, 0.18)
     transparent;
 }
 
 .aura-messages-scroll::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .aura-messages-scroll::-webkit-scrollbar-track {
@@ -521,20 +660,20 @@
   border-radius: 20px;
 
   background:
-    rgba(255, 255, 255, 0.10);
+    rgba(168, 85, 247, 0.18);
 }
 
 .aura-messages {
+  display: flex;
+
   width: 100%;
-  max-width: 900px;
+  max-width: 920px;
 
   margin: 0 auto;
 
-  display: flex;
-
   flex-direction: column;
 
-  gap: 22px;
+  gap: 24px;
 }
 
 .aura-message-row {
@@ -560,49 +699,35 @@
 
   font-size: 14px;
 
-  line-height: 1.65;
+  line-height: 1.68;
 }
+
+/* ============================================================
+   USER
+   ============================================================ */
 
 .aura-user-message {
   max-width: min(680px, 88%);
 
-  padding: 12px 16px;
+  padding: 12px 17px;
+
+  border: 1px solid rgba(192, 132, 252, 0.20);
 
   border-bottom-right-radius: 5px;
 
   background:
     linear-gradient(
       135deg,
-      #7c3aed,
-      #6d28d9
+      #7c3aed 0%,
+      #6d28d9 48%,
+      #581c87 100%
     );
 
   color: white;
 
   box-shadow:
-    0 12px 30px
-    rgba(76, 29, 149, 0.16);
-}
-
-.aura-assistant-message {
-  max-width: 820px;
-
-  padding: 15px 18px;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.08);
-
-  border-bottom-left-radius: 5px;
-
-  background:
-    rgba(255, 255, 255, 0.035);
-
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-
-  box-shadow:
-    0 15px 40px
-    rgba(0, 0, 0, 0.12);
+    0 12px 35px rgba(76, 29, 149, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .aura-user-text {
@@ -612,8 +737,33 @@
 }
 
 /* ============================================================
-   ASSISTANT MESSAGE
+   ASSISTANT
    ============================================================ */
+
+.aura-assistant-message {
+  max-width: 820px;
+
+  padding: 15px 18px;
+
+  border: 1px solid
+    rgba(168, 85, 247, 0.12);
+
+  border-bottom-left-radius: 5px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(20, 13, 28, 0.92),
+      rgba(10, 7, 13, 0.88)
+    );
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
 
 .aura-assistant-content {
   display: flex;
@@ -636,20 +786,26 @@
   align-items: center;
   justify-content: center;
 
+  border: 1px solid rgba(192, 132, 252, 0.25);
+
   border-radius: 9px;
 
   background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(192, 132, 252, 0.32),
+      transparent 50%
+    ),
     linear-gradient(
-      135deg,
+      145deg,
       #7c3aed,
-      #06b6d4
+      #4c1d95
     );
 
   color: white;
 
   box-shadow:
-    0 6px 18px
-    rgba(124, 58, 237, 0.18);
+    0 7px 22px rgba(124, 58, 237, 0.20);
 }
 
 .aura-message-body {
@@ -664,7 +820,7 @@
 
 .aura-markdown {
   color:
-    rgba(255, 255, 255, 0.88);
+    rgba(255, 255, 255, 0.84);
 
   font-size: 14px;
 
@@ -694,7 +850,7 @@
 
   color: white;
 
-  font-weight: 700;
+  font-weight: 720;
 
   line-height: 1.35;
 }
@@ -730,32 +886,31 @@
 
 .aura-markdown em {
   color:
-    rgba(255, 255, 255, 0.72);
+    rgba(255, 255, 255, 0.66);
 }
 
 .aura-markdown blockquote {
   margin: 14px 0;
 
-  padding: 10px 14px;
+  padding: 11px 15px;
 
-  border-left: 3px solid
-    rgba(139, 92, 246, 0.65);
+  border-left: 2px solid
+    rgba(168, 85, 247, 0.70);
 
   background:
-    rgba(139, 92, 246, 0.06);
+    rgba(124, 58, 237, 0.055);
 
   color:
-    rgba(255, 255, 255, 0.62);
+    rgba(255, 255, 255, 0.58);
 }
 
 .aura-markdown a {
-  color: #22d3ee;
+  color: var(--aura-purple-soft);
 
-  text-decoration:
-    underline;
+  text-decoration: underline;
 
   text-decoration-color:
-    rgba(34, 211, 238, 0.35);
+    rgba(192, 132, 252, 0.30);
 
   text-underline-offset: 3px;
 
@@ -763,18 +918,20 @@
 }
 
 .aura-markdown a:hover {
-  color: #67e8f9;
+  color: white;
 }
 
 .aura-markdown code {
   padding: 2px 6px;
 
+  border: 1px solid rgba(168, 85, 247, 0.10);
+
   border-radius: 5px;
 
   background:
-    rgba(0, 0, 0, 0.35);
+    rgba(124, 58, 237, 0.08);
 
-  color: #67e8f9;
+  color: var(--aura-purple-soft);
 
   font-family:
     "SFMono-Regular",
@@ -788,17 +945,17 @@
 .aura-markdown pre {
   margin: 14px 0;
 
-  padding: 14px;
+  padding: 15px;
 
   overflow-x: auto;
 
   border: 1px solid
-    rgba(255, 255, 255, 0.06);
+    rgba(168, 85, 247, 0.10);
 
   border-radius: 12px;
 
   background:
-    rgba(0, 0, 0, 0.38);
+    #050306;
 
   scrollbar-width: thin;
 }
@@ -808,9 +965,11 @@
 
   padding: 0;
 
+  border: 0;
+
   background: transparent;
 
-  color: #a5f3fc;
+  color: #d8b4fe;
 
   font-size: 12px;
 
@@ -834,14 +993,14 @@
   padding: 8px 10px;
 
   border: 1px solid
-    rgba(255, 255, 255, 0.08);
+    rgba(168, 85, 247, 0.10);
 
   text-align: left;
 }
 
 .aura-markdown th {
   background:
-    rgba(255, 255, 255, 0.06);
+    rgba(124, 58, 237, 0.10);
 
   color: white;
 }
@@ -852,7 +1011,7 @@
   border: 0;
 
   border-top: 1px solid
-    rgba(255, 255, 255, 0.08);
+    rgba(168, 85, 247, 0.10);
 }
 
 /* ============================================================
@@ -872,11 +1031,11 @@
 .aura-message-action {
   display: inline-flex;
 
+  min-height: 28px;
+
   align-items: center;
 
   gap: 5px;
-
-  min-height: 28px;
 
   padding: 4px 8px;
 
@@ -887,7 +1046,7 @@
   background: transparent;
 
   color:
-    rgba(255, 255, 255, 0.30);
+    rgba(255, 255, 255, 0.25);
 
   font-family: inherit;
 
@@ -902,10 +1061,10 @@
 
 .aura-message-action:hover {
   background:
-    rgba(255, 255, 255, 0.07);
+    rgba(168, 85, 247, 0.08);
 
   color:
-    rgba(255, 255, 255, 0.72);
+    rgba(255, 255, 255, 0.70);
 }
 
 .aura-speak-button {
@@ -926,16 +1085,17 @@
   padding: 12px 15px;
 
   border: 1px solid
-    rgba(255, 255, 255, 0.08);
+    rgba(168, 85, 247, 0.12);
 
   border-radius: 16px;
+
   border-bottom-left-radius: 5px;
 
   background:
-    rgba(255, 255, 255, 0.035);
+    rgba(20, 13, 28, 0.88);
 
   color:
-    rgba(255, 255, 255, 0.38);
+    rgba(255, 255, 255, 0.36);
 
   font-size: 11px;
 }
@@ -954,7 +1114,10 @@
 
   border-radius: 50%;
 
-  background: #8b5cf6;
+  background: var(--aura-purple-light);
+
+  box-shadow:
+    0 0 9px rgba(168, 85, 247, 0.55);
 
   animation:
     aura-processing-pulse
@@ -962,13 +1125,13 @@
 }
 
 .aura-processing-dots span:nth-child(2) {
-  background: #06b6d4;
+  background: var(--aura-purple);
 
   animation-delay: 150ms;
 }
 
 .aura-processing-dots span:nth-child(3) {
-  background: #8b5cf6;
+  background: var(--aura-purple-soft);
 
   animation-delay: 300ms;
 }
@@ -977,14 +1140,12 @@
   0%,
   100% {
     opacity: 0.25;
-
-    transform: translateY(0);
+    transform: translateY(0) scale(0.85);
   }
 
   50% {
     opacity: 1;
-
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1);
   }
 }
 
@@ -995,9 +1156,7 @@
 .aura-input-area {
   flex-shrink: 0;
 
-  padding:
-    12px 24px
-    18px;
+  padding: 12px 24px 18px;
 
   position: relative;
 
@@ -1005,29 +1164,33 @@
 }
 
 .aura-input-wrapper {
-  position: relative;
-
   width: 100%;
   max-width: 900px;
 
+  min-height: 61px;
+
   margin: 0 auto;
 
-  min-height: 60px;
+  position: relative;
 
   border: 1px solid
-    rgba(255, 255, 255, 0.09);
+    rgba(168, 85, 247, 0.14);
 
   border-radius: 17px;
 
   background:
-    rgba(255, 255, 255, 0.035);
+    linear-gradient(
+      135deg,
+      rgba(20, 13, 28, 0.92),
+      rgba(8, 5, 10, 0.94)
+    );
 
   box-shadow:
-    0 20px 50px
-    rgba(0, 0, 0, 0.20);
+    0 22px 55px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
   transition:
     border-color 0.2s ease,
@@ -1036,13 +1199,14 @@
 
 .aura-input-wrapper:focus-within {
   border-color:
-    rgba(139, 92, 246, 0.45);
+    rgba(168, 85, 247, 0.38);
 
   box-shadow:
-    0 20px 60px
-    rgba(0, 0, 0, 0.24),
+    0 22px 65px rgba(0, 0, 0, 0.40),
     0 0 0 3px
-    rgba(124, 58, 237, 0.06);
+      rgba(124, 58, 237, 0.07),
+    0 0 35px
+      rgba(124, 58, 237, 0.06);
 }
 
 .aura-textarea {
@@ -1050,11 +1214,9 @@
 
   width: 100%;
 
-  min-height: 60px;
+  min-height: 61px;
 
-  padding:
-    15px 58px
-    46px 16px;
+  padding: 15px 58px 46px 17px;
 
   resize: none;
 
@@ -1075,7 +1237,7 @@
 
 .aura-textarea::placeholder {
   color:
-    rgba(255, 255, 255, 0.24);
+    rgba(255, 255, 255, 0.22);
 }
 
 .aura-textarea:disabled {
@@ -1110,29 +1272,33 @@
   align-items: center;
   justify-content: center;
 
-  border: 0;
+  border: 1px solid transparent;
 
   border-radius: 10px;
 
   background: transparent;
 
   color:
-    rgba(255, 255, 255, 0.34);
+    rgba(255, 255, 255, 0.32);
 
   cursor: pointer;
 
   transition:
     background 0.2s ease,
+    border-color 0.2s ease,
     color 0.2s ease,
     transform 0.2s ease;
 }
 
 .aura-microphone-button:hover {
+  border-color:
+    rgba(168, 85, 247, 0.13);
+
   background:
-    rgba(255, 255, 255, 0.07);
+    rgba(168, 85, 247, 0.08);
 
   color:
-    rgba(255, 255, 255, 0.75);
+    rgba(255, 255, 255, 0.78);
 }
 
 .aura-microphone-button:active {
@@ -1140,21 +1306,30 @@
 }
 
 .aura-microphone-active {
-  background:
-    rgba(239, 68, 68, 0.14);
+  border-color:
+    rgba(168, 85, 247, 0.30);
 
-  color: #f87171;
+  background:
+    rgba(124, 58, 237, 0.15);
+
+  color: var(--aura-purple-soft);
+
+  box-shadow:
+    0 0 20px rgba(124, 58, 237, 0.10);
 }
 
 .aura-microphone-active:hover {
-  background:
-    rgba(239, 68, 68, 0.20);
+  border-color:
+    rgba(192, 132, 252, 0.42);
 
-  color: #fca5a5;
+  background:
+    rgba(124, 58, 237, 0.20);
+
+  color: white;
 }
 
 .aura-microphone-status {
-  color: #34d399;
+  color: var(--aura-purple-soft);
 
   font-size: 10px;
 
@@ -1168,25 +1343,25 @@
 .aura-send-button {
   display: flex;
 
+  width: 36px;
+  height: 36px;
+
   position: absolute;
 
   right: 9px;
   bottom: 9px;
 
-  width: 36px;
-  height: 36px;
-
   align-items: center;
   justify-content: center;
 
-  border: 0;
+  border: 1px solid rgba(192, 132, 252, 0.20);
 
   border-radius: 10px;
 
   background:
     linear-gradient(
-      135deg,
-      #7c3aed,
+      145deg,
+      #9333ea,
       #6d28d9
     );
 
@@ -1195,34 +1370,39 @@
   cursor: pointer;
 
   box-shadow:
-    0 8px 20px
-    rgba(124, 58, 237, 0.20);
+    0 8px 24px rgba(124, 58, 237, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
   transition:
     transform 0.2s ease,
     background 0.2s ease,
-    opacity 0.2s ease;
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .aura-send-button:hover:not(:disabled) {
   background:
     linear-gradient(
-      135deg,
-      #8b5cf6,
+      145deg,
+      #a855f7,
       #7c3aed
     );
 
   transform: translateY(-1px);
+
+  box-shadow:
+    0 10px 30px rgba(124, 58, 237, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .aura-send-button:active:not(:disabled) {
-  transform: scale(0.94);
+  transform: scale(0.93);
 }
 
 .aura-send-button:disabled {
   cursor: not-allowed;
 
-  opacity: 0.25;
+  opacity: 0.22;
 
   box-shadow: none;
 }
@@ -1236,7 +1416,7 @@
   text-align: center;
 
   color:
-    rgba(255, 255, 255, 0.20);
+    rgba(255, 255, 255, 0.18);
 
   font-size: 9px;
 
@@ -1270,22 +1450,22 @@
   border: 0;
 
   background:
-    rgba(0, 0, 0, 0.72);
+    rgba(0, 0, 0, 0.78);
 
   cursor: pointer;
 
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(7px);
 }
 
 .aura-mobile-sidebar {
-  position: relative;
-
-  z-index: 2;
-
-  width: 85%;
+  width: 86%;
   max-width: 360px;
 
   height: 100%;
+
+  position: relative;
+
+  z-index: 2;
 }
 
 /* ============================================================
@@ -1295,7 +1475,7 @@
 .aura-page button:focus-visible,
 .aura-page textarea:focus-visible {
   outline: 2px solid
-    rgba(139, 92, 246, 0.75);
+    rgba(168, 85, 247, 0.75);
 
   outline-offset: 2px;
 }
@@ -1310,14 +1490,11 @@
   }
 
   .aura-messages-scroll {
-    padding:
-      22px 18px;
+    padding: 22px 18px;
   }
 
   .aura-input-area {
-    padding:
-      10px 18px
-      16px;
+    padding: 10px 18px 16px;
   }
 
   .aura-message-bubble {
@@ -1345,8 +1522,7 @@
   .aura-header {
     height: 60px;
 
-    padding:
-      0 12px;
+    padding: 0 12px;
   }
 
   .aura-header-left {
@@ -1369,7 +1545,7 @@
   }
 
   .aura-status {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .aura-header-actions {
@@ -1395,12 +1571,15 @@
   }
 
   .aura-welcome {
-    padding:
-      20px 18px;
+    padding: 20px 18px;
+  }
+
+  .aura-orb-wrapper {
+    transform: scale(0.90);
   }
 
   .aura-welcome-text {
-    margin-top: 20px;
+    margin-top: 8px;
   }
 
   .aura-welcome-text h2 {
@@ -1410,14 +1589,13 @@
   .aura-welcome-text p {
     margin-top: 9px;
 
-    font-size: 13px;
+    font-size: 12px;
 
-    line-height: 1.65;
+    line-height: 1.7;
   }
 
   .aura-messages-scroll {
-    padding:
-      18px 12px;
+    padding: 18px 12px;
   }
 
   .aura-messages {
@@ -1431,13 +1609,11 @@
   }
 
   .aura-user-message {
-    padding:
-      10px 13px;
+    padding: 10px 13px;
   }
 
   .aura-assistant-message {
-    padding:
-      12px 13px;
+    padding: 12px 13px;
   }
 
   .aura-assistant-content {
@@ -1458,9 +1634,7 @@
   }
 
   .aura-input-area {
-    padding:
-      8px 10px
-      13px;
+    padding: 8px 10px 13px;
   }
 
   .aura-input-wrapper {
@@ -1472,9 +1646,7 @@
   .aura-textarea {
     min-height: 57px;
 
-    padding:
-      14px 52px
-      43px 14px;
+    padding: 14px 52px 43px 14px;
 
     font-size: 13px;
   }
