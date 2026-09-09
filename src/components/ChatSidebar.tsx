@@ -1,9 +1,9 @@
 import {
+  Clock,
   MessageSquare,
   Plus,
+  Waypoints,
   X,
-  Clock,
-  Sparkles,
 } from "lucide-react";
 
 import "../styles/chat-sidebar.css";
@@ -108,16 +108,12 @@ function SidebarContent({
         <div className="aura-sidebar-brand">
 
           <div className="aura-sidebar-logo">
-            <Sparkles size={18} />
-            <span className="aura-sidebar-logo-ring" />
+            <Waypoints size={17} strokeWidth={1.75} />
           </div>
 
           <div className="aura-sidebar-brand-text">
-            <h2>AURA AI</h2>
-
-            <p>
-              EDUCATION INTELLIGENCE
-            </p>
+            <h2>AURA</h2>
+            <p>EducaCube</p>
           </div>
 
         </div>
@@ -129,7 +125,7 @@ function SidebarContent({
             onClick={onClose}
             aria-label="Fechar menu"
           >
-            <X size={19} />
+            <X size={18} strokeWidth={1.75} />
           </button>
         )}
 
@@ -150,7 +146,7 @@ function SidebarContent({
             }
           }}
         >
-          <Plus size={17} />
+          <Plus size={16} strokeWidth={2} />
 
           <span>
             Nova conversa
@@ -162,7 +158,7 @@ function SidebarContent({
       {/* LABEL */}
 
       <div className="aura-sidebar-section-title">
-        <span>CONVERSAS</span>
+        <span>Conversas</span>
 
         {conversations.length > 0 && (
           <span className="aura-sidebar-count">
@@ -180,7 +176,7 @@ function SidebarContent({
           <div className="aura-empty-conversations">
 
             <div className="aura-empty-icon">
-              <MessageSquare size={21} />
+              <MessageSquare size={19} strokeWidth={1.75} />
             </div>
 
             <strong>
@@ -235,7 +231,7 @@ function SidebarContent({
                           : ""
                       }`}
                     >
-                      <MessageSquare size={15} />
+                      <MessageSquare size={14} strokeWidth={1.75} />
                     </div>
 
                     <div className="aura-conversation-content">
@@ -252,7 +248,7 @@ function SidebarContent({
 
                       <div className="aura-conversation-meta">
 
-                        <Clock size={10} />
+                        <Clock size={10} strokeWidth={1.75} />
 
                         <span>
                           {formatDate(
@@ -292,9 +288,7 @@ function SidebarContent({
 
         <div className="aura-system-status">
 
-          <div className="aura-status-orbit">
-            <span />
-          </div>
+          <span className="aura-system-status-dot" />
 
           <div className="aura-system-status-text">
 
@@ -303,13 +297,9 @@ function SidebarContent({
             </p>
 
             <span>
-              AURA NEURAL CORE
+              núcleo neural da AURA
             </span>
 
-          </div>
-
-          <div className="aura-system-status-indicator">
-            ONLINE
           </div>
 
         </div>
