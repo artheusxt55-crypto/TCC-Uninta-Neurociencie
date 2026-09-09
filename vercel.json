@@ -2,15 +2,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/aura",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/aura/",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
