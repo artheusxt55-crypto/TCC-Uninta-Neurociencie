@@ -7,14 +7,15 @@ import {
 
 import {
   ArrowUp,
+  Bot,
   Copy,
   Menu,
   Mic,
   MicOff,
   Plus,
+  Sparkles,
   Volume2,
   VolumeX,
-  Waypoints,
 } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
@@ -84,17 +85,6 @@ function normalizeDate(value: unknown): Date {
   }
 
   return new Date();
-}
-
-function formatMessageTime(date: Date): string {
-  try {
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
 }
 
 export default function AuraAI() {
@@ -772,27 +762,37 @@ export default function AuraAI() {
                 className="aura-menu-button"
                 aria-label="Abrir conversas"
               >
-                <Menu size={20} />
+                <Menu size={22} />
               </button>
 
               <div className="aura-brand">
 
-                <div className="aura-brand-mark">
-                  <Waypoints size={18} strokeWidth={1.75} />
+                <div className="aura-brand-icon">
+                  <Bot size={20} />
                 </div>
 
                 <div className="aura-brand-info">
 
                   <div className="aura-brand-title">
-                    <h1>AURA</h1>
-                    <span className="aura-brand-suffix">
-                      EducaCube
+                    <h1>
+                      AURA AI
+                    </h1>
+
+                    <Sparkles
+                      size={13}
+                    />
+
+                    <span className="aura-brand-badge">
+                      NEURAL LAB
                     </span>
                   </div>
 
                   <div className="aura-status">
                     <span className="aura-status-dot" />
-                    <span>rede neural ativa</span>
+
+                    <span>
+                      Sistema neural online
+                    </span>
                   </div>
 
                 </div>
@@ -825,9 +825,9 @@ export default function AuraAI() {
                 }
               >
                 {voiceEnabled ? (
-                  <Volume2 size={18} strokeWidth={1.75} />
+                  <Volume2 size={19} />
                 ) : (
-                  <VolumeX size={18} strokeWidth={1.75} />
+                  <VolumeX size={19} />
                 )}
               </button>
 
@@ -840,8 +840,11 @@ export default function AuraAI() {
                 }
                 className="aura-new-chat-button"
               >
-                <Plus size={16} strokeWidth={2} />
-                <span>Nova conversa</span>
+                <Plus size={16} />
+
+                <span>
+                  Nova conversa
+                </span>
               </button>
 
             </div>
@@ -853,7 +856,8 @@ export default function AuraAI() {
 
           <section className="aura-chat-section">
 
-            <div className="aura-field" aria-hidden="true" />
+            <div className="aura-background-glow aura-glow-one" />
+            <div className="aura-background-glow aura-glow-two" />
 
             <div className="aura-chat-container">
 
@@ -889,13 +893,15 @@ export default function AuraAI() {
                   <div className="aura-welcome-text">
 
                     <h2>
-                      Um espaço para pensar em conjunto.
+                      Como posso ajudar?
                     </h2>
 
                     <p>
-                      A AURA conecta metodologias, pesquisas
-                      e práticas pedagógicas para apoiar sua
-                      reflexão sobre ensino e aprendizagem.
+                      Converse com a AURA
+                      sobre psicologia,
+                      neurociência, estudos,
+                      pesquisas e
+                      conhecimento científico.
                     </p>
 
                   </div>
@@ -945,24 +951,12 @@ export default function AuraAI() {
                               <div className="aura-assistant-content">
 
                                 <div className="aura-message-avatar">
-                                  <Waypoints
-                                    size={14}
-                                    strokeWidth={1.75}
+                                  <Bot
+                                    size={16}
                                   />
                                 </div>
 
                                 <div className="aura-message-body">
-
-                                  <div className="aura-message-meta">
-                                    <span className="aura-message-author">
-                                      AURA
-                                    </span>
-                                    <span className="aura-message-time">
-                                      {formatMessageTime(
-                                        message.timestamp
-                                      )}
-                                    </span>
-                                  </div>
 
                                   <div className="aura-markdown">
 
@@ -1011,7 +1005,6 @@ export default function AuraAI() {
                                     >
                                       <Copy
                                         size={13}
-                                        strokeWidth={1.75}
                                       />
 
                                       <span>
@@ -1037,8 +1030,7 @@ export default function AuraAI() {
                                         aria-label="Ouvir resposta"
                                       >
                                         <Volume2
-                                          size={13}
-                                          strokeWidth={1.75}
+                                          size={14}
                                         />
                                       </button>
                                     )}
@@ -1052,19 +1044,11 @@ export default function AuraAI() {
 
                               /* USUÁRIO */
 
-                              <>
-                                <p className="aura-user-text">
-                                  {
-                                    message.content
-                                  }
-                                </p>
-
-                                <span className="aura-user-time">
-                                  {formatMessageTime(
-                                    message.timestamp
-                                  )}
-                                </span>
-                              </>
+                              <p className="aura-user-text">
+                                {
+                                  message.content
+                                }
+                              </p>
                             )}
 
                           </div>
@@ -1080,21 +1064,16 @@ export default function AuraAI() {
 
                         <div className="aura-processing">
 
-                          <div className="aura-message-avatar aura-message-avatar-ghost">
-                            <Waypoints
-                              size={14}
-                              strokeWidth={1.75}
-                            />
-                          </div>
-
                           <div className="aura-processing-dots">
+
                             <span />
                             <span />
                             <span />
+
                           </div>
 
                           <span>
-                            articulando uma resposta
+                            AURA está processando...
                           </span>
 
                         </div>
@@ -1124,7 +1103,7 @@ export default function AuraAI() {
                     onKeyDown={
                       handleInputKeyDown
                     }
-                    placeholder="Escreva sua pergunta para a AURA..."
+                    placeholder="Pergunte alguma coisa para a AURA..."
                     rows={1}
                     disabled={loading}
                     className="aura-textarea"
@@ -1156,15 +1135,15 @@ export default function AuraAI() {
                       }
                     >
                       {isActive ? (
-                        <MicOff size={17} strokeWidth={1.75} />
+                        <MicOff size={18} />
                       ) : (
-                        <Mic size={17} strokeWidth={1.75} />
+                        <Mic size={18} />
                       )}
                     </button>
 
                     {isActive && (
                       <span className="aura-microphone-status">
-                        ouvindo
+                        Microfone ativo
                       </span>
                     )}
 
@@ -1185,14 +1164,15 @@ export default function AuraAI() {
                     title="Enviar mensagem"
                     aria-label="Enviar mensagem"
                   >
-                    <ArrowUp size={17} strokeWidth={2} />
+                    <ArrowUp size={18} />
                   </button>
 
                 </div>
 
                 <p className="aura-disclaimer">
-                  A AURA pode cometer erros. Verifique
-                  informações importantes.
+                  AURA AI pode cometer erros.
+                  Verifique informações
+                  importantes.
                 </p>
 
               </div>
