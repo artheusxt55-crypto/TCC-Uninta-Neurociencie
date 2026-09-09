@@ -7,6 +7,12 @@ import {
 } from "react";
 
 import {
+    BrowserRouter,
+    Routes,
+    Route,
+} from "react-router-dom";
+
+import {
     auth,
     googleProvider,
     db,
@@ -223,24 +229,10 @@ function IconCookie() {
 }
 
 /* =========================================================
- * APP
+ * LAB PAGE (antigo conteúdo do App)
  * ========================================================= */
 
-function App() {
-
-    /* =====================================================
-     * ROTA DA AURA AI
-     * ===================================================== */
-
-    const caminhoAtual =
-        window.location.pathname;
-
-    if (
-        caminhoAtual === "/aura" ||
-        caminhoAtual === "/aura/"
-    ) {
-        return <AuraAI />;
-    }
+function LabPage() {
 
     /* =====================================================
      * PERFORMANCE
@@ -690,7 +682,7 @@ function App() {
             );
 
             /* =============================================
-             * IR PARA A AURA AI
+             * IR PARA A AURA AI (navegação client-side)
              * ============================================= */
 
             window.location.href =
@@ -1469,7 +1461,7 @@ function App() {
 
     const modulos: Array<{
         id:
-            Exclude<
+            Exclude
                 ModuleName,
                 null
             >;
@@ -1624,7 +1616,7 @@ function App() {
                             : "Entrar com Google"}
                     </button>
 
-                    <a
+                    
                         href="/aura"
                         className="btn-primary"
                     >
@@ -1670,7 +1662,7 @@ function App() {
             {menuAberto && (
                 <div className="mobile-menu">
 
-                    <a
+                    
                         href="#inicio"
                         onClick={() =>
                             setMenuAberto(
@@ -1681,7 +1673,7 @@ function App() {
                         Início
                     </a>
 
-                    <a
+                    
                         href="#ferramentas"
                         onClick={() =>
                             setMenuAberto(
@@ -2080,14 +2072,14 @@ function App() {
 
                             <div className="hero-links">
 
-                                <a
+                                
                                     href="/biblioteca.html"
                                     className="chalk-link"
                                 >
                                     Biblioteca digital
                                 </a>
 
-                                <a
+                                
                                     href="/atlas.html"
                                     className="chalk-link"
                                 >
@@ -2846,14 +2838,14 @@ function App() {
 
                             <div className="cookie-links">
 
-                                <a
+                                
                                     href="/privacidade.html"
                                     className="cookie-link"
                                 >
                                     Política de Privacidade
                                 </a>
 
-                                <a
+                                
                                     href="/cookies.html"
                                     className="cookie-link"
                                 >
@@ -2909,6 +2901,22 @@ function App() {
             )}
 
         </>
+    );
+}
+
+/* =========================================================
+ * APP (ROTEADOR)
+ * ========================================================= */
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/aura" element={<AuraAI />} />
+                <Route path="/aura/" element={<AuraAI />} />
+                <Route path="/*" element={<LabPage />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 
