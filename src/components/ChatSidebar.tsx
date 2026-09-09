@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
   Plus,
@@ -23,6 +22,7 @@ interface Conversation {
   title: string;
   messages: Message[];
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 interface ChatSidebarProps {
@@ -34,116 +34,200 @@ interface ChatSidebarProps {
   onClose: () => void;
 }
 
-export default function ChatSidebar({
+function formatDate(date: Date) {
+  const now = new Date();
+
+  const diff =
+    now.getTime() -
+    date.getTime();
+
+  const minutes = Math.floor(
+    diff / 60000
+  );
+
+  const hours = Math.floor(
+    diff / 3600000
+  );
+
+  const days = Math.floor(
+    diff / 86400000
+  );
+
+  if (minutes < 1) {
+    return "Agora";
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  if (hours < 24) {
+    return `${hours} h`;
+  }
+
+  if (days === 1) {
+    return "Ontem";
+  }
+
+  if (days < 7) {
+    return `${days} dias`;
+  }
+
+  return date.toLocaleDateString(
+    "pt-BR",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }
+  );
+}
+
+function SidebarContent({
   conversations,
   activeConvId,
   onSelect,
   onNew,
-  isOpen,
   onClose,
-}: ChatSidebarProps) {
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) {
-      return "Agora";
-    }
-
-    if (minutes < 60) {
-      return `${minutes} min`;
-    }
-
-    if (hours < 24) {
-      return `${hours} h`;
-    }
-
-    if (days === 1) {
-      return "Ontem";
-    }
-
-    if (days < 7) {
-      return `${days} dias`;
-    }
-
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
+  mobile = false,
+}: {
+  conversations: Conversation[];
+  activeConvId: string;
+  onSelect: (id: string) => void;
+  onNew: () => void;
+  onClose: () => void;
+  mobile?: boolean;
+}) {
   return (
-    <>
-      {/* =====================================================
-          SIDEBAR DESKTOP
-      ====================================================== */}
+    <div className="aura-sidebar">
 
-      <aside className="aura-sidebar aura-sidebar-desktop">
-        {/* Header / Logo */}
-        <div className="aura-sidebar-header">
-          <div className="aura-sidebar-brand">
-            <div className="aura-sidebar-logo">
-              <Sparkles size={20} />
+      {/* HEADER */}
 
-              <div className="aura-sidebar-logo-glow" />
-            </div>
+      <div className="aura-sidebar-header">
 
-            <div className="aura-sidebar-brand-text">
-              <h2>AURA AI</h2>
+        <div className="aura-sidebar-brand">
 
-              <p>NEURAL LAB</p>
-            </div>
+          <div className="aura-sidebar-logo">
+            <Sparkles size={18} />
+            <span className="aura-sidebar-logo-ring" />
           </div>
+
+          <div className="aura-sidebar-brand-text">
+            <h2>AURA AI</h2>
+
+            <p>
+              EDUCATION INTELLIGENCE
+            </p>
+          </div>
+
         </div>
 
-        {/* Nova conversa */}
-        <div className="aura-sidebar-new">
+        {mobile && (
           <button
             type="button"
-            onClick={onNew}
-            className="aura-new-conversation"
+            className="aura-sidebar-close"
+            onClick={onClose}
+            aria-label="Fechar menu"
           >
-            <Plus size={18} />
-
-            <span>Nova conversa</span>
+            <X size={19} />
           </button>
-        </div>
+        )}
 
-        {/* Lista de conversas */}
-        <div className="aura-sidebar-conversations">
-          {conversations.length === 0 ? (
-            <div className="aura-empty-conversations">
-              <MessageSquare size={32} />
+      </div>
 
-              <p>Nenhuma conversa</p>
+      {/* NOVA CONVERSA */}
+
+      <div className="aura-sidebar-new">
+
+        <button
+          type="button"
+          className="aura-new-conversation"
+          onClick={() => {
+            onNew();
+
+            if (mobile) {
+              onClose();
+            }
+          }}
+        >
+          <Plus size={17} />
+
+          <span>
+            Nova conversa
+          </span>
+        </button>
+
+      </div>
+
+      {/* LABEL */}
+
+      <div className="aura-sidebar-section-title">
+        <span>CONVERSAS</span>
+
+        {conversations.length > 0 && (
+          <span className="aura-sidebar-count">
+            {conversations.length}
+          </span>
+        )}
+      </div>
+
+      {/* CONVERSAS */}
+
+      <div className="aura-sidebar-conversations">
+
+        {conversations.length === 0 ? (
+
+          <div className="aura-empty-conversations">
+
+            <div className="aura-empty-icon">
+              <MessageSquare size={21} />
             </div>
-          ) : (
-            <div className="aura-conversation-list">
-              {conversations.map((conversation) => {
+
+            <strong>
+              Nenhuma conversa
+            </strong>
+
+            <p>
+              Suas conversas aparecerão aqui.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div className="aura-conversation-list">
+
+            {conversations.map(
+              (conversation) => {
+
                 const active =
-                  conversation.id === activeConvId;
+                  conversation.id ===
+                  activeConvId;
 
                 return (
-                  <motion.button
+                  <button
                     key={conversation.id}
                     type="button"
-                    onClick={() =>
-                      onSelect(conversation.id)
-                    }
-                    whileHover={{ x: 2 }}
-                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      onSelect(
+                        conversation.id
+                      );
+
+                      if (mobile) {
+                        onClose();
+                      }
+                    }}
                     className={`aura-conversation ${
                       active
                         ? "aura-conversation-active"
                         : ""
                     }`}
                   >
-                    {/* Ícone */}
+
+                    {active && (
+                      <span className="aura-active-line" />
+                    )}
+
                     <div
                       className={`aura-conversation-icon ${
                         active
@@ -151,11 +235,11 @@ export default function ChatSidebar({
                           : ""
                       }`}
                     >
-                      <MessageSquare size={16} />
+                      <MessageSquare size={15} />
                     </div>
 
-                    {/* Conteúdo */}
                     <div className="aura-conversation-content">
+
                       <p
                         className={`aura-conversation-title ${
                           active
@@ -167,7 +251,8 @@ export default function ChatSidebar({
                       </p>
 
                       <div className="aura-conversation-meta">
-                        <Clock size={11} />
+
+                        <Clock size={10} />
 
                         <span>
                           {formatDate(
@@ -175,214 +260,110 @@ export default function ChatSidebar({
                           )}
                         </span>
 
-                        {conversation.messages.length >
-                          0 && (
-                          <>
-                            <span className="aura-meta-dot">
-                              •
-                            </span>
+                        <span className="aura-meta-dot">
+                          •
+                        </span>
 
-                            <span>
-                              {
-                                conversation.messages
-                                  .length
-                              }{" "}
-                              msgs
-                            </span>
-                          </>
-                        )}
+                        <span>
+                          {conversation.messages.length}
+                          {" "}
+                          {conversation.messages.length === 1
+                            ? "msg"
+                            : "msgs"}
+                        </span>
+
                       </div>
+
                     </div>
-                  </motion.button>
+
+                  </button>
                 );
-              })}
-            </div>
-          )}
-        </div>
+              }
+            )}
 
-        {/* Footer */}
-        <div className="aura-sidebar-footer">
-          <div className="aura-system-status">
-            <div className="aura-status-dot" />
-
-            <div className="aura-system-status-text">
-              <p>Sistema online</p>
-
-              <span>AURA PROTOCOL 7.0</span>
-            </div>
           </div>
-        </div>
-      </aside>
-
-      {/* =====================================================
-          SIDEBAR MOBILE
-      ====================================================== */}
-
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              className="aura-sidebar-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-            />
-
-            {/* Sidebar */}
-            <motion.aside
-              initial={{
-                x: -320,
-                opacity: 0,
-              }}
-              animate={{
-                x: 0,
-                opacity: 1,
-              }}
-              exit={{
-                x: -320,
-                opacity: 0,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-              }}
-              className="aura-sidebar aura-sidebar-mobile"
-            >
-              {/* Mobile Header */}
-              <div className="aura-mobile-header">
-                <div className="aura-sidebar-brand">
-                  <div className="aura-sidebar-logo">
-                    <Sparkles size={20} />
-                  </div>
-
-                  <div className="aura-sidebar-brand-text">
-                    <h2>AURA AI</h2>
-
-                    <p>NEURAL LAB</p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="aura-close-button"
-                  aria-label="Fechar menu"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Nova conversa mobile */}
-              <div className="aura-sidebar-new">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onNew();
-                    onClose();
-                  }}
-                  className="aura-new-conversation"
-                >
-                  <Plus size={18} />
-
-                  <span>Nova conversa</span>
-                </button>
-              </div>
-
-              {/* Conversas mobile */}
-              <div className="aura-sidebar-conversations">
-                {conversations.length === 0 ? (
-                  <div className="aura-empty-conversations">
-                    <MessageSquare size={32} />
-
-                    <p>Nenhuma conversa</p>
-                  </div>
-                ) : (
-                  <div className="aura-conversation-list">
-                    {conversations.map(
-                      (conversation) => {
-                        const active =
-                          conversation.id ===
-                          activeConvId;
-
-                        return (
-                          <button
-                            key={conversation.id}
-                            type="button"
-                            onClick={() => {
-                              onSelect(
-                                conversation.id
-                              );
-
-                              onClose();
-                            }}
-                            className={`aura-conversation ${
-                              active
-                                ? "aura-conversation-active"
-                                : ""
-                            }`}
-                          >
-                            {/* Ícone */}
-                            <div
-                              className={`aura-conversation-icon ${
-                                active
-                                  ? "aura-conversation-icon-active"
-                                  : ""
-                              }`}
-                            >
-                              <MessageSquare size={16} />
-                            </div>
-
-                            {/* Conteúdo */}
-                            <div className="aura-conversation-content">
-                              <p
-                                className={`aura-conversation-title ${
-                                  active
-                                    ? "aura-conversation-title-active"
-                                    : ""
-                                }`}
-                              >
-                                {
-                                  conversation.title
-                                }
-                              </p>
-
-                              <p className="aura-mobile-message-count">
-                                {
-                                  conversation.messages
-                                    .length
-                                }{" "}
-                                mensagens
-                              </p>
-                            </div>
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Footer mobile */}
-              <div className="aura-sidebar-footer">
-                <div className="aura-system-status">
-                  <div className="aura-status-dot" />
-
-                  <div className="aura-system-status-text">
-                    <p>Sistema online</p>
-
-                    <span>
-                      AURA PROTOCOL 7.0
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.aside>
-          </>
         )}
-      </AnimatePresence>
+
+      </div>
+
+      {/* FOOTER */}
+
+      <div className="aura-sidebar-footer">
+
+        <div className="aura-system-status">
+
+          <div className="aura-status-orbit">
+            <span />
+          </div>
+
+          <div className="aura-system-status-text">
+
+            <p>
+              Sistema online
+            </p>
+
+            <span>
+              AURA NEURAL CORE
+            </span>
+
+          </div>
+
+          <div className="aura-system-status-indicator">
+            ONLINE
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+export default function ChatSidebar({
+  conversations,
+  activeConvId,
+  onSelect,
+  onNew,
+  isOpen,
+  onClose,
+}: ChatSidebarProps) {
+  return (
+    <>
+      {/* DESKTOP */}
+
+      <div className="aura-sidebar-desktop-inner">
+        <SidebarContent
+          conversations={
+            conversations
+          }
+          activeConvId={
+            activeConvId
+          }
+          onSelect={onSelect}
+          onNew={onNew}
+          onClose={onClose}
+        />
+      </div>
+
+      {/* MOBILE */}
+
+      {isOpen && (
+        <div className="aura-sidebar-mobile">
+          <SidebarContent
+            conversations={
+              conversations
+            }
+            activeConvId={
+              activeConvId
+            }
+            onSelect={onSelect}
+            onNew={onNew}
+            onClose={onClose}
+            mobile
+          />
+        </div>
+      )}
     </>
   );
 }
