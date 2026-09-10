@@ -136,8 +136,6 @@ const SUGGESTIONS: Suggestion[] = [
   },
 ];
 
-// Mock history — replace with the real fetch from your persistence layer
-// (Firebase/Supabase). Shape matches `ConversationSummary`.
 const now = Date.now();
 const HOUR = 3_600_000;
 
@@ -962,7 +960,7 @@ export default function AuraEducacube() {
 
               <div className="aura-header-logo-slot">
                 <img
-                  src="/logoIA.png"
+                  src="/LogoIA.png"
                   alt="AURA"
                   className="aura-header-logo"
                 />
@@ -1541,5 +1539,4 @@ export default function AuraEducacube() {
     </div>
   );
 }
-
 
