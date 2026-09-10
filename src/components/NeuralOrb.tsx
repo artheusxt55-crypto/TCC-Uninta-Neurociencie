@@ -1,303 +1,176 @@
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+export type AuraState =
+  | "idle"
+  | "listening"
+  | "thinking"
+  | "generating"
+  | "complete"
+  | "speaking"
+  | "error"
+  | "offline";
 
 interface NeuralOrbProps {
-  isActive: boolean;
-  volume: number;
-  frequency: number;
-  isProcessing: boolean;
-  size?: "sm" | "md" | "lg" | "xl";
+  state: AuraState;
+  size?: number;
+  audioLevel?: number;
 }
 
-interface NodePoint {
-  x: number;
-  y: number;
-  size: number;
-  delay: number;
-}
-
-const SIZE_MAP = {
-  sm: 190,
-  md: 250,
-  lg: 330,
-  xl: 410,
+const STATE_LABELS: Record<AuraState, string> = {
+  idle: "AURA pronta",
+  listening: "AURA ouvindo",
+  thinking: "AURA processando",
+  generating: "AURA gerando resposta",
+  complete: "AURA concluiu a resposta",
+  speaking: "AURA falando",
+  error: "Erro na AURA",
+  offline: "AURA offline",
 };
 
-const NODE_COUNT = 18;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function createNodes(): NodePoint[] {
-  return Array.from({ length: NODE_COUNT }, (_, index) => {
-    const angle = (Math.PI * 2 * index) / NODE_COUNT;
-    const radius = 34 + ((index * 17) % 29);
-
-    return {
-      x: Math.cos(angle) * radius,
-      y: Math.sin(angle) * radius,
-      size: 1.5 + ((index * 13) % 18) / 10,
-      delay: index * 0.07,
-    };
-  });
-}
-
-function NeuralStructure({
-  active,
-  processing,
-  volume,
-  frequency,
-}: {
-  active: boolean;
-  processing: boolean;
-  volume: number;
-  frequency: number;
-}) {
-  const nodes = useMemo(() => createNodes(), []);
-
-  const intensity = active
-    ? clamp(0.3 + volume * 1.4, 0.3, 1)
-    : 0.18;
-
-  const rotation = frequency * 0.018;
-
-  return (
-    <div
-      className="aura-neural-structure"
-      aria-hidden="true"
-      style={
-        {
-          "--aura-structure-opacity": intensity,
-          "--aura-structure-rotation": `${rotation}deg`,
-        } as React.CSSProperties
-      }
-    >
-      <div className="aura-structure-frame aura-structure-frame-one" />
-      <div className="aura-structure-frame aura-structure-frame-two" />
-      <div className="aura-structure-frame aura-structure-frame-three" />
-
-      <svg
-        className="aura-structure-lines"
-        viewBox="-100 -100 200 200"
-        preserveAspectRatio="none"
-      >
-        {nodes.map((node, index) => {
-          const next = nodes[(index + 1) % nodes.length];
-
-          return (
-            <line
-              key={`line-${index}`}
-              x1={node.x}
-              y1={node.y}
-              x2={next.x}
-              y2={next.y}
-              pathLength="1"
-              className="aura-structure-line"
-              style={{
-                animationDelay: `${node.delay}s`,
-                opacity: active ? 0.42 : 0.18,
-              }}
-            />
-          );
-        })}
-
-        {nodes
-          .filter((_, index) => index % 3 === 0)
-          .map((node, index) => (
-            <line
-              key={`inner-line-${index}`}
-              x1={node.x}
-              y1={node.y}
-              x2={0}
-              y2={0}
-              pathLength="1"
-              className="aura-structure-line aura-structure-line-inner"
-              style={{
-                opacity: active ? 0.26 : 0.1,
-              }}
-            />
-          ))}
-      </svg>
-
-      {nodes.map((node, index) => (
-        <motion.span
-          key={`node-${index}`}
-          className="aura-structure-node"
-          style={{
-            left: `calc(50% + ${node.x}px)`,
-            top: `calc(50% + ${node.y}px)`,
-            width: `${node.size}px`,
-            height: `${node.size}px`,
-          }}
-          animate={
-            active
-              ? {
-                  opacity: [0.25, 0.75, 0.25],
-                  scale: [0.85, 1.18, 0.85],
-                }
-              : {
-                  opacity: 0.22,
-                  scale: 1,
-                }
-          }
-          transition={{
-            duration: processing ? 1.3 : 2.8,
-            delay: node.delay,
-            repeat: active ? Infinity : 0,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function NeuralOrb({
-  isActive,
-  volume,
-  frequency,
-  isProcessing,
-  size = "md",
+  state,
+  size = 40,
+  audioLevel,
 }: NeuralOrbProps) {
-  const dimension = SIZE_MAP[size];
-
-  const normalizedVolume = clamp(volume, 0, 1);
-  const normalizedFrequency = clamp(frequency / 1000, 0, 1);
-
-  const activity = isActive
-    ? clamp(
-        0.45 +
-          normalizedVolume * 0.45 +
-          normalizedFrequency * 0.1,
-        0.45,
-        1,
-      )
-    : 0.32;
-
-  const breathingDuration = isProcessing ? 1.6 : 3.8;
-
-  const coreScale = isActive
-    ? 1 + normalizedVolume * 0.045
-    : 0.97;
-
-  const glowOpacity = isActive
-    ? clamp(0.2 + normalizedVolume * 0.35, 0.2, 0.55)
-    : 0.16;
+  const scale =
+    typeof audioLevel === "number" &&
+    (state === "listening" || state === "speaking")
+      ? 1 + Math.min(Math.max(audioLevel, 0), 1) * 0.16
+      : 1;
 
   return (
-    <div
-      className={`aura-neural-orb aura-neural-orb-${size} ${
-        isActive ? "is-active" : ""
-      } ${isProcessing ? "is-processing" : ""}`}
-      style={
-        {
-          width: dimension,
-          height: dimension,
-          "--aura-activity": activity,
-          "--aura-glow-opacity": glowOpacity,
-          "--aura-frequency": `${normalizedFrequency * 360}deg`,
-        } as React.CSSProperties
-      }
+    <svg
+      className="aura-orb"
+      data-state={state}
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label={STATE_LABELS[state]}
     >
-      <motion.div
-        className="aura-orb-ambient"
-        animate={{
-          scale: isActive
-            ? [1, 1.045 + normalizedVolume * 0.035, 1]
-            : 1,
-          opacity: isActive
-            ? [0.5, 0.8, 0.5]
-            : 0.42,
-        }}
-        transition={{
-          duration: breathingDuration,
-          repeat: isActive ? Infinity : 0,
-          ease: "easeInOut",
-        }}
-      />
+      <g
+        className="aura-orb-ring"
+        style={{ transformOrigin: "20px 20px" }}
+      >
+        <path
+          d="M20 3 A17 17 0 0 1 34.7 11"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
 
-      <motion.div
-        className="aura-orb-aura"
-        animate={{
-          scale: isActive
-            ? [1, 1.025 + normalizedVolume * 0.025, 1]
-            : 1,
-        }}
-        transition={{
-          duration: isProcessing ? 1.15 : 3,
-          repeat: isActive ? Infinity : 0,
-          ease: "easeInOut",
-        }}
-      />
+        <path
+          d="M37 20 A17 17 0 0 1 30 34.5"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity="0.35"
+        />
 
-      <div className="aura-orb-grid">
-        <span className="aura-grid-line aura-grid-line-horizontal" />
-        <span className="aura-grid-line aura-grid-line-vertical" />
-        <span className="aura-grid-line aura-grid-line-diagonal-one" />
-        <span className="aura-grid-line aura-grid-line-diagonal-two" />
-      </div>
+        <path
+          d="M11 35 A17 17 0 0 1 3.3 21.5"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity="0.25"
+        />
+      </g>
 
-      <motion.div
+      <g
         className="aura-orb-core"
-        animate={{
-          scale: coreScale,
-          rotate: isActive ? normalizedFrequency * 2.5 : 0,
-        }}
-        transition={{
-          scale: {
-            duration: 0.45,
-            ease: "easeOut",
-          },
-          rotate: {
-            duration: 1.2,
-            ease: "easeOut",
-          },
+        style={{
+          transformOrigin: "20px 20px",
+          transform: `scale(${scale})`,
         }}
       >
-        <div className="aura-core-surface">
-          <div className="aura-core-plane aura-core-plane-one" />
-          <div className="aura-core-plane aura-core-plane-two" />
-          <div className="aura-core-plane aura-core-plane-three" />
+        <path
+          d="M20 9.5 L28.5 15 L28.5 25 L20 30.5 L11.5 25 L11.5 15 Z"
+          stroke="currentColor"
+          strokeWidth="1.1"
+          opacity="0.8"
+        />
 
-          <div className="aura-core-center">
-            <motion.span
-              className="aura-core-center-point"
-              animate={
-                isActive
-                  ? {
-                      scale: [0.85, 1.08, 0.85],
-                      opacity: [0.55, 0.95, 0.55],
-                    }
-                  : {
-                      scale: 0.9,
-                      opacity: 0.5,
-                    }
-              }
-              transition={{
-                duration: isProcessing ? 1 : 2.8,
-                repeat: isActive ? Infinity : 0,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
+        <path
+          d="M20 9.5 L20 30.5"
+          stroke="currentColor"
+          strokeWidth="0.75"
+          opacity="0.35"
+        />
 
-          <div className="aura-core-reflection" />
-        </div>
-      </motion.div>
+        <path
+          d="M11.5 15 L28.5 25"
+          stroke="currentColor"
+          strokeWidth="0.75"
+          opacity="0.3"
+        />
 
-      <NeuralStructure
-        active={isActive}
-        processing={isProcessing}
-        volume={normalizedVolume}
-        frequency={frequency}
+        <path
+          d="M28.5 15 L11.5 25"
+          stroke="currentColor"
+          strokeWidth="0.75"
+          opacity="0.3"
+        />
+      </g>
+
+      <circle
+        className="aura-orb-node"
+        cx="20"
+        cy="9.5"
+        r="1.4"
+        fill="currentColor"
       />
 
-      <div className="aura-orb-mark">
-        <span />
-        <span />
-        <span />
-      </div>
-    </div>
+      <circle
+        className="aura-orb-node"
+        cx="28.5"
+        cy="15"
+        r="1.2"
+        fill="currentColor"
+        opacity="0.85"
+      />
+
+      <circle
+        className="aura-orb-node"
+        cx="28.5"
+        cy="25"
+        r="1.2"
+        fill="currentColor"
+        opacity="0.85"
+      />
+
+      <circle
+        className="aura-orb-node"
+        cx="20"
+        cy="30.5"
+        r="1.4"
+        fill="currentColor"
+      />
+
+      <circle
+        className="aura-orb-node"
+        cx="11.5"
+        cy="25"
+        r="1.2"
+        fill="currentColor"
+        opacity="0.85"
+      />
+
+      <circle
+        className="aura-orb-node"
+        cx="11.5"
+        cy="15"
+        r="1.2"
+        fill="currentColor"
+        opacity="0.85"
+      />
+
+      <circle
+        cx="20"
+        cy="20"
+        r="2"
+        fill="currentColor"
+      />
+    </svg>
   );
 }
