@@ -130,9 +130,8 @@ export default function AuraAI() {
   } = useAudioAnalyzer();
 
   const [userId] = useState(() => {
-    const existing = localStorage.getItem(
-      "aura_user_id"
-    );
+    const existing =
+      localStorage.getItem("aura_user_id");
 
     if (existing) {
       return existing;
@@ -150,7 +149,7 @@ export default function AuraAI() {
 
   /*
    * =====================================================
-   * HISTÓRICO
+   * CARREGAR HISTÓRICO
    * =====================================================
    */
 
@@ -164,8 +163,12 @@ export default function AuraAI() {
 
         if (!mounted) return;
 
-        if (!Array.isArray(saved) || saved.length === 0) {
-          const initial = createConversation();
+        if (
+          !Array.isArray(saved) ||
+          saved.length === 0
+        ) {
+          const initial =
+            createConversation();
 
           setConversations([initial]);
           setActiveConvId(initial.id);
@@ -176,18 +179,22 @@ export default function AuraAI() {
         const normalized: AuraConversation[] =
           saved
             .filter(
-              (item): item is Record<string, unknown> =>
+              (
+                item
+              ): item is Record<
+                string,
+                unknown
+              > =>
                 typeof item === "object" &&
                 item !== null
             )
             .map((item) => {
               const now = new Date();
 
-              const rawMessages = Array.isArray(
-                item.messages
-              )
-                ? item.messages
-                : [];
+              const rawMessages =
+                Array.isArray(item.messages)
+                  ? item.messages
+                  : [];
 
               const messages: AuraMessage[] =
                 rawMessages
@@ -198,12 +205,14 @@ export default function AuraAI() {
                       string,
                       unknown
                     > =>
-                      typeof message === "object" &&
+                      typeof message ===
+                        "object" &&
                       message !== null
                   )
                   .map((message) => ({
                     id:
-                      typeof message.id === "string"
+                      typeof message.id ===
+                      "string"
                         ? message.id
                         : generateId(),
 
@@ -218,10 +227,11 @@ export default function AuraAI() {
                         ? message.content
                         : "",
 
-                    timestamp: normalizeDate(
-                      message.timestamp,
-                      now
-                    ),
+                    timestamp:
+                      normalizeDate(
+                        message.timestamp,
+                        now
+                      ),
                   }));
 
               return {
@@ -231,27 +241,31 @@ export default function AuraAI() {
                     : generateId(),
 
                 title:
-                  typeof item.title === "string" &&
+                  typeof item.title ===
+                    "string" &&
                   item.title.trim()
                     ? item.title
                     : "Nova conversa",
 
                 messages,
 
-                createdAt: normalizeDate(
-                  item.createdAt,
-                  now
-                ),
+                createdAt:
+                  normalizeDate(
+                    item.createdAt,
+                    now
+                  ),
 
-                updatedAt: normalizeDate(
-                  item.updatedAt,
-                  now
-                ),
+                updatedAt:
+                  normalizeDate(
+                    item.updatedAt,
+                    now
+                  ),
               };
             });
 
         if (normalized.length === 0) {
-          const initial = createConversation();
+          const initial =
+            createConversation();
 
           setConversations([initial]);
           setActiveConvId(initial.id);
@@ -260,8 +274,10 @@ export default function AuraAI() {
         }
 
         setConversations(normalized);
-        setActiveConvId(normalized[0].id);
-      } catch (error) {
+        setActiveConvId(
+          normalized[0].id
+        );
+      } catch (error: unknown) {
         console.error(
           "Erro ao carregar histórico da AURA:",
           error
@@ -269,7 +285,8 @@ export default function AuraAI() {
 
         if (!mounted) return;
 
-        const initial = createConversation();
+        const initial =
+          createConversation();
 
         setConversations([initial]);
         setActiveConvId(initial.id);
@@ -297,14 +314,17 @@ export default function AuraAI() {
     if (!historyLoaded) return;
     if (conversations.length === 0) return;
 
-    salvarNoRedis(userId, conversations).catch(
-      (error) => {
-        console.error(
-          "Erro ao salvar histórico da AURA:",
-          error
-        );
-      }
-    );
+    try {
+      salvarNoRedis(
+        userId,
+        conversations
+      );
+    } catch (error: unknown) {
+      console.error(
+        "Erro ao salvar histórico da AURA:",
+        error
+      );
+    }
   }, [
     conversations,
     historyLoaded,
@@ -313,7 +333,7 @@ export default function AuraAI() {
 
   /*
    * =====================================================
-   * CLEANUP
+   * LIMPEZA
    * =====================================================
    */
 
@@ -356,7 +376,8 @@ export default function AuraAI() {
   ) {
     setConversations((current) =>
       current.map((conversation) =>
-        conversation.id === conversationId
+        conversation.id ===
+        conversationId
           ? updater(conversation)
           : conversation
       )
@@ -380,7 +401,9 @@ export default function AuraAI() {
       ...current,
     ]);
 
-    setActiveConvId(conversation.id);
+    setActiveConvId(
+      conversation.id
+    );
 
     setInput("");
     setSidebarOpen(false);
@@ -397,20 +420,24 @@ export default function AuraAI() {
 
     if (!text || loading) return;
 
-    let conversationId = activeConvId;
+    let conversationId =
+      activeConvId;
 
     if (!conversationId) {
       const newConversation =
         createConversation();
 
-      conversationId = newConversation.id;
+      conversationId =
+        newConversation.id;
 
       setConversations((current) => [
         newConversation,
         ...current,
       ]);
 
-      setActiveConvId(conversationId);
+      setActiveConvId(
+        conversationId
+      );
     }
 
     const userMessage: AuraMessage = {
@@ -423,7 +450,8 @@ export default function AuraAI() {
     const currentConversation =
       conversations.find(
         (conversation) =>
-          conversation.id === conversationId
+          conversation.id ===
+          conversationId
       );
 
     const previousMessages =
@@ -434,14 +462,15 @@ export default function AuraAI() {
       userMessage,
     ].slice(-12);
 
-    const contexto = contextMessages.map(
-      (message) =>
-        `${
-          message.role === "user"
-            ? "Usuário"
-            : "AURA"
-        }: ${message.content}`
-    );
+    const contexto =
+      contextMessages.map(
+        (message) =>
+          `${
+            message.role === "user"
+              ? "Usuário"
+              : "AURA"
+          }: ${message.content}`
+      );
 
     updateConversation(
       conversationId,
@@ -449,7 +478,8 @@ export default function AuraAI() {
         ...conversation,
 
         title:
-          conversation.messages.length === 0
+          conversation.messages
+            .length === 0
             ? text.length > 50
               ? `${text.slice(0, 50)}...`
               : text
@@ -470,21 +500,23 @@ export default function AuraAI() {
     pararFala();
 
     try {
-      const result = await analisarComGroq(
-        text,
-        contexto
-      );
+      const result =
+        await analisarComGroq(
+          text,
+          contexto
+        );
 
       const responseText =
         result?.resposta?.trim() ||
         "Não consegui formular uma resposta agora.";
 
-      const assistantMessage: AuraMessage = {
-        id: generateId(),
-        role: "assistant",
-        content: responseText,
-        timestamp: new Date(),
-      };
+      const assistantMessage: AuraMessage =
+        {
+          id: generateId(),
+          role: "assistant",
+          content: responseText,
+          timestamp: new Date(),
+        };
 
       updateConversation(
         conversationId,
@@ -501,21 +533,24 @@ export default function AuraAI() {
       );
 
       if (voiceEnabled) {
-        await falarTexto(responseText);
+        await falarTexto(
+          responseText
+        );
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Erro na AURA:",
         error
       );
 
-      const errorMessage: AuraMessage = {
-        id: generateId(),
-        role: "assistant",
-        content:
-          "Não consegui conectar ao sistema de inteligência da AURA. Verifique a API e tente novamente.",
-        timestamp: new Date(),
-      };
+      const errorMessage: AuraMessage =
+        {
+          id: generateId(),
+          role: "assistant",
+          content:
+            "Não consegui conectar ao sistema de inteligência da AURA. Verifique a API e tente novamente.",
+          timestamp: new Date(),
+        };
 
       updateConversation(
         conversationId,
@@ -537,7 +572,7 @@ export default function AuraAI() {
 
   /*
    * =====================================================
-   * ENTER
+   * TECLADO
    * =====================================================
    */
 
@@ -555,7 +590,7 @@ export default function AuraAI() {
 
   /*
    * =====================================================
-   * COPIAR
+   * COPIAR RESPOSTA
    * =====================================================
    */
 
@@ -576,7 +611,7 @@ export default function AuraAI() {
             : current
         );
       }, 1500);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Não foi possível copiar:",
         error
@@ -616,7 +651,7 @@ export default function AuraAI() {
       }
 
       await start();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Erro ao acessar microfone:",
         error
@@ -626,12 +661,13 @@ export default function AuraAI() {
 
   /*
    * =====================================================
-   * RENDER
+   * INTERFACE
    * =====================================================
    */
 
   return (
     <div className="aura-app-shell">
+
       <aside className="aura-sidebar-desktop">
         <ChatSidebar
           conversations={conversations}
@@ -639,17 +675,20 @@ export default function AuraAI() {
           onSelect={setActiveConvId}
           onNew={handleNewConversation}
           isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
+          onClose={() =>
+            setSidebarOpen(false)
+          }
         />
       </aside>
 
       <main className="aura-main">
-        {/* =============================================
-            HEADER
-            ============================================= */}
+
+        {/* HEADER */}
 
         <header className="aura-header">
+
           <div className="aura-header-left">
+
             <button
               type="button"
               className="aura-menu-button"
@@ -665,6 +704,7 @@ export default function AuraAI() {
             </button>
 
             <div className="aura-header-brand">
+
               <div className="aura-header-mark">
                 <Waypoints
                   size={17}
@@ -673,6 +713,7 @@ export default function AuraAI() {
               </div>
 
               <div className="aura-header-brand-copy">
+
                 <span className="aura-header-title">
                   AURA
                 </span>
@@ -680,17 +721,23 @@ export default function AuraAI() {
                 <span className="aura-header-subtitle">
                   EducaCube
                 </span>
+
               </div>
+
             </div>
+
           </div>
 
           <div className="aura-header-right">
+
             <div className="aura-network-status">
+
               <span className="aura-network-dot" />
 
               <span className="aura-network-label">
                 Rede neural ativa
               </span>
+
             </div>
 
             <button
@@ -728,37 +775,50 @@ export default function AuraAI() {
             <button
               type="button"
               className="aura-header-new"
-              onClick={handleNewConversation}
+              onClick={
+                handleNewConversation
+              }
             >
               <Plus
                 size={16}
                 strokeWidth={1.7}
               />
 
-              <span>Nova conversa</span>
+              <span>
+                Nova conversa
+              </span>
             </button>
+
           </div>
+
         </header>
 
-        {/* =============================================
-            CHAT
-            ============================================= */}
+        {/* CHAT */}
 
         <section className="aura-field">
+
           {!activeConversation ||
-          activeConversation.messages.length === 0 ? (
+          activeConversation.messages
+            .length === 0 ? (
+
             <div className="aura-welcome">
+
               <div className="aura-welcome-orb">
+
                 <NeuralOrb
                   isActive={isActive}
                   volume={volume}
                   frequency={frequency}
-                  isProcessing={isProcessing}
+                  isProcessing={
+                    isProcessing
+                  }
                   size="xl"
                 />
+
               </div>
 
               <div className="aura-welcome-copy">
+
                 <div className="aura-welcome-eyebrow">
                   <span />
                   SISTEMA AURA
@@ -771,17 +831,25 @@ export default function AuraAI() {
                 </h1>
 
                 <p>
-                  A AURA conecta metodologias,
-                  pesquisas e práticas pedagógicas
-                  para apoiar sua reflexão sobre
-                  ensino e aprendizagem.
+                  A AURA conecta
+                  metodologias,
+                  pesquisas e práticas
+                  pedagógicas para apoiar
+                  sua reflexão sobre ensino
+                  e aprendizagem.
                 </p>
+
               </div>
+
             </div>
+
           ) : (
+
             <div className="aura-messages">
+
               {activeConversation.messages.map(
                 (message) => {
+
                   const isAssistant =
                     message.role ===
                     "assistant";
@@ -795,6 +863,7 @@ export default function AuraAI() {
                           : "aura-message-user"
                       }`}
                     >
+
                       {isAssistant && (
                         <div className="aura-message-avatar">
                           <Waypoints
@@ -805,23 +874,31 @@ export default function AuraAI() {
                       )}
 
                       <div className="aura-message-body">
+
                         <div className="aura-message-content">
+
                           {isAssistant ? (
                             <ReactMarkdown
                               remarkPlugins={[
                                 remarkGfm,
                               ]}
                             >
-                              {message.content}
+                              {
+                                message.content
+                              }
                             </ReactMarkdown>
                           ) : (
                             <p>
-                              {message.content}
+                              {
+                                message.content
+                              }
                             </p>
                           )}
+
                         </div>
 
                         <div className="aura-message-footer">
+
                           <span className="aura-message-time">
                             {formatMessageTime(
                               message.timestamp
@@ -830,6 +907,7 @@ export default function AuraAI() {
 
                           {isAssistant && (
                             <div className="aura-message-actions">
+
                               <button
                                 type="button"
                                 className="aura-message-action"
@@ -876,10 +954,14 @@ export default function AuraAI() {
                                   />
                                 </button>
                               )}
+
                             </div>
                           )}
+
                         </div>
+
                       </div>
+
                     </article>
                   );
                 }
@@ -887,6 +969,7 @@ export default function AuraAI() {
 
               {loading && (
                 <div className="aura-processing">
+
                   <div className="aura-processing-avatar">
                     <Waypoints
                       size={14}
@@ -895,6 +978,7 @@ export default function AuraAI() {
                   </div>
 
                   <div className="aura-processing-content">
+
                     <div className="aura-processing-label">
                       AURA está elaborando
                     </div>
@@ -904,18 +988,21 @@ export default function AuraAI() {
                       <span />
                       <span />
                     </div>
+
                   </div>
+
                 </div>
               )}
+
             </div>
           )}
+
         </section>
 
-        {/* =============================================
-            COMPOSER
-            ============================================= */}
+        {/* COMPOSER */}
 
         <div className="aura-composer-area">
+
           <div
             className={`aura-composer ${
               isActive
@@ -927,12 +1014,17 @@ export default function AuraAI() {
                 : ""
             }`}
           >
+
             <textarea
               value={input}
               onChange={(event) =>
-                setInput(event.target.value)
+                setInput(
+                  event.target.value
+                )
               }
-              onKeyDown={handleInputKeyDown}
+              onKeyDown={
+                handleInputKeyDown
+              }
               placeholder={
                 isActive
                   ? "Escutando..."
@@ -944,6 +1036,7 @@ export default function AuraAI() {
             />
 
             <div className="aura-composer-actions">
+
               <button
                 type="button"
                 className={`aura-composer-button aura-mic-button ${
@@ -951,7 +1044,9 @@ export default function AuraAI() {
                     ? "aura-mic-button-active"
                     : ""
                 }`}
-                onClick={toggleMicrophone}
+                onClick={
+                  toggleMicrophone
+                }
                 disabled={loading}
                 aria-label={
                   isActive
@@ -980,13 +1075,15 @@ export default function AuraAI() {
               <button
                 type="button"
                 className={`aura-send-button ${
-                  input.trim() && !loading
+                  input.trim() &&
+                  !loading
                     ? "aura-send-button-ready"
                     : ""
                 }`}
                 onClick={handleSend}
                 disabled={
-                  !input.trim() || loading
+                  !input.trim() ||
+                  loading
                 }
                 aria-label="Enviar mensagem"
                 title="Enviar"
@@ -996,23 +1093,32 @@ export default function AuraAI() {
                   strokeWidth={1.8}
                 />
               </button>
+
             </div>
+
           </div>
 
           <div className="aura-composer-meta">
+
             <span>
-              AURA pode cometer erros. Verifique
-              informações importantes.
+              AURA pode cometer erros.
+              Verifique informações
+              importantes.
             </span>
 
             <span className="aura-composer-shortcut">
               Enter para enviar
               <span>•</span>
-              Shift + Enter para nova linha
+              Shift + Enter para nova
+              linha
             </span>
+
           </div>
+
         </div>
+
       </main>
+
     </div>
   );
 }
