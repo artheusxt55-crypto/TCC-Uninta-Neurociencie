@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface NeuralOrbProps {
   isActive: boolean;
@@ -9,295 +9,146 @@ interface NeuralOrbProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
-interface Particle {
-  id: number;
-  angle: number;
-  distance: number;
+interface NodePoint {
+  x: number;
+  y: number;
   size: number;
-  color: string;
-  ring: number;
+  delay: number;
 }
 
-const COLORS = {
-  blue: "rgba(59, 130, 246, 1)",
-  purple: "rgba(139, 92, 246, 1)",
-  cyan: "rgba(34, 211, 238, 1)",
-  violet: "rgba(167, 139, 250, 1)",
-  white: "rgba(255, 255, 255, 0.35)",
+const SIZE_MAP = {
+  sm: 190,
+  md: 250,
+  lg: 330,
+  xl: 410,
 };
 
-function StardustParticles({
+const NODE_COUNT = 18;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function createNodes(): NodePoint[] {
+  return Array.from({ length: NODE_COUNT }, (_, index) => {
+    const angle = (Math.PI * 2 * index) / NODE_COUNT;
+    const radius = 34 + ((index * 17) % 29);
+
+    return {
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
+      size: 1.5 + ((index * 13) % 18) / 10,
+      delay: index * 0.07,
+    };
+  });
+}
+
+function NeuralStructure({
+  active,
+  processing,
   volume,
-  isActive,
-  isProcessing,
+  frequency,
 }: {
+  active: boolean;
+  processing: boolean;
   volume: number;
-  isActive: boolean;
-  isProcessing: boolean;
+  frequency: number;
 }) {
-  const particles = useMemo<Particle[]>(() => {
-    const colors = [
-      COLORS.blue,
-      COLORS.purple,
-      COLORS.cyan,
-      COLORS.violet,
-      COLORS.white,
-    ];
+  const nodes = useMemo(() => createNodes(), []);
 
-    const result: Particle[] = [];
-    let id = 0;
+  const intensity = active
+    ? clamp(0.3 + volume * 1.4, 0.3, 1)
+    : 0.18;
 
-    for (let i = 0; i < 12; i++) {
-      result.push({
-        id: id++,
-        angle:
-          (i / 12) * Math.PI * 2 +
-          Math.random() * 0.4,
-        distance: 100 + Math.random() * 25,
-        size: 1 + Math.random() * 1.5,
-        color: colors[i % colors.length],
-        ring: 0,
-      });
-    }
-
-    for (let i = 0; i < 16; i++) {
-      result.push({
-        id: id++,
-        angle:
-          (i / 16) * Math.PI * 2 +
-          Math.random() * 0.5,
-        distance: 135 + Math.random() * 35,
-        size: 1.5 + Math.random() * 2,
-        color: colors[i % colors.length],
-        ring: 1,
-      });
-    }
-
-    for (let i = 0; i < 14; i++) {
-      result.push({
-        id: id++,
-        angle:
-          (i / 14) * Math.PI * 2 +
-          Math.random() * 0.6,
-        distance: 175 + Math.random() * 50,
-        size: 2 + Math.random() * 3,
-        color: colors[i % colors.length],
-        ring: 2,
-      });
-    }
-
-    return result;
-  }, []);
-
-  if (!isActive) return null;
+  const rotation = frequency * 0.018;
 
   return (
     <div
-      className="absolute inset-0 z-0 pointer-events-none"
-      style={{
-        width: 500,
-        height: 500,
-        left: -160,
-        top: -160,
-      }}
+      className="aura-neural-structure"
+      aria-hidden="true"
+      style={
+        {
+          "--aura-structure-opacity": intensity,
+          "--aura-structure-rotation": `${rotation}deg`,
+        } as React.CSSProperties
+      }
     >
-      {particles.map((particle) => {
-        const jitter =
-          volume *
-          (particle.ring === 0
-            ? 20
-            : particle.ring === 1
-              ? 35
-              : 50);
+      <div className="aura-structure-frame aura-structure-frame-one" />
+      <div className="aura-structure-frame aura-structure-frame-two" />
+      <div className="aura-structure-frame aura-structure-frame-three" />
 
-        const processingExtra = isProcessing ? 20 : 0;
+      <svg
+        className="aura-structure-lines"
+        viewBox="-100 -100 200 200"
+        preserveAspectRatio="none"
+      >
+        {nodes.map((node, index) => {
+          const next = nodes[(index + 1) % nodes.length];
 
-        const distance =
-          particle.distance +
-          jitter +
-          processingExtra;
+          return (
+            <line
+              key={`line-${index}`}
+              x1={node.x}
+              y1={node.y}
+              x2={next.x}
+              y2={next.y}
+              pathLength="1"
+              className="aura-structure-line"
+              style={{
+                animationDelay: `${node.delay}s`,
+                opacity: active ? 0.42 : 0.18,
+              }}
+            />
+          );
+        })}
 
-        const x =
-          250 +
-          Math.cos(particle.angle) * distance;
+        {nodes
+          .filter((_, index) => index % 3 === 0)
+          .map((node, index) => (
+            <line
+              key={`inner-line-${index}`}
+              x1={node.x}
+              y1={node.y}
+              x2={0}
+              y2={0}
+              pathLength="1"
+              className="aura-structure-line aura-structure-line-inner"
+              style={{
+                opacity: active ? 0.26 : 0.1,
+              }}
+            />
+          ))}
+      </svg>
 
-        const y =
-          250 +
-          Math.sin(particle.angle) * distance;
-
-        return (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full"
-            style={{
-              width: particle.size,
-              height: particle.size,
-              backgroundColor: particle.color,
-              boxShadow: `0 0 ${
-                4 + volume * 8
-              }px ${particle.color}`,
-              filter: `blur(${particle.ring}px)`,
-              left: -particle.size / 2,
-              top: -particle.size / 2,
-            }}
-            animate={{
-              x,
-              y,
-              opacity:
-                (particle.ring === 2
-                  ? 0.15
-                  : particle.ring === 1
-                    ? 0.3
-                    : 0.5) +
-                volume * 0.4 +
-                (isProcessing ? 0.15 : 0),
-
-              scale:
-                1 +
-                volume *
-                  (particle.ring === 0
-                    ? 1.2
-                    : 0.6),
-            }}
-            transition={{
-              type: "spring",
-              stiffness:
-                30 + volume * 50,
-              damping:
-                6 + particle.ring * 2,
-              mass:
-                0.4 +
-                particle.ring * 0.2,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function OrbitalRings({
-  isActive,
-  volume,
-  isProcessing,
-}: {
-  isActive: boolean;
-  volume: number;
-  isProcessing: boolean;
-}) {
-  if (!isActive) return null;
-
-  const rings = [
-    {
-      size: 260,
-      tiltX: 65,
-      tiltY: 15,
-      duration: 10,
-      opacity: 0.35,
-      width: 1.2,
-      color: COLORS.blue,
-    },
-    {
-      size: 300,
-      tiltX: 72,
-      tiltY: -25,
-      duration: 14,
-      opacity: 0.25,
-      width: 1,
-      color: COLORS.purple,
-    },
-    {
-      size: 340,
-      tiltX: 58,
-      tiltY: 40,
-      duration: 18,
-      opacity: 0.18,
-      width: 0.8,
-      color: COLORS.cyan,
-    },
-    {
-      size: 220,
-      tiltX: 80,
-      tiltY: -10,
-      duration: 8,
-      opacity: 0.3,
-      width: 1.5,
-      color: COLORS.violet,
-    },
-  ];
-
-  return (
-    <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
-      {rings.map((ring, index) => {
-        const dynamicOpacity =
-          ring.opacity +
-          volume * 0.3 +
-          (isProcessing ? 0.15 : 0);
-
-        const speed =
-          ring.duration - volume * 4;
-
-        return (
-          <motion.div
-            key={index}
-            className="absolute rounded-full"
-            style={{
-              width: ring.size,
-              height: ring.size,
-              border: `${ring.width}px solid ${ring.color.replace(
-                "1)",
-                `${dynamicOpacity})`
-              )}`,
-              boxShadow: `
-                0 0 ${
-                  6 + volume * 10
-                }px ${ring.color},
-                inset 0 0 ${
-                  4 + volume * 6
-                }px ${ring.color}
-              `,
-              transform: `
-                rotateX(${ring.tiltX}deg)
-                rotateY(${ring.tiltY}deg)
-              `,
-              opacity: dynamicOpacity,
-            }}
-            initial={{
-              opacity: 0,
-              scale: 0.5,
-            }}
-            animate={{
-              opacity: dynamicOpacity,
-              scale: 1 + volume * 0.08,
-              rotate: [0, 360],
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.5,
-            }}
-            transition={{
-              opacity: {
-                type: "spring",
-                stiffness: 60,
-                damping: 15,
-              },
-              scale: {
-                type: "spring",
-                stiffness: 60,
-                damping: 15,
-              },
-              rotate: {
-                duration: Math.max(
-                  speed,
-                  4
-                ),
-                repeat: Infinity,
-                ease: "linear",
-              },
-            }}
-          />
-        );
-      })}
+      {nodes.map((node, index) => (
+        <motion.span
+          key={`node-${index}`}
+          className="aura-structure-node"
+          style={{
+            left: `calc(50% + ${node.x}px)`,
+            top: `calc(50% + ${node.y}px)`,
+            width: `${node.size}px`,
+            height: `${node.size}px`,
+          }}
+          animate={
+            active
+              ? {
+                  opacity: [0.25, 0.75, 0.25],
+                  scale: [0.85, 1.18, 0.85],
+                }
+              : {
+                  opacity: 0.22,
+                  scale: 1,
+                }
+          }
+          transition={{
+            duration: processing ? 1.3 : 2.8,
+            delay: node.delay,
+            repeat: active ? Infinity : 0,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -307,449 +158,146 @@ export default function NeuralOrb({
   volume,
   frequency,
   isProcessing,
-  size = "lg",
+  size = "md",
 }: NeuralOrbProps) {
-  const scale = isActive
-    ? 1 + volume * 0.6
-    : 0;
+  const dimension = SIZE_MAP[size];
 
-  const glowIntensity = isActive
-    ? 0.4 + volume * 0.6
-    : 0;
+  const normalizedVolume = clamp(volume, 0, 1);
+  const normalizedFrequency = clamp(frequency / 1000, 0, 1);
 
-  const gradientRotation =
-    frequency * 360;
+  const activity = isActive
+    ? clamp(
+        0.45 +
+          normalizedVolume * 0.45 +
+          normalizedFrequency * 0.1,
+        0.45,
+        1,
+      )
+    : 0.32;
 
-  const sizeMap = {
-    sm: 0.4,
-    md: 0.65,
-    lg: 1,
-    xl: 1.25,
-  };
+  const breathingDuration = isProcessing ? 1.6 : 3.8;
 
-  const sizeScale = sizeMap[size];
+  const coreScale = isActive
+    ? 1 + normalizedVolume * 0.045
+    : 0.97;
 
-  const blobPath = useMemo(() => {
-    const points = 8;
-    const slice =
-      (Math.PI * 2) / points;
-
-    return Array.from(
-      { length: points },
-      (_, index) => {
-        const baseRadius = 50;
-
-        const noise =
-          Math.sin(
-            index * 2.7 +
-              frequency * 10
-          ) *
-            3 +
-          Math.cos(index * 1.3) *
-            2;
-
-        const radius =
-          baseRadius +
-          noise +
-          volume * 8;
-
-        const angle =
-          slice * index;
-
-        return `${
-          50 +
-          radius *
-            Math.cos(angle)
-        }% ${
-          50 +
-          radius *
-            Math.sin(angle)
-        }%`;
-      }
-    ).join(", ");
-  }, [volume, frequency]);
+  const glowOpacity = isActive
+    ? clamp(0.2 + normalizedVolume * 0.35, 0.2, 0.55)
+    : 0.16;
 
   return (
-    <AnimatePresence>
-      {isActive && (
-        <motion.div
-          className="relative flex items-center justify-center"
-          style={{
-            transform: `scale(${sizeScale})`,
-          }}
-          initial={{
-            scale: 0,
-            opacity: 0,
-          }}
-          animate={{
-            scale: sizeScale,
-            opacity: 1,
-          }}
-          exit={{
-            scale: 0,
-            opacity: 0,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 120,
-            damping: 20,
-          }}
-        >
-          {/* Glow externo */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              width: 360,
-              height: 360,
-              background: `
-                radial-gradient(
-                  circle,
-                  rgba(59,130,246,${
-                    0.15 +
-                    volume * 0.1
-                  }) 0%,
-                  rgba(139,92,246,${
-                    0.08 +
-                    volume * 0.05
-                  }) 30%,
-                  transparent 65%
-                )
-              `,
-              filter: `blur(${
-                50 + volume * 30
-              }px)`,
-            }}
-            animate={{
-              scale:
-                volume < 0.08
-                  ? [
-                      scale * 1.8,
-                      scale * 1.9,
-                      scale * 1.8,
-                    ]
-                  : scale * 1.8,
+    <div
+      className={`aura-neural-orb aura-neural-orb-${size} ${
+        isActive ? "is-active" : ""
+      } ${isProcessing ? "is-processing" : ""}`}
+      style={
+        {
+          width: dimension,
+          height: dimension,
+          "--aura-activity": activity,
+          "--aura-glow-opacity": glowOpacity,
+          "--aura-frequency": `${normalizedFrequency * 360}deg`,
+        } as React.CSSProperties
+      }
+    >
+      <motion.div
+        className="aura-orb-ambient"
+        animate={{
+          scale: isActive
+            ? [1, 1.045 + normalizedVolume * 0.035, 1]
+            : 1,
+          opacity: isActive
+            ? [0.5, 0.8, 0.5]
+            : 0.42,
+        }}
+        transition={{
+          duration: breathingDuration,
+          repeat: isActive ? Infinity : 0,
+          ease: "easeInOut",
+        }}
+      />
 
-              opacity:
-                volume < 0.08
-                  ? [
-                      glowIntensity * 0.25,
-                      glowIntensity * 0.4,
-                      glowIntensity * 0.25,
-                    ]
-                  : glowIntensity *
-                    0.25,
-            }}
-            transition={
-              volume < 0.08
-                ? {
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }
-                : {
-                    type: "spring",
-                    stiffness: 40,
-                    damping: 20,
-                  }
-            }
-          />
+      <motion.div
+        className="aura-orb-aura"
+        animate={{
+          scale: isActive
+            ? [1, 1.025 + normalizedVolume * 0.025, 1]
+            : 1,
+        }}
+        transition={{
+          duration: isProcessing ? 1.15 : 3,
+          repeat: isActive ? Infinity : 0,
+          ease: "easeInOut",
+        }}
+      />
 
-          {/* Glow intermediário */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              width: 300,
-              height: 300,
-              background: `
-                radial-gradient(
-                  circle,
-                  rgba(139,92,246,${
-                    0.3 +
-                    volume * 0.2
-                  }) 0%,
-                  rgba(59,130,246,${
-                    0.15 +
-                    volume * 0.1
-                  }) 40%,
-                  transparent 70%
-                )
-              `,
-              filter: `blur(${
-                35 + volume * 20
-              }px)`,
-            }}
-            animate={{
-              scale: scale * 1.5,
-              opacity:
-                glowIntensity * 0.4,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 60,
-              damping: 18,
-            }}
-          />
+      <div className="aura-orb-grid">
+        <span className="aura-grid-line aura-grid-line-horizontal" />
+        <span className="aura-grid-line aura-grid-line-vertical" />
+        <span className="aura-grid-line aura-grid-line-diagonal-one" />
+        <span className="aura-grid-line aura-grid-line-diagonal-two" />
+      </div>
 
-          {/* Anel luminoso externo */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              width: 240,
-              height: 240,
-              background: `
-                conic-gradient(
-                  from 0deg,
-                  rgba(59,130,246,0.4) 0%,
-                  rgba(34,211,238,0.25) 25%,
-                  rgba(139,92,246,0.35) 50%,
-                  rgba(167,139,250,0.2) 75%,
-                  rgba(59,130,246,0.4) 100%
-                )
-              `,
-              filter: `blur(${
-                20 + volume * 12
-              }px)`,
-            }}
-            animate={{
-              scale: scale * 1.25,
-              opacity:
-                glowIntensity * 0.6,
-              rotate: [0, 360],
-            }}
-            transition={{
-              scale: {
-                type: "spring",
-                stiffness: 80,
-                damping: 15,
-              },
-              rotate: {
-                duration: 12,
-                repeat: Infinity,
-                ease: "linear",
-              },
-            }}
-          />
+      <motion.div
+        className="aura-orb-core"
+        animate={{
+          scale: coreScale,
+          rotate: isActive ? normalizedFrequency * 2.5 : 0,
+        }}
+        transition={{
+          scale: {
+            duration: 0.45,
+            ease: "easeOut",
+          },
+          rotate: {
+            duration: 1.2,
+            ease: "easeOut",
+          },
+        }}
+      >
+        <div className="aura-core-surface">
+          <div className="aura-core-plane aura-core-plane-one" />
+          <div className="aura-core-plane aura-core-plane-two" />
+          <div className="aura-core-plane aura-core-plane-three" />
 
-          {/* Anel interno */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              width: 200,
-              height: 200,
-              background: `
-                conic-gradient(
-                  from 180deg,
-                  rgba(139,92,246,0.5) 0%,
-                  rgba(59,130,246,0.4) 30%,
-                  rgba(34,211,238,0.5) 60%,
-                  rgba(139,92,246,0.5) 100%
-                )
-              `,
-              filter: `blur(${
-                12 + volume * 8
-              }px)`,
-            }}
-            animate={{
-              scale: scale * 1.05,
-              opacity:
-                glowIntensity * 0.8,
-              rotate: [360, 0],
-            }}
-            transition={{
-              scale: {
-                type: "spring",
-                stiffness: 100,
-                damping: 12,
-              },
-              rotate: {
-                duration: 8,
-                repeat: Infinity,
-                ease: "linear",
-              },
-            }}
-          />
-
-          {/* ORBE PRINCIPAL */}
-          <motion.div
-            className="relative z-10 rounded-full"
-            style={{
-              width: 180,
-              height: 180,
-
-              clipPath: `polygon(${blobPath})`,
-
-              background: `
-                conic-gradient(
-                  from ${gradientRotation}deg,
-                  rgba(59,130,246,1) 0%,
-                  rgba(34,211,238,1) ${
-                    20 + volume * 15
-                  }%,
-                  rgba(139,92,246,1) ${
-                    45 + volume * 10
-                  }%,
-                  ${
-                    isProcessing
-                      ? "rgba(167,139,250,1)"
-                      : "rgba(59,130,246,1)"
-                  } ${
-                    70 + volume * 10
-                  }%,
-                  rgba(59,130,246,1) 100%
-                )
-              `,
-
-              filter: `blur(${
-                1.5 + volume * 0.5
-              }px)`,
-
-              boxShadow: `
-                0 0 ${
-                  30 + volume * 30
-                }px rgba(59,130,246,${
-                  0.25 +
-                  volume * 0.35
-                }),
-                0 0 ${
-                  70 + volume * 40
-                }px rgba(139,92,246,${
-                  0.15 +
-                  volume * 0.25
-                })
-              `,
-            }}
-            animate={{
-              scale:
-                volume < 0.08
-                  ? [
-                      scale,
-                      scale * 1.07,
-                      scale,
-                    ]
-                  : scale,
-
-              rotate: [0, 360],
-            }}
-            transition={{
-              scale:
-                volume < 0.08
+          <div className="aura-core-center">
+            <motion.span
+              className="aura-core-center-point"
+              animate={
+                isActive
                   ? {
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
+                      scale: [0.85, 1.08, 0.85],
+                      opacity: [0.55, 0.95, 0.55],
                     }
                   : {
-                      type: "spring",
-                      stiffness: 150,
-                      damping: 12,
-                    },
+                      scale: 0.9,
+                      opacity: 0.5,
+                    }
+              }
+              transition={{
+                duration: isProcessing ? 1 : 2.8,
+                repeat: isActive ? Infinity : 0,
+                ease: "easeInOut",
+              }}
+            />
+          </div>
 
-              rotate: {
-                duration:
-                  20 -
-                  volume * 12,
-                repeat: Infinity,
-                ease: "linear",
-              },
-            }}
-          />
+          <div className="aura-core-reflection" />
+        </div>
+      </motion.div>
 
-          {/* Overlay fluido */}
-          <motion.div
-            className="absolute z-10 rounded-full"
-            style={{
-              width: 170,
-              height: 170,
+      <NeuralStructure
+        active={isActive}
+        processing={isProcessing}
+        volume={normalizedVolume}
+        frequency={frequency}
+      />
 
-              mixBlendMode:
-                "screen",
-
-              clipPath: `polygon(${blobPath})`,
-
-              background: `
-                conic-gradient(
-                  from 90deg,
-                  rgba(34,211,238,0.8) 0%,
-                  rgba(167,139,250,0.6) 33%,
-                  rgba(139,92,246,0.7) 66%,
-                  rgba(34,211,238,0.8) 100%
-                )
-              `,
-
-              filter: `blur(${
-                3 + volume * 2
-              }px)`,
-            }}
-            animate={{
-              scale: scale * 0.95,
-              rotate: [360, 0],
-              opacity:
-                0.5 + volume * 0.3,
-            }}
-            transition={{
-              scale: {
-                type: "spring",
-                stiffness: 150,
-                damping: 12,
-              },
-
-              rotate: {
-                duration: 14,
-                repeat: Infinity,
-                ease: "linear",
-              },
-            }}
-          />
-
-          {/* Núcleo */}
-          <motion.div
-            className="absolute z-20 rounded-full"
-            style={{
-              width: 100,
-              height: 100,
-
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.35), rgba(255,255,255,0.02) 60%, transparent 75%)",
-
-              filter: "blur(25px)",
-            }}
-            animate={{
-              scale: isProcessing
-                ? 0.8
-                : volume > 0.7
-                  ? 0.5
-                  : 0,
-
-              opacity: isProcessing
-                ? 0.6
-                : volume > 0.7
-                  ? volume * 0.4
-                  : 0,
-            }}
-            transition={{
-              duration: 0.15,
-            }}
-          />
-
-          {/* Anéis orbitais */}
-          <OrbitalRings
-            isActive={isActive}
-            volume={volume}
-            isProcessing={
-              isProcessing
-            }
-          />
-
-          {/* Partículas */}
-          <StardustParticles
-            volume={volume}
-            isActive={isActive}
-            isProcessing={
-              isProcessing
-            }
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <div className="aura-orb-mark">
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
   );
 }
