@@ -49,10 +49,10 @@ interface AuraConversation {
   updatedAt: Date;
 }
 
-function generateId(): string {
+function generateId() {
   return `${Date.now()}-${Math.random()
     .toString(36)
-    .substring(2, 10)}`;
+    .slice(2, 10)}`;
 }
 
 function createConversation(): AuraConversation {
@@ -67,7 +67,10 @@ function createConversation(): AuraConversation {
   };
 }
 
-function normalizeDate(value: unknown): Date {
+function normalizeDate(
+  value: unknown,
+  fallback = new Date()
+): Date {
   if (value instanceof Date) {
     return value;
   }
@@ -76,82 +79,46 @@ function normalizeDate(value: unknown): Date {
     typeof value === "string" ||
     typeof value === "number"
   ) {
-    const date = new Date(value);
+    const parsed = new Date(value);
 
-    if (!Number.isNaN(date.getTime())) {
-      return date;
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
     }
   }
 
-  return new Date();
+  return fallback;
 }
 
-function formatMessageTime(date: Date): string {
-  try {
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
+function formatMessageTime(date: Date) {
+  return date.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function AuraAI() {
-  /*
-   * ============================================================
-   * USUÁRIO
-   * ============================================================
-   */
-
-  const [userId] = useState(() => {
-    const existingUserId =
-      localStorage.getItem("aura_user_id");
-
-    if (existingUserId) {
-      return existingUserId;
-    }
-
-    const newUserId = `guest-${generateId()}`;
-
-    localStorage.setItem(
-      "aura_user_id",
-      newUserId
-    );
-
-    return newUserId;
-  });
-
-  /*
-   * ============================================================
-   * ESTADOS
-   * ============================================================
-   */
-
   const [conversations, setConversations] =
     useState<AuraConversation[]>([]);
 
-  const [
-    activeConversationId,
-    setActiveConversationId,
-  ] = useState<string>("");
+  const [activeConvId, setActiveConvId] =
+    useState("");
 
   const [input, setInput] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
 
   const [voiceEnabled, setVoiceEnabled] =
     useState(false);
 
-  const [copiedId, setCopiedId] =
-    useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<
+    string | null
+  >(null);
 
-  /*
-   * ============================================================
-   * ÁUDIO
-   * ============================================================
-   */
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
+
+  const [historyLoaded, setHistoryLoaded] =
+    useState(false);
 
   const {
     isActive,
@@ -162,71 +129,88 @@ export default function AuraAI() {
     stop,
   } = useAudioAnalyzer();
 
+  const [userId] = useState(() => {
+    const existing = localStorage.getItem(
+      "aura_user_id"
+    );
+
+    if (existing) {
+      return existing;
+    }
+
+    const guestId = `guest-${generateId()}`;
+
+    localStorage.setItem(
+      "aura_user_id",
+      guestId
+    );
+
+    return guestId;
+  });
+
   /*
-   * ============================================================
-   * CARREGAR HISTÓRICO
-   * ============================================================
+   * =====================================================
+   * HISTÓRICO
+   * =====================================================
    */
 
   useEffect(() => {
-    const saved =
-      buscarDoRedis<unknown>(userId);
+    let mounted = true;
 
-    if (
-      Array.isArray(saved) &&
-      saved.length > 0
-    ) {
-      const normalized: AuraConversation[] =
-        saved
-          .map((rawConversation) => {
-            if (
-              !rawConversation ||
-              typeof rawConversation !== "object"
-            ) {
-              return null;
-            }
+    async function carregarHistorico() {
+      try {
+        const saved =
+          await buscarDoRedis<unknown>(userId);
 
-            const conversation =
-              rawConversation as Record<
-                string,
-                unknown
-              >;
+        if (!mounted) return;
 
-            const rawMessages =
-              Array.isArray(
-                conversation.messages
+        if (!Array.isArray(saved) || saved.length === 0) {
+          const initial = createConversation();
+
+          setConversations([initial]);
+          setActiveConvId(initial.id);
+
+          return;
+        }
+
+        const normalized: AuraConversation[] =
+          saved
+            .filter(
+              (item): item is Record<string, unknown> =>
+                typeof item === "object" &&
+                item !== null
+            )
+            .map((item) => {
+              const now = new Date();
+
+              const rawMessages = Array.isArray(
+                item.messages
               )
-                ? conversation.messages
+                ? item.messages
                 : [];
 
-            const messages: AuraMessage[] =
-              rawMessages
-                .map((rawMessage) => {
-                  if (
-                    !rawMessage ||
-                    typeof rawMessage !== "object"
-                  ) {
-                    return null;
-                  }
-
-                  const message =
-                    rawMessage as Record<
+              const messages: AuraMessage[] =
+                rawMessages
+                  .filter(
+                    (
+                      message
+                    ): message is Record<
                       string,
                       unknown
-                    >;
-
-                  return {
+                    > =>
+                      typeof message === "object" &&
+                      message !== null
+                  )
+                  .map((message) => ({
                     id:
-                      typeof message.id ===
-                      "string"
+                      typeof message.id === "string"
                         ? message.id
                         : generateId(),
 
                     role:
-                      message.role ===
-                      "assistant"
-                        ? "assistant"
-                        : "user",
+                      message.role === "user"
+                        ? "user"
+                        : "assistant",
 
                     content:
                       typeof message.content ===
@@ -234,99 +218,103 @@ export default function AuraAI() {
                         ? message.content
                         : "",
 
-                    timestamp:
-                      normalizeDate(
-                        message.timestamp
-                      ),
-                  };
-                })
-                .filter(
-                  (
-                    message
-                  ): message is AuraMessage =>
-                    message !== null
-                );
+                    timestamp: normalizeDate(
+                      message.timestamp,
+                      now
+                    ),
+                  }));
 
-            return {
-              id:
-                typeof conversation.id ===
-                "string"
-                  ? conversation.id
-                  : generateId(),
+              return {
+                id:
+                  typeof item.id === "string"
+                    ? item.id
+                    : generateId(),
 
-              title:
-                typeof conversation.title ===
-                "string"
-                  ? conversation.title
-                  : "Nova conversa",
+                title:
+                  typeof item.title === "string" &&
+                  item.title.trim()
+                    ? item.title
+                    : "Nova conversa",
 
-              messages,
+                messages,
 
-              createdAt:
-                normalizeDate(
-                  conversation.createdAt
+                createdAt: normalizeDate(
+                  item.createdAt,
+                  now
                 ),
 
-              updatedAt:
-                normalizeDate(
-                  conversation.updatedAt
+                updatedAt: normalizeDate(
+                  item.updatedAt,
+                  now
                 ),
-            };
-          })
-          .filter(
-            (
-              conversation
-            ): conversation is AuraConversation =>
-              conversation !== null
-          );
+              };
+            });
 
-      if (normalized.length > 0) {
+        if (normalized.length === 0) {
+          const initial = createConversation();
+
+          setConversations([initial]);
+          setActiveConvId(initial.id);
+
+          return;
+        }
+
         setConversations(normalized);
-
-        setActiveConversationId(
-          normalized[0].id
+        setActiveConvId(normalized[0].id);
+      } catch (error) {
+        console.error(
+          "Erro ao carregar histórico da AURA:",
+          error
         );
 
-        return;
+        if (!mounted) return;
+
+        const initial = createConversation();
+
+        setConversations([initial]);
+        setActiveConvId(initial.id);
+      } finally {
+        if (mounted) {
+          setHistoryLoaded(true);
+        }
       }
     }
 
-    const initialConversation =
-      createConversation();
+    carregarHistorico();
 
-    setConversations([
-      initialConversation,
-    ]);
-
-    setActiveConversationId(
-      initialConversation.id
-    );
+    return () => {
+      mounted = false;
+    };
   }, [userId]);
 
   /*
-   * ============================================================
+   * =====================================================
    * SALVAR HISTÓRICO
-   * ============================================================
+   * =====================================================
    */
 
   useEffect(() => {
-    if (conversations.length === 0) {
-      return;
-    }
+    if (!historyLoaded) return;
+    if (conversations.length === 0) return;
 
-    salvarNoRedis(
-      userId,
-      conversations
+    salvarNoRedis(userId, conversations).catch(
+      (error) => {
+        console.error(
+          "Erro ao salvar histórico da AURA:",
+          error
+        );
+      }
     );
   }, [
     conversations,
+    historyLoaded,
     userId,
   ]);
 
   /*
-   * ============================================================
-   * LIMPAR VOZ AO SAIR
-   * ============================================================
+   * =====================================================
+   * CLEANUP
+   * =====================================================
    */
 
   useEffect(() => {
@@ -337,52 +325,27 @@ export default function AuraAI() {
   }, [stop]);
 
   /*
-   * ============================================================
-   * CONVERSA ATUAL
-   * ============================================================
+   * =====================================================
+   * CONVERSA ATIVA
+   * =====================================================
    */
 
-  const activeConversation =
-    useMemo(() => {
-      return conversations.find(
+  const activeConversation = useMemo(() => {
+    return (
+      conversations.find(
         (conversation) =>
-          conversation.id ===
-          activeConversationId
-      );
-    }, [
-      conversations,
-      activeConversationId,
-    ]);
-
-  /*
-   * ============================================================
-   * NOVA CONVERSA
-   * ============================================================
-   */
-
-  function handleNewConversation() {
-    const newConversation =
-      createConversation();
-
-    setConversations((current) => [
-      newConversation,
-      ...current,
-    ]);
-
-    setActiveConversationId(
-      newConversation.id
+          conversation.id === activeConvId
+      ) ?? null
     );
-
-    setInput("");
-    setSidebarOpen(false);
-
-    pararFala();
-  }
+  }, [
+    conversations,
+    activeConvId,
+  ]);
 
   /*
-   * ============================================================
+   * =====================================================
    * ATUALIZAR CONVERSA
-   * ============================================================
+   * =====================================================
    */
 
   function updateConversation(
@@ -393,8 +356,7 @@ export default function AuraAI() {
   ) {
     setConversations((current) =>
       current.map((conversation) =>
-        conversation.id ===
-        conversationId
+        conversation.id === conversationId
           ? updater(conversation)
           : conversation
       )
@@ -402,33 +364,53 @@ export default function AuraAI() {
   }
 
   /*
-   * ============================================================
+   * =====================================================
+   * NOVA CONVERSA
+   * =====================================================
+   */
+
+  function handleNewConversation() {
+    pararFala();
+
+    const conversation =
+      createConversation();
+
+    setConversations((current) => [
+      conversation,
+      ...current,
+    ]);
+
+    setActiveConvId(conversation.id);
+
+    setInput("");
+    setSidebarOpen(false);
+  }
+
+  /*
+   * =====================================================
    * ENVIAR MENSAGEM
-   * ============================================================
+   * =====================================================
    */
 
   async function handleSend() {
     const text = input.trim();
 
-    if (!text || loading) {
-      return;
-    }
+    if (!text || loading) return;
 
-    let conversation =
-      activeConversation;
+    let conversationId = activeConvId;
 
-    if (!conversation) {
-      conversation =
+    if (!conversationId) {
+      const newConversation =
         createConversation();
 
+      conversationId = newConversation.id;
+
       setConversations((current) => [
-        conversation!,
+        newConversation,
         ...current,
       ]);
 
-      setActiveConversationId(
-        conversation.id
-      );
+      setActiveConvId(conversationId);
     }
 
     const userMessage: AuraMessage = {
@@ -438,29 +420,45 @@ export default function AuraAI() {
       timestamp: new Date(),
     };
 
-    const messagesBeforeAI: AuraMessage[] =
-      [
-        ...conversation.messages,
-        userMessage,
-      ];
+    const currentConversation =
+      conversations.find(
+        (conversation) =>
+          conversation.id === conversationId
+      );
+
+    const previousMessages =
+      currentConversation?.messages ?? [];
+
+    const contextMessages = [
+      ...previousMessages,
+      userMessage,
+    ].slice(-12);
+
+    const contexto = contextMessages.map(
+      (message) =>
+        `${
+          message.role === "user"
+            ? "Usuário"
+            : "AURA"
+        }: ${message.content}`
+    );
 
     updateConversation(
-      conversation.id,
-      (current) => ({
-        ...current,
+      conversationId,
+      (conversation) => ({
+        ...conversation,
 
         title:
-          current.messages.length === 0
+          conversation.messages.length === 0
             ? text.length > 50
-              ? `${text.substring(
-                  0,
-                  50
-                )}...`
+              ? `${text.slice(0, 50)}...`
               : text
-            : current.title,
+            : conversation.title,
 
-        messages:
-          messagesBeforeAI,
+        messages: [
+          ...conversation.messages,
+          userMessage,
+        ],
 
         updatedAt: new Date(),
       })
@@ -469,44 +467,32 @@ export default function AuraAI() {
     setInput("");
     setLoading(true);
 
+    pararFala();
+
     try {
-      const contexto =
-        messagesBeforeAI
-          .slice(-12)
-          .map((message) => {
-            const speaker =
-              message.role === "user"
-                ? "Usuário"
-                : "AURA";
-
-            return `${speaker}: ${message.content}`;
-          });
-
-      const result =
-        await analisarComGroq(
-          text,
-          contexto
-        );
+      const result = await analisarComGroq(
+        text,
+        contexto
+      );
 
       const responseText =
-        result?.resposta ||
-        "Não consegui gerar uma resposta neste momento.";
+        result?.resposta?.trim() ||
+        "Não consegui formular uma resposta agora.";
 
-      const assistantMessage: AuraMessage =
-        {
-          id: generateId(),
-          role: "assistant",
-          content: responseText,
-          timestamp: new Date(),
-        };
+      const assistantMessage: AuraMessage = {
+        id: generateId(),
+        role: "assistant",
+        content: responseText,
+        timestamp: new Date(),
+      };
 
       updateConversation(
-        conversation.id,
-        (current) => ({
-          ...current,
+        conversationId,
+        (conversation) => ({
+          ...conversation,
 
           messages: [
-            ...current.messages,
+            ...conversation.messages,
             assistantMessage,
           ],
 
@@ -515,30 +501,29 @@ export default function AuraAI() {
       );
 
       if (voiceEnabled) {
-        falarTexto(responseText);
+        await falarTexto(responseText);
       }
     } catch (error) {
       console.error(
-        "Erro na comunicação com a AURA:",
+        "Erro na AURA:",
         error
       );
 
-      const errorMessage: AuraMessage =
-        {
-          id: generateId(),
-          role: "assistant",
-          content:
-            "⚠️ Não consegui conectar ao sistema de inteligência da AURA. Verifique a API e tente novamente.",
-          timestamp: new Date(),
-        };
+      const errorMessage: AuraMessage = {
+        id: generateId(),
+        role: "assistant",
+        content:
+          "Não consegui conectar ao sistema de inteligência da AURA. Verifique a API e tente novamente.",
+        timestamp: new Date(),
+      };
 
       updateConversation(
-        conversation.id,
-        (current) => ({
-          ...current,
+        conversationId,
+        (conversation) => ({
+          ...conversation,
 
           messages: [
-            ...current.messages,
+            ...conversation.messages,
             errorMessage,
           ],
 
@@ -551,9 +536,9 @@ export default function AuraAI() {
   }
 
   /*
-   * ============================================================
+   * =====================================================
    * ENTER
-   * ============================================================
+   * =====================================================
    */
 
   function handleInputKeyDown(
@@ -564,15 +549,14 @@ export default function AuraAI() {
       !event.shiftKey
     ) {
       event.preventDefault();
-
-      void handleSend();
+      handleSend();
     }
   }
 
   /*
-   * ============================================================
+   * =====================================================
    * COPIAR
-   * ============================================================
+   * =====================================================
    */
 
   async function handleCopy(
@@ -586,39 +570,45 @@ export default function AuraAI() {
       setCopiedId(message.id);
 
       window.setTimeout(() => {
-        setCopiedId(null);
+        setCopiedId((current) =>
+          current === message.id
+            ? null
+            : current
+        );
       }, 1500);
     } catch (error) {
       console.error(
-        "Erro ao copiar:",
+        "Não foi possível copiar:",
         error
       );
     }
   }
 
   /*
-   * ============================================================
+   * =====================================================
    * VOZ
-   * ============================================================
+   * =====================================================
    */
 
-  function handleVoiceToggle() {
-    if (voiceEnabled) {
-      pararFala();
-      setVoiceEnabled(false);
-      return;
-    }
+  function toggleVoice() {
+    setVoiceEnabled((current) => {
+      const next = !current;
 
-    setVoiceEnabled(true);
+      if (!next) {
+        pararFala();
+      }
+
+      return next;
+    });
   }
 
   /*
-   * ============================================================
+   * =====================================================
    * MICROFONE
-   * ============================================================
+   * =====================================================
    */
 
-  async function handleMicrophone() {
+  async function toggleMicrophone() {
     try {
       if (isActive) {
         stop();
@@ -635,572 +625,394 @@ export default function AuraAI() {
   }
 
   /*
-   * ============================================================
-   * SIDEBAR
-   * ============================================================
-   */
-
-  const sidebarConversations =
-    conversations.map(
-      (conversation) => ({
-        id: conversation.id,
-
-        title: conversation.title,
-
-        createdAt:
-          conversation.createdAt,
-
-        updatedAt:
-          conversation.updatedAt,
-
-        messages:
-          conversation.messages,
-      })
-    );
-
-  /*
-   * ============================================================
-   * INTERFACE
-   * ============================================================
+   * =====================================================
+   * RENDER
+   * =====================================================
    */
 
   return (
-    <div className="aura-page">
-      <div className="aura-layout">
+    <div className="aura-app-shell">
+      <aside className="aura-sidebar-desktop">
+        <ChatSidebar
+          conversations={conversations}
+          activeConvId={activeConvId}
+          onSelect={setActiveConvId}
+          onNew={handleNewConversation}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </aside>
 
-        {/* ================================================= */}
-        {/* SIDEBAR DESKTOP                                   */}
-        {/* ================================================= */}
+      <main className="aura-main">
+        {/* =============================================
+            HEADER
+            ============================================= */}
 
-        <aside className="aura-sidebar-desktop">
-          <ChatSidebar
-            conversations={
-              sidebarConversations
-            }
+        <header className="aura-header">
+          <div className="aura-header-left">
+            <button
+              type="button"
+              className="aura-menu-button"
+              onClick={() =>
+                setSidebarOpen(true)
+              }
+              aria-label="Abrir histórico"
+            >
+              <Menu
+                size={19}
+                strokeWidth={1.6}
+              />
+            </button>
 
-            activeConvId={
-              activeConversationId
-            }
+            <div className="aura-header-brand">
+              <div className="aura-header-mark">
+                <Waypoints
+                  size={17}
+                  strokeWidth={1.55}
+                />
+              </div>
 
-            onSelect={(id: string) => {
-              setActiveConversationId(
-                id
-              );
-            }}
+              <div className="aura-header-brand-copy">
+                <span className="aura-header-title">
+                  AURA
+                </span>
 
-            onNew={
-              handleNewConversation
-            }
+                <span className="aura-header-subtitle">
+                  EducaCube
+                </span>
+              </div>
+            </div>
+          </div>
 
-            isOpen={true}
+          <div className="aura-header-right">
+            <div className="aura-network-status">
+              <span className="aura-network-dot" />
 
-            onClose={() => {
-              setSidebarOpen(false);
-            }}
-          />
-        </aside>
-
-        {/* ================================================= */}
-        {/* SIDEBAR MOBILE                                    */}
-        {/* ================================================= */}
-
-        {sidebarOpen && (
-          <div className="aura-mobile-overlay">
+              <span className="aura-network-label">
+                Rede neural ativa
+              </span>
+            </div>
 
             <button
               type="button"
-              aria-label="Fechar menu"
-              className="aura-mobile-backdrop"
-              onClick={() =>
-                setSidebarOpen(false)
+              className={`aura-header-action ${
+                voiceEnabled
+                  ? "aura-header-action-active"
+                  : ""
+              }`}
+              onClick={toggleVoice}
+              aria-label={
+                voiceEnabled
+                  ? "Desativar voz"
+                  : "Ativar voz"
               }
-            />
+              title={
+                voiceEnabled
+                  ? "Desativar voz"
+                  : "Ativar voz"
+              }
+            >
+              {voiceEnabled ? (
+                <Volume2
+                  size={17}
+                  strokeWidth={1.55}
+                />
+              ) : (
+                <VolumeX
+                  size={17}
+                  strokeWidth={1.55}
+                />
+              )}
+            </button>
 
-            <div className="aura-mobile-sidebar">
-              <ChatSidebar
-                conversations={
-                  sidebarConversations
-                }
-
-                activeConvId={
-                  activeConversationId
-                }
-
-                onSelect={(
-                  id: string
-                ) => {
-                  setActiveConversationId(
-                    id
-                  );
-
-                  setSidebarOpen(false);
-                }}
-
-                onNew={
-                  handleNewConversation
-                }
-
-                isOpen={true}
-
-                onClose={() => {
-                  setSidebarOpen(false);
-                }}
+            <button
+              type="button"
+              className="aura-header-new"
+              onClick={handleNewConversation}
+            >
+              <Plus
+                size={16}
+                strokeWidth={1.7}
               />
-            </div>
+
+              <span>Nova conversa</span>
+            </button>
           </div>
-        )}
+        </header>
 
-        {/* ================================================= */}
-        {/* ÁREA PRINCIPAL                                    */}
-        {/* ================================================= */}
+        {/* =============================================
+            CHAT
+            ============================================= */}
 
-        <main className="aura-main">
+        <section className="aura-field">
+          {!activeConversation ||
+          activeConversation.messages.length === 0 ? (
+            <div className="aura-welcome">
+              <div className="aura-welcome-orb">
+                <NeuralOrb
+                  isActive={isActive}
+                  volume={volume}
+                  frequency={frequency}
+                  isProcessing={isProcessing}
+                  size="xl"
+                />
+              </div>
 
-          {/* ================================================= */}
-          {/* HEADER                                           */}
-          {/* ================================================= */}
-
-          <header className="aura-header">
-
-            <div className="aura-header-left">
-
-              <button
-                type="button"
-                onClick={() =>
-                  setSidebarOpen(true)
-                }
-                className="aura-menu-button"
-                aria-label="Abrir conversas"
-              >
-                <Menu size={20} />
-              </button>
-
-              <div className="aura-brand">
-
-                <div className="aura-brand-mark">
-                  <Waypoints size={18} strokeWidth={1.75} />
+              <div className="aura-welcome-copy">
+                <div className="aura-welcome-eyebrow">
+                  <span />
+                  SISTEMA AURA
                 </div>
 
-                <div className="aura-brand-info">
+                <h1>
+                  Um espaço para
+                  <br />
+                  pensar em conjunto.
+                </h1>
 
-                  <div className="aura-brand-title">
-                    <h1>AURA</h1>
-                    <span className="aura-brand-suffix">
-                      EducaCube
-                    </span>
-                  </div>
-
-                  <div className="aura-status">
-                    <span className="aura-status-dot" />
-                    <span>rede neural ativa</span>
-                  </div>
-
-                </div>
+                <p>
+                  A AURA conecta metodologias,
+                  pesquisas e práticas pedagógicas
+                  para apoiar sua reflexão sobre
+                  ensino e aprendizagem.
+                </p>
               </div>
             </div>
+          ) : (
+            <div className="aura-messages">
+              {activeConversation.messages.map(
+                (message) => {
+                  const isAssistant =
+                    message.role ===
+                    "assistant";
 
-            <div className="aura-header-actions">
+                  return (
+                    <article
+                      key={message.id}
+                      className={`aura-message ${
+                        isAssistant
+                          ? "aura-message-assistant"
+                          : "aura-message-user"
+                      }`}
+                    >
+                      {isAssistant && (
+                        <div className="aura-message-avatar">
+                          <Waypoints
+                            size={15}
+                            strokeWidth={1.55}
+                          />
+                        </div>
+                      )}
 
-              {/* VOZ */}
+                      <div className="aura-message-body">
+                        <div className="aura-message-content">
+                          {isAssistant ? (
+                            <ReactMarkdown
+                              remarkPlugins={[
+                                remarkGfm,
+                              ]}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
+                          ) : (
+                            <p>
+                              {message.content}
+                            </p>
+                          )}
+                        </div>
 
+                        <div className="aura-message-footer">
+                          <span className="aura-message-time">
+                            {formatMessageTime(
+                              message.timestamp
+                            )}
+                          </span>
+
+                          {isAssistant && (
+                            <div className="aura-message-actions">
+                              <button
+                                type="button"
+                                className="aura-message-action"
+                                onClick={() =>
+                                  handleCopy(
+                                    message
+                                  )
+                                }
+                                aria-label="Copiar resposta"
+                                title="Copiar"
+                              >
+                                <Copy
+                                  size={13}
+                                  strokeWidth={
+                                    1.55
+                                  }
+                                />
+
+                                {copiedId ===
+                                  message.id && (
+                                  <span>
+                                    Copiado
+                                  </span>
+                                )}
+                              </button>
+
+                              {voiceEnabled && (
+                                <button
+                                  type="button"
+                                  className="aura-message-action"
+                                  onClick={() =>
+                                    falarTexto(
+                                      message.content
+                                    )
+                                  }
+                                  aria-label="Ouvir resposta"
+                                  title="Ouvir"
+                                >
+                                  <Volume2
+                                    size={13}
+                                    strokeWidth={
+                                      1.55
+                                    }
+                                  />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                }
+              )}
+
+              {loading && (
+                <div className="aura-processing">
+                  <div className="aura-processing-avatar">
+                    <Waypoints
+                      size={14}
+                      strokeWidth={1.5}
+                    />
+                  </div>
+
+                  <div className="aura-processing-content">
+                    <div className="aura-processing-label">
+                      AURA está elaborando
+                    </div>
+
+                    <div className="aura-processing-line">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* =============================================
+            COMPOSER
+            ============================================= */}
+
+        <div className="aura-composer-area">
+          <div
+            className={`aura-composer ${
+              isActive
+                ? "aura-composer-recording"
+                : ""
+            } ${
+              loading
+                ? "aura-composer-disabled"
+                : ""
+            }`}
+          >
+            <textarea
+              value={input}
+              onChange={(event) =>
+                setInput(event.target.value)
+              }
+              onKeyDown={handleInputKeyDown}
+              placeholder={
+                isActive
+                  ? "Escutando..."
+                  : "Pergunte à AURA sobre educação..."
+              }
+              disabled={loading}
+              rows={1}
+              aria-label="Mensagem para a AURA"
+            />
+
+            <div className="aura-composer-actions">
               <button
                 type="button"
-                onClick={
-                  handleVoiceToggle
-                }
-                className={`aura-icon-button ${
-                  voiceEnabled
-                    ? "aura-icon-button-active"
+                className={`aura-composer-button aura-mic-button ${
+                  isActive
+                    ? "aura-mic-button-active"
                     : ""
                 }`}
-                title={
-                  voiceEnabled
-                    ? "Desativar voz"
-                    : "Ativar voz"
-                }
+                onClick={toggleMicrophone}
+                disabled={loading}
                 aria-label={
-                  voiceEnabled
-                    ? "Desativar voz"
-                    : "Ativar voz"
+                  isActive
+                    ? "Parar microfone"
+                    : "Ativar microfone"
+                }
+                title={
+                  isActive
+                    ? "Parar microfone"
+                    : "Microfone"
                 }
               >
-                {voiceEnabled ? (
-                  <Volume2 size={18} strokeWidth={1.75} />
+                {isActive ? (
+                  <MicOff
+                    size={17}
+                    strokeWidth={1.6}
+                  />
                 ) : (
-                  <VolumeX size={18} strokeWidth={1.75} />
+                  <Mic
+                    size={17}
+                    strokeWidth={1.6}
+                  />
                 )}
               </button>
 
-              {/* NOVA CONVERSA */}
-
               <button
                 type="button"
-                onClick={
-                  handleNewConversation
+                className={`aura-send-button ${
+                  input.trim() && !loading
+                    ? "aura-send-button-ready"
+                    : ""
+                }`}
+                onClick={handleSend}
+                disabled={
+                  !input.trim() || loading
                 }
-                className="aura-new-chat-button"
+                aria-label="Enviar mensagem"
+                title="Enviar"
               >
-                <Plus size={16} strokeWidth={2} />
-                <span>Nova conversa</span>
+                <ArrowUp
+                  size={17}
+                  strokeWidth={1.8}
+                />
               </button>
-
             </div>
-          </header>
-
-          {/* ================================================= */}
-          {/* CHAT                                             */}
-          {/* ================================================= */}
-
-          <section className="aura-chat-section">
-
-            <div className="aura-field" aria-hidden="true" />
-
-            <div className="aura-chat-container">
-
-              {/* ============================================ */}
-              {/* TELA INICIAL                                 */}
-              {/* ============================================ */}
-
-              {(!activeConversation ||
-                activeConversation.messages
-                  .length === 0) && (
-
-                <div className="aura-welcome">
-
-                  <div className="aura-orb-wrapper">
-
-                    <NeuralOrb
-                      size="xl"
-                      volume={volume}
-                      frequency={
-                        frequency
-                      }
-                      isActive={
-                        isActive ||
-                        loading
-                      }
-                      isProcessing={
-                        isProcessing
-                      }
-                    />
-
-                  </div>
-
-                  <div className="aura-welcome-text">
-
-                    <h2>
-                      Um espaço para pensar em conjunto.
-                    </h2>
-
-                    <p>
-                      A AURA conecta metodologias, pesquisas
-                      e práticas pedagógicas para apoiar sua
-                      reflexão sobre ensino e aprendizagem.
-                    </p>
-
-                  </div>
-
-                </div>
-              )}
-
-              {/* ============================================ */}
-              {/* MENSAGENS                                    */}
-              {/* ============================================ */}
-
-              {activeConversation &&
-                activeConversation.messages
-                  .length > 0 && (
-
-                <div className="aura-messages-scroll">
-
-                  <div className="aura-messages">
-
-                    {activeConversation.messages.map(
-                      (message) => (
-
-                        <div
-                          key={message.id}
-                          className={`aura-message-row ${
-                            message.role ===
-                            "user"
-                              ? "aura-message-row-user"
-                              : "aura-message-row-assistant"
-                          }`}
-                        >
-
-                          <div
-                            className={`aura-message-bubble ${
-                              message.role ===
-                              "user"
-                                ? "aura-user-message"
-                                : "aura-assistant-message"
-                            }`}
-                          >
-
-                            {/* AURA */}
-
-                            {message.role ===
-                            "assistant" ? (
-
-                              <div className="aura-assistant-content">
-
-                                <div className="aura-message-avatar">
-                                  <Waypoints
-                                    size={14}
-                                    strokeWidth={1.75}
-                                  />
-                                </div>
-
-                                <div className="aura-message-body">
-
-                                  <div className="aura-message-meta">
-                                    <span className="aura-message-author">
-                                      AURA
-                                    </span>
-                                    <span className="aura-message-time">
-                                      {formatMessageTime(
-                                        message.timestamp
-                                      )}
-                                    </span>
-                                  </div>
-
-                                  <div className="aura-markdown">
-
-                                    <ReactMarkdown
-                                      remarkPlugins={[
-                                        remarkGfm,
-                                      ]}
-                                      components={{
-                                        a: ({
-                                          href,
-                                          children,
-                                        }) => (
-                                          <a
-                                            href={
-                                              href
-                                            }
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                          >
-                                            {
-                                              children
-                                            }
-                                          </a>
-                                        ),
-                                      }}
-                                    >
-                                      {
-                                        message.content
-                                      }
-                                    </ReactMarkdown>
-
-                                  </div>
-
-                                  <div className="aura-message-actions">
-
-                                    {/* COPIAR */}
-
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        void handleCopy(
-                                          message
-                                        )
-                                      }
-                                      className="aura-message-action"
-                                    >
-                                      <Copy
-                                        size={13}
-                                        strokeWidth={1.75}
-                                      />
-
-                                      <span>
-                                        {copiedId ===
-                                        message.id
-                                          ? "Copiado"
-                                          : "Copiar"}
-                                      </span>
-                                    </button>
-
-                                    {/* OUVIR */}
-
-                                    {voiceEnabled && (
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          falarTexto(
-                                            message.content
-                                          )
-                                        }
-                                        className="aura-message-action aura-speak-button"
-                                        title="Ouvir resposta"
-                                        aria-label="Ouvir resposta"
-                                      >
-                                        <Volume2
-                                          size={13}
-                                          strokeWidth={1.75}
-                                        />
-                                      </button>
-                                    )}
-
-                                  </div>
-
-                                </div>
-                              </div>
-
-                            ) : (
-
-                              /* USUÁRIO */
-
-                              <>
-                                <p className="aura-user-text">
-                                  {
-                                    message.content
-                                  }
-                                </p>
-
-                                <span className="aura-user-time">
-                                  {formatMessageTime(
-                                    message.timestamp
-                                  )}
-                                </span>
-                              </>
-                            )}
-
-                          </div>
-                        </div>
-                      )
-                    )}
-
-                    {/* PROCESSANDO */}
-
-                    {loading && (
-
-                      <div className="aura-message-row aura-message-row-assistant">
-
-                        <div className="aura-processing">
-
-                          <div className="aura-message-avatar aura-message-avatar-ghost">
-                            <Waypoints
-                              size={14}
-                              strokeWidth={1.75}
-                            />
-                          </div>
-
-                          <div className="aura-processing-dots">
-                            <span />
-                            <span />
-                            <span />
-                          </div>
-
-                          <span>
-                            articulando uma resposta
-                          </span>
-
-                        </div>
-
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================= */}
-              {/* INPUT                                             */}
-              {/* ================================================= */}
-
-              <div className="aura-input-area">
-
-                <div className="aura-input-wrapper">
-
-                  <textarea
-                    value={input}
-                    onChange={(event) =>
-                      setInput(
-                        event.target.value
-                      )
-                    }
-                    onKeyDown={
-                      handleInputKeyDown
-                    }
-                    placeholder="Escreva sua pergunta para a AURA..."
-                    rows={1}
-                    disabled={loading}
-                    className="aura-textarea"
-                  />
-
-                  {/* MICROFONE */}
-
-                  <div className="aura-microphone-area">
-
-                    <button
-                      type="button"
-                      onClick={
-                        handleMicrophone
-                      }
-                      className={`aura-microphone-button ${
-                        isActive
-                          ? "aura-microphone-active"
-                          : ""
-                      }`}
-                      title={
-                        isActive
-                          ? "Desativar microfone"
-                          : "Ativar microfone"
-                      }
-                      aria-label={
-                        isActive
-                          ? "Desativar microfone"
-                          : "Ativar microfone"
-                      }
-                    >
-                      {isActive ? (
-                        <MicOff size={17} strokeWidth={1.75} />
-                      ) : (
-                        <Mic size={17} strokeWidth={1.75} />
-                      )}
-                    </button>
-
-                    {isActive && (
-                      <span className="aura-microphone-status">
-                        ouvindo
-                      </span>
-                    )}
-
-                  </div>
-
-                  {/* ENVIAR */}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void handleSend()
-                    }
-                    disabled={
-                      !input.trim() ||
-                      loading
-                    }
-                    className="aura-send-button"
-                    title="Enviar mensagem"
-                    aria-label="Enviar mensagem"
-                  >
-                    <ArrowUp size={17} strokeWidth={2} />
-                  </button>
-
-                </div>
-
-                <p className="aura-disclaimer">
-                  A AURA pode cometer erros. Verifique
-                  informações importantes.
-                </p>
-
-              </div>
-
-            </div>
-          </section>
-        </main>
-      </div>
+          </div>
+
+          <div className="aura-composer-meta">
+            <span>
+              AURA pode cometer erros. Verifique
+              informações importantes.
+            </span>
+
+            <span className="aura-composer-shortcut">
+              Enter para enviar
+              <span>•</span>
+              Shift + Enter para nova linha
+            </span>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
