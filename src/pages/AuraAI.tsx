@@ -39,7 +39,7 @@ import {
   X,
 } from "lucide-react";
 
-import NeuralOrb, { type AuraState } from "./NeuralOrb";
+import NeuralOrb from "../components/NeuralOrb";
 import { renderAuraMarkdown } from "./aura-markdown";
 import "./aura-educacube.css";
 
