@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 
 import NeuralOrb from "../components/NeuralOrb";
-import { renderAuraMarkdown } from "./aura-markdown";
+import { renderAuraMarkdown } from "../components/aura-markdown";
 import "./aura-educacube.css";
 
 /* ================================================================
