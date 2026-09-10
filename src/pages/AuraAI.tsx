@@ -22,10 +22,8 @@ import {
   Send,
   Square,
   Mic,
-  ChevronRight,
   Crown,
   User,
-  ShieldCheck,
   WifiOff,
   Search,
   Plus,
@@ -98,6 +96,7 @@ interface ConversationSummary {
 
 interface SpeechRecognitionResultEvent
   extends Event {
+  resultIndex: number;
   results: SpeechRecognitionResultList;
 }
 
@@ -268,33 +267,6 @@ function formatBytes(bytes: number): string {
   }
 
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatRelativeTime(
-  timestamp: number
-): string {
-  const diffMs =
-    Math.max(0, Date.now() - timestamp);
-
-  if (diffMs < HOUR) {
-    return "agora há pouco";
-  }
-
-  const diffHours =
-    Math.floor(diffMs / HOUR);
-
-  if (diffHours < 24) {
-    return `há ${diffHours}h`;
-  }
-
-  const diffDays =
-    Math.floor(diffHours / 24);
-
-  if (diffDays === 1) {
-    return "ontem";
-  }
-
-  return `há ${diffDays}d`;
 }
 
 function groupHistory(
@@ -486,6 +458,7 @@ function stripMarkdown(
     .replace(/\[(.*?)\]\(.*?\)/g, "$1")
     .replace(/[-•]\s/g, "")
     .replace(/\n+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -896,8 +869,6 @@ export default function AuraEducacube() {
                 ...conversation,
                 messages:
                   nextMessages,
-                messageCount:
-                  nextMessages.length,
                 updatedAt:
                   Date.now(),
               }
@@ -1199,6 +1170,7 @@ export default function AuraEducacube() {
     event: DragEvent<HTMLDivElement>
   ) {
     event.preventDefault();
+
     setIsDragOver(false);
   }
 
@@ -1248,7 +1220,7 @@ export default function AuraEducacube() {
       speechWindow.webkitSpeechRecognition;
 
     if (!Recognition) {
-      window.alert(
+      alert(
         "Seu navegador não oferece reconhecimento de voz. Tente usar o Google Chrome ou Opera."
       );
 
@@ -1349,7 +1321,9 @@ export default function AuraEducacube() {
         null;
 
       setMicActive(false);
-      setAuraState("idle");
+      setAuraState(
+        isOnline ? "idle" : "offline"
+      );
     }
   }
 
@@ -1376,7 +1350,7 @@ export default function AuraEducacube() {
         window
       )
     ) {
-      window.alert(
+      alert(
         "Seu navegador não oferece leitura de voz."
       );
 
@@ -1492,6 +1466,7 @@ export default function AuraEducacube() {
 
         textarea.style.position =
           "fixed";
+
         textarea.style.opacity =
           "0";
 
@@ -1513,7 +1488,11 @@ export default function AuraEducacube() {
 
         window.setTimeout(() => {
           setCopiedMessageId(
-            null
+            (current) =>
+              current ===
+              message.id
+                ? null
+                : current
           );
         }, 1600);
       } catch {
@@ -1664,7 +1643,7 @@ export default function AuraEducacube() {
     speechRef.current = null;
 
     setMessages([]);
-    setInput([]);
+    setInput("");
     setAttachments([]);
     setActiveConversationId(
       null
@@ -1735,6 +1714,16 @@ export default function AuraEducacube() {
     );
 
     setSidebarOpen(false);
+
+    window.setTimeout(() => {
+      const element =
+        scrollRef.current;
+
+      if (!element) return;
+
+      element.scrollTop =
+        element.scrollHeight;
+    }, 50);
   }
 
   /* ================================================================
@@ -1885,15 +1874,6 @@ export default function AuraEducacube() {
     ) {
       setSidebarOpen(false);
     }
-
-    /*
-      O Chat IA continua sendo
-      o módulo funcional da AURA.
-
-      Os outros módulos permanecem
-      preparados para receber suas
-      páginas/rotas reais do EducaCube.
-    */
   }
 
   /* ================================================================
@@ -1984,6 +1964,7 @@ export default function AuraEducacube() {
           <div className="aura-sidebar-top">
 
             <div className="aura-brand">
+
               <div className="aura-brand-mark">
                 <Box
                   size={24}
@@ -1999,6 +1980,7 @@ export default function AuraEducacube() {
                   Educacional
                 </b>
               </div>
+
             </div>
 
             <button
@@ -2410,6 +2392,10 @@ export default function AuraEducacube() {
 
             {!hasConversation ? (
 
+              /* ======================================================
+                 WELCOME
+                 ====================================================== */
+
               <div className="aura-chat-scroll">
 
                 <div className="aura-chat-content">
@@ -2515,6 +2501,10 @@ export default function AuraEducacube() {
               </div>
 
             ) : (
+
+              /* ======================================================
+                 MESSAGES
+                 ====================================================== */
 
               <div
                 className="aura-chat-scroll"
@@ -2873,6 +2863,7 @@ export default function AuraEducacube() {
 
                     {isDragOver && (
                       <div className="aura-drop-overlay">
+
                         <Paperclip
                           size={15}
                         />
@@ -2880,6 +2871,7 @@ export default function AuraEducacube() {
                         <span>
                           Solte para anexar
                         </span>
+
                       </div>
                     )}
 
@@ -3041,6 +3033,7 @@ export default function AuraEducacube() {
                     </>
                   ) : (
                     <span className="aura-composer-hint">
+
                       <WifiOff
                         size={11}
                         style={{
@@ -3052,6 +3045,7 @@ export default function AuraEducacube() {
                       />
 
                       Sem conexão
+
                     </span>
                   )}
 
