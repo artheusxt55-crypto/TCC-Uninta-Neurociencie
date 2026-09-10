@@ -1,4 +1,4 @@
-```css
+
 /* ============================================================
    AURA IA — EDUCACUBE
    Design system: obsidian black, architected violet.
@@ -1705,6 +1705,4 @@
     className="aura-header-logo"
   />
 </div>
-```
 
-Não altere o `NeuralOrb` do centro da tela nem o indicador de pensamento. O CSS acima controla **somente a logo do cabeçalho**.
