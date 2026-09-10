@@ -1,18 +1,12 @@
-/* ============================================================
-   AURA IA — EDUCACUBE
-   Design system: obsidian black + architected violet
 
-   IMPORTANTE:
-   - CSS isolado dentro de .aura-page
-   - Não altera o NeuralOrb
-   - Não altera o indicador de pensamento
-   - Controla a LogoIA.png somente pelo .aura-header-logo
-   ============================================================ */
+/* =========================================================
+   AURA AI — PREMIUM OBSIDIAN / VIOLET
+   CSS ISOLADO — NÃO AFETA O RESTANTE DO EDUCACUBE
+   ========================================================= */
 
-
-/* ============================================================
-   TOKENS / ROOT
-   ============================================================ */
+/* =========================================================
+   TOKENS
+   ========================================================= */
 
 .aura-page {
   --bg-base: #07060b;
@@ -21,18 +15,6 @@
   --bg-input: #100d17;
   --bg-hover: #17131f;
   --bg-active: #1c1626;
-
-  --bg-glow:
-    radial-gradient(
-      circle at 82% 8%,
-      rgba(139, 92, 246, 0.08),
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 6% 92%,
-      rgba(124, 58, 237, 0.06),
-      transparent 45%
-    );
 
   --v-deep: #4c1d95;
   --v-primary: #7c3aed;
@@ -46,30 +28,41 @@
   --text-muted: rgba(233, 228, 250, 0.4);
   --text-disabled: rgba(233, 228, 250, 0.22);
 
-  --border-subtle: rgba(196, 181, 253, 0.06);
-  --border-default: rgba(196, 181, 253, 0.12);
-  --border-active: rgba(167, 139, 250, 0.4);
+  --border-subtle: rgba(167, 139, 250, 0.06);
+  --border-default: rgba(167, 139, 250, 0.11);
+  --border-active: rgba(167, 139, 250, 0.25);
 
-  --shadow-subtle:
-    0 1px 2px rgba(0, 0, 0, 0.4);
+  --danger: #ef4444;
+  --success: #34d399;
 
-  --shadow-elevated:
-    0 12px 32px rgba(0, 0, 0, 0.5),
-    0 2px 8px rgba(0, 0, 0, 0.35);
+  --sidebar-width: 270px;
+  --header-height: 72px;
+  --composer-height: 116px;
 
-  --shadow-glow:
-    0 0 0 1px var(--v-soft-strong),
-    0 8px 28px rgba(124, 58, 237, 0.22);
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
 
-  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 
-  --t-fast: 120ms;
-  --t-normal: 220ms;
-  --t-slow: 420ms;
+  display: flex;
 
-  --font-ui:
-    "Inter",
+  overflow: hidden;
+
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      circle at 55% 35%,
+      rgba(124, 58, 237, 0.055),
+      transparent 34%
+    ),
+    var(--bg-base);
+
+  color: var(--text-primary);
+
+  font-family:
+    Inter,
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -77,46 +70,14 @@
     "Segoe UI",
     sans-serif;
 
-  --font-display:
-    "Fraunces",
-    "Iowan Old Style",
-    ui-serif,
-    Georgia,
-    serif;
-
-  --font-mono:
-    "IBM Plex Mono",
-    ui-monospace,
-    "SFMono-Regular",
-    Menlo,
-    monospace;
-
-  position: relative;
-
-  width: 100%;
-  height: 100vh;
-
-  min-height: 0;
-
-  overflow: hidden;
-
-  background:
-    var(--bg-glow),
-    var(--bg-base);
-
-  color: var(--text-primary);
-
-  font-family: var(--font-ui);
-
-  box-sizing: border-box;
-
-  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
-/* ============================================================
-   RESET LOCAL
-   ============================================================ */
+/* =========================================================
+   LOCAL RESET
+   ========================================================= */
 
 .aura-page *,
 .aura-page *::before,
@@ -131,467 +92,328 @@
 }
 
 .aura-page button {
-  -webkit-tap-highlight-color: transparent;
+  border: 0;
+  margin: 0;
 }
 
-.aura-page img {
-  max-width: 100%;
+.aura-page img,
+.aura-page svg,
+.aura-page canvas {
+  display: block;
 }
+
+.aura-page h1,
+.aura-page h2,
+.aura-page h3,
+.aura-page h4,
+.aura-page p {
+  margin: 0;
+}
+
+.aura-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   LOCAL SELECTION
+   ========================================================= */
 
 .aura-page ::selection {
-  background: var(--v-soft-strong);
-  color: var(--text-primary);
-}
-
-.aura-page *:focus-visible {
-  outline: 2px solid var(--v-light);
-  outline-offset: 2px;
-  border-radius: 6px;
+  background: rgba(124, 58, 237, 0.35);
+  color: #ffffff;
 }
 
 
-/* ============================================================
-   SCROLLBAR
-   ============================================================ */
+/* =========================================================
+   LOCAL SCROLLBAR
+   ========================================================= */
 
-.aura-page ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.aura-page * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167, 139, 250, 0.2) transparent;
 }
 
-.aura-page ::-webkit-scrollbar-track {
+.aura-page *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.aura-page *::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.aura-page ::-webkit-scrollbar-thumb {
-  background: rgba(196, 181, 253, 0.14);
-  border-radius: 10px;
+.aura-page *::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.16);
+  border-radius: 999px;
 }
 
-.aura-page ::-webkit-scrollbar-thumb:hover {
-  background: rgba(196, 181, 253, 0.22);
+.aura-page *::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.28);
 }
 
 
-/* ============================================================
-   LAYOUT
-   ============================================================ */
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
 
 .aura-layout {
-  display: flex;
-
   width: 100%;
   height: 100%;
 
-  min-width: 0;
-  min-height: 0;
-}
-
-
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-
-.aura-sidebar {
   display: flex;
 
-  flex: 0 0 296px;
-
-  flex-direction: column;
-
-  width: 296px;
-  height: 100%;
-
-  min-height: 0;
-
-  border-right: 1px solid var(--border-subtle);
-
-  background: var(--bg-surface);
+  position: relative;
 
   overflow: hidden;
 }
 
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.aura-sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(13, 11, 20, 0.98),
+      rgba(9, 8, 14, 0.98)
+    );
+
+  border-right: 1px solid var(--border-default);
+
+  position: relative;
+  z-index: 20;
+}
+
+
+/* =========================================================
+   SIDEBAR TOP
+   ========================================================= */
+
 .aura-sidebar-top {
-  flex-shrink: 0;
-
-  padding: 20px 16px 12px;
+  padding: 18px 16px 14px;
 }
-
-.aura-brand {
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 2px 4px 20px;
-}
-
-.aura-brand-mark {
-  display: flex;
-
-  width: 30px;
-  height: 30px;
-
-  align-items: center;
-  justify-content: center;
-
-  color: var(--v-light);
-
-  flex-shrink: 0;
-}
-
-.aura-brand-name {
-  font-size: 15.5px;
-  font-weight: 600;
-
-  letter-spacing: -0.01em;
-
-  color: var(--text-primary);
-
-  line-height: 1.2;
-}
-
-.aura-brand-name b {
-  display: block;
-
-  margin-top: 2px;
-
-  font-size: 10.5px;
-  font-weight: 400;
-
-  letter-spacing: 0.06em;
-
-  color: var(--v-light);
-}
-
-
-/* ============================================================
-   NEW CHAT
-   ============================================================ */
 
 .aura-new-chat {
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
   width: 100%;
+  min-height: 44px;
 
-  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
 
-  margin-bottom: 14px;
+  padding: 0 14px;
 
   border: 1px solid var(--border-default);
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: var(--bg-elevated);
+  background: rgba(124, 58, 237, 0.045);
 
   color: var(--text-primary);
-
-  font-size: 13.5px;
-  font-weight: 500;
 
   cursor: pointer;
 
   transition:
-    border-color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard),
-    transform var(--t-fast) var(--ease-standard);
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
 .aura-new-chat:hover {
+  background: var(--v-soft);
   border-color: var(--border-active);
-
-  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
 
 .aura-new-chat:active {
-  transform: scale(0.985);
+  transform: translateY(0);
 }
 
 .aura-new-chat svg {
+  width: 17px;
+  height: 17px;
   color: var(--v-light);
+}
 
-  flex-shrink: 0;
+.aura-new-chat span {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
 
-.aura-nav {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 2px;
+.aura-navigation {
+  padding: 6px 10px;
 }
 
 .aura-nav-item {
-  position: relative;
+  width: 100%;
+  min-height: 40px;
 
   display: flex;
-
   align-items: center;
-
   gap: 11px;
 
-  width: 100%;
+  padding: 0 12px;
 
-  padding: 9px 12px 9px 14px;
-
-  border: none;
   border-radius: 9px;
 
   background: transparent;
 
   color: var(--text-secondary);
 
-  font-size: 13.5px;
-  font-weight: 450;
+  cursor: pointer;
 
   text-align: left;
 
-  cursor: pointer;
-
   transition:
-    background var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard);
-}
-
-.aura-nav-item svg {
-  flex-shrink: 0;
-
-  opacity: 0.75;
-
-  transition:
-    opacity var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard);
+    background 160ms ease,
+    color 160ms ease;
 }
 
 .aura-nav-item:hover {
   background: var(--bg-hover);
-
   color: var(--text-primary);
 }
 
-.aura-nav-item:hover svg {
-  opacity: 1;
-}
-
-.aura-nav-item-active {
-  background: var(--bg-active);
-
+.aura-nav-item.active {
+  background: var(--v-soft);
   color: var(--text-primary);
 }
 
-.aura-nav-item-active svg {
-  opacity: 1;
+.aura-nav-item svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
 
+.aura-nav-item.active svg {
   color: var(--v-light);
 }
 
-.aura-nav-item-active::before {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-
-  top: 20%;
-  bottom: 20%;
-
-  width: 2px;
-
-  border-radius: 2px;
-
-  background: var(--v-light);
+.aura-nav-item span {
+  font-size: 13px;
+  font-weight: 500;
 }
 
 
-/* ============================================================
+/* =========================================================
    HISTORY
-   ============================================================ */
+   ========================================================= */
 
 .aura-history {
   flex: 1;
 
   min-height: 0;
 
+  padding: 12px 10px;
+
   overflow-y: auto;
-
-  padding: 4px 16px 8px;
 }
 
-.aura-history-search {
+.aura-history-title {
+  padding: 10px 12px 8px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.aura-history-list {
   display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  width: 100%;
-
-  padding: 8px 10px;
-
-  margin: 10px 0 12px;
-
-  border: 1px solid var(--border-subtle);
-  border-radius: 9px;
-
-  background: var(--bg-input);
-
-  color: var(--text-muted);
-
-  transition:
-    border-color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
-}
-
-.aura-history-search:focus-within {
-  border-color: var(--border-active);
-
-  background: var(--bg-elevated);
-}
-
-.aura-history-search svg {
-  flex-shrink: 0;
-
-  opacity: 0.7;
-}
-
-.aura-history-search input {
-  flex: 1;
-
-  min-width: 0;
-
-  border: 0;
-  outline: none;
-
-  background: transparent;
-
-  color: var(--text-primary);
-
-  font-size: 12.5px;
-}
-
-.aura-history-search input::placeholder {
-  color: var(--text-muted);
-}
-
-.aura-history-group {
-  margin-bottom: 14px;
-}
-
-.aura-history-group-label {
-  padding: 0 10px 6px;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  letter-spacing: 0.03em;
-
-  color: var(--text-disabled);
+  flex-direction: column;
+  gap: 3px;
 }
 
 .aura-history-item {
-  position: relative;
+  width: 100%;
+  min-height: 38px;
 
   display: flex;
+  align-items: center;
 
-  align-items: flex-start;
+  position: relative;
 
-  gap: 9px;
+  padding: 0 10px;
 
-  width: 100%;
-
-  padding: 8px 10px;
-
-  border: none;
-  border-radius: 9px;
+  border-radius: 8px;
 
   background: transparent;
 
   color: var(--text-secondary);
 
-  text-align: left;
-
   cursor: pointer;
 
   transition:
-    background var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard);
+    background 160ms ease,
+    color 160ms ease;
 }
 
 .aura-history-item:hover {
   background: var(--bg-hover);
-
   color: var(--text-primary);
 }
 
-.aura-history-item-active {
+.aura-history-item.active {
   background: var(--bg-active);
-
   color: var(--text-primary);
-}
-
-.aura-history-item-body {
-  flex: 1;
-
-  min-width: 0;
 }
 
 .aura-history-item-title {
-  font-size: 12.8px;
-  font-weight: 500;
-
-  color: var(--text-primary);
-
-  white-space: nowrap;
+  min-width: 0;
 
   overflow: hidden;
 
+  white-space: nowrap;
   text-overflow: ellipsis;
-}
 
-.aura-history-item-meta {
-  margin-top: 2px;
-
-  font-size: 11px;
-
-  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 450;
 }
 
 .aura-history-item-actions {
   display: flex;
+  align-items: center;
+  gap: 3px;
 
-  gap: 2px;
+  margin-left: auto;
 
   opacity: 0;
 
-  flex-shrink: 0;
-
-  transition: opacity var(--t-fast) var(--ease-standard);
+  transition: opacity 160ms ease;
 }
 
-.aura-history-item:hover .aura-history-item-actions,
-.aura-history-item-active .aura-history-item-actions {
+.aura-history-item:hover .aura-history-item-actions {
   opacity: 1;
 }
 
-.aura-history-action-btn {
+.aura-history-action {
+  width: 25px;
+  height: 25px;
+
   display: flex;
-
-  width: 22px;
-  height: 22px;
-
   align-items: center;
   justify-content: center;
 
-  border: none;
   border-radius: 6px;
 
   background: transparent;
@@ -599,300 +421,186 @@
   color: var(--text-muted);
 
   cursor: pointer;
-
-  transition:
-    background var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard);
 }
 
-.aura-history-action-btn:hover {
+.aura-history-action:hover {
   background: var(--bg-active);
-
   color: var(--text-primary);
 }
 
-.aura-history-empty {
-  padding: 10px;
-
-  font-size: 12px;
-
-  color: var(--text-muted);
+.aura-history-action svg {
+  width: 14px;
+  height: 14px;
 }
 
 
-/* ============================================================
+/* =========================================================
    SIDEBAR BOTTOM
-   ============================================================ */
+   ========================================================= */
 
 .aura-sidebar-bottom {
-  flex-shrink: 0;
-
-  padding: 12px 16px 16px;
+  padding: 12px;
 
   border-top: 1px solid var(--border-subtle);
 }
 
-.aura-plan-card {
+.aura-sidebar-user {
+  min-height: 48px;
+
   display: flex;
-
-  align-items: flex-start;
-
+  align-items: center;
   gap: 10px;
 
-  width: 100%;
+  padding: 7px 8px;
 
-  padding: 12px 13px;
+  border-radius: 10px;
 
-  margin-bottom: 10px;
-
-  border: 1px solid var(--border-default);
-  border-radius: 11px;
-
-  background: var(--bg-elevated);
-
-  cursor: pointer;
-
-  text-align: left;
-
-  transition:
-    border-color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
+  transition: background 160ms ease;
 }
 
-.aura-plan-card:hover {
-  border-color: var(--border-active);
-
+.aura-sidebar-user:hover {
   background: var(--bg-hover);
 }
 
-.aura-plan-icon {
-  display: flex;
-
-  width: 24px;
-  height: 24px;
-
-  flex-shrink: 0;
-
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 7px;
-
-  background: var(--v-soft);
-
-  color: var(--v-light);
-}
-
-.aura-plan-text {
-  flex: 1;
-
-  min-width: 0;
-}
-
-.aura-plan-title {
-  font-size: 12.8px;
-  font-weight: 600;
-
-  color: var(--text-primary);
-}
-
-.aura-plan-sub {
-  margin-top: 2px;
-
-  font-size: 11.5px;
-
-  line-height: 1.4;
-
-  color: var(--text-muted);
-}
-
-.aura-plan-chevron {
-  flex-shrink: 0;
-
-  color: var(--text-muted);
-
-  margin-top: 2px;
-}
-
-.aura-user-row {
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  width: 100%;
-
-  padding: 7px 6px;
-
-  border: none;
-  border-radius: 9px;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  text-align: left;
-
-  transition: background var(--t-fast) var(--ease-standard);
-}
-
-.aura-user-row:hover {
-  background: var(--bg-hover);
-}
-
-.aura-user-avatar {
-  display: flex;
-
+.aura-sidebar-user-avatar {
   width: 30px;
   height: 30px;
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
   border-radius: 50%;
 
-  background: var(--bg-active);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.35),
+      rgba(76, 29, 149, 0.55)
+    );
 
-  border: 1px solid var(--border-default);
+  color: #ffffff;
 
-  color: var(--v-light);
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.aura-user-info {
-  flex: 1;
-
+.aura-sidebar-user-info {
   min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.aura-user-name {
-  font-size: 12.8px;
-  font-weight: 600;
+.aura-sidebar-user-name {
+  overflow: hidden;
 
   color: var(--text-primary);
 
+  font-size: 12px;
+  font-weight: 600;
+
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.aura-user-handle {
-  font-size: 11px;
-
+.aura-sidebar-user-status {
   color: var(--text-muted);
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.aura-user-chevron {
-  color: var(--text-muted);
-
-  flex-shrink: 0;
+  font-size: 10px;
 }
 
 
-/* ============================================================
+/* =========================================================
    MOBILE DRAWER
-   ============================================================ */
+   ========================================================= */
 
-.aura-sidebar-overlay {
+.aura-mobile-overlay {
   display: none;
 }
 
-.aura-menu-button,
-.aura-drawer-close {
+.aura-mobile-menu-button {
   display: none;
 }
 
 
-/* ============================================================
+/* =========================================================
    MAIN
-   ============================================================ */
+   ========================================================= */
 
 .aura-main {
-  display: flex;
-
   min-width: 0;
   min-height: 0;
 
   flex: 1;
 
+  display: flex;
   flex-direction: column;
 
-  height: 100%;
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgba(124, 58, 237, 0.035),
+      transparent 45%
+    ),
+    var(--bg-base);
 }
 
 
-/* ============================================================
+/* =========================================================
    HEADER
-   ============================================================ */
+   ========================================================= */
 
 .aura-header {
-  display: flex;
+  width: 100%;
+  height: var(--header-height);
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
-  justify-content: space-between;
 
-  gap: 12px;
+  padding: 0 24px;
 
-  min-width: 0;
+  border-bottom: 1px solid var(--border-subtle);
 
-  padding: 18px 28px 14px;
+  background: rgba(7, 6, 11, 0.78);
 
-  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  position: relative;
+
+  z-index: 15;
 }
 
 .aura-header-left {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
   min-width: 0;
-}
-
-
-/* ============================================================
-   HEADER ORB SLOT
-
-   NÃO altera o NeuralOrb.
-   Apenas garante que o espaço dele não quebre o header.
-   ============================================================ */
-
-.aura-header-orb-slot {
-  flex-shrink: 0;
 
   display: flex;
-
   align-items: center;
-  justify-content: center;
+  gap: 12px;
 }
 
 
-/* ============================================================
+/* =========================================================
    HEADER LOGO
-
-   LogoIA.png pode ser uma imagem enorme.
-   O arquivo NÃO precisa ser comprimido para aparecer pequena.
-
-   A imagem é limitada visualmente aqui.
-   ============================================================ */
+   ========================================================= */
 
 .aura-header-logo-slot {
-  display: flex;
-
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
@@ -904,1071 +612,840 @@
 .aura-header-logo {
   display: block;
 
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
 
-  max-width: 34px;
-  max-height: 34px;
+  max-width: 38px;
+  max-height: 38px;
 
   min-width: 0;
   min-height: 0;
 
   object-fit: contain;
-
   object-position: center;
 
   flex-shrink: 0;
 }
 
 
-/* ============================================================
+/* =========================================================
    HEADER TITLE
-   ============================================================ */
+   ========================================================= */
 
-.aura-header-title-row {
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
+.aura-header-title-group {
   min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 3px;
 }
 
-.aura-header-title-row h1 {
-  margin: 0;
-
-  font-family: var(--font-display);
-
-  font-size: 20px;
-  font-weight: 500;
-
-  letter-spacing: -0.01em;
-
+.aura-header-title {
   color: var(--text-primary);
 
-  line-height: 1.2;
+  font-family:
+    Fraunces,
+    Georgia,
+    serif;
 
-  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 600;
+
+  line-height: 1;
+
+  letter-spacing: -0.02em;
 }
 
-.aura-status-pill {
+.aura-header-status {
   display: flex;
-
   align-items: center;
-
   gap: 6px;
 
-  padding: 3px 9px 3px 7px;
+  color: var(--text-muted);
 
-  border-radius: 20px;
-
-  border: 1px solid var(--border-default);
-
-  background: var(--bg-elevated);
-
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
 
-  color: var(--text-secondary);
-
-  white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
-.aura-status-dot {
-  width: 6px;
-  height: 6px;
+.aura-header-status-dot {
+  width: 5px;
+  height: 5px;
 
   border-radius: 50%;
 
-  background: var(--text-muted);
+  background: var(--success);
 
-  flex-shrink: 0;
-}
-
-.aura-status-pill[data-state="idle"] .aura-status-dot {
-  background: var(--v-light);
-}
-
-.aura-status-pill[data-state="listening"] .aura-status-dot,
-.aura-status-pill[data-state="thinking"] .aura-status-dot,
-.aura-status-pill[data-state="generating"] .aura-status-dot,
-.aura-status-pill[data-state="speaking"] .aura-status-dot {
-  background: var(--v-light);
-
-  animation:
-    aura-dot-pulse
-    1.6s
-    var(--ease-standard)
-    infinite;
-}
-
-.aura-status-pill[data-state="error"] .aura-status-dot {
-  background: #f0876b;
-}
-
-.aura-status-pill[data-state="offline"] .aura-status-dot {
-  background: var(--text-disabled);
-}
-
-@keyframes aura-dot-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.45;
-    transform: scale(0.8);
-  }
-}
-
-.aura-header-sub {
-  margin: 3px 0 0;
-
-  font-size: 12.5px;
-
-  color: var(--text-muted);
-}
-
-.aura-header-actions {
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  flex-shrink: 0;
-}
-
-.aura-icon-button {
-  display: flex;
-
-  width: 34px;
-  height: 34px;
-
-  flex-shrink: 0;
-
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid var(--border-default);
-  border-radius: 9px;
-
-  background: var(--bg-elevated);
-
-  color: var(--text-secondary);
-
-  cursor: pointer;
-
-  transition:
-    border-color var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
-}
-
-.aura-icon-button:hover {
-  border-color: var(--border-active);
-
-  color: var(--v-light);
-
-  background: var(--bg-hover);
+  box-shadow:
+    0 0 8px rgba(52, 211, 153, 0.45);
 }
 
 
-/* ============================================================
-   CHAT SECTION
-   ============================================================ */
+/* =========================================================
+   CHAT AREA
+   ========================================================= */
 
 .aura-chat-section {
-  position: relative;
+  flex: 1;
 
   min-height: 0;
 
-  flex: 1;
-
-  display: flex;
-
-  flex-direction: column;
+  position: relative;
 
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.aura-chat-scroll {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scroll-behavior: smooth;
+}
+
+.aura-chat-content {
+  width: min(920px, calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding: 38px 0 180px;
 }
 
 
-/* ============================================================
+/* =========================================================
    WELCOME
-   ============================================================ */
+   ========================================================= */
 
 .aura-welcome {
+  min-height: 420px;
+
   display: flex;
-
-  min-height: 0;
-
-  flex: 1;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
-  padding: 20px 24px;
+  padding: 40px 20px;
 
-  overflow-y: auto;
-
-  animation:
-    aura-welcome-in
-    var(--t-slow)
-    var(--ease-premium)
-    both;
+  text-align: center;
 }
 
-@keyframes aura-welcome-in {
-  from {
-    opacity: 0;
-
-    transform: translateY(6px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
-}
-
-.aura-welcome-orb {
-  margin-bottom: 26px;
-}
-
-.aura-welcome-eyebrow {
-  margin-bottom: 14px;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  letter-spacing: 0.14em;
-
-  color: var(--v-light);
-}
-
-.aura-welcome h2 {
-  margin: 0;
-
-  max-width: 620px;
-
-  font-family: var(--font-display);
-
-  font-size: 32px;
-  font-weight: 500;
-
-  line-height: 1.25;
-
-  letter-spacing: -0.01em;
+.aura-welcome-title {
+  margin-top: 22px;
 
   color: var(--text-primary);
 
-  text-align: center;
+  font-family:
+    Fraunces,
+    Georgia,
+    serif;
+
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 600;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.035em;
 }
 
-.aura-welcome h2 em {
-  font-style: normal;
+.aura-welcome-subtitle {
+  max-width: 520px;
 
-  color: var(--v-light);
-}
-
-.aura-welcome-sub {
-  max-width: 480px;
-
-  margin: 14px auto 0;
-
-  text-align: center;
-
-  font-size: 14px;
-
-  line-height: 1.6;
+  margin-top: 12px;
 
   color: var(--text-secondary);
+
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 
-/* ============================================================
+/* =========================================================
    SUGGESTIONS
-   ============================================================ */
+   ========================================================= */
 
 .aura-suggestions {
-  display: flex;
+  width: min(760px, 100%);
 
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  gap: 8px;
+  gap: 9px;
 
-  width: 100%;
-
-  max-width: 620px;
-
-  margin-top: 36px;
+  margin-top: 28px;
 }
 
-.aura-suggestion-row {
+.aura-suggestion {
+  min-height: 70px;
+
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 
-  align-items: center;
+  padding: 13px 15px;
 
-  gap: 13px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
 
-  width: 100%;
+  background: rgba(13, 11, 20, 0.62);
 
-  padding: 13px 16px;
-
-  border: 1px solid var(--border-subtle);
-
-  border-left: 2px solid transparent;
-
-  border-radius: 10px;
-
-  background: transparent;
+  color: var(--text-secondary);
 
   cursor: pointer;
 
   text-align: left;
 
   transition:
-    background var(--t-fast) var(--ease-standard),
-    border-color var(--t-fast) var(--ease-standard),
-    transform var(--t-fast) var(--ease-standard);
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
-.aura-suggestion-row:hover {
-  background: var(--bg-elevated);
+.aura-suggestion:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-active);
 
-  border-left-color: var(--v-light);
+  transform: translateY(-2px);
 }
 
-.aura-suggestion-row:active {
-  transform: scale(0.995);
+.aura-suggestion-title {
+  color: var(--text-primary);
+
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.aura-suggestion-icon {
+.aura-suggestion-description {
+  margin-top: 4px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
+.aura-messages {
+  display: flex;
+  flex-direction: column;
+
+  gap: 30px;
+}
+
+.aura-message {
+  width: 100%;
+
   display: flex;
 
+  position: relative;
+}
+
+.aura-message.user {
+  justify-content: flex-end;
+}
+
+.aura-message.assistant {
+  justify-content: flex-start;
+}
+
+
+/* =========================================================
+   USER MESSAGE
+   ========================================================= */
+
+.aura-user-message {
+  max-width: min(720px, 82%);
+
+  padding: 13px 16px;
+
+  border: 1px solid rgba(167, 139, 250, 0.1);
+  border-radius: 17px 17px 5px 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.17),
+      rgba(76, 29, 149, 0.12)
+    );
+
+  color: var(--text-primary);
+
+  font-size: 13px;
+  line-height: 1.65;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   ASSISTANT
+   ========================================================= */
+
+.aura-assistant-message {
+  width: 100%;
+
+  display: flex;
+  gap: 13px;
+}
+
+.aura-assistant-avatar {
   width: 30px;
   height: 30px;
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 8px;
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: 9px;
 
-  background: var(--v-soft);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.18),
+      rgba(76, 29, 149, 0.22)
+    );
 
   color: var(--v-light);
+
+  box-shadow:
+    0 0 20px rgba(124, 58, 237, 0.08);
 }
 
-.aura-suggestion-copy {
-  flex: 1;
-
-  min-width: 0;
-
-  font-size: 13.5px;
-
-  color: var(--text-primary);
-}
-
-.aura-suggestion-copy span {
-  display: block;
-
-  margin-top: 1px;
-
-  font-size: 11.5px;
-
-  color: var(--text-muted);
-}
-
-.aura-suggestion-arrow {
-  flex-shrink: 0;
-
-  color: var(--text-disabled);
-
-  transition:
-    color var(--t-fast) var(--ease-standard),
-    transform var(--t-fast) var(--ease-standard);
-}
-
-.aura-suggestion-row:hover .aura-suggestion-arrow {
-  color: var(--v-light);
-
-  transform: translateX(2px);
-}
-
-
-/* ============================================================
-   MESSAGES
-   ============================================================ */
-
-.aura-messages-scroll {
-  position: relative;
-
-  min-height: 0;
-
-  flex: 1;
-
-  overflow-y: auto;
-
-  padding: 22px 28px 12px;
-}
-
-.aura-messages {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 26px;
-
-  width: 100%;
-  max-width: 760px;
-
-  margin: 0 auto;
-}
-
-.aura-message-row {
-  display: flex;
-
-  animation:
-    aura-msg-in
-    var(--t-normal)
-    var(--ease-premium)
-    both;
-}
-
-@keyframes aura-msg-in {
-  from {
-    opacity: 0;
-
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
-}
-
-.aura-message-row-user {
-  justify-content: flex-end;
-}
-
-
-/* ============================================================
-   USER MESSAGE
-   ============================================================ */
-
-.aura-message-bubble.aura-user-message {
-  max-width: 78%;
-
-  padding: 11px 15px;
-
-  border-radius: 14px 4px 14px 14px;
-
-  background: var(--bg-elevated);
-
-  border: 1px solid var(--border-default);
-
-  color: var(--text-primary);
-
-  font-size: 14px;
-
-  line-height: 1.6;
-}
-
-
-/* ============================================================
-   ASSISTANT
-   ============================================================ */
-
-.aura-assistant-block {
-  width: 100%;
-
-  max-width: 100%;
-}
-
-.aura-assistant-marker {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 8px;
-}
-
-.aura-assistant-marker-dot {
-  width: 5px;
-  height: 5px;
-
-  border-radius: 50%;
-
-  background: var(--v-light);
-
-  flex-shrink: 0;
-}
-
-.aura-assistant-marker-label {
-  font-size: 11px;
-  font-weight: 600;
-
-  letter-spacing: 0.04em;
-
-  color: var(--text-muted);
+.aura-assistant-avatar svg {
+  width: 16px;
+  height: 16px;
 }
 
 .aura-assistant-content {
-  max-width: 68ch;
+  min-width: 0;
 
-  padding-left: 14px;
+  flex: 1;
 
-  border-left: 2px solid var(--border-subtle);
-
-  font-size: 14.5px;
-
-  line-height: 1.72;
-
-  color: var(--text-primary);
+  padding-top: 3px;
 }
 
-.aura-assistant-content > * + * {
-  margin-top: 12px;
+.aura-assistant-name {
+  margin-bottom: 8px;
+
+  color: var(--text-muted);
+
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 
-/* ============================================================
+/* =========================================================
    MARKDOWN
-   ============================================================ */
+   ========================================================= */
 
-.aura-md-h {
-  font-family: var(--font-display);
+.aura-markdown {
+  color: var(--text-primary);
 
-  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.75;
+
+  overflow-wrap: anywhere;
+}
+
+.aura-markdown p {
+  margin-bottom: 12px;
+}
+
+.aura-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.aura-markdown strong {
+  color: #ffffff;
+  font-weight: 650;
+}
+
+.aura-markdown em {
+  color: var(--v-light);
+}
+
+.aura-markdown ul,
+.aura-markdown ol {
+  margin: 10px 0;
+  padding-left: 21px;
+}
+
+.aura-markdown li {
+  margin: 5px 0;
+}
+
+.aura-markdown h1,
+.aura-markdown h2,
+.aura-markdown h3 {
+  margin: 20px 0 9px;
 
   color: var(--text-primary);
 
-  line-height: 1.35;
+  font-weight: 650;
+
+  line-height: 1.25;
 }
 
-.aura-md-h1 {
-  margin-top: 18px !important;
-
-  font-size: 19px;
+.aura-markdown h1 {
+  font-size: 20px;
 }
 
-.aura-md-h2 {
-  margin-top: 16px !important;
-
-  font-size: 16.5px;
+.aura-markdown h2 {
+  font-size: 17px;
 }
 
-.aura-md-h3 {
-  font-size: 14.5px;
-
-  color: var(--v-light);
-
-  text-transform: none;
+.aura-markdown h3 {
+  font-size: 15px;
 }
 
-.aura-md-p {
-  margin: 0;
-}
+.aura-markdown blockquote {
+  margin: 14px 0;
 
-.aura-md-ul,
-.aura-md-ol {
-  display: flex;
+  padding: 9px 14px;
 
-  flex-direction: column;
+  border-left: 2px solid var(--v-primary);
 
-  gap: 6px;
-
-  margin: 0;
-
-  padding-left: 20px;
-}
-
-.aura-md-li::marker {
-  color: var(--v-light);
-}
-
-.aura-md-quote {
-  margin: 0;
-
-  padding: 2px 0 2px 14px;
-
-  border-left: 2px solid var(--v-light);
+  background: rgba(124, 58, 237, 0.055);
 
   color: var(--text-secondary);
 
-  font-style: italic;
+  border-radius: 0 8px 8px 0;
 }
 
-.aura-md-code-inline {
-  padding: 1px 5px;
-
-  border-radius: 5px;
-
-  background: var(--bg-elevated);
+.aura-markdown code {
+  padding: 2px 5px;
 
   border: 1px solid var(--border-subtle);
+  border-radius: 5px;
 
-  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.25);
+
+  color: var(--v-light);
+
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
 
   font-size: 0.88em;
-
-  color: var(--v-light);
 }
 
-.aura-md-pre {
-  margin: 0;
+.aura-markdown pre {
+  margin: 15px 0;
 
-  padding: 13px 14px;
+  padding: 15px;
 
-  border-radius: 10px;
-
-  background: var(--bg-elevated);
+  overflow-x: auto;
 
   border: 1px solid var(--border-default);
+  border-radius: 10px;
 
-  overflow-x: auto;
+  background: #09070d;
 }
 
-.aura-md-pre code {
-  font-family: var(--font-mono);
+.aura-markdown pre code {
+  padding: 0;
 
-  font-size: 12.5px;
+  border: 0;
+
+  background: transparent;
+
+  color: #ddd6fe;
+
+  font-size: 11px;
 
   line-height: 1.6;
-
-  color: var(--text-primary);
-
-  white-space: pre;
 }
 
-.aura-md-table-wrap {
-  width: 100%;
-
-  overflow-x: auto;
-}
-
-.aura-md-table {
-  width: 100%;
-
-  border-collapse: collapse;
-
-  font-size: 13px;
-}
-
-.aura-md-table th,
-.aura-md-table td {
-  padding: 7px 10px;
-
-  border-bottom: 1px solid var(--border-subtle);
-
-  text-align: left;
-}
-
-.aura-md-table th {
-  font-size: 11.5px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.02em;
-
-  color: var(--text-muted);
-}
-
-.aura-md-link {
+.aura-markdown a {
   color: var(--v-light);
 
-  text-underline-offset: 2px;
+  text-decoration: underline;
+  text-decoration-color: rgba(167, 139, 250, 0.35);
+  text-underline-offset: 3px;
+}
+
+.aura-markdown a:hover {
+  text-decoration-color: var(--v-light);
 }
 
 
-/* ============================================================
+/* =========================================================
    MESSAGE ACTIONS
-   ============================================================ */
+   ========================================================= */
 
 .aura-message-actions {
   display: flex;
-
   align-items: center;
+  gap: 3px;
 
-  gap: 2px;
-
-  margin-top: 10px;
-
-  padding-left: 14px;
-
-  opacity: 0;
-
-  transition: opacity var(--t-fast) var(--ease-standard);
+  margin-top: 9px;
 }
 
-.aura-assistant-block:hover .aura-message-actions,
-.aura-message-actions:focus-within {
-  opacity: 1;
-}
-
-.aura-msg-action-btn {
-  position: relative;
+.aura-message-action {
+  width: 28px;
+  height: 28px;
 
   display: flex;
-
   align-items: center;
+  justify-content: center;
 
-  gap: 5px;
-
-  padding: 5px 8px;
-
-  border: none;
+  border: 1px solid transparent;
   border-radius: 7px;
 
   background: transparent;
 
   color: var(--text-muted);
 
-  font-size: 11.5px;
-
   cursor: pointer;
 
   transition:
-    background var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard);
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
 }
 
-.aura-msg-action-btn:hover {
-  background: var(--bg-elevated);
-
+.aura-message-action:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
   color: var(--text-primary);
 }
 
-.aura-msg-action-btn[data-active="true"] {
-  color: var(--v-light);
+.aura-message-action svg {
+  width: 14px;
+  height: 14px;
 }
 
 
-/* ============================================================
+/* =========================================================
    COPY TOAST
-   ============================================================ */
+   ========================================================= */
 
 .aura-copy-toast {
-  position: absolute;
+  position: fixed;
 
-  bottom: 100%;
-  left: 0;
+  left: 50%;
+  bottom: 130px;
 
-  margin-bottom: 5px;
+  z-index: 100;
 
-  padding: 3px 8px;
+  transform: translateX(-50%);
 
-  border-radius: 6px;
+  padding: 8px 12px;
 
-  background: var(--bg-active);
+  border: 1px solid var(--border-active);
+  border-radius: 8px;
 
-  border: 1px solid var(--border-default);
+  background: rgba(19, 16, 25, 0.94);
 
   color: var(--text-primary);
 
   font-size: 11px;
+  font-weight: 600;
 
-  white-space: nowrap;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.3);
 
-  animation:
-    aura-toast-in
-    var(--t-fast)
-    var(--ease-standard)
-    both;
-
-  z-index: 20;
-}
-
-@keyframes aura-toast-in {
-  from {
-    opacity: 0;
-
-    transform: translateY(3px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 
-/* ============================================================
+/* =========================================================
    THINKING INDICATOR
+   ========================================================= */
 
-   NÃO alterar estrutura/visual do indicador.
-   ============================================================ */
-
-.aura-thinking-row {
+.aura-thinking {
   display: flex;
-
   align-items: center;
+  gap: 6px;
 
-  gap: 12px;
-
-  animation:
-    aura-msg-in
-    var(--t-normal)
-    var(--ease-premium)
-    both;
-}
-
-.aura-thinking-label {
-  font-size: 12.5px;
+  min-height: 30px;
 
   color: var(--text-muted);
+
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+
+  font-size: 10px;
 }
 
 .aura-thinking-dots {
   display: flex;
-
-  gap: 4px;
+  align-items: center;
+  gap: 3px;
 }
 
-.aura-thinking-dots span {
-  width: 5px;
-  height: 5px;
+.aura-thinking-dot {
+  width: 4px;
+  height: 4px;
 
   border-radius: 50%;
 
   background: var(--v-light);
 
-  animation:
-    aura-think-bounce
-    1.1s
-    ease-in-out
-    infinite;
+  animation: aura-thinking-pulse 1.2s infinite ease-in-out;
 }
 
-.aura-thinking-dots span:nth-child(2) {
+.aura-thinking-dot:nth-child(2) {
   animation-delay: 0.15s;
 }
 
-.aura-thinking-dots span:nth-child(3) {
+.aura-thinking-dot:nth-child(3) {
   animation-delay: 0.3s;
 }
 
-@keyframes aura-think-bounce {
+@keyframes aura-thinking-pulse {
   0%,
   60%,
   100% {
-    opacity: 0.3;
-
+    opacity: 0.25;
     transform: translateY(0);
   }
 
   30% {
     opacity: 1;
-
-    transform: translateY(-3px);
+    transform: translateY(-2px);
   }
 }
 
 
-/* ============================================================
+/* =========================================================
    ERROR
-   ============================================================ */
+   ========================================================= */
 
-.aura-error-row {
+.aura-error {
   display: flex;
-
-  align-items: center;
-
+  align-items: flex-start;
   gap: 10px;
 
-  padding: 10px 14px;
+  margin-top: 12px;
+  padding: 11px 13px;
 
-  border: 1px solid rgba(240, 135, 107, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  border-radius: 9px;
 
-  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.055);
 
-  background: rgba(240, 135, 107, 0.06);
+  color: rgba(252, 165, 165, 0.9);
 
-  font-size: 13px;
-
-  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
 }
 
-.aura-error-row svg {
-  color: #f0876b;
+.aura-error svg {
+  width: 15px;
+  height: 15px;
 
   flex-shrink: 0;
-}
 
-.aura-retry-btn {
-  margin-left: auto;
-
-  padding: 5px 11px;
-
-  border: 1px solid var(--border-default);
-
-  border-radius: 7px;
-
-  background: var(--bg-elevated);
-
-  color: var(--text-primary);
-
-  font-size: 12px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  white-space: nowrap;
-
-  transition:
-    border-color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
-}
-
-.aura-retry-btn:hover {
-  border-color: var(--border-active);
-
-  background: var(--bg-hover);
+  margin-top: 1px;
 }
 
 
-/* ============================================================
+/* =========================================================
    SCROLL TO LATEST
-   ============================================================ */
+   ========================================================= */
 
 .aura-scroll-latest {
   position: absolute;
 
-  bottom: 14px;
-  left: 50%;
+  right: 24px;
+  bottom: 22px;
 
-  transform: translateX(-50%);
+  width: 34px;
+  height: 34px;
 
   display: flex;
-
   align-items: center;
-
-  gap: 6px;
-
-  padding: 7px 13px;
-
-  border-radius: 20px;
+  justify-content: center;
 
   border: 1px solid var(--border-default);
+  border-radius: 50%;
 
-  background: var(--bg-elevated);
-
-  box-shadow: var(--shadow-elevated);
+  background: rgba(19, 16, 25, 0.9);
 
   color: var(--text-secondary);
 
-  font-size: 12px;
-
   cursor: pointer;
 
-  animation:
-    aura-toast-in
-    var(--t-fast)
-    var(--ease-standard)
-    both;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25);
 
-  z-index: 5;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .aura-scroll-latest:hover {
-  color: var(--text-primary);
-
   border-color: var(--border-active);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.aura-scroll-latest svg {
+  width: 16px;
+  height: 16px;
 }
 
 
-/* ============================================================
+/* =========================================================
    COMPOSER
-   ============================================================ */
+   ========================================================= */
 
-.aura-input-area {
+.aura-composer-area {
+  width: 100%;
+
   flex-shrink: 0;
 
-  padding: 10px 28px 20px;
+  padding: 14px 24px 20px;
+
+  position: relative;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 6, 11, 0),
+      rgba(7, 6, 11, 0.94) 26%,
+      var(--bg-base) 55%
+    );
+
+  z-index: 10;
 }
 
-.aura-attachments-row {
+.aura-composer {
+  width: min(920px, 100%);
+
+  margin: 0 auto;
+}
+
+.aura-composer-box {
+  position: relative;
+
   display: flex;
+  flex-direction: column;
 
+  min-height: 62px;
+
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(16, 13, 23, 0.97),
+      rgba(13, 11, 20, 0.97)
+    );
+
+  box-shadow:
+    0 16px 50px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(124, 58, 237, 0.02);
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.aura-composer-box:focus-within {
+  border-color: rgba(167, 139, 250, 0.24);
+
+  box-shadow:
+    0 16px 50px rgba(0, 0, 0, 0.32),
+    0 0 0 3px rgba(124, 58, 237, 0.055);
+}
+
+
+/* =========================================================
+   ATTACHMENTS
+   ========================================================= */
+
+.aura-attachments {
+  display: flex;
   flex-wrap: wrap;
-
   gap: 7px;
 
-  width: 100%;
-  max-width: 760px;
-
-  margin: 0 auto 8px;
+  padding: 10px 12px 0;
 }
 
 .aura-attachment-chip {
   display: flex;
-
   align-items: center;
-
   gap: 7px;
 
   max-width: 220px;
 
-  padding: 6px 8px 6px 9px;
+  padding: 6px 8px;
 
   border: 1px solid var(--border-default);
+  border-radius: 8px;
 
-  border-radius: 9px;
-
-  background: var(--bg-elevated);
-
-  font-size: 12px;
+  background: rgba(124, 58, 237, 0.055);
 
   color: var(--text-secondary);
+
+  font-size: 10px;
+}
+
+.aura-attachment-chip span {
+  min-width: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .aura-attachment-chip svg:first-child {
+  width: 14px;
+  height: 14px;
+
   flex-shrink: 0;
 
   color: var(--v-light);
 }
 
-.aura-attachment-name {
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-}
-
-.aura-attachment-size {
-  flex-shrink: 0;
-
-  color: var(--text-muted);
-}
-
 .aura-attachment-remove {
+  width: 20px;
+  height: 20px;
+
   display: flex;
-
-  width: 16px;
-  height: 16px;
-
-  flex-shrink: 0;
-
   align-items: center;
   justify-content: center;
 
-  border: none;
+  margin-left: 2px;
 
-  border-radius: 50%;
+  border-radius: 5px;
 
   background: transparent;
 
@@ -1978,104 +1455,42 @@
 }
 
 .aura-attachment-remove:hover {
-  background: var(--bg-active);
-
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
+.aura-attachment-remove svg {
+  width: 12px;
+  height: 12px;
+}
 
-/* ============================================================
+
+/* =========================================================
    INPUT WRAPPER
-   ============================================================ */
+   ========================================================= */
 
 .aura-input-wrapper {
-  position: relative;
-
   display: flex;
-
   align-items: flex-end;
-
   gap: 8px;
 
-  width: 100%;
-  max-width: 760px;
-
-  min-height: 52px;
-
-  margin: 0 auto;
-
-  padding: 8px 8px 8px 6px;
-
-  border: 1px solid var(--border-default);
-
-  border-radius: 16px;
-
-  background: var(--bg-input);
-
-  transition:
-    border-color var(--t-normal) var(--ease-standard),
-    box-shadow var(--t-normal) var(--ease-standard),
-    background var(--t-normal) var(--ease-standard);
-}
-
-.aura-input-wrapper:focus-within {
-  border-color: var(--border-active);
-
-  box-shadow:
-    0 0 0 3px var(--v-soft);
-}
-
-.aura-input-wrapper[data-dragover="true"] {
-  border-color: var(--v-light);
-
-  background: var(--v-soft);
-}
-
-.aura-drop-overlay {
-  position: absolute;
-
-  inset: 0;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  border-radius: 15px;
-
-  background: rgba(13, 11, 20, 0.92);
-
-  border: 1.5px dashed var(--v-light);
-
-  color: var(--v-light);
-
-  font-size: 13px;
-  font-weight: 500;
-
-  pointer-events: none;
-
-  z-index: 10;
+  padding: 10px 10px 10px 13px;
 }
 
 
-/* ============================================================
+/* =========================================================
    COMPOSER BUTTONS
-   ============================================================ */
+   ========================================================= */
 
-.aura-composer-btn {
-  display: flex;
-
-  width: 32px;
-  height: 32px;
+.aura-composer-button {
+  width: 36px;
+  height: 36px;
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
-
-  border: none;
 
   border-radius: 9px;
 
@@ -2086,92 +1501,103 @@
   cursor: pointer;
 
   transition:
-    color var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
+    background 160ms ease,
+    color 160ms ease;
 }
 
-.aura-composer-btn:hover {
-  color: var(--text-primary);
-
+.aura-composer-button:hover {
   background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
-.aura-composer-btn[data-active="true"] {
+.aura-composer-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.aura-composer-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+
+/* =========================================================
+   MICROPHONE
+   ========================================================= */
+
+.aura-microphone-button {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.aura-microphone-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.aura-microphone-button.active {
+  background: var(--v-soft-strong);
   color: var(--v-light);
 
-  background: var(--v-soft);
+  box-shadow:
+    0 0 18px rgba(124, 58, 237, 0.15);
+}
+
+.aura-microphone-button svg {
+  width: 17px;
+  height: 17px;
 }
 
 
-/* ============================================================
-   MICROPHONE
-   ============================================================ */
-
-.aura-mic-listening {
-  position: relative;
-}
-
-.aura-mic-listening::after {
-  content: "";
-
-  position: absolute;
-
-  inset: -3px;
-
-  border-radius: 50%;
-
-  border: 1px solid var(--v-glow);
-
-  animation:
-    aura-mic-ring
-    1.6s
-    var(--ease-standard)
-    infinite;
-}
-
-@keyframes aura-mic-ring {
-  0% {
-    transform: scale(0.85);
-
-    opacity: 0.9;
-  }
-
-  100% {
-    transform: scale(1.5);
-
-    opacity: 0;
-  }
-}
-
-
-/* ============================================================
+/* =========================================================
    TEXTAREA
-   ============================================================ */
+   ========================================================= */
 
 .aura-textarea {
-  flex: 1;
-
   min-width: 0;
 
-  max-height: 160px;
+  flex: 1;
 
-  padding: 9px 2px;
+  min-height: 36px;
+  max-height: 180px;
 
   resize: none;
 
-  border: 0;
+  padding: 8px 3px;
 
+  border: 0;
   outline: none;
 
   background: transparent;
 
   color: var(--text-primary);
 
-  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.55;
 
-  font-size: 14px;
+  scrollbar-width: none;
+}
 
-  line-height: 1.5;
+.aura-textarea::-webkit-scrollbar {
+  display: none;
 }
 
 .aura-textarea::placeholder {
@@ -2179,385 +1605,472 @@
 }
 
 .aura-textarea:disabled {
-  color: var(--text-disabled);
-
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 
-/* ============================================================
-   SEND
-   ============================================================ */
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
 
 .aura-send-button {
-  display: flex;
-
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
-
-  border: 0;
 
   border-radius: 10px;
 
-  background: var(--v-primary);
+  background:
+    linear-gradient(
+      135deg,
+      var(--v-primary),
+      var(--v-deep)
+    );
 
-  color: #fff;
+  color: #ffffff;
 
   cursor: pointer;
 
+  box-shadow:
+    0 5px 18px rgba(124, 58, 237, 0.2);
+
   transition:
-    transform var(--t-fast) var(--ease-standard),
-    opacity var(--t-fast) var(--ease-standard),
-    background var(--t-fast) var(--ease-standard);
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
 }
 
 .aura-send-button:hover:not(:disabled) {
-  background: var(--v-light);
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 23px rgba(124, 58, 237, 0.3);
 }
 
 .aura-send-button:active:not(:disabled) {
-  transform: scale(0.94);
+  transform: translateY(0);
 }
 
 .aura-send-button:disabled {
+  opacity: 0.25;
+
   cursor: not-allowed;
 
-  opacity: 0.3;
-
-  background: var(--bg-active);
-
-  color: var(--text-muted);
+  box-shadow: none;
 }
 
-.aura-send-button[data-mode="stop"] {
-  background: var(--bg-active);
-
-  color: var(--text-primary);
-
-  border: 1px solid var(--border-default);
+.aura-send-button svg {
+  width: 16px;
+  height: 16px;
 }
 
 
-/* ============================================================
+/* =========================================================
    COMPOSER META
-   ============================================================ */
+   ========================================================= */
 
 .aura-composer-meta {
   display: flex;
-
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
-  gap: 6px;
+  padding: 8px 4px 0;
+}
 
-  margin: 10px 0 0;
-
-  font-size: 11px;
-
+.aura-composer-hint {
   color: var(--text-disabled);
+
+  font-size: 9px;
 }
 
-.aura-composer-meta svg {
-  color: var(--v-light);
+.aura-composer-model {
+  color: var(--text-disabled);
 
-  opacity: 0.8;
-}
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
 
-.aura-composer-dot {
-  opacity: 0.5;
-}
+  font-size: 8px;
 
-.aura-conn-indicator {
-  display: flex;
-
-  align-items: center;
-
-  gap: 5px;
-
-  color: var(--text-muted);
-}
-
-.aura-conn-indicator[data-online="false"] {
-  color: #f0876b;
+  letter-spacing: 0.05em;
 }
 
 
-/* ============================================================
+/* =========================================================
    TOOLTIP
-   ============================================================ */
+   ========================================================= */
 
-.aura-tooltip-wrap {
-  position: relative;
-
-  display: inline-flex;
-}
-
-.aura-tooltip-wrap [data-tooltip]:hover::after,
-.aura-tooltip-wrap [data-tooltip]:focus-visible::after {
-  content: attr(data-tooltip);
-
+.aura-tooltip {
   position: absolute;
 
   bottom: calc(100% + 7px);
 
   left: 50%;
 
-  transform: translateX(-50%);
-
-  padding: 4px 8px;
-
-  border-radius: 6px;
-
-  background: var(--bg-active);
+  padding: 5px 8px;
 
   border: 1px solid var(--border-default);
+  border-radius: 6px;
 
-  color: var(--text-primary);
+  background: rgba(19, 16, 25, 0.97);
 
-  font-size: 11px;
+  color: var(--text-secondary);
+
+  font-size: 9px;
 
   white-space: nowrap;
 
   pointer-events: none;
 
-  z-index: 50;
+  opacity: 0;
+
+  transform:
+    translateX(-50%)
+    translateY(3px);
+
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.aura-tooltip-trigger {
+  position: relative;
+}
+
+.aura-tooltip-trigger:hover .aura-tooltip {
+  opacity: 1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
 }
 
 
-/* ============================================================
-   NEURAL ORB
-   ============================================================
+/* =========================================================
+   NEURAL ORB — COMPATIBILITY STYLES
+   NÃO ALTERA O COMPONENTE
+   ========================================================= */
 
-   Mantido compatível com o componente existente.
-   Não mexer na estrutura do NeuralOrb.
-   ============================================================ */
+.aura-neural-orb {
+  position: relative;
 
-.aura-orb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.aura-neural-orb canvas {
   display: block;
-
-  color: var(--v-light);
 }
 
-.aura-orb-core {
-  transform-origin: center;
+
+/* =========================================================
+   ORB CONTAINER VARIANTS
+   ========================================================= */
+
+.aura-orb-slot {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
 }
 
-.aura-orb[data-state="idle"] .aura-orb-ring {
-  animation:
-    aura-orb-idle-rotate
-    22s
-    linear
-    infinite;
-}
 
-.aura-orb[data-state="listening"] .aura-orb-core {
-  animation:
-    aura-orb-breathe
-    1.4s
-    var(--ease-standard)
-    infinite;
-}
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
 
-.aura-orb[data-state="thinking"] .aura-orb-ring {
-  animation:
-    aura-orb-idle-rotate
-    4.5s
-    linear
-    infinite;
-}
-
-.aura-orb[data-state="generating"] .aura-orb-node {
-  animation:
-    aura-orb-node-flicker
-    1.8s
-    ease-in-out
-    infinite;
-}
-
-.aura-orb[data-state="speaking"] .aura-orb-core {
-  animation:
-    aura-orb-breathe
-    0.9s
-    var(--ease-standard)
-    infinite;
-}
-
-.aura-orb[data-state="error"] {
-  color: #f0876b;
-}
-
-.aura-orb[data-state="offline"] {
-  color: var(--text-disabled);
-}
-
-@keyframes aura-orb-idle-rotate {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 1100px) {
+  .aura-sidebar {
+    width: 235px;
   }
 
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes aura-orb-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-
-    opacity: 0.9;
+  .aura-chat-content {
+    width: min(860px, calc(100% - 42px));
   }
 
-  50% {
-    transform: scale(1.06);
-
-    opacity: 1;
-  }
-}
-
-@keyframes aura-orb-node-flicker {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-
-  50% {
-    opacity: 1;
+  .aura-composer-area {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
 
 @media (max-width: 900px) {
   .aura-sidebar {
-    position: fixed;
+    width: 270px;
 
-    inset: 0 auto 0 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
 
-    z-index: 40;
-
-    width: 84vw;
-
-    max-width: 320px;
+    z-index: 50;
 
     transform: translateX(-100%);
 
-    transition:
-      transform var(--t-slow)
-      var(--ease-premium);
+    transition: transform 220ms ease;
 
-    box-shadow: var(--shadow-elevated);
+    box-shadow:
+      18px 0 50px rgba(0, 0, 0, 0.35);
   }
 
-  .aura-sidebar-open {
+  .aura-sidebar.open {
     transform: translateX(0);
   }
 
-  .aura-sidebar-overlay {
+  .aura-mobile-overlay {
     display: block;
 
-    position: fixed;
-
+    position: absolute;
     inset: 0;
 
-    z-index: 35;
+    z-index: 40;
 
-    background: rgba(4, 3, 8, 0.6);
+    background: rgba(0, 0, 0, 0.52);
 
-    animation:
-      aura-toast-in
-      var(--t-normal)
-      var(--ease-standard)
-      both;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
   }
 
-  .aura-drawer-close {
-    display: flex;
-
-    width: 30px;
-    height: 30px;
-
-    align-items: center;
-    justify-content: center;
-
-    margin-left: auto;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: var(--bg-elevated);
-
-    color: var(--text-secondary);
-
-    cursor: pointer;
-  }
-
-  .aura-sidebar-top {
-    display: flex;
-
-    align-items: center;
-  }
-
-  .aura-menu-button {
-    display: flex;
-
+  .aura-mobile-menu-button {
     width: 34px;
     height: 34px;
 
-    flex-shrink: 0;
-
+    display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid var(--border-default);
+    flex-shrink: 0;
 
-    border-radius: 9px;
+    border-radius: 8px;
 
-    background: var(--bg-elevated);
+    background: transparent;
 
     color: var(--text-secondary);
 
     cursor: pointer;
   }
 
+  .aura-mobile-menu-button:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .aura-mobile-menu-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
   .aura-header {
-    padding: 14px 16px 12px;
+    height: 64px;
+
+    padding: 0 15px;
   }
 
-  .aura-header-title-row h1 {
-    font-size: 17px;
+  .aura-header-logo-slot {
+    width: 38px;
+    height: 38px;
   }
 
-  .aura-header-sub {
+  .aura-header-logo {
+    width: 34px;
+    height: 34px;
+
+    max-width: 34px;
+    max-height: 34px;
+  }
+
+  .aura-header-title {
+    font-size: 16px;
+  }
+
+  .aura-chat-content {
+    width: calc(100% - 30px);
+
+    padding-top: 25px;
+    padding-bottom: 170px;
+  }
+
+  .aura-welcome {
+    min-height: 390px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .aura-welcome-title {
+    font-size: clamp(27px, 8vw, 36px);
+  }
+
+  .aura-welcome-subtitle {
+    max-width: 430px;
+
+    font-size: 12px;
+  }
+
+  .aura-suggestions {
+    grid-template-columns: 1fr;
+
+    max-width: 430px;
+
+    margin-top: 24px;
+  }
+
+  .aura-suggestion {
+    min-height: 62px;
+  }
+
+  .aura-user-message {
+    max-width: 88%;
+  }
+
+  .aura-composer-area {
+    padding:
+      12px
+      14px
+      max(15px, env(safe-area-inset-bottom));
+  }
+
+  .aura-composer-meta {
+    padding-top: 6px;
+  }
+
+  .aura-composer-hint {
+    font-size: 8px;
+  }
+
+  .aura-scroll-latest {
+    right: 15px;
+    bottom: 18px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE SMALL
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .aura-chat-content {
+    width: calc(100% - 22px);
+  }
+
+  .aura-header {
+    padding: 0 11px;
+  }
+
+  .aura-header-left {
+    gap: 8px;
+  }
+
+  .aura-header-logo-slot {
+    width: 36px;
+    height: 36px;
+  }
+
+  .aura-header-logo {
+    width: 32px;
+    height: 32px;
+
+    max-width: 32px;
+    max-height: 32px;
+  }
+
+  .aura-header-title {
+    font-size: 15px;
+  }
+
+  .aura-header-status {
+    font-size: 9px;
+  }
+
+  .aura-assistant-message {
+    gap: 9px;
+  }
+
+  .aura-assistant-avatar {
+    width: 27px;
+    height: 27px;
+
+    border-radius: 8px;
+  }
+
+  .aura-assistant-avatar svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .aura-markdown,
+  .aura-user-message {
+    font-size: 12.5px;
+  }
+
+  .aura-user-message {
+    max-width: 91%;
+
+    padding: 11px 13px;
+  }
+
+  .aura-input-wrapper {
+    gap: 5px;
+
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .aura-composer-button,
+  .aura-microphone-button,
+  .aura-send-button {
+    width: 33px;
+    height: 33px;
+  }
+
+  .aura-composer-button svg,
+  .aura-microphone-button svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .aura-send-button svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .aura-textarea {
+    font-size: 12px;
+  }
+
+  .aura-composer-meta {
     display: none;
   }
+}
 
-  .aura-messages-scroll,
-  .aura-welcome {
-    padding: 16px 16px 8px;
-  }
 
-  .aura-welcome h2 {
-    font-size: 24px;
-  }
+/* =========================================================
+   VERY SMALL DEVICES
+   ========================================================= */
 
-  .aura-input-area {
-    padding: 8px 12px 16px;
-  }
-
-  .aura-assistant-content {
-    max-width: 100%;
-  }
-
+@media (max-width: 390px) {
   .aura-header-logo-slot {
     width: 34px;
     height: 34px;
@@ -2571,153 +2084,38 @@
     max-height: 30px;
   }
 
-  .aura-message-bubble.aura-user-message {
-    max-width: 88%;
-  }
-}
-
-
-/* ============================================================
-   MOBILE PEQUENO
-   ============================================================ */
-
-@media (max-width: 560px) {
-  .aura-header {
-    gap: 8px;
-
-    padding: 12px 12px 10px;
-  }
-
-  .aura-header-left {
-    gap: 8px;
-  }
-
-  .aura-header-title-row {
-    gap: 6px;
-  }
-
-  .aura-header-title-row h1 {
-    font-size: 16px;
-  }
-
-  .aura-status-pill {
-    padding: 3px 7px 3px 6px;
-
-    font-size: 10px;
-  }
-
-  .aura-header-actions {
-    gap: 5px;
-  }
-
-  .aura-icon-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .aura-welcome {
-    padding: 14px 14px 8px;
-  }
-
-  .aura-welcome h2 {
-    font-size: 22px;
-  }
-
-  .aura-welcome-sub {
-    font-size: 13px;
-  }
-
-  .aura-suggestions {
-    margin-top: 24px;
-  }
-
-  .aura-suggestion-row {
-    padding: 11px 12px;
-  }
-
-  .aura-messages-scroll {
-    padding: 14px 12px 8px;
-  }
-
-  .aura-message-bubble.aura-user-message {
-    max-width: 92%;
-
-    font-size: 13.5px;
-  }
-
-  .aura-assistant-content {
-    padding-left: 11px;
-
+  .aura-header-title {
     font-size: 14px;
   }
 
-  .aura-input-area {
-    padding: 7px 8px 12px;
+  .aura-chat-content {
+    width: calc(100% - 18px);
   }
 
-  .aura-input-wrapper {
-    min-height: 50px;
+  .aura-suggestion {
+    min-height: 58px;
 
-    padding-left: 5px;
+    padding: 11px 12px;
+  }
 
+  .aura-composer-box {
     border-radius: 14px;
   }
-
-  .aura-textarea {
-    font-size: 13.5px;
-  }
-
-  .aura-composer-meta {
-    font-size: 10px;
-  }
 }
 
 
-/* ============================================================
-   VERY SMALL SCREENS
-   ============================================================ */
-
-@media (max-width: 380px) {
-  .aura-header-title-row h1 {
-    font-size: 15px;
-  }
-
-  .aura-status-pill {
-    display: none;
-  }
-
-  .aura-welcome h2 {
-    font-size: 20px;
-  }
-
-  .aura-welcome-sub {
-    font-size: 12.5px;
-  }
-
-  .aura-suggestion-copy {
-    font-size: 12.5px;
-  }
-
-  .aura-suggestion-copy span {
-    font-size: 10.5px;
-  }
-}
-
-
-/* ============================================================
+/* =========================================================
    REDUCED MOTION
-   ============================================================ */
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .aura-page *,
   .aura-page *::before,
   .aura-page *::after {
-    animation-duration: 0.01ms !important;
-
-    animation-iteration-count: 1 !important;
-
-    transition-duration: 0.01ms !important;
-
     scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
+
