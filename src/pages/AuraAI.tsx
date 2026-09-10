@@ -18,7 +18,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import "./aura-educacube.css";
+import "../styles/aura-ai.css";
 
 interface NavItem {
   id: string;
