@@ -43,8 +43,7 @@ import NeuralOrb, {
   type AuraState,
 } from "../components/NeuralOrb";
 import { renderAuraMarkdown } from "../components/aura-markdown";
-import "./aura-educacube.css";
-
+import "../styles/aura-ai.css";
 /* ================================================================
    Types
    ================================================================ */
