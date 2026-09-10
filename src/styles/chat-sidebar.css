@@ -1,0 +1,839 @@
+.aura-sidebar-desktop-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.aura-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(139, 92, 246, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #08070b 0%,
+      #050407 100%
+    );
+
+  border-right: 1px solid
+    rgba(167, 139, 250, 0.09);
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.aura-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 72px;
+  padding: 0 20px;
+
+  border-bottom: 1px solid
+    rgba(167, 139, 250, 0.08);
+}
+
+.aura-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.aura-sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  color: #c4b5fd;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(139, 92, 246, 0.2),
+      rgba(91, 33, 182, 0.08)
+    );
+
+  border: 1px solid
+    rgba(167, 139, 250, 0.16);
+
+  border-radius: 10px;
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.035),
+    0 0 22px
+      rgba(139, 92, 246, 0.07);
+}
+
+.aura-sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aura-sidebar-brand-name {
+  color: #f5f3ff;
+
+  font-family:
+    "Space Grotesk",
+    sans-serif;
+
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.aura-sidebar-brand-context {
+  color: #6f687c;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* =====================================================
+   CONTENT
+   ===================================================== */
+
+.aura-sidebar-content {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 18px 12px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.aura-sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.aura-sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aura-sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.18);
+  border-radius: 999px;
+}
+
+/* =====================================================
+   NEW CONVERSATION
+   ===================================================== */
+
+.aura-new-conversation {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 44px;
+
+  padding: 0 10px;
+
+  gap: 10px;
+
+  color: #ddd6fe;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.13),
+      rgba(91, 33, 182, 0.055)
+    );
+
+  border: 1px solid
+    rgba(167, 139, 250, 0.13);
+
+  border-radius: 10px;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.aura-new-conversation:hover {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.19),
+      rgba(91, 33, 182, 0.08)
+    );
+
+  border-color:
+    rgba(167, 139, 250, 0.22);
+
+  box-shadow:
+    0 8px 30px
+      rgba(0, 0, 0, 0.2),
+    0 0 25px
+      rgba(139, 92, 246, 0.05);
+
+  transform: translateY(-1px);
+}
+
+.aura-new-conversation:active {
+  transform: translateY(0);
+}
+
+.aura-new-conversation-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 25px;
+  height: 25px;
+
+  color: #c4b5fd;
+
+  background:
+    rgba(139, 92, 246, 0.12);
+
+  border: 1px solid
+    rgba(167, 139, 250, 0.12);
+
+  border-radius: 7px;
+}
+
+.aura-new-conversation-key {
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  color: #625b6e;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 5px;
+
+  font-size: 9px;
+}
+
+/* =====================================================
+   SECTION
+   ===================================================== */
+
+.aura-sidebar-section {
+  margin-top: 27px;
+}
+
+.aura-sidebar-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 8px 9px;
+
+  color: #625b6e;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.aura-sidebar-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  color: #756c81;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 5px;
+
+  font-size: 9px;
+}
+
+/* =====================================================
+   EMPTY
+   ===================================================== */
+
+.aura-empty-conversations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 38px 18px;
+
+  text-align: center;
+}
+
+.aura-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+
+  margin-bottom: 12px;
+
+  color: #625b6e;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 11px;
+}
+
+.aura-empty-title {
+  margin-bottom: 5px;
+
+  color: #8d8598;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.aura-empty-description {
+  max-width: 170px;
+
+  color: #514b59;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =====================================================
+   CONVERSATIONS
+   ===================================================== */
+
+.aura-conversation-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.aura-conversation {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 58px;
+
+  padding: 8px 9px;
+
+  gap: 9px;
+
+  color: #81798b;
+
+  background: transparent;
+
+  border: 1px solid transparent;
+
+  border-radius: 9px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 170ms ease,
+    border-color 170ms ease,
+    color 170ms ease;
+}
+
+.aura-conversation:hover {
+  color: #b5adbd;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border-color:
+    rgba(255, 255, 255, 0.035);
+}
+
+.aura-conversation-active {
+  color: #ddd6fe;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(139, 92, 246, 0.11),
+      rgba(139, 92, 246, 0.045)
+    );
+
+  border-color:
+    rgba(167, 139, 250, 0.095);
+}
+
+.aura-active-line {
+  position: absolute;
+
+  left: -1px;
+  top: 11px;
+  bottom: 11px;
+
+  width: 2px;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      #8b5cf6,
+      transparent
+    );
+
+  border-radius: 999px;
+
+  box-shadow:
+    0 0 10px
+      rgba(139, 92, 246, 0.55);
+}
+
+.aura-conversation-icon {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 29px;
+  height: 29px;
+
+  color: #5d5666;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.035);
+
+  border-radius: 7px;
+
+  transition:
+    color 170ms ease,
+    background 170ms ease,
+    border-color 170ms ease;
+}
+
+.aura-conversation:hover
+  .aura-conversation-icon {
+  color: #9287a1;
+}
+
+.aura-conversation-icon-active {
+  color: #b9a5ff;
+
+  background:
+    rgba(139, 92, 246, 0.11);
+
+  border-color:
+    rgba(167, 139, 250, 0.13);
+}
+
+.aura-conversation-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.aura-conversation-title {
+  display: block;
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+  color: #81798b;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 450;
+
+  line-height: 1.25;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  transition: color 170ms ease;
+}
+
+.aura-conversation:hover
+  .aura-conversation-title {
+  color: #b5adbd;
+}
+
+.aura-conversation-title-active {
+  color: #ddd6fe;
+}
+
+.aura-conversation-meta {
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+
+  color: #514b59;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 9px;
+  line-height: 1;
+}
+
+.aura-meta-dot {
+  color: #403b46;
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.aura-sidebar-footer {
+  padding: 13px;
+
+  border-top: 1px solid
+    rgba(167, 139, 250, 0.07);
+}
+
+.aura-system-status {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.035);
+
+  border-radius: 9px;
+}
+
+.aura-system-status-dot {
+  position: relative;
+
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  background: #8b5cf6;
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 10px
+      rgba(139, 92, 246, 0.65);
+}
+
+.aura-system-status-dot::after {
+  content: "";
+
+  position: absolute;
+
+  inset: -3px;
+
+  border: 1px solid
+    rgba(139, 92, 246, 0.2);
+
+  border-radius: 50%;
+
+  animation:
+    aura-status-pulse 2.8s ease-out infinite;
+}
+
+.aura-system-status-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  min-width: 0;
+}
+
+.aura-system-status-text {
+  color: #80778b;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.aura-system-status-subtext {
+  color: #4f4857;
+
+  font-family:
+    "DM Sans",
+    sans-serif;
+
+  font-size: 8px;
+}
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+.aura-mobile-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: none;
+}
+
+.aura-mobile-backdrop {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 0;
+  margin: 0;
+
+  background:
+    rgba(0, 0, 0, 0.68);
+
+  border: 0;
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  cursor: pointer;
+}
+
+.aura-mobile-sidebar {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: min(310px, 86vw);
+
+  background: #07050a;
+
+  box-shadow:
+    20px 0 60px
+      rgba(0, 0, 0, 0.45),
+    0 0 50px
+      rgba(91, 33, 182, 0.07);
+
+  animation:
+    aura-sidebar-enter 220ms
+    cubic-bezier(0.2, 0.8, 0.2, 1)
+    both;
+}
+
+.aura-sidebar-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 31px;
+  height: 31px;
+
+  padding: 0;
+
+  color: #82798c;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.05);
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.aura-sidebar-close:hover {
+  color: #c4b5fd;
+
+  background:
+    rgba(139, 92, 246, 0.09);
+}
+
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
+
+@keyframes aura-status-pulse {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.7);
+  }
+
+  70% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes aura-sidebar-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+  .aura-sidebar-desktop-inner {
+    display: none;
+  }
+
+  .aura-mobile-overlay {
+    display: block;
+  }
+}
+
+@media (min-width: 901px) {
+  .aura-mobile-overlay {
+    display: none !important;
+  }
+
+  .aura-sidebar-close {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .aura-sidebar-header {
+    height: 66px;
+    padding: 0 17px;
+  }
+
+  .aura-sidebar-content {
+    padding: 15px 10px;
+  }
+
+  .aura-sidebar-footer {
+    padding: 11px;
+  }
+
+  .aura-new-conversation {
+    min-height: 46px;
+  }
+}
+
+/* =====================================================
+   ACESSIBILIDADE
+   ===================================================== */
+
+.aura-new-conversation:focus-visible,
+.aura-conversation:focus-visible,
+.aura-sidebar-close:focus-visible {
+  outline: 2px solid
+    rgba(167, 139, 250, 0.55);
+
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura-system-status-dot::after,
+  .aura-mobile-sidebar {
+    animation: none;
+  }
+
+  .aura-new-conversation,
+  .aura-conversation,
+  .aura-conversation-icon,
+  .aura-conversation-title {
+    transition: none;
+  }
+}
