@@ -1,3 +1,4 @@
+```css
 /* ============================================================
    AURA IA — EDUCACUBE
    Design system: obsidian black, architected violet.
@@ -85,13 +86,16 @@
   width: 8px;
   height: 8px;
 }
+
 .aura-page ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .aura-page ::-webkit-scrollbar-thumb {
   background: rgba(196, 181, 253, 0.14);
   border-radius: 10px;
 }
+
 .aura-page ::-webkit-scrollbar-thumb:hover {
   background: rgba(196, 181, 253, 0.22);
 }
@@ -174,7 +178,8 @@
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--t-fast) var(--ease-standard),
+  transition:
+    border-color var(--t-fast) var(--ease-standard),
     background var(--t-fast) var(--ease-standard);
 }
 
@@ -210,7 +215,8 @@
   font-weight: 450;
   text-align: left;
   cursor: pointer;
-  transition: background var(--t-fast) var(--ease-standard),
+  transition:
+    background var(--t-fast) var(--ease-standard),
     color var(--t-fast) var(--ease-standard);
 }
 
@@ -378,7 +384,9 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background var(--t-fast) var(--ease-standard), color var(--t-fast) var(--ease-standard);
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard);
 }
 
 .aura-history-action-btn:hover {
@@ -412,7 +420,8 @@
   background: var(--bg-elevated);
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--t-fast) var(--ease-standard),
+  transition:
+    border-color var(--t-fast) var(--ease-standard),
     background var(--t-fast) var(--ease-standard);
 }
 
@@ -549,8 +558,33 @@
   min-width: 0;
 }
 
+/* ---------- Header Orb ---------- */
+
 .aura-header-orb-slot {
   flex-shrink: 0;
+}
+
+/* ---------- Header Logo ---------- */
+/* A imagem original pode ser enorme.
+   Aqui ela é limitada visualmente a 34x34px. */
+
+.aura-header-logo-slot {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.aura-header-logo {
+  width: 34px;
+  height: 34px;
+  max-width: 34px;
+  max-height: 34px;
+  object-fit: contain;
+  display: block;
 }
 
 .aura-header-title-row {
@@ -593,6 +627,7 @@
 .aura-status-pill[data-state="idle"] .aura-status-dot {
   background: var(--v-light);
 }
+
 .aura-status-pill[data-state="listening"] .aura-status-dot,
 .aura-status-pill[data-state="thinking"] .aura-status-dot,
 .aura-status-pill[data-state="generating"] .aura-status-dot,
@@ -600,16 +635,26 @@
   background: var(--v-light);
   animation: aura-dot-pulse 1.6s var(--ease-standard) infinite;
 }
+
 .aura-status-pill[data-state="error"] .aura-status-dot {
   background: #f0876b;
 }
+
 .aura-status-pill[data-state="offline"] .aura-status-dot {
   background: var(--text-disabled);
 }
 
 @keyframes aura-dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.8); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
 }
 
 .aura-header-sub {
@@ -637,8 +682,10 @@
   background: var(--bg-elevated);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: border-color var(--t-fast) var(--ease-standard),
-    color var(--t-fast) var(--ease-standard), background var(--t-fast) var(--ease-standard);
+  transition:
+    border-color var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard),
+    background var(--t-fast) var(--ease-standard);
 }
 
 .aura-icon-button:hover {
@@ -673,8 +720,15 @@
 }
 
 @keyframes aura-welcome-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .aura-welcome-orb {
@@ -736,7 +790,8 @@
   background: transparent;
   cursor: pointer;
   text-align: left;
-  transition: background var(--t-fast) var(--ease-standard),
+  transition:
+    background var(--t-fast) var(--ease-standard),
     border-color var(--t-fast) var(--ease-standard);
 }
 
@@ -774,7 +829,9 @@
 .aura-suggestion-arrow {
   flex-shrink: 0;
   color: var(--text-disabled);
-  transition: color var(--t-fast) var(--ease-standard), transform var(--t-fast) var(--ease-standard);
+  transition:
+    color var(--t-fast) var(--ease-standard),
+    transform var(--t-fast) var(--ease-standard);
 }
 
 .aura-suggestion-row:hover .aura-suggestion-arrow {
@@ -808,8 +865,15 @@
 }
 
 @keyframes aura-msg-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .aura-message-row-user {
@@ -873,11 +937,26 @@
   color: var(--text-primary);
   line-height: 1.35;
 }
-.aura-md-h1 { font-size: 19px; margin-top: 18px !important; }
-.aura-md-h2 { font-size: 16.5px; margin-top: 16px !important; }
-.aura-md-h3 { font-size: 14.5px; color: var(--v-light); text-transform: none; }
 
-.aura-md-p { margin: 0; }
+.aura-md-h1 {
+  font-size: 19px;
+  margin-top: 18px !important;
+}
+
+.aura-md-h2 {
+  font-size: 16.5px;
+  margin-top: 16px !important;
+}
+
+.aura-md-h3 {
+  font-size: 14.5px;
+  color: var(--v-light);
+  text-transform: none;
+}
+
+.aura-md-p {
+  margin: 0;
+}
 
 .aura-md-ul,
 .aura-md-ol {
@@ -986,7 +1065,9 @@
   font-family: inherit;
   font-size: 11.5px;
   cursor: pointer;
-  transition: background var(--t-fast) var(--ease-standard), color var(--t-fast) var(--ease-standard);
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard);
 }
 
 .aura-msg-action-btn:hover {
@@ -1014,8 +1095,15 @@
 }
 
 @keyframes aura-toast-in {
-  from { opacity: 0; transform: translateY(3px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ---------- Thinking / processing indicator ---------- */
@@ -1045,12 +1133,26 @@
   animation: aura-think-bounce 1.1s ease-in-out infinite;
 }
 
-.aura-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
-.aura-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+.aura-thinking-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.aura-thinking-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes aura-think-bounce {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-3px); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
 }
 
 /* ---------- Error row ---------- */
@@ -1197,7 +1299,8 @@
   border: 1px solid var(--border-default);
   border-radius: 16px;
   background: var(--bg-input);
-  transition: border-color var(--t-normal) var(--ease-standard),
+  transition:
+    border-color var(--t-normal) var(--ease-standard),
     box-shadow var(--t-normal) var(--ease-standard);
 }
 
@@ -1239,7 +1342,9 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: color var(--t-fast) var(--ease-standard), background var(--t-fast) var(--ease-standard);
+  transition:
+    color var(--t-fast) var(--ease-standard),
+    background var(--t-fast) var(--ease-standard);
 }
 
 .aura-composer-btn:hover {
@@ -1266,8 +1371,15 @@
 }
 
 @keyframes aura-mic-ring {
-  0% { transform: scale(0.85); opacity: 0.9; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .aura-textarea {
@@ -1305,7 +1417,9 @@
   background: var(--v-primary);
   color: #fff;
   cursor: pointer;
-  transition: transform var(--t-fast) var(--ease-standard), opacity var(--t-fast) var(--ease-standard),
+  transition:
+    transform var(--t-fast) var(--ease-standard),
+    opacity var(--t-fast) var(--ease-standard),
     background var(--t-fast) var(--ease-standard);
 }
 
@@ -1429,18 +1543,37 @@
 }
 
 @keyframes aura-orb-idle-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes aura-orb-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.06); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
 }
 
 @keyframes aura-orb-node-flicker {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ============================================================
@@ -1533,6 +1666,18 @@
   .aura-assistant-content {
     max-width: 100%;
   }
+
+  .aura-header-logo-slot {
+    width: 34px;
+    height: 34px;
+  }
+
+  .aura-header-logo {
+    width: 30px;
+    height: 30px;
+    max-width: 30px;
+    max-height: 30px;
+  }
 }
 
 /* ============================================================
@@ -1548,3 +1693,18 @@
     transition-duration: 0.01ms !important;
   }
 }
+```
+
+**No `AuraAI.tsx`, mantenha a logo assim:**
+
+```tsx
+<div className="aura-header-logo-slot">
+  <img
+    src="/LogoIA.png"
+    alt="AURA"
+    className="aura-header-logo"
+  />
+</div>
+```
+
+Não altere o `NeuralOrb` do centro da tela nem o indicador de pensamento. O CSS acima controla **somente a logo do cabeçalho**.
