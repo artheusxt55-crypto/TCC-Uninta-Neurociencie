@@ -660,18 +660,15 @@ export default function AuraEducacube() {
         );
     }
 
-    /* Safari < 14 */
     mq.addListener(handler);
 
     return () =>
       mq.removeListener(handler);
   }, []);
 
-  /* Habilita hover somente quando não é touch e não é reduced motion */
   const hoverEnabled =
     !isTouch && !reducedMotion;
 
-  /* Helper para whileHover condicional */
   const hoverProps = <T extends object>(
     props: T
   ) =>
@@ -686,6 +683,10 @@ export default function AuraEducacube() {
     setActiveNav,
   ] = useState("chat");
 
+  /*
+   * IMPORTANTE:
+   * O menu começa fechado.
+   */
   const [
     sidebarOpen,
     setSidebarOpen,
@@ -880,13 +881,17 @@ export default function AuraEducacube() {
   }, []);
 
   /* ================================================================
-     BODY SCROLL LOCK (drawer mobile)
+     BODY SCROLL LOCK
      ================================================================ */
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined") {
+      return;
+    }
 
-    if (!sidebarOpen) return;
+    if (!sidebarOpen) {
+      return;
+    }
 
     const previousOverflow =
       document.body.style.overflow;
@@ -894,7 +899,6 @@ export default function AuraEducacube() {
     const previousPaddingRight =
       document.body.style.paddingRight;
 
-    /* Compensa a barra de scroll no desktop */
     const scrollbarWidth =
       window.innerWidth -
       document.documentElement.clientWidth;
@@ -902,7 +906,8 @@ export default function AuraEducacube() {
     document.body.style.overflow = "hidden";
 
     if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.body.style.paddingRight =
+        `${scrollbarWidth}px`;
     }
 
     return () => {
@@ -1303,8 +1308,6 @@ export default function AuraEducacube() {
   function handleKeyDown(
     event: KeyboardEvent<HTMLTextAreaElement>
   ) {
-    /* Em mobile, Enter deve inserir nova linha.
-       Só envia com Ctrl/Cmd + Enter */
     const isTouchDevice =
       typeof window !== "undefined" &&
       window.matchMedia(
@@ -1590,7 +1593,6 @@ export default function AuraEducacube() {
 
     window.speechSynthesis.cancel();
 
-    /* iOS warm-up: precisa de utterance vazia dentro do gesto */
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPad|iPhone|iPod/.test(
@@ -1600,8 +1602,12 @@ export default function AuraEducacube() {
     if (isIOS) {
       const warmup =
         new SpeechSynthesisUtterance("");
+
       warmup.volume = 0;
-      window.speechSynthesis.speak(warmup);
+
+      window.speechSynthesis.speak(
+        warmup
+      );
     }
 
     const utterance =
@@ -1638,7 +1644,9 @@ export default function AuraEducacube() {
 
     speechRef.current = utterance;
 
-    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(
+      utterance
+    );
   }
 
   /* ================================================================
@@ -1665,27 +1673,40 @@ export default function AuraEducacube() {
     } catch {
       try {
         const textarea =
-          document.createElement("textarea");
+          document.createElement(
+            "textarea"
+          );
 
-        textarea.value = message.content;
-        textarea.style.position = "fixed";
+        textarea.value =
+          message.content;
+
+        textarea.style.position =
+          "fixed";
+
         textarea.style.opacity = "0";
 
-        document.body.appendChild(textarea);
+        document.body.appendChild(
+          textarea
+        );
 
         textarea.select();
 
-        document.execCommand("copy");
+        document.execCommand(
+          "copy"
+        );
 
         textarea.remove();
 
-        setCopiedMessageId(message.id);
+        setCopiedMessageId(
+          message.id
+        );
 
         window.setTimeout(() => {
-          setCopiedMessageId((current) =>
-            current === message.id
-              ? null
-              : current
+          setCopiedMessageId(
+            (current) =>
+              current === message.id
+                ? null
+                : current
           );
         }, 1600);
       } catch {
@@ -1700,7 +1721,8 @@ export default function AuraEducacube() {
 
   function regenerate(messageId: string) {
     const index = messages.findIndex(
-      (message) => message.id === messageId
+      (message) =>
+        message.id === messageId
     );
 
     if (index === -1) return;
@@ -1708,7 +1730,10 @@ export default function AuraEducacube() {
     const previousUser = [...messages]
       .slice(0, index)
       .reverse()
-      .find((message) => message.role === "user");
+      .find(
+        (message) =>
+          message.role === "user"
+      );
 
     if (!previousUser) return;
 
@@ -1718,7 +1743,8 @@ export default function AuraEducacube() {
 
     const updatedMessages =
       messages.filter(
-        (message) => message.id !== messageId
+        (message) =>
+          message.id !== messageId
       );
 
     setMessages(updatedMessages);
@@ -1728,14 +1754,16 @@ export default function AuraEducacube() {
       updatedMessages
     );
 
-    const token = generationTokenRef.current;
+    const token =
+      generationTokenRef.current;
 
     setAuraState("thinking");
 
     thinkingTimeoutRef.current =
       window.setTimeout(() => {
         if (
-          token !== generationTokenRef.current
+          token !==
+          generationTokenRef.current
         ) {
           return;
         }
@@ -1750,7 +1778,10 @@ export default function AuraEducacube() {
   function retryLastMessage() {
     const lastUserMessage = [...messages]
       .reverse()
-      .find((message) => message.role === "user");
+      .find(
+        (message) =>
+          message.role === "user"
+      );
 
     if (
       !lastUserMessage ||
@@ -1763,12 +1794,14 @@ export default function AuraEducacube() {
 
     setAuraState("thinking");
 
-    const token = generationTokenRef.current;
+    const token =
+      generationTokenRef.current;
 
     thinkingTimeoutRef.current =
       window.setTimeout(() => {
         if (
-          token !== generationTokenRef.current
+          token !==
+          generationTokenRef.current
         ) {
           return;
         }
@@ -1820,9 +1853,10 @@ export default function AuraEducacube() {
   function openConversation(id: string) {
     clearGenerationTimers();
 
-    const conversation = conversations.find(
-      (item) => item.id === id
-    );
+    const conversation =
+      conversations.find(
+        (item) => item.id === id
+      );
 
     if (!conversation) return;
 
@@ -1834,7 +1868,9 @@ export default function AuraEducacube() {
     }
 
     setActiveConversationId(id);
-    setMessages(conversation.messages);
+    setMessages(
+      conversation.messages
+    );
     setInput("");
     setAttachments([]);
     setSpeakingMessageId(null);
@@ -1847,7 +1883,8 @@ export default function AuraEducacube() {
     setSidebarOpen(false);
 
     window.setTimeout(() => {
-      const element = scrollRef.current;
+      const element =
+        scrollRef.current;
 
       if (!element) return;
 
@@ -1880,7 +1917,9 @@ export default function AuraEducacube() {
     setEditingConversationTitle("");
   }
 
-  function saveRenameConversation(id: string) {
+  function saveRenameConversation(
+    id: string
+  ) {
     const title =
       editingConversationTitle.trim();
 
@@ -1928,9 +1967,10 @@ export default function AuraEducacube() {
   ) {
     event.stopPropagation();
 
-    const conversation = conversations.find(
-      (item) => item.id === id
-    );
+    const conversation =
+      conversations.find(
+        (item) => item.id === id
+      );
 
     if (!conversation) return;
 
@@ -1941,10 +1981,14 @@ export default function AuraEducacube() {
     if (!confirmed) return;
 
     setConversations((previous) =>
-      previous.filter((item) => item.id !== id)
+      previous.filter(
+        (item) => item.id !== id
+      )
     );
 
-    if (activeConversationId === id) {
+    if (
+      activeConversationId === id
+    ) {
       clearGenerationTimers();
 
       setActiveConversationId(null);
@@ -1963,7 +2007,9 @@ export default function AuraEducacube() {
   function handleNavigation(id: string) {
     setActiveNav(id);
 
-    if (window.innerWidth <= 900) {
+    if (
+      window.innerWidth <= 900
+    ) {
       setSidebarOpen(false);
     }
   }
@@ -1980,24 +2026,34 @@ export default function AuraEducacube() {
     [conversations]
   );
 
-  const filteredHistory = useMemo(() => {
-    const query = historySearch
-      .trim()
-      .toLowerCase();
+  const filteredHistory =
+    useMemo(() => {
+      const query =
+        historySearch
+          .trim()
+          .toLowerCase();
 
-    if (!query) return history;
+      if (!query) return history;
 
-    return history.filter((conversation) =>
-      conversation.title
-        .toLowerCase()
-        .includes(query)
+      return history.filter(
+        (conversation) =>
+          conversation.title
+            .toLowerCase()
+            .includes(query)
+      );
+    }, [
+      history,
+      historySearch,
+    ]);
+
+  const historyGroups =
+    useMemo(
+      () =>
+        groupHistory(
+          filteredHistory
+        ),
+      [filteredHistory]
     );
-  }, [history, historySearch]);
-
-  const historyGroups = useMemo(
-    () => groupHistory(filteredHistory),
-    [filteredHistory]
-  );
 
   const isBusy =
     auraState === "thinking" ||
@@ -2013,6 +2069,7 @@ export default function AuraEducacube() {
       onKeyDown={handleGlobalKeyDown}
     >
       <div className="aura-layout">
+
         {/* ==========================================================
             MOBILE OVERLAY
             ========================================================== */}
@@ -2020,17 +2077,21 @@ export default function AuraEducacube() {
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
-              className={`aura-mobile-overlay ${
-                sidebarOpen ? "is-visible" : ""
-              }`}
+              className="aura-mobile-overlay is-visible"
               initial={
                 reducedMotion
                   ? false
                   : { opacity: 0 }
               }
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              transition={{
+                duration: 0.25,
+              }}
               onClick={() =>
                 setSidebarOpen(false)
               }
@@ -2046,19 +2107,24 @@ export default function AuraEducacube() {
         <motion.aside
           id="aura-sidebar"
           className={`aura-sidebar ${
-            sidebarOpen ? "open" : ""
+            sidebarOpen
+              ? "open"
+              : ""
           }`}
+          /*
+           * IMPORTANTE:
+           * NÃO usamos x aqui.
+           * O CSS controla o drawer no mobile.
+           */
           initial={
             reducedMotion
               ? false
               : {
                   opacity: 0,
-                  x: -18,
                 }
           }
           animate={{
             opacity: 1,
-            x: 0,
           }}
           transition={{
             duration: 0.55,
@@ -2128,7 +2194,9 @@ export default function AuraEducacube() {
             <motion.button
               type="button"
               className="aura-new-chat"
-              onClick={startNewConversation}
+              onClick={
+                startNewConversation
+              }
               whileHover={hoverProps({
                 y: -2,
                 scale: 1.008,
@@ -2136,61 +2204,81 @@ export default function AuraEducacube() {
               whileTap={
                 reducedMotion
                   ? undefined
-                  : { scale: 0.985 }
+                  : {
+                      scale: 0.985,
+                    }
               }
             >
               <Plus size={15} />
 
-              <span>Nova conversa</span>
+              <span>
+                Nova conversa
+              </span>
             </motion.button>
           </div>
 
           <motion.nav
             className="aura-navigation"
-            variants={listContainer}
+            variants={
+              listContainer
+            }
             initial="hidden"
             animate="visible"
           >
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
+            {NAV_ITEMS.map(
+              (item) => {
+                const Icon =
+                  item.icon;
 
-              const active =
-                activeNav === item.id;
+                const active =
+                  activeNav ===
+                  item.id;
 
-              return (
-                <motion.button
-                  key={item.id}
-                  type="button"
-                  className={`aura-nav-item ${
-                    active ? "active" : ""
-                  }`}
-                  onClick={() =>
-                    handleNavigation(item.id)
-                  }
-                  variants={listItem}
-                  whileHover={hoverProps({
-                    x: 3,
-                  })}
-                  whileTap={
-                    reducedMotion
-                      ? undefined
-                      : { scale: 0.985 }
-                  }
-                >
-                  <Icon
-                    size={17}
-                    strokeWidth={1.8}
-                  />
+                return (
+                  <motion.button
+                    key={item.id}
+                    type="button"
+                    className={`aura-nav-item ${
+                      active
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      handleNavigation(
+                        item.id
+                      )
+                    }
+                    variants={
+                      listItem
+                    }
+                    whileHover={hoverProps(
+                      {
+                        x: 3,
+                      }
+                    )}
+                    whileTap={
+                      reducedMotion
+                        ? undefined
+                        : {
+                            scale: 0.985,
+                          }
+                    }
+                  >
+                    <Icon
+                      size={17}
+                      strokeWidth={1.8}
+                    />
 
-                  <span>{item.label}</span>
-                </motion.button>
-              );
-            })}
+                    <span>
+                      {item.label}
+                    </span>
+                  </motion.button>
+                );
+              }
+            )}
           </motion.nav>
 
-          {/* ========================================================
-              HISTORY
-              ======================================================== */}
+          {/* HISTORY */}
 
           <motion.div
             className="aura-history"
@@ -2216,10 +2304,15 @@ export default function AuraEducacube() {
               <Search size={13} />
 
               <input
-                value={historySearch}
-                onChange={(event) =>
+                value={
+                  historySearch
+                }
+                onChange={(
+                  event
+                ) =>
                   setHistorySearch(
-                    event.target.value
+                    event.target
+                      .value
                   )
                 }
                 placeholder="Buscar conversas"
@@ -2228,186 +2321,233 @@ export default function AuraEducacube() {
             </div>
 
             <AnimatePresence mode="popLayout">
-              {historyGroups.length === 0 && (
+              {historyGroups.length ===
+                0 && (
                 <motion.p
                   className="aura-history-empty"
                   initial={
                     reducedMotion
                       ? false
-                      : { opacity: 0 }
+                      : {
+                          opacity: 0,
+                        }
                   }
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                  }}
                 >
-                  Nenhuma conversa encontrada.
+                  Nenhuma conversa
+                  encontrada.
                 </motion.p>
               )}
             </AnimatePresence>
 
-            {historyGroups.map((group) => (
-              <motion.div
-                key={group.label}
-                variants={
-                  reducedMotion
-                    ? undefined
-                    : listContainer
-                }
-                initial={
-                  reducedMotion
-                    ? false
-                    : "hidden"
-                }
-                animate={
-                  reducedMotion
-                    ? undefined
-                    : "visible"
-                }
-              >
-                <div className="aura-history-title">
-                  {group.label}
-                </div>
+            {historyGroups.map(
+              (group) => (
+                <motion.div
+                  key={
+                    group.label
+                  }
+                  variants={
+                    reducedMotion
+                      ? undefined
+                      : listContainer
+                  }
+                  initial={
+                    reducedMotion
+                      ? false
+                      : "hidden"
+                  }
+                  animate={
+                    reducedMotion
+                      ? undefined
+                      : "visible"
+                  }
+                >
+                  <div className="aura-history-title">
+                    {group.label}
+                  </div>
 
-                <div className="aura-history-list">
-                  {group.items.map(
-                    (conversation) => {
-                      const isEditing =
-                        editingConversationId ===
-                        conversation.id;
+                  <div className="aura-history-list">
+                    {group.items.map(
+                      (
+                        conversation
+                      ) => {
+                        const isEditing =
+                          editingConversationId ===
+                          conversation.id;
 
-                      return (
-                        <motion.div
-                          key={conversation.id}
-                          className={`aura-history-item ${
-                            activeConversationId ===
-                            conversation.id
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            openConversation(
+                        return (
+                          <motion.div
+                            key={
                               conversation.id
-                            )
-                          }
-                          role="button"
-                          tabIndex={0}
-                          variants={
-                            reducedMotion
-                              ? undefined
-                              : listItem
-                          }
-                          whileHover={hoverProps({
-                            x: 2,
-                          })}
-                          onKeyDown={(event) => {
-                            if (
-                              event.key ===
-                                "Enter" ||
-                              event.key === " "
-                            ) {
-                              event.preventDefault();
-
+                            }
+                            className={`aura-history-item ${
+                              activeConversationId ===
+                              conversation.id
+                                ? "active"
+                                : ""
+                            }`}
+                            onClick={() =>
                               openConversation(
                                 conversation.id
-                              );
+                              )
                             }
-                          }}
-                        >
-                          {isEditing ? (
-                            <input
-                              autoFocus
-                              className="aura-history-rename-input"
-                              value={
-                                editingConversationTitle
+                            role="button"
+                            tabIndex={
+                              0
+                            }
+                            variants={
+                              reducedMotion
+                                ? undefined
+                                : listItem
+                            }
+                            whileHover={hoverProps(
+                              {
+                                x: 2,
                               }
-                              onChange={(event) =>
-                                setEditingConversationTitle(
-                                  event.target.value
-                                )
-                              }
-                              onKeyDown={(event) =>
-                                handleRenameKeyDown(
-                                  event,
-                                  conversation.id
-                                )
-                              }
-                              onBlur={() =>
-                                saveRenameConversation(
-                                  conversation.id
-                                )
-                              }
-                              onClick={(event) =>
-                                event.stopPropagation()
-                              }
-                            />
-                          ) : (
-                            <>
-                              <div className="aura-history-item-title">
-                                {conversation.title}
-                              </div>
+                            )}
+                            onKeyDown={(
+                              event
+                            ) => {
+                              if (
+                                event.key ===
+                                  "Enter" ||
+                                event.key ===
+                                  " "
+                              ) {
+                                event.preventDefault();
 
-                              <div className="aura-history-item-actions">
-                                <motion.button
-                                  type="button"
-                                  className="aura-history-action"
-                                  aria-label="Renomear conversa"
-                                  onClick={(event) =>
-                                    startRenameConversation(
-                                      event,
-                                      conversation
-                                    )
+                                openConversation(
+                                  conversation.id
+                                );
+                              }
+                            }}
+                          >
+                            {isEditing ? (
+                              <input
+                                autoFocus
+                                className="aura-history-rename-input"
+                                value={
+                                  editingConversationTitle
+                                }
+                                onChange={(
+                                  event
+                                ) =>
+                                  setEditingConversationTitle(
+                                    event
+                                      .target
+                                      .value
+                                  )
+                                }
+                                onKeyDown={(
+                                  event
+                                ) =>
+                                  handleRenameKeyDown(
+                                    event,
+                                    conversation.id
+                                  )
+                                }
+                                onBlur={() =>
+                                  saveRenameConversation(
+                                    conversation.id
+                                  )
+                                }
+                                onClick={(
+                                  event
+                                ) =>
+                                  event.stopPropagation()
+                                }
+                              />
+                            ) : (
+                              <>
+                                <div className="aura-history-item-title">
+                                  {
+                                    conversation.title
                                   }
-                                  whileHover={hoverProps({
-                                    scale: 1.12,
-                                  })}
-                                  whileTap={
-                                    reducedMotion
-                                      ? undefined
-                                      : {
-                                          scale: 0.9,
-                                        }
-                                  }
-                                >
-                                  <Pencil size={14} />
-                                </motion.button>
+                                </div>
 
-                                <motion.button
-                                  type="button"
-                                  className="aura-history-action"
-                                  aria-label="Excluir conversa"
-                                  onClick={(event) =>
-                                    deleteConversation(
-                                      event,
-                                      conversation.id
-                                    )
-                                  }
-                                  whileHover={hoverProps({
-                                    scale: 1.12,
-                                  })}
-                                  whileTap={
-                                    reducedMotion
-                                      ? undefined
-                                      : {
-                                          scale: 0.9,
-                                        }
-                                  }
-                                >
-                                  <Trash2 size={14} />
-                                </motion.button>
-                              </div>
-                            </>
-                          )}
-                        </motion.div>
-                      );
-                    }
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                                <div className="aura-history-item-actions">
+                                  <motion.button
+                                    type="button"
+                                    className="aura-history-action"
+                                    aria-label="Renomear conversa"
+                                    onClick={(
+                                      event
+                                    ) =>
+                                      startRenameConversation(
+                                        event,
+                                        conversation
+                                      )
+                                    }
+                                    whileHover={hoverProps(
+                                      {
+                                        scale: 1.12,
+                                      }
+                                    )}
+                                    whileTap={
+                                      reducedMotion
+                                        ? undefined
+                                        : {
+                                            scale: 0.9,
+                                          }
+                                    }
+                                  >
+                                    <Pencil
+                                      size={
+                                        14
+                                      }
+                                    />
+                                  </motion.button>
+
+                                  <motion.button
+                                    type="button"
+                                    className="aura-history-action"
+                                    aria-label="Excluir conversa"
+                                    onClick={(
+                                      event
+                                    ) =>
+                                      deleteConversation(
+                                        event,
+                                        conversation.id
+                                      )
+                                    }
+                                    whileHover={hoverProps(
+                                      {
+                                        scale: 1.12,
+                                      }
+                                    )}
+                                    whileTap={
+                                      reducedMotion
+                                        ? undefined
+                                        : {
+                                            scale: 0.9,
+                                          }
+                                    }
+                                  >
+                                    <Trash2
+                                      size={
+                                        14
+                                      }
+                                    />
+                                  </motion.button>
+                                </div>
+                              </>
+                            )}
+                          </motion.div>
+                        );
+                      }
+                    )}
+                  </div>
+                </motion.div>
+              )
+            )}
           </motion.div>
 
-          {/* ========================================================
-              SIDEBAR BOTTOM
-              ======================================================== */}
+          {/* SIDEBAR BOTTOM */}
 
           <motion.div
             className="aura-sidebar-bottom"
@@ -2431,10 +2571,15 @@ export default function AuraEducacube() {
           >
             <motion.div
               className="aura-sidebar-user"
-              whileHover={hoverProps({ x: 2 })}
+              whileHover={hoverProps({
+                x: 2,
+              })}
             >
               <div className="aura-sidebar-user-avatar">
-                <Crown size={14} strokeWidth={2} />
+                <Crown
+                  size={14}
+                  strokeWidth={2}
+                />
               </div>
 
               <div className="aura-sidebar-user-info">
@@ -2450,10 +2595,15 @@ export default function AuraEducacube() {
 
             <motion.div
               className="aura-sidebar-user"
-              whileHover={hoverProps({ x: 2 })}
+              whileHover={hoverProps({
+                x: 2,
+              })}
             >
               <div className="aura-sidebar-user-avatar">
-                <User size={14} strokeWidth={2} />
+                <User
+                  size={14}
+                  strokeWidth={2}
+                />
               </div>
 
               <div className="aura-sidebar-user-info">
@@ -2474,9 +2624,8 @@ export default function AuraEducacube() {
             ========================================================== */}
 
         <main className="aura-main">
-          {/* ========================================================
-              HEADER
-              ======================================================== */}
+
+          {/* HEADER */}
 
           <motion.header
             className="aura-header"
@@ -2498,6 +2647,7 @@ export default function AuraEducacube() {
             }}
           >
             <div className="aura-header-left">
+
               <motion.button
                 type="button"
                 className="aura-mobile-menu-button"
@@ -2505,7 +2655,9 @@ export default function AuraEducacube() {
                   setSidebarOpen(true)
                 }
                 aria-label="Abrir menu"
-                aria-expanded={sidebarOpen}
+                aria-expanded={
+                  sidebarOpen
+                }
                 aria-controls="aura-sidebar"
                 whileHover={hoverProps({
                   scale: 1.08,
@@ -2513,7 +2665,9 @@ export default function AuraEducacube() {
                 whileTap={
                   reducedMotion
                     ? undefined
-                    : { scale: 0.9 }
+                    : {
+                        scale: 0.9,
+                      }
                 }
               >
                 <Menu size={18} />
@@ -2527,13 +2681,15 @@ export default function AuraEducacube() {
                     : {
                         opacity: 0,
                         scale: 0.8,
-                        filter: "blur(6px)",
+                        filter:
+                          "blur(6px)",
                       }
                 }
                 animate={{
                   opacity: 1,
                   scale: 1,
-                  filter: "blur(0px)",
+                  filter:
+                    "blur(0px)",
                 }}
                 transition={{
                   delay: 0.15,
@@ -2568,7 +2724,9 @@ export default function AuraEducacube() {
                     opacity: 1,
                     y: 0,
                   }}
-                  transition={{ duration: 0.3 }}
+                  transition={{
+                    duration: 0.3,
+                  }}
                 >
                   <motion.span
                     className="aura-header-status-dot"
@@ -2581,13 +2739,21 @@ export default function AuraEducacube() {
                                 "thinking" ||
                               auraState ===
                                 "generating"
-                                ? [1, 1.35, 1]
+                                ? [
+                                    1,
+                                    1.35,
+                                    1,
+                                  ]
                                 : 1,
                             opacity:
                               auraState ===
                               "offline"
                                 ? 0.35
-                                : [0.65, 1, 0.65],
+                                : [
+                                    0.65,
+                                    1,
+                                    0.65,
+                                  ],
                           }
                     }
                     transition={
@@ -2600,13 +2766,18 @@ export default function AuraEducacube() {
                               "offline"
                                 ? 0
                                 : Infinity,
-                            ease: "easeInOut",
+                            ease:
+                              "easeInOut",
                           }
                     }
                   />
 
                   <span>
-                    {AURA_STATE_LABELS[auraState]}
+                    {
+                      AURA_STATE_LABELS[
+                        auraState
+                      ]
+                    }
                   </span>
                 </motion.div>
               </div>
@@ -2617,7 +2788,9 @@ export default function AuraEducacube() {
                 type="button"
                 className="aura-message-action"
                 aria-label="Nova conversa"
-                onClick={startNewConversation}
+                onClick={
+                  startNewConversation
+                }
                 whileHover={hoverProps({
                   rotate: 90,
                   scale: 1.08,
@@ -2625,7 +2798,9 @@ export default function AuraEducacube() {
                 whileTap={
                   reducedMotion
                     ? undefined
-                    : { scale: 0.9 }
+                    : {
+                        scale: 0.9,
+                      }
                 }
               >
                 <Plus size={16} />
@@ -2633,9 +2808,7 @@ export default function AuraEducacube() {
             </div>
           </motion.header>
 
-          {/* ========================================================
-              CHAT
-              ======================================================== */}
+          {/* CHAT */}
 
           <section className="aura-chat-section">
             {!hasConversation ? (
@@ -2672,7 +2845,8 @@ export default function AuraEducacube() {
                         opacity: 1,
                         scale: 1,
                         y: 0,
-                        filter: "blur(0px)",
+                        filter:
+                          "blur(0px)",
                       }}
                       transition={{
                         duration: 0.9,
@@ -2681,15 +2855,20 @@ export default function AuraEducacube() {
                       }}
                     >
                       <NeuralOrb
-                        state={auraState}
+                        state={
+                          auraState
+                        }
                         size={68}
-                        audioLevel={audioLevel}
+                        audioLevel={
+                          audioLevel
+                        }
                       />
                     </motion.div>
 
                     <AnimatedWelcomeTitle
                       reducedMotion={
-                        reducedMotion ?? false
+                        reducedMotion ??
+                        false
                       }
                     />
 
@@ -2708,7 +2887,8 @@ export default function AuraEducacube() {
                       animate={{
                         opacity: 1,
                         y: 0,
-                        filter: "blur(0px)",
+                        filter:
+                          "blur(0px)",
                       }}
                       transition={{
                         delay: 0.75,
@@ -2717,40 +2897,52 @@ export default function AuraEducacube() {
                       }}
                     >
                       Explique conceitos,
-                      construa exercícios,
-                      estruture aulas e
-                      organize pesquisas
-                      — com a profundidade
-                      que o estudo
-                      pedagógico exige.
+                      construa
+                      exercícios,
+                      estruture aulas
+                      e organize
+                      pesquisas — com a
+                      profundidade que o
+                      estudo pedagógico
+                      exige.
                     </motion.p>
 
                     <motion.div
                       className="aura-suggestions"
-                      variants={listContainer}
+                      variants={
+                        listContainer
+                      }
                       initial="hidden"
                       animate="visible"
                     >
                       {SUGGESTIONS.map(
-                        (suggestion) => {
+                        (
+                          suggestion
+                        ) => {
                           const Icon =
                             suggestion.icon;
 
                           return (
                             <motion.button
-                              key={suggestion.id}
+                              key={
+                                suggestion.id
+                              }
                               type="button"
                               className="aura-suggestion"
-                              variants={listItem}
+                              variants={
+                                listItem
+                              }
                               onClick={() =>
                                 sendMessage(
                                   suggestion.prompt
                                 )
                               }
-                              whileHover={hoverProps({
-                                y: -3,
-                                scale: 1.008,
-                              })}
+                              whileHover={hoverProps(
+                                {
+                                  y: -3,
+                                  scale: 1.008,
+                                }
+                              )}
                               whileTap={
                                 reducedMotion
                                   ? undefined
@@ -2771,11 +2963,15 @@ export default function AuraEducacube() {
                                   }}
                                 />
 
-                                {suggestion.label}
+                                {
+                                  suggestion.label
+                                }
                               </div>
 
                               <div className="aura-suggestion-description">
-                                {suggestion.detail}
+                                {
+                                  suggestion.detail
+                                }
                               </div>
                             </motion.button>
                           );
@@ -2789,7 +2985,9 @@ export default function AuraEducacube() {
               <div
                 className="aura-chat-scroll"
                 ref={scrollRef}
-                onScroll={handleMessagesScroll}
+                onScroll={
+                  handleMessagesScroll
+                }
               >
                 <div className="aura-chat-content">
                   <motion.div
@@ -2797,128 +2995,44 @@ export default function AuraEducacube() {
                     initial={
                       reducedMotion
                         ? false
-                        : { opacity: 0 }
+                        : {
+                            opacity: 0,
+                          }
                     }
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4 }}
+                    animate={{
+                      opacity: 1,
+                    }}
+                    transition={{
+                      duration: 0.4,
+                    }}
                   >
-                    <AnimatePresence initial={false}>
-                      {messages.map((message) => {
-                        if (
-                          message.role === "user"
-                        ) {
-                          return (
-                            <motion.div
-                              key={message.id}
-                              className="aura-message user"
-                              initial={
-                                reducedMotion
-                                  ? false
-                                  : {
-                                      opacity: 0,
-                                      y: 12,
-                                      scale: 0.985,
-                                    }
-                              }
-                              animate={{
-                                opacity: 1,
-                                y: 0,
-                                scale: 1,
-                              }}
-                              transition={{
-                                duration: 0.5,
-                                ease: easePremium,
-                              }}
-                            >
-                              <div className="aura-user-message">
-                                {message.content}
-                              </div>
-                            </motion.div>
-                          );
-                        }
-
-                        if (
-                          message.status === "error"
-                        ) {
-                          return (
-                            <motion.div
-                              key={message.id}
-                              className="aura-error"
-                              initial={
-                                reducedMotion
-                                  ? false
-                                  : {
-                                      opacity: 0,
-                                      y: 8,
-                                    }
-                              }
-                              animate={{
-                                opacity: 1,
-                                y: 0,
-                              }}
-                            >
-                              <AlertTriangle size={15} />
-
-                              <span>
-                                Não consegui
-                                concluir essa
-                                resposta.
-                              </span>
-
-                              <button
-                                type="button"
-                                className="aura-message-action"
-                                onClick={
-                                  retryLastMessage
-                                }
-                              >
-                                Tentar novamente
-                              </button>
-                            </motion.div>
-                          );
-                        }
-
-                        const isSpeaking =
-                          speakingMessageId ===
-                          message.id;
-
-                        return (
-                          <motion.div
-                            key={message.id}
-                            className="aura-message assistant"
-                            initial={
-                              reducedMotion
-                                ? false
-                                : {
-                                    opacity: 0,
-                                    y: 14,
-                                    filter:
-                                      "blur(5px)",
-                                  }
-                            }
-                            animate={{
-                              opacity: 1,
-                              y: 0,
-                              filter: "blur(0px)",
-                            }}
-                            transition={{
-                              duration: 0.62,
-                              ease: easePremium,
-                            }}
-                          >
-                            <div className="aura-assistant-message">
+                    <AnimatePresence
+                      initial={false}
+                    >
+                      {messages.map(
+                        (message) => {
+                          if (
+                            message.role ===
+                            "user"
+                          ) {
+                            return (
                               <motion.div
-                                className="aura-assistant-avatar"
+                                key={
+                                  message.id
+                                }
+                                className="aura-message user"
                                 initial={
                                   reducedMotion
                                     ? false
                                     : {
                                         opacity: 0,
-                                        scale: 0.7,
+                                        y: 12,
+                                        scale: 0.985,
                                       }
                                 }
                                 animate={{
                                   opacity: 1,
+                                  y: 0,
                                   scale: 1,
                                 }}
                                 transition={{
@@ -2926,150 +3040,280 @@ export default function AuraEducacube() {
                                   ease: easePremium,
                                 }}
                               >
-                                <Box
-                                  size={16}
-                                  strokeWidth={1.7}
-                                />
-                              </motion.div>
-
-                              <div className="aura-assistant-content">
-                                <div className="aura-assistant-name">
-                                  AURA
-                                </div>
-
-                                <div className="aura-markdown">
-                                  {renderAuraMarkdown(
+                                <div className="aura-user-message">
+                                  {
                                     message.content
-                                  )}
+                                  }
                                 </div>
+                              </motion.div>
+                            );
+                          }
 
-                                <div className="aura-message-actions">
-                                  <div className="aura-tooltip-trigger">
-                                    <motion.button
-                                      type="button"
-                                      className="aura-message-action"
-                                      onClick={() =>
-                                        copyMessage(
-                                          message
-                                        )
+                          if (
+                            message.status ===
+                            "error"
+                          ) {
+                            return (
+                              <motion.div
+                                key={
+                                  message.id
+                                }
+                                className="aura-error"
+                                initial={
+                                  reducedMotion
+                                    ? false
+                                    : {
+                                        opacity: 0,
+                                        y: 8,
                                       }
-                                      aria-label="Copiar resposta"
-                                      whileHover={hoverProps({
-                                        scale: 1.1,
-                                      })}
-                                      whileTap={
-                                        reducedMotion
-                                          ? undefined
-                                          : {
-                                              scale: 0.88,
-                                            }
-                                      }
-                                    >
-                                      <Copy size={14} />
-                                    </motion.button>
+                                }
+                                animate={{
+                                  opacity: 1,
+                                  y: 0,
+                                }}
+                              >
+                                <AlertTriangle
+                                  size={15}
+                                />
 
-                                    {copiedMessageId ===
-                                      message.id && (
-                                      <motion.span
-                                        className="aura-tooltip"
-                                        initial={{
+                                <span>
+                                  Não
+                                  consegui
+                                  concluir
+                                  essa
+                                  resposta.
+                                </span>
+
+                                <button
+                                  type="button"
+                                  className="aura-message-action"
+                                  onClick={
+                                    retryLastMessage
+                                  }
+                                >
+                                  Tentar
+                                  novamente
+                                </button>
+                              </motion.div>
+                            );
+                          }
+
+                          const isSpeaking =
+                            speakingMessageId ===
+                            message.id;
+
+                          return (
+                            <motion.div
+                              key={
+                                message.id
+                              }
+                              className="aura-message assistant"
+                              initial={
+                                reducedMotion
+                                  ? false
+                                  : {
+                                      opacity: 0,
+                                      y: 14,
+                                      filter:
+                                        "blur(5px)",
+                                    }
+                              }
+                              animate={{
+                                opacity: 1,
+                                y: 0,
+                                filter:
+                                  "blur(0px)",
+                              }}
+                              transition={{
+                                duration: 0.62,
+                                ease: easePremium,
+                              }}
+                            >
+                              <div className="aura-assistant-message">
+                                <motion.div
+                                  className="aura-assistant-avatar"
+                                  initial={
+                                    reducedMotion
+                                      ? false
+                                      : {
                                           opacity: 0,
-                                          y: 4,
-                                        }}
-                                        animate={{
-                                          opacity: 1,
-                                          y: 0,
-                                        }}
-                                      >
-                                        Copiado
-                                      </motion.span>
+                                          scale: 0.7,
+                                        }
+                                  }
+                                  animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                  }}
+                                  transition={{
+                                    duration: 0.5,
+                                    ease: easePremium,
+                                  }}
+                                >
+                                  <Box
+                                    size={16}
+                                    strokeWidth={
+                                      1.7
+                                    }
+                                  />
+                                </motion.div>
+
+                                <div className="aura-assistant-content">
+                                  <div className="aura-assistant-name">
+                                    AURA
+                                  </div>
+
+                                  <div className="aura-markdown">
+                                    {renderAuraMarkdown(
+                                      message.content
                                     )}
                                   </div>
 
-                                  <div className="aura-tooltip-trigger">
-                                    <motion.button
-                                      type="button"
-                                      className="aura-message-action"
-                                      onClick={() =>
-                                        regenerate(
-                                          message.id
-                                        )
-                                      }
-                                      aria-label="Regenerar resposta"
-                                      whileHover={hoverProps({
-                                        scale: 1.1,
-                                        rotate: -8,
-                                      })}
-                                      whileTap={
-                                        reducedMotion
-                                          ? undefined
-                                          : {
-                                              scale: 0.88,
-                                            }
-                                      }
-                                    >
-                                      <RotateCcw size={14} />
-                                    </motion.button>
-
-                                    <span className="aura-tooltip">
-                                      Regenerar
-                                    </span>
-                                  </div>
-
-                                  <div className="aura-tooltip-trigger">
-                                    <motion.button
-                                      type="button"
-                                      className="aura-message-action"
-                                      onClick={() =>
-                                        toggleSpeak(
-                                          message
-                                        )
-                                      }
-                                      aria-label={
-                                        isSpeaking
-                                          ? "Parar áudio"
-                                          : "Ouvir resposta"
-                                      }
-                                      whileHover={hoverProps({
-                                        scale: 1.1,
-                                      })}
-                                      whileTap={
-                                        reducedMotion
-                                          ? undefined
-                                          : {
-                                              scale: 0.88,
-                                            }
-                                      }
-                                    >
-                                      {isSpeaking ? (
-                                        <VolumeX
-                                          size={14}
+                                  <div className="aura-message-actions">
+                                    <div className="aura-tooltip-trigger">
+                                      <motion.button
+                                        type="button"
+                                        className="aura-message-action"
+                                        onClick={() =>
+                                          copyMessage(
+                                            message
+                                          )
+                                        }
+                                        aria-label="Copiar resposta"
+                                        whileHover={hoverProps(
+                                          {
+                                            scale: 1.1,
+                                          }
+                                        )}
+                                        whileTap={
+                                          reducedMotion
+                                            ? undefined
+                                            : {
+                                                scale: 0.88,
+                                              }
+                                        }
+                                      >
+                                        <Copy
+                                          size={
+                                            14
+                                          }
                                         />
-                                      ) : (
-                                        <Volume2
-                                          size={14}
-                                        />
+                                      </motion.button>
+
+                                      {copiedMessageId ===
+                                        message.id && (
+                                        <motion.span
+                                          className="aura-tooltip"
+                                          initial={{
+                                            opacity: 0,
+                                            y: 4,
+                                          }}
+                                          animate={{
+                                            opacity: 1,
+                                            y: 0,
+                                          }}
+                                        >
+                                          Copiado
+                                        </motion.span>
                                       )}
-                                    </motion.button>
+                                    </div>
 
-                                    <span className="aura-tooltip">
-                                      {isSpeaking
-                                        ? "Parar"
-                                        : "Ouvir"}
-                                    </span>
+                                    <div className="aura-tooltip-trigger">
+                                      <motion.button
+                                        type="button"
+                                        className="aura-message-action"
+                                        onClick={() =>
+                                          regenerate(
+                                            message.id
+                                          )
+                                        }
+                                        aria-label="Regenerar resposta"
+                                        whileHover={hoverProps(
+                                          {
+                                            scale: 1.1,
+                                            rotate:
+                                              -8,
+                                          }
+                                        )}
+                                        whileTap={
+                                          reducedMotion
+                                            ? undefined
+                                            : {
+                                                scale: 0.88,
+                                              }
+                                        }
+                                      >
+                                        <RotateCcw
+                                          size={
+                                            14
+                                          }
+                                        />
+                                      </motion.button>
+
+                                      <span className="aura-tooltip">
+                                        Regenerar
+                                      </span>
+                                    </div>
+
+                                    <div className="aura-tooltip-trigger">
+                                      <motion.button
+                                        type="button"
+                                        className="aura-message-action"
+                                        onClick={() =>
+                                          toggleSpeak(
+                                            message
+                                          )
+                                        }
+                                        aria-label={
+                                          isSpeaking
+                                            ? "Parar áudio"
+                                            : "Ouvir resposta"
+                                        }
+                                        whileHover={hoverProps(
+                                          {
+                                            scale: 1.1,
+                                          }
+                                        )}
+                                        whileTap={
+                                          reducedMotion
+                                            ? undefined
+                                            : {
+                                                scale: 0.88,
+                                              }
+                                        }
+                                      >
+                                        {isSpeaking ? (
+                                          <VolumeX
+                                            size={
+                                              14
+                                            }
+                                          />
+                                        ) : (
+                                          <Volume2
+                                            size={
+                                              14
+                                            }
+                                          />
+                                        )}
+                                      </motion.button>
+
+                                      <span className="aura-tooltip">
+                                        {isSpeaking
+                                          ? "Parar"
+                                          : "Ouvir"}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                            </motion.div>
+                          );
+                        }
+                      )}
                     </AnimatePresence>
 
-                    {/* THINKING */}
-
                     <AnimatePresence>
-                      {auraState === "thinking" && (
+                      {auraState ===
+                        "thinking" && (
                         <motion.div
                           className="aura-thinking"
                           initial={
@@ -3114,8 +3358,10 @@ export default function AuraEducacube() {
                                 ? undefined
                                 : {
                                     duration: 1.2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
+                                    repeat:
+                                      Infinity,
+                                    ease:
+                                      "easeInOut",
                                   }
                             }
                           >
@@ -3126,37 +3372,52 @@ export default function AuraEducacube() {
                           </motion.div>
 
                           <span>
-                            AURA está pensando
+                            AURA está
+                            pensando
                           </span>
 
                           <span className="aura-thinking-dots">
-                            {[0, 1, 2].map((index) => (
-                              <motion.span
-                                key={index}
-                                className="aura-thinking-dot"
-                                animate={
-                                  reducedMotion
-                                    ? undefined
-                                    : {
-                                        y: [0, -4, 0],
-                                        opacity: [
-                                          0.4, 1, 0.4,
-                                        ],
-                                      }
-                                }
-                                transition={
-                                  reducedMotion
-                                    ? undefined
-                                    : {
-                                        duration: 0.9,
-                                        repeat: Infinity,
-                                        delay:
-                                          index * 0.14,
-                                        ease: "easeInOut",
-                                      }
-                                }
-                              />
-                            ))}
+                            {[0, 1, 2].map(
+                              (index) => (
+                                <motion.span
+                                  key={
+                                    index
+                                  }
+                                  className="aura-thinking-dot"
+                                  animate={
+                                    reducedMotion
+                                      ? undefined
+                                      : {
+                                          y: [
+                                            0,
+                                            -4,
+                                            0,
+                                          ],
+                                          opacity:
+                                            [
+                                              0.4,
+                                              1,
+                                              0.4,
+                                            ],
+                                        }
+                                  }
+                                  transition={
+                                    reducedMotion
+                                      ? undefined
+                                      : {
+                                          duration: 0.9,
+                                          repeat:
+                                            Infinity,
+                                          delay:
+                                            index *
+                                            0.14,
+                                          ease:
+                                            "easeInOut",
+                                        }
+                                  }
+                                />
+                              )
+                            )}
                           </span>
                         </motion.div>
                       )}
@@ -3169,7 +3430,9 @@ export default function AuraEducacube() {
                     <motion.button
                       type="button"
                       className="aura-scroll-latest"
-                      onClick={scrollToLatest}
+                      onClick={
+                        scrollToLatest
+                      }
                       initial={
                         reducedMotion
                           ? false
@@ -3199,21 +3462,25 @@ export default function AuraEducacube() {
                       whileTap={
                         reducedMotion
                           ? undefined
-                          : { scale: 0.96 }
+                          : {
+                              scale: 0.96,
+                            }
                       }
                     >
-                      <ChevronDown size={16} />
+                      <ChevronDown
+                        size={16}
+                      />
 
-                      <span>Nova resposta</span>
+                      <span>
+                        Nova resposta
+                      </span>
                     </motion.button>
                   )}
                 </AnimatePresence>
               </div>
             )}
 
-            {/* ========================================================
-                COMPOSER
-                ======================================================== */}
+            {/* COMPOSER */}
 
             <motion.div
               className="aura-composer-area"
@@ -3237,7 +3504,8 @@ export default function AuraEducacube() {
             >
               <div className="aura-composer">
                 <div className="aura-composer-box">
-                  {attachments.length > 0 && (
+                  {attachments.length >
+                    0 && (
                     <motion.div
                       className="aura-attachments"
                       initial={
@@ -3254,65 +3522,87 @@ export default function AuraEducacube() {
                       }}
                     >
                       <AnimatePresence>
-                        {attachments.map((file) => (
-                          <motion.div
-                            key={file.id}
-                            className="aura-attachment-chip"
-                            initial={
-                              reducedMotion
-                                ? false
-                                : {
-                                    opacity: 0,
-                                    scale: 0.9,
-                                    y: 5,
-                                  }
-                            }
-                            animate={{
-                              opacity: 1,
-                              scale: 1,
-                              y: 0,
-                            }}
-                            exit={
-                              reducedMotion
-                                ? undefined
-                                : {
-                                    opacity: 0,
-                                    scale: 0.9,
-                                  }
-                            }
-                          >
-                            <Paperclip size={14} />
-
-                            <span>{file.name}</span>
-
-                            <span>
-                              {formatBytes(file.size)}
-                            </span>
-
-                            <button
-                              type="button"
-                              className="aura-attachment-remove"
-                              aria-label={`Remover ${file.name}`}
-                              onClick={() =>
-                                removeAttachment(
-                                  file.id
-                                )
+                        {attachments.map(
+                          (file) => (
+                            <motion.div
+                              key={
+                                file.id
+                              }
+                              className="aura-attachment-chip"
+                              initial={
+                                reducedMotion
+                                  ? false
+                                  : {
+                                      opacity: 0,
+                                      scale: 0.9,
+                                      y: 5,
+                                    }
+                              }
+                              animate={{
+                                opacity: 1,
+                                scale: 1,
+                                y: 0,
+                              }}
+                              exit={
+                                reducedMotion
+                                  ? undefined
+                                  : {
+                                      opacity: 0,
+                                      scale: 0.9,
+                                    }
                               }
                             >
-                              <X size={12} />
-                            </button>
-                          </motion.div>
-                        ))}
+                              <Paperclip
+                                size={14}
+                              />
+
+                              <span>
+                                {
+                                  file.name
+                                }
+                              </span>
+
+                              <span>
+                                {formatBytes(
+                                  file.size
+                                )}
+                              </span>
+
+                              <button
+                                type="button"
+                                className="aura-attachment-remove"
+                                aria-label={`Remover ${file.name}`}
+                                onClick={() =>
+                                  removeAttachment(
+                                    file.id
+                                  )
+                                }
+                              >
+                                <X
+                                  size={12}
+                                />
+                              </button>
+                            </motion.div>
+                          )
+                        )}
                       </AnimatePresence>
                     </motion.div>
                   )}
 
                   <div
                     className="aura-input-wrapper"
-                    data-dragover={isDragOver}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
+                    data-dragover={
+                      isDragOver
+                    }
+                    onDragOver={
+                      handleDragOver
+                    }
+                    onDragLeave={
+                      handleDragLeave
+                    }
+                    onDrop={
+                      handleDrop
+                    }
                   >
                     <AnimatePresence>
                       {isDragOver && (
@@ -3333,10 +3623,14 @@ export default function AuraEducacube() {
                           exit={
                             reducedMotion
                               ? undefined
-                              : { opacity: 0 }
+                              : {
+                                  opacity: 0,
+                                }
                           }
                         >
-                          <Paperclip size={15} />
+                          <Paperclip
+                            size={15}
+                          />
 
                           <span>
                             Solte para anexar
@@ -3346,7 +3640,9 @@ export default function AuraEducacube() {
                     </AnimatePresence>
 
                     <input
-                      ref={fileInputRef}
+                      ref={
+                        fileInputRef
+                      }
                       type="file"
                       multiple
                       hidden
@@ -3363,17 +3659,23 @@ export default function AuraEducacube() {
                         onClick={() =>
                           fileInputRef.current?.click()
                         }
-                        whileHover={hoverProps({
-                          scale: 1.08,
-                          y: -1,
-                        })}
+                        whileHover={hoverProps(
+                          {
+                            scale: 1.08,
+                            y: -1,
+                          }
+                        )}
                         whileTap={
                           reducedMotion
                             ? undefined
-                            : { scale: 0.9 }
+                            : {
+                                scale: 0.9,
+                              }
                         }
                       >
-                        <Paperclip size={17} />
+                        <Paperclip
+                          size={17}
+                        />
                       </motion.button>
 
                       <span className="aura-tooltip">
@@ -3382,14 +3684,21 @@ export default function AuraEducacube() {
                     </div>
 
                     <textarea
-                      ref={textareaRef}
+                      ref={
+                        textareaRef
+                      }
                       value={input}
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setInput(
-                          event.target.value
+                          event.target
+                            .value
                         )
                       }
-                      onKeyDown={handleKeyDown}
+                      onKeyDown={
+                        handleKeyDown
+                      }
                       placeholder={
                         isOnline
                           ? "Pergunte, peça um resumo ou uma sequência didática..."
@@ -3397,28 +3706,38 @@ export default function AuraEducacube() {
                       }
                       rows={1}
                       className="aura-textarea"
-                      disabled={!isOnline}
+                      disabled={
+                        !isOnline
+                      }
                     />
 
                     <div className="aura-tooltip-trigger">
                       <motion.button
                         type="button"
                         className={`aura-microphone-button ${
-                          micActive ? "active" : ""
+                          micActive
+                            ? "active"
+                            : ""
                         }`}
                         aria-label={
                           micActive
                             ? "Parar escuta"
                             : "Falar com a AURA"
                         }
-                        onClick={toggleMic}
-                        whileHover={hoverProps({
-                          scale: 1.08,
-                        })}
+                        onClick={
+                          toggleMic
+                        }
+                        whileHover={hoverProps(
+                          {
+                            scale: 1.08,
+                          }
+                        )}
                         whileTap={
                           reducedMotion
                             ? undefined
-                            : { scale: 0.9 }
+                            : {
+                                scale: 0.9,
+                              }
                         }
                       >
                         <Mic size={17} />
@@ -3444,7 +3763,8 @@ export default function AuraEducacube() {
                           }
                           initial={
                             reducedMotion
-                              ? false                              : {
+                              ? false
+                              : {
                                   opacity: 0,
                                   scale: 0.75,
                                   rotate: -20,
@@ -3464,13 +3784,17 @@ export default function AuraEducacube() {
                                   rotate: 20,
                                 }
                           }
-                          whileHover={hoverProps({
-                            scale: 1.06,
-                          })}
+                          whileHover={hoverProps(
+                            {
+                              scale: 1.06,
+                            }
+                          )}
                           whileTap={
                             reducedMotion
                               ? undefined
-                              : { scale: 0.9 }
+                              : {
+                                  scale: 0.9,
+                                }
                           }
                         >
                           <Square
@@ -3485,10 +3809,13 @@ export default function AuraEducacube() {
                           className="aura-send-button"
                           aria-label="Enviar mensagem"
                           disabled={
-                            !input.trim() || !isOnline
+                            !input.trim() ||
+                            !isOnline
                           }
                           onClick={() =>
-                            sendMessage(input)
+                            sendMessage(
+                              input
+                            )
                           }
                           initial={
                             reducedMotion
@@ -3510,14 +3837,18 @@ export default function AuraEducacube() {
                                   scale: 0.75,
                                 }
                           }
-                          whileHover={hoverProps({
-                            scale: 1.07,
-                            y: -1,
-                          })}
+                          whileHover={hoverProps(
+                            {
+                              scale: 1.07,
+                              y: -1,
+                            }
+                          )}
                           whileTap={
                             reducedMotion
                               ? undefined
-                              : { scale: 0.9 }
+                              : {
+                                  scale: 0.9,
+                                }
                           }
                         >
                           <Send size={16} />
@@ -3545,7 +3876,8 @@ export default function AuraEducacube() {
                       <WifiOff
                         size={11}
                         style={{
-                          display: "inline",
+                          display:
+                            "inline",
                           marginRight: 5,
                         }}
                       />
