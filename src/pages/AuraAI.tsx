@@ -43,7 +43,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import NeuralOrb from "../components/NeuralOrb";
+import NeuralOrb, { type AuraState } from "../components/NeuralOrb";
 import "./aura-educacube.css";
 
 /* ================================================================
@@ -98,26 +98,70 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const SUGGESTIONS: Suggestion[] = [
-  { id: "explicar", label: "Explicar um conceito", prompt: "Explique Piaget de forma simples." },
-  { id: "exercicios", label: "Criar exercícios", prompt: "Crie 10 questões sobre a BNCC." },
-  { id: "resumir", label: "Resumir um artigo", prompt: "Resuma este artigo acadêmico para mim." },
-  { id: "plano", label: "Estruturar uma aula", prompt: "Transforme este texto em um plano de aula." },
-  { id: "comparar", label: "Comparar teorias", prompt: "Compare duas teorias pedagógicas." },
-  { id: "sequencia", label: "Sequência didática", prompt: "Crie uma sequência didática sobre frações." },
+  {
+    id: "explicar",
+    label: "Explicar um conceito",
+    prompt: "Explique Piaget de forma simples.",
+  },
+  {
+    id: "exercicios",
+    label: "Criar exercícios",
+    prompt: "Crie 10 questões sobre a BNCC.",
+  },
+  {
+    id: "resumir",
+    label: "Resumir um artigo",
+    prompt: "Resuma este artigo acadêmico para mim.",
+  },
+  {
+    id: "plano",
+    label: "Estruturar uma aula",
+    prompt: "Transforme este texto em um plano de aula.",
+  },
+  {
+    id: "comparar",
+    label: "Comparar teorias",
+    prompt: "Compare duas teorias pedagógicas.",
+  },
+  {
+    id: "sequencia",
+    label: "Sequência didática",
+    prompt: "Crie uma sequência didática sobre frações.",
+  },
 ];
 
-/**
- * Histórico de conversas — dados de demonstração.
- * Ponto de integração: substituir por consulta ao histórico real
- * (Firebase/Supabase) filtrado pelo usuário autenticado, mantendo
- * o mesmo formato de ConversationSummary.
- */
 const MOCK_CONVERSATIONS: ConversationSummary[] = [
-  { id: "c1", title: "Plano de aula — frações", messageCount: 14, updatedAt: Date.now() - 1000 * 60 * 40, pinned: true },
-  { id: "c2", title: "Resumo de Vygotsky", messageCount: 6, updatedAt: Date.now() - 1000 * 60 * 60 * 3 },
-  { id: "c3", title: "Exercícios sobre BNCC", messageCount: 22, updatedAt: Date.now() - 1000 * 60 * 60 * 26 },
-  { id: "c4", title: "Comparação Piaget x Vygotsky", messageCount: 9, updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 4 },
-  { id: "c5", title: "Sequência didática — leitura", messageCount: 17, updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 12 },
+  {
+    id: "c1",
+    title: "Plano de aula — frações",
+    messageCount: 14,
+    updatedAt: Date.now() - 1000 * 60 * 40,
+    pinned: true,
+  },
+  {
+    id: "c2",
+    title: "Resumo de Vygotsky",
+    messageCount: 6,
+    updatedAt: Date.now() - 1000 * 60 * 60 * 3,
+  },
+  {
+    id: "c3",
+    title: "Exercícios sobre BNCC",
+    messageCount: 22,
+    updatedAt: Date.now() - 1000 * 60 * 60 * 26,
+  },
+  {
+    id: "c4",
+    title: "Comparação Piaget x Vygotsky",
+    messageCount: 9,
+    updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 4,
+  },
+  {
+    id: "c5",
+    title: "Sequência didática — leitura",
+    messageCount: 17,
+    updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 12,
+  },
 ];
 
 const PLACEHOLDER_RESPONSE = `**Conceito**
@@ -144,30 +188,40 @@ function formatBytes(bytes: number): string {
 }
 
 function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(ts).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function groupLabel(ts: number): string {
   const now = new Date();
   const date = new Date(ts);
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const diffDays = Math.round((startOfDay(now) - startOfDay(date)) / 86400000);
+
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+  const diffDays = Math.round(
+    (startOfDay(now) - startOfDay(date)) / 86400000
+  );
 
   if (diffDays <= 0) return "Hoje";
   if (diffDays === 1) return "Ontem";
   if (diffDays <= 7) return "Últimos 7 dias";
+
   return "Anteriores";
 }
 
 const GROUP_ORDER = ["Hoje", "Ontem", "Últimos 7 dias", "Anteriores"];
 
 /* ================================================================
-   LIGHTWEIGHT MARKDOWN RENDERING (no external dependency)
+   LIGHTWEIGHT MARKDOWN RENDERING
    ================================================================ */
 
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   const pattern = /(\*\*.+?\*\*|`.+?`|\[.+?\]\(.+?\))/g;
+
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let i = 0;
@@ -176,9 +230,15 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
     if (match.index > lastIndex) {
       nodes.push(text.slice(lastIndex, match.index));
     }
+
     const token = match[0];
+
     if (token.startsWith("**")) {
-      nodes.push(<strong key={`${keyPrefix}-b-${i}`}>{token.slice(2, -2)}</strong>);
+      nodes.push(
+        <strong key={`${keyPrefix}-b-${i}`}>
+          {token.slice(2, -2)}
+        </strong>
+      );
     } else if (token.startsWith("`")) {
       nodes.push(
         <code key={`${keyPrefix}-c-${i}`} className="aura-inline-code">
@@ -187,24 +247,37 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
       );
     } else {
       const linkMatch = /\[(.+?)\]\((.+?)\)/.exec(token);
+
       if (linkMatch) {
         nodes.push(
-          <a key={`${keyPrefix}-l-${i}`} href={linkMatch[2]} target="_blank" rel="noreferrer" className="aura-inline-link">
+          <a
+            key={`${keyPrefix}-l-${i}`}
+            href={linkMatch[2]}
+            target="_blank"
+            rel="noreferrer"
+            className="aura-inline-link"
+          >
             {linkMatch[1]}
           </a>
         );
       }
     }
+
     lastIndex = match.index + token.length;
     i += 1;
   }
-  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
   return nodes;
 }
 
 function renderMarkdown(content: string): ReactNode {
   const lines = content.split("\n");
   const blocks: ReactNode[] = [];
+
   let i = 0;
   let blockIndex = 0;
 
@@ -218,87 +291,138 @@ function renderMarkdown(content: string): ReactNode {
 
     if (line.startsWith("```")) {
       const code: string[] = [];
+
       i += 1;
+
       while (i < lines.length && !lines[i].startsWith("```")) {
         code.push(lines[i]);
         i += 1;
       }
+
       i += 1;
+
       blocks.push(
-        <pre key={`b-${blockIndex++}`} className="aura-code-block">
+        <pre
+          key={`b-${blockIndex++}`}
+          className="aura-code-block"
+        >
           <code>{code.join("\n")}</code>
         </pre>
       );
+
       continue;
     }
 
     if (/^#{1,3}\s/.test(line)) {
       const level = line.match(/^#{1,3}/)?.[0].length ?? 1;
       const text = line.replace(/^#{1,3}\s/, "");
-      const Tag = (level === 1 ? "h3" : level === 2 ? "h4" : "h5") as keyof JSX.IntrinsicElements;
+
+      const Tag = (
+        level === 1 ? "h3" : level === 2 ? "h4" : "h5"
+      ) as keyof JSX.IntrinsicElements;
+
       blocks.push(
-        <Tag key={`b-${blockIndex++}`} className="aura-md-heading">
+        <Tag
+          key={`b-${blockIndex++}`}
+          className="aura-md-heading"
+        >
           {renderInline(text, `h-${blockIndex}`)}
         </Tag>
       );
+
       i += 1;
       continue;
     }
 
     if (line.startsWith(">")) {
       const quote: string[] = [];
+
       while (i < lines.length && lines[i].startsWith(">")) {
         quote.push(lines[i].replace(/^>\s?/, ""));
         i += 1;
       }
+
       blocks.push(
-        <blockquote key={`b-${blockIndex++}`} className="aura-md-quote">
+        <blockquote
+          key={`b-${blockIndex++}`}
+          className="aura-md-quote"
+        >
           {renderInline(quote.join(" "), `q-${blockIndex}`)}
         </blockquote>
       );
+
       continue;
     }
 
     if (/^[-*]\s/.test(line)) {
       const items: string[] = [];
+
       while (i < lines.length && /^[-*]\s/.test(lines[i])) {
         items.push(lines[i].replace(/^[-*]\s/, ""));
         i += 1;
       }
+
       blocks.push(
-        <ul key={`b-${blockIndex++}`} className="aura-md-list">
+        <ul
+          key={`b-${blockIndex++}`}
+          className="aura-md-list"
+        >
           {items.map((item, idx) => (
-            <li key={idx}>{renderInline(item, `ul-${blockIndex}-${idx}`)}</li>
+            <li key={idx}>
+              {renderInline(item, `ul-${blockIndex}-${idx}`)}
+            </li>
           ))}
         </ul>
       );
+
       continue;
     }
 
     if (/^\d+\.\s/.test(line)) {
       const items: string[] = [];
+
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         items.push(lines[i].replace(/^\d+\.\s/, ""));
         i += 1;
       }
+
       blocks.push(
-        <ol key={`b-${blockIndex++}`} className="aura-md-list">
+        <ol
+          key={`b-${blockIndex++}`}
+          className="aura-md-list"
+        >
           {items.map((item, idx) => (
-            <li key={idx}>{renderInline(item, `ol-${blockIndex}-${idx}`)}</li>
+            <li key={idx}>
+              {renderInline(item, `ol-${blockIndex}-${idx}`)}
+            </li>
           ))}
         </ol>
       );
+
       continue;
     }
 
     const paragraph: string[] = [line];
+
     i += 1;
-    while (i < lines.length && lines[i].trim() !== "" && !/^(#{1,3}\s|[-*]\s|\d+\.\s|>|```)/.test(lines[i])) {
+
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !/^(#{1,3}\s|[-*]\s|\d+\.\s|>|```)/.test(lines[i])
+    ) {
       paragraph.push(lines[i]);
       i += 1;
     }
+
     blocks.push(
-      <p key={`b-${blockIndex++}`} className="aura-md-paragraph" style={{ animationDelay: `${blockIndex * 45}ms` }}>
+      <p
+        key={`b-${blockIndex++}`}
+        className="aura-md-paragraph"
+        style={{
+          animationDelay: `${blockIndex * 45}ms`,
+        }}
+      >
         {renderInline(paragraph.join(" "), `p-${blockIndex}`)}
       </p>
     );
@@ -318,55 +442,102 @@ export default function AuraEducacube() {
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isMicActive, setIsMicActive] = useState(false);
-  const [auraState, setAuraState] = useState<AuraState>("idle");
-  const [connection, setConnection] = useState<"online" | "offline">("online");
+
+  const [auraState, setAuraState] =
+    useState<AuraState>("idle");
+
+  const [connection, setConnection] =
+    useState<"online" | "offline">("online");
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [historyQuery, setHistoryQuery] = useState("");
-  const [conversations, setConversations] = useState<ConversationSummary[]>(MOCK_CONVERSATIONS);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [renamingId, setRenamingId] = useState<string | null>(null);
+
+  const [conversations, setConversations] =
+    useState<ConversationSummary[]>(MOCK_CONVERSATIONS);
+
+  const [openMenuId, setOpenMenuId] =
+    useState<string | null>(null);
+
+  const [renamingId, setRenamingId] =
+    useState<string | null>(null);
+
   const [renameValue, setRenameValue] = useState("");
 
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] =
+    useState<string | null>(null);
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const generationTimeouts = useRef<number[]>([]);
+  const [isNearBottom, setIsNearBottom] =
+    useState(true);
+
+  const [speakingId, setSpeakingId] =
+    useState<string | null>(null);
+
+  const textareaRef =
+    useRef<HTMLTextAreaElement>(null);
+
+  const scrollRef =
+    useRef<HTMLDivElement>(null);
+
+  const generationTimeouts =
+    useRef<number[]>([]);
 
   const hasConversation = messages.length > 0;
-  const isBusy = auraState === "sending" || auraState === "thinking" || auraState === "generating";
-  const canSend = (input.trim().length > 0 || attachments.length > 0) && !isBusy && connection === "online";
+
+  const isBusy =
+    auraState === "sending" ||
+    auraState === "thinking" ||
+    auraState === "generating";
+
+  const canSend =
+    (input.trim().length > 0 || attachments.length > 0) &&
+    !isBusy &&
+    connection === "online";
 
   /* ---------- textarea auto-grow ---------- */
+
   useEffect(() => {
     const el = textareaRef.current;
+
     if (!el) return;
+
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [input]);
 
   /* ---------- smart scroll ---------- */
+
   useEffect(() => {
     const container = scrollRef.current;
+
     if (!container) return;
+
     if (isNearBottom) {
-      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, [messages, isNearBottom]);
 
   function handleScroll() {
     const container = scrollRef.current;
+
     if (!container) return;
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    const distanceFromBottom =
+      container.scrollHeight -
+      container.scrollTop -
+      container.clientHeight;
+
     setIsNearBottom(distanceFromBottom < 120);
   }
 
-  /* ---------- mobile drawer: lock scroll + esc to close ---------- */
+  /* ---------- mobile drawer ---------- */
+
   useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    document.body.style.overflow =
+      sidebarOpen ? "hidden" : "";
+
     return () => {
       document.body.style.overflow = "";
     };
@@ -378,34 +549,46 @@ export default function AuraEducacube() {
         setSidebarOpen(false);
         setOpenMenuId(null);
       }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key.toLowerCase() === "k"
+      ) {
         event.preventDefault();
+
         setMessages([]);
         setInput("");
         setAttachments([]);
         setAuraState("idle");
+
         textareaRef.current?.focus();
       }
     }
+
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    return () =>
+      window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  /* ---------- conectividade real (navigator.onLine) ----------
-     Não é simulado: reflete o estado real de rede do navegador.
-     Ponto de integração: se o backend expuser um heartbeat próprio
-     (ex.: verificação de sessão Firebase/Supabase), combine esse
-     sinal com o de rede aqui antes de chamar setConnection. */
+  /* ---------- conectividade ---------- */
+
   useEffect(() => {
     function handleOnline() {
       setConnection("online");
     }
+
     function handleOffline() {
       setConnection("offline");
     }
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    setConnection(navigator.onLine ? "online" : "offline");
+
+    setConnection(
+      navigator.onLine ? "online" : "offline"
+    );
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -414,17 +597,17 @@ export default function AuraEducacube() {
 
   useEffect(() => {
     return () => {
-      generationTimeouts.current.forEach((id) => window.clearTimeout(id));
+      generationTimeouts.current.forEach((id) =>
+        window.clearTimeout(id)
+      );
     };
   }, []);
 
-  /* ---------- send flow ----------
-     Ponto de integração: a sequência abaixo simula sending → thinking →
-     generating → complete. Substituir o `window.setTimeout` interno
-     pela chamada real à API (Groq/backend), preservando as transições
-     de `auraState` para manter a experiência visual consistente. */
+  /* ---------- send flow ---------- */
+
   function sendMessage(text: string) {
     const trimmed = text.trim();
+
     if (!trimmed && attachments.length === 0) return;
     if (connection === "offline") return;
 
@@ -441,8 +624,16 @@ export default function AuraEducacube() {
     setIsNearBottom(true);
     setAuraState("sending");
 
-    const t1 = window.setTimeout(() => setAuraState("thinking"), 350);
-    const t2 = window.setTimeout(() => setAuraState("generating"), 1100);
+    const t1 = window.setTimeout(
+      () => setAuraState("thinking"),
+      350
+    );
+
+    const t2 = window.setTimeout(
+      () => setAuraState("generating"),
+      1100
+    );
+
     const t3 = window.setTimeout(() => {
       setMessages((prev) => [
         ...prev,
@@ -453,8 +644,14 @@ export default function AuraEducacube() {
           createdAt: Date.now(),
         },
       ]);
+
       setAuraState("complete");
-      const t4 = window.setTimeout(() => setAuraState("idle"), 900);
+
+      const t4 = window.setTimeout(
+        () => setAuraState("idle"),
+        900
+      );
+
       generationTimeouts.current.push(t4);
     }, 2000);
 
@@ -462,37 +659,66 @@ export default function AuraEducacube() {
   }
 
   function cancelGeneration() {
-    generationTimeouts.current.forEach((id) => window.clearTimeout(id));
+    generationTimeouts.current.forEach((id) =>
+      window.clearTimeout(id)
+    );
+
     generationTimeouts.current = [];
+
     setAuraState("idle");
   }
 
-  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Enter" && !event.shiftKey) {
+  function handleKeyDown(
+    event: KeyboardEvent<HTMLTextAreaElement>
+  ) {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
       sendMessage(input);
     }
   }
 
   function handleCopy(message: AuraMessage) {
-    navigator.clipboard?.writeText(message.content).catch(() => undefined);
+    navigator.clipboard
+      ?.writeText(message.content)
+      .catch(() => undefined);
+
     setCopiedId(message.id);
-    window.setTimeout(() => setCopiedId((current) => (current === message.id ? null : current)), 1600);
+
+    window.setTimeout(() => {
+      setCopiedId((current) =>
+        current === message.id ? null : current
+      );
+    }, 1600);
   }
 
   function handleRegenerate(messageId: string) {
     setAuraState("thinking");
+
     const t = window.setTimeout(() => {
       setMessages((prev) =>
-        prev.map((m) => (m.id === messageId ? { ...m, content: PLACEHOLDER_RESPONSE, createdAt: Date.now() } : m))
+        prev.map((m) =>
+          m.id === messageId
+            ? {
+                ...m,
+                content: PLACEHOLDER_RESPONSE,
+                createdAt: Date.now(),
+              }
+            : m
+        )
       );
+
       setAuraState("idle");
     }, 900);
+
     generationTimeouts.current.push(t);
   }
 
   function handleContinue(messageId: string) {
     setAuraState("generating");
+
     const t = window.setTimeout(() => {
       setMessages((prev) =>
         prev.map((m) =>
@@ -506,13 +732,13 @@ export default function AuraEducacube() {
             : m
         )
       );
+
       setAuraState("idle");
     }, 700);
+
     generationTimeouts.current.push(t);
   }
 
-  /* Ponto de integração: alternar reprodução real de voz via serviço
-     de TTS existente. Aqui apenas refletimos o estado visual. */
   function handleToggleSpeak(messageId: string) {
     if (speakingId === messageId) {
       setSpeakingId(null);
@@ -523,70 +749,123 @@ export default function AuraEducacube() {
     }
   }
 
-  /* Ponto de integração: conectar a `useAudioAnalyzer` para captura
-     real de áudio e amplitude do microfone. */
   function handleToggleMic() {
     setIsMicActive((prev) => {
       const next = !prev;
-      setAuraState(next ? "listening" : "idle");
+
+      setAuraState(
+        next ? "listening" : "idle"
+      );
+
       return next;
     });
   }
 
   function handleFiles(fileList: FileList | null) {
     if (!fileList) return;
-    const next: AttachmentFile[] = Array.from(fileList).map((file) => ({
-      id: generateId(),
-      name: file.name,
-      size: file.size,
-      type: file.type || "arquivo",
-    }));
-    setAttachments((prev) => [...prev, ...next]);
+
+    const next: AttachmentFile[] =
+      Array.from(fileList).map((file) => ({
+        id: generateId(),
+        name: file.name,
+        size: file.size,
+        type: file.type || "arquivo",
+      }));
+
+    setAttachments((prev) => [
+      ...prev,
+      ...next,
+    ]);
   }
 
-  function handleDrop(event: DragEvent<HTMLDivElement>) {
+  function handleDrop(
+    event: DragEvent<HTMLDivElement>
+  ) {
     event.preventDefault();
+
     setIsDraggingFile(false);
+
     handleFiles(event.dataTransfer.files);
   }
 
   /* ---------- conversation history ---------- */
+
   const filteredConversations = useMemo(() => {
-    const query = historyQuery.trim().toLowerCase();
+    const query =
+      historyQuery.trim().toLowerCase();
+
     const filtered = query
-      ? conversations.filter((c) => c.title.toLowerCase().includes(query))
+      ? conversations.filter((c) =>
+          c.title
+            .toLowerCase()
+            .includes(query)
+        )
       : conversations;
+
     return [...filtered].sort((a, b) => {
-      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      if (!!a.pinned !== !!b.pinned) {
+        return a.pinned ? -1 : 1;
+      }
+
       return b.updatedAt - a.updatedAt;
     });
   }, [conversations, historyQuery]);
 
   const groupedConversations = useMemo(() => {
-    const groups = new Map<string, ConversationSummary[]>();
+    const groups = new Map<
+      string,
+      ConversationSummary[]
+    >();
+
     filteredConversations.forEach((c) => {
-      const label = c.pinned ? "Fixadas" : groupLabel(c.updatedAt);
+      const label = c.pinned
+        ? "Fixadas"
+        : groupLabel(c.updatedAt);
+
       const list = groups.get(label) ?? [];
+
       list.push(c);
       groups.set(label, list);
     });
-    const order = ["Fixadas", ...GROUP_ORDER];
+
+    const order = [
+      "Fixadas",
+      ...GROUP_ORDER,
+    ];
+
     return order
-      .filter((label) => groups.has(label))
-      .map((label) => ({ label, items: groups.get(label) as ConversationSummary[] }));
+      .filter((label) =>
+        groups.has(label)
+      )
+      .map((label) => ({
+        label,
+        items: groups.get(label) as ConversationSummary[],
+      }));
   }, [filteredConversations]);
 
   function togglePin(id: string) {
-    setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, pinned: !c.pinned } : c)));
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, pinned: !c.pinned }
+          : c
+      )
+    );
+
     setOpenMenuId(null);
   }
 
   function deleteConversation(id: string) {
-    setConversations((prev) => prev.filter((c) => c.id !== id));
+    setConversations((prev) =>
+      prev.filter((c) => c.id !== id)
+    );
+
     setOpenMenuId(null);
   }
 
-  function startRename(conversation: ConversationSummary) {
+  function startRename(
+    conversation: ConversationSummary
+  ) {
     setRenamingId(conversation.id);
     setRenameValue(conversation.title);
     setOpenMenuId(null);
@@ -594,9 +873,17 @@ export default function AuraEducacube() {
 
   function commitRename(id: string) {
     const value = renameValue.trim();
+
     if (value) {
-      setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, title: value } : c)));
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? { ...c, title: value }
+            : c
+        )
+      );
     }
+
     setRenamingId(null);
   }
 
@@ -607,7 +894,9 @@ export default function AuraEducacube() {
           type="button"
           className="aura-overlay"
           aria-label="Fechar menu"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() =>
+            setSidebarOpen(false)
+          }
         />
       )}
 
@@ -616,28 +905,49 @@ export default function AuraEducacube() {
         {/* SIDEBAR                                            */}
         {/* ================================================= */}
 
-        <aside className={`aura-sidebar ${sidebarOpen ? "aura-sidebar-open" : ""}`}>
+        <aside
+          className={`aura-sidebar ${
+            sidebarOpen
+              ? "aura-sidebar-open"
+              : ""
+          }`}
+        >
           <div className="aura-brand">
             <div className="aura-brand-mark">
-              <Box size={24} strokeWidth={1.6} />
+              <Box
+                size={24}
+                strokeWidth={1.6}
+              />
             </div>
+
             <div className="aura-brand-name">
               Educa<span>cube</span>
             </div>
+
             <button
               type="button"
               className="aura-sidebar-close"
               aria-label="Fechar menu"
-              onClick={() => setSidebarOpen(false)}
+              onClick={() =>
+                setSidebarOpen(false)
+              }
             >
-              <X size={18} strokeWidth={1.8} />
+              <X
+                size={18}
+                strokeWidth={1.8}
+              />
             </button>
           </div>
 
-          <nav className="aura-nav" aria-label="Navegação principal">
+          <nav
+            className="aura-nav"
+            aria-label="Navegação principal"
+          >
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
-              const isActive = activeNav === item.id;
+              const isActive =
+                activeNav === item.id;
+
               return (
                 <button
                   key={item.id}
@@ -646,10 +956,21 @@ export default function AuraEducacube() {
                     setActiveNav(item.id);
                     setSidebarOpen(false);
                   }}
-                  className={`aura-nav-item ${isActive ? "aura-nav-item-active" : ""}`}
-                  aria-current={isActive ? "page" : undefined}
+                  className={`aura-nav-item ${
+                    isActive
+                      ? "aura-nav-item-active"
+                      : ""
+                  }`}
+                  aria-current={
+                    isActive
+                      ? "page"
+                      : undefined
+                  }
                 >
-                  <Icon size={17} strokeWidth={1.8} />
+                  <Icon
+                    size={17}
+                    strokeWidth={1.8}
+                  />
                   <span>{item.label}</span>
                 </button>
               );
@@ -658,108 +979,250 @@ export default function AuraEducacube() {
 
           <div className="aura-history">
             <div className="aura-history-search">
-              <Search size={14} strokeWidth={1.9} />
+              <Search
+                size={14}
+                strokeWidth={1.9}
+              />
+
               <input
                 type="text"
                 value={historyQuery}
-                onChange={(event) => setHistoryQuery(event.target.value)}
+                onChange={(event) =>
+                  setHistoryQuery(
+                    event.target.value
+                  )
+                }
                 placeholder="Buscar conversas"
                 aria-label="Buscar conversas"
               />
             </div>
 
             <div className="aura-history-scroll">
-              {groupedConversations.length === 0 && (
-                <p className="aura-history-empty">Nenhuma conversa encontrada.</p>
+              {groupedConversations.length ===
+                0 && (
+                <p className="aura-history-empty">
+                  Nenhuma conversa encontrada.
+                </p>
               )}
 
-              {groupedConversations.map((group) => (
-                <div key={group.label} className="aura-history-group">
-                  <span className="aura-history-group-label">{group.label}</span>
+              {groupedConversations.map(
+                (group) => (
+                  <div
+                    key={group.label}
+                    className="aura-history-group"
+                  >
+                    <span className="aura-history-group-label">
+                      {group.label}
+                    </span>
 
-                  {group.items.map((conversation) => (
-                    <div key={conversation.id} className="aura-history-item">
-                      {renamingId === conversation.id ? (
-                        <input
-                          autoFocus
-                          className="aura-history-rename-input"
-                          value={renameValue}
-                          onChange={(event) => setRenameValue(event.target.value)}
-                          onBlur={() => commitRename(conversation.id)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") commitRename(conversation.id);
-                            if (event.key === "Escape") setRenamingId(null);
-                          }}
-                        />
-                      ) : (
-                        <button type="button" className="aura-history-item-button">
-                          <span className="aura-history-item-title">{conversation.title}</span>
-                          <span className="aura-history-item-meta">
-                            {conversation.messageCount} mensagens · {formatTime(conversation.updatedAt)}
-                          </span>
-                        </button>
-                      )}
-
-                      <div className="aura-history-item-actions">
-                        <button
-                          type="button"
-                          className="aura-history-icon-button"
-                          aria-label="Mais ações"
-                          onClick={() => setOpenMenuId((current) => (current === conversation.id ? null : conversation.id))}
+                    {group.items.map(
+                      (conversation) => (
+                        <div
+                          key={conversation.id}
+                          className="aura-history-item"
                         >
-                          <MoreHorizontal size={15} strokeWidth={1.9} />
-                        </button>
+                          {renamingId ===
+                          conversation.id ? (
+                            <input
+                              autoFocus
+                              className="aura-history-rename-input"
+                              value={renameValue}
+                              onChange={(event) =>
+                                setRenameValue(
+                                  event.target
+                                    .value
+                                )
+                              }
+                              onBlur={() =>
+                                commitRename(
+                                  conversation.id
+                                )
+                              }
+                              onKeyDown={(event) => {
+                                if (
+                                  event.key ===
+                                  "Enter"
+                                ) {
+                                  commitRename(
+                                    conversation.id
+                                  );
+                                }
 
-                        {openMenuId === conversation.id && (
-                          <div className="aura-history-menu" role="menu">
-                            <button type="button" onClick={() => togglePin(conversation.id)}>
-                              <Pin size={13} strokeWidth={1.9} />
-                              {conversation.pinned ? "Desafixar" : "Fixar"}
-                            </button>
-                            <button type="button" onClick={() => startRename(conversation)}>
-                              <Pencil size={13} strokeWidth={1.9} />
-                              Renomear
-                            </button>
+                                if (
+                                  event.key ===
+                                  "Escape"
+                                ) {
+                                  setRenamingId(
+                                    null
+                                  );
+                                }
+                              }}
+                            />
+                          ) : (
                             <button
                               type="button"
-                              className="aura-history-menu-danger"
-                              onClick={() => deleteConversation(conversation.id)}
+                              className="aura-history-item-button"
                             >
-                              <Trash2 size={13} strokeWidth={1.9} />
-                              Excluir
+                              <span className="aura-history-item-title">
+                                {
+                                  conversation.title
+                                }
+                              </span>
+
+                              <span className="aura-history-item-meta">
+                                {
+                                  conversation.messageCount
+                                }{" "}
+                                mensagens ·{" "}
+                                {formatTime(
+                                  conversation.updatedAt
+                                )}
+                              </span>
                             </button>
+                          )}
+
+                          <div className="aura-history-item-actions">
+                            <button
+                              type="button"
+                              className="aura-history-icon-button"
+                              aria-label="Mais ações"
+                              onClick={() =>
+                                setOpenMenuId(
+                                  (current) =>
+                                    current ===
+                                    conversation.id
+                                      ? null
+                                      : conversation.id
+                                )
+                              }
+                            >
+                              <MoreHorizontal
+                                size={15}
+                                strokeWidth={1.9}
+                              />
+                            </button>
+
+                            {openMenuId ===
+                              conversation.id && (
+                              <div
+                                className="aura-history-menu"
+                                role="menu"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    togglePin(
+                                      conversation.id
+                                    )
+                                  }
+                                >
+                                  <Pin
+                                    size={13}
+                                    strokeWidth={1.9}
+                                  />
+
+                                  {conversation.pinned
+                                    ? "Desafixar"
+                                    : "Fixar"}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    startRename(
+                                      conversation
+                                    )
+                                  }
+                                >
+                                  <Pencil
+                                    size={13}
+                                    strokeWidth={1.9}
+                                  />
+                                  Renomear
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="aura-history-menu-danger"
+                                  onClick={() =>
+                                    deleteConversation(
+                                      conversation.id
+                                    )
+                                  }
+                                >
+                                  <Trash2
+                                    size={13}
+                                    strokeWidth={1.9}
+                                  />
+                                  Excluir
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
+                        </div>
+                      )
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </div>
 
-          <button type="button" className="aura-plan-card">
+          <button
+            type="button"
+            className="aura-plan-card"
+          >
             <div className="aura-plan-icon">
-              <Crown size={13} strokeWidth={2} />
+              <Crown
+                size={13}
+                strokeWidth={2}
+              />
             </div>
+
             <div className="aura-plan-text">
-              <div className="aura-plan-title">Plano Estudante</div>
-              <div className="aura-plan-sub">Mais recursos para o seu aprendizado.</div>
+              <div className="aura-plan-title">
+                Plano Estudante
+              </div>
+
+              <div className="aura-plan-sub">
+                Mais recursos para o seu
+                aprendizado.
+              </div>
             </div>
-            <ChevronRight size={16} className="aura-plan-chevron" />
+
+            <ChevronRight
+              size={16}
+              className="aura-plan-chevron"
+            />
           </button>
 
           <div className="aura-sidebar-divider" />
 
-          <button type="button" className="aura-user-row">
+          <button
+            type="button"
+            className="aura-user-row"
+          >
             <div className="aura-user-avatar">
-              <User size={16} strokeWidth={2} />
+              <User
+                size={16}
+                strokeWidth={2}
+              />
             </div>
+
             <div className="aura-user-info">
-              <div className="aura-user-name">Aluno(a)</div>
-              <div className="aura-user-handle">@educacube</div>
+              <div className="aura-user-name">
+                Aluno(a)
+              </div>
+
+              <div className="aura-user-handle">
+                @educacube
+              </div>
             </div>
-            <ChevronRight size={16} className="aura-user-chevron" />
+
+            <ChevronRight
+              size={16}
+              className="aura-user-chevron"
+            />
           </button>
         </aside>
 
@@ -774,28 +1237,52 @@ export default function AuraEducacube() {
                 type="button"
                 className="aura-menu-button"
                 aria-label="Abrir menu"
-                onClick={() => setSidebarOpen(true)}
+                onClick={() =>
+                  setSidebarOpen(true)
+                }
               >
-                <Menu size={19} strokeWidth={1.8} />
+                <Menu
+                  size={19}
+                  strokeWidth={1.8}
+                />
               </button>
+
               <div>
                 <div className="aura-header-title-row">
                   <h1>AURA</h1>
-                  <span className="aura-beta-badge">Beta</span>
+                  <span className="aura-beta-badge">
+                    Beta
+                  </span>
                 </div>
-                <p className="aura-header-sub">Inteligência educacional do EducaCube</p>
+
+                <p className="aura-header-sub">
+                  Inteligência educacional do
+                  EducaCube
+                </p>
               </div>
             </div>
 
             <div className="aura-header-right">
               {connection === "offline" ? (
-                <span className="aura-connection aura-connection-offline" title="Sem conexão">
-                  <WifiOff size={13} strokeWidth={2} />
+                <span
+                  className="aura-connection aura-connection-offline"
+                  title="Sem conexão"
+                >
+                  <WifiOff
+                    size={13}
+                    strokeWidth={2}
+                  />
                   Offline
                 </span>
               ) : (
-                <span className="aura-connection" aria-hidden="true">
-                  <NeuralOrb state={auraState} size={30} />
+                <span
+                  className="aura-connection"
+                  aria-hidden="true"
+                >
+                  <NeuralOrb
+                    state={auraState}
+                    size={30}
+                  />
                 </span>
               )}
             </div>
@@ -807,116 +1294,259 @@ export default function AuraEducacube() {
                 <div className="aura-welcome-grid">
                   <div className="aura-welcome-lead-col">
                     <div className="aura-welcome-mark">
-                      <NeuralOrb state="idle" size={72} />
+                      <NeuralOrb
+                        state="idle"
+                        size={72}
+                      />
                     </div>
-                    <span className="aura-welcome-kicker">AURA · EducaCube</span>
+
+                    <span className="aura-welcome-kicker">
+                      AURA · EducaCube
+                    </span>
+
                     <h2 className="aura-welcome-headline">
-                      A inteligência do EducaCube, pronta para pensar com você.
+                      A inteligência do
+                      EducaCube, pronta para
+                      pensar com você.
                     </h2>
+
                     <p className="aura-welcome-sub">
-                      Explique conceitos, estruture aulas, crie exercícios e organize
-                      conhecimento pedagógico — com a profundidade que a educação exige.
+                      Explique conceitos,
+                      estruture aulas, crie
+                      exercícios e organize
+                      conhecimento pedagógico
+                      — com a profundidade que a
+                      educação exige.
                     </p>
                   </div>
 
-                  <div className="aura-welcome-commands" role="list" aria-label="Sugestões">
-                    {SUGGESTIONS.map((suggestion) => (
-                      <button
-                        key={suggestion.id}
-                        type="button"
-                        role="listitem"
-                        className="aura-command-row"
-                        onClick={() => sendMessage(suggestion.prompt)}
-                      >
-                        <span className="aura-command-label">{suggestion.label}</span>
-                        <span className="aura-command-prompt">{suggestion.prompt}</span>
-                        <ChevronRight size={15} className="aura-command-arrow" />
-                      </button>
-                    ))}
+                  <div
+                    className="aura-welcome-commands"
+                    role="list"
+                    aria-label="Sugestões"
+                  >
+                    {SUGGESTIONS.map(
+                      (suggestion) => (
+                        <button
+                          key={suggestion.id}
+                          type="button"
+                          role="listitem"
+                          className="aura-command-row"
+                          onClick={() =>
+                            sendMessage(
+                              suggestion.prompt
+                            )
+                          }
+                        >
+                          <span className="aura-command-label">
+                            {suggestion.label}
+                          </span>
+
+                          <span className="aura-command-prompt">
+                            {suggestion.prompt}
+                          </span>
+
+                          <ChevronRight
+                            size={15}
+                            className="aura-command-arrow"
+                          />
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="aura-messages-scroll" ref={scrollRef} onScroll={handleScroll}>
+              <div
+                className="aura-messages-scroll"
+                ref={scrollRef}
+                onScroll={handleScroll}
+              >
                 <div className="aura-messages">
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`aura-message-row ${message.role === "user" ? "aura-message-row-user" : ""}`}
+                      className={`aura-message-row ${
+                        message.role === "user"
+                          ? "aura-message-row-user"
+                          : ""
+                      }`}
                     >
-                      {message.role === "assistant" && (
+                      {message.role ===
+                        "assistant" && (
                         <div className="aura-message-marker">
                           <span className="aura-message-marker-dot" />
-                          <span className="aura-message-marker-label">AURA</span>
-                          <span className="aura-message-marker-time">{formatTime(message.createdAt)}</span>
+
+                          <span className="aura-message-marker-label">
+                            AURA
+                          </span>
+
+                          <span className="aura-message-marker-time">
+                            {formatTime(
+                              message.createdAt
+                            )}
+                          </span>
                         </div>
                       )}
 
                       <div
                         className={`aura-message-bubble ${
-                          message.role === "user" ? "aura-user-message" : "aura-assistant-message"
+                          message.role === "user"
+                            ? "aura-user-message"
+                            : "aura-assistant-message"
                         }`}
                       >
-                        {message.role === "assistant" ? (
-                          <div className="aura-md">{renderMarkdown(message.content)}</div>
+                        {message.role ===
+                        "assistant" ? (
+                          <div className="aura-md">
+                            {renderMarkdown(
+                              message.content
+                            )}
+                          </div>
                         ) : (
                           message.content
                         )}
                       </div>
 
-                      {message.role === "assistant" && (
+                      {message.role ===
+                        "assistant" && (
                         <div className="aura-message-actions">
-                          <button type="button" onClick={() => handleCopy(message)} title="Copiar">
-                            {copiedId === message.id ? (
-                              <>
-                                <Check size={13} strokeWidth={2} /> Copiado
-                              </>
-                            ) : (
-                              <>
-                                <Copy size={13} strokeWidth={1.9} /> Copiar
-                              </>
-                            )}
-                          </button>
-                          <button type="button" onClick={() => handleRegenerate(message.id)} title="Regenerar resposta">
-                            <RotateCcw size={13} strokeWidth={1.9} /> Regenerar
-                          </button>
-                          <button type="button" onClick={() => handleContinue(message.id)} title="Continuar resposta">
-                            <ChevronDown size={13} strokeWidth={1.9} /> Continuar
-                          </button>
                           <button
                             type="button"
-                            onClick={() => handleToggleSpeak(message.id)}
-                            title={speakingId === message.id ? "Parar áudio" : "Ouvir"}
+                            onClick={() =>
+                              handleCopy(message)
+                            }
+                            title="Copiar"
                           >
-                            {speakingId === message.id ? (
+                            {copiedId ===
+                            message.id ? (
                               <>
-                                <VolumeX size={13} strokeWidth={1.9} /> Parar
+                                <Check
+                                  size={13}
+                                  strokeWidth={2}
+                                />
+                                Copiado
                               </>
                             ) : (
                               <>
-                                <Volume2 size={13} strokeWidth={1.9} /> Ouvir
+                                <Copy
+                                  size={13}
+                                  strokeWidth={1.9}
+                                />
+                                Copiar
                               </>
                             )}
                           </button>
-                          <span className="aura-message-actions-divider" />
-                          <button type="button" aria-label="Resposta útil" title="Resposta útil">
-                            <ThumbsUp size={13} strokeWidth={1.9} />
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRegenerate(
+                                message.id
+                              )
+                            }
+                            title="Regenerar resposta"
+                          >
+                            <RotateCcw
+                              size={13}
+                              strokeWidth={1.9}
+                            />
+                            Regenerar
                           </button>
-                          <button type="button" aria-label="Resposta não útil" title="Resposta não útil">
-                            <ThumbsDown size={13} strokeWidth={1.9} />
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleContinue(
+                                message.id
+                              )
+                            }
+                            title="Continuar resposta"
+                          >
+                            <ChevronDown
+                              size={13}
+                              strokeWidth={1.9}
+                            />
+                            Continuar
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleToggleSpeak(
+                                message.id
+                              )
+                            }
+                            title={
+                              speakingId ===
+                              message.id
+                                ? "Parar áudio"
+                                : "Ouvir"
+                            }
+                          >
+                            {speakingId ===
+                            message.id ? (
+                              <>
+                                <VolumeX
+                                  size={13}
+                                  strokeWidth={1.9}
+                                />
+                                Parar
+                              </>
+                            ) : (
+                              <>
+                                <Volume2
+                                  size={13}
+                                  strokeWidth={1.9}
+                                />
+                                Ouvir
+                              </>
+                            )}
+                          </button>
+
+                          <span className="aura-message-actions-divider" />
+
+                          <button
+                            type="button"
+                            aria-label="Resposta útil"
+                            title="Resposta útil"
+                          >
+                            <ThumbsUp
+                              size={13}
+                              strokeWidth={1.9}
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Resposta não útil"
+                            title="Resposta não útil"
+                          >
+                            <ThumbsDown
+                              size={13}
+                              strokeWidth={1.9}
+                            />
                           </button>
                         </div>
                       )}
                     </div>
                   ))}
 
-                  {auraState === "thinking" && (
+                  {auraState ===
+                    "thinking" && (
                     <div className="aura-message-row">
                       <div className="aura-message-marker">
                         <span className="aura-message-marker-dot" />
-                        <span className="aura-message-marker-label">AURA</span>
+
+                        <span className="aura-message-marker-label">
+                          AURA
+                        </span>
                       </div>
-                      <div className="aura-thinking-indicator" aria-live="polite">
+
+                      <div
+                        className="aura-thinking-indicator"
+                        aria-live="polite"
+                      >
                         <span />
                         <span />
                         <span />
@@ -927,9 +1557,24 @@ export default function AuraEducacube() {
                   {auraState === "error" && (
                     <div className="aura-message-row">
                       <div className="aura-error-banner">
-                        <AlertTriangle size={14} strokeWidth={2} />
-                        Não consegui concluir essa resposta.
-                        <button type="button" onClick={() => sendMessage(messages[messages.length - 1]?.content ?? "")}>
+                        <AlertTriangle
+                          size={14}
+                          strokeWidth={2}
+                        />
+
+                        Não consegui concluir
+                        essa resposta.
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            sendMessage(
+                              messages[
+                                messages.length - 1
+                              ]?.content ?? ""
+                            )
+                          }
+                        >
                           Tentar novamente
                         </button>
                       </div>
@@ -943,34 +1588,68 @@ export default function AuraEducacube() {
                     className="aura-scroll-jump"
                     onClick={() => {
                       setIsNearBottom(true);
-                      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+
+                      scrollRef.current?.scrollTo(
+                        {
+                          top: scrollRef.current
+                            .scrollHeight,
+                          behavior: "smooth",
+                        }
+                      );
                     }}
                   >
-                    <ArrowDown size={14} strokeWidth={2} />
+                    <ArrowDown
+                      size={14}
+                      strokeWidth={2}
+                    />
                     Nova resposta
                   </button>
                 )}
               </div>
             )}
 
-            {/* ============================================= */}
-            {/* COMPOSER                                       */}
-            {/* ============================================= */}
+            {/* ================================================= */}
+            {/* COMPOSER                                          */}
+            {/* ================================================= */}
 
             <div className="aura-input-area">
               {attachments.length > 0 && (
                 <div className="aura-attachments">
                   {attachments.map((file) => (
-                    <div key={file.id} className="aura-attachment-chip">
-                      <Paperclip size={12} strokeWidth={1.9} />
-                      <span className="aura-attachment-name">{file.name}</span>
-                      <span className="aura-attachment-size">{formatBytes(file.size)}</span>
+                    <div
+                      key={file.id}
+                      className="aura-attachment-chip"
+                    >
+                      <Paperclip
+                        size={12}
+                        strokeWidth={1.9}
+                      />
+
+                      <span className="aura-attachment-name">
+                        {file.name}
+                      </span>
+
+                      <span className="aura-attachment-size">
+                        {formatBytes(file.size)}
+                      </span>
+
                       <button
                         type="button"
                         aria-label={`Remover ${file.name}`}
-                        onClick={() => setAttachments((prev) => prev.filter((f) => f.id !== file.id))}
+                        onClick={() =>
+                          setAttachments(
+                            (prev) =>
+                              prev.filter(
+                                (f) =>
+                                  f.id !== file.id
+                              )
+                          )
+                        }
                       >
-                        <X size={12} strokeWidth={2} />
+                        <X
+                          size={12}
+                          strokeWidth={2}
+                        />
                       </button>
                     </div>
                   ))}
@@ -978,71 +1657,141 @@ export default function AuraEducacube() {
               )}
 
               <div
-                className={`aura-input-wrapper ${isDraggingFile ? "aura-input-wrapper-dragging" : ""}`}
+                className={`aura-input-wrapper ${
+                  isDraggingFile
+                    ? "aura-input-wrapper-dragging"
+                    : ""
+                }`}
                 onDragOver={(event) => {
                   event.preventDefault();
                   setIsDraggingFile(true);
                 }}
-                onDragLeave={() => setIsDraggingFile(false)}
+                onDragLeave={() =>
+                  setIsDraggingFile(false)
+                }
                 onDrop={handleDrop}
               >
                 {isDraggingFile && (
                   <div className="aura-drop-zone">
-                    <Paperclip size={18} strokeWidth={1.8} />
-                    Solte o arquivo para anexar
+                    <Paperclip
+                      size={18}
+                      strokeWidth={1.8}
+                    />
+                    Solte o arquivo para
+                    anexar
                   </div>
                 )}
 
-                <label className="aura-attach-button" aria-label="Anexar arquivo">
-                  <Paperclip size={18} strokeWidth={1.8} />
+                <label
+                  className="aura-attach-button"
+                  aria-label="Anexar arquivo"
+                >
+                  <Paperclip
+                    size={18}
+                    strokeWidth={1.8}
+                  />
+
                   <input
                     type="file"
                     multiple
                     hidden
-                    onChange={(event) => handleFiles(event.target.files)}
+                    onChange={(event) =>
+                      handleFiles(
+                        event.target.files
+                      )
+                    }
                   />
                 </label>
 
                 <textarea
                   ref={textareaRef}
                   value={input}
-                  onChange={(event) => setInput(event.target.value)}
+                  onChange={(event) =>
+                    setInput(event.target.value)
+                  }
                   onKeyDown={handleKeyDown}
                   placeholder="Pergunte, peça um exercício ou envie um conteúdo para analisar..."
                   rows={1}
                   className="aura-textarea"
-                  disabled={connection === "offline"}
+                  disabled={
+                    connection === "offline"
+                  }
                 />
 
                 <button
                   type="button"
                   onClick={handleToggleMic}
-                  className={`aura-mic-button ${isMicActive ? "aura-mic-button-active" : ""}`}
-                  aria-label={isMicActive ? "Parar gravação" : "Ativar microfone"}
+                  className={`aura-mic-button ${
+                    isMicActive
+                      ? "aura-mic-button-active"
+                      : ""
+                  }`}
+                  aria-label={
+                    isMicActive
+                      ? "Parar gravação"
+                      : "Ativar microfone"
+                  }
                   aria-pressed={isMicActive}
-                  title={isMicActive ? "Parar gravação" : "Falar com a AURA"}
+                  title={
+                    isMicActive
+                      ? "Parar gravação"
+                      : "Falar com a AURA"
+                  }
                 >
-                  <Mic size={16} strokeWidth={1.9} />
+                  <Mic
+                    size={16}
+                    strokeWidth={1.9}
+                  />
                 </button>
 
                 <button
                   type="button"
-                  onClick={isBusy ? cancelGeneration : () => sendMessage(input)}
-                  disabled={!isBusy && !canSend}
+                  onClick={
+                    isBusy
+                      ? cancelGeneration
+                      : () => sendMessage(input)
+                  }
+                  disabled={
+                    !isBusy && !canSend
+                  }
                   className="aura-send-button"
-                  aria-label={isBusy ? "Parar geração" : "Enviar mensagem"}
-                  title={isBusy ? "Parar" : "Enviar"}
+                  aria-label={
+                    isBusy
+                      ? "Parar geração"
+                      : "Enviar mensagem"
+                  }
+                  title={
+                    isBusy ? "Parar" : "Enviar"
+                  }
                 >
-                  {isBusy ? <Square size={14} strokeWidth={2} /> : <Send size={16} strokeWidth={2} />}
+                  {isBusy ? (
+                    <Square
+                      size={14}
+                      strokeWidth={2}
+                    />
+                  ) : (
+                    <Send
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  )}
                 </button>
               </div>
 
               <p className="aura-footer-note">
                 <span>Enter para enviar</span>
-                <span className="aura-footer-dot">•</span>
-                <span>Shift + Enter para nova linha</span>
-                <span className="aura-footer-dot">•</span>
-                <span>AURA IA · Educacube</span>
+                <span className="aura-footer-dot">
+                  •
+                </span>
+                <span>
+                  Shift + Enter para nova linha
+                </span>
+                <span className="aura-footer-dot">
+                  •
+                </span>
+                <span>
+                  AURA IA · Educacube
+                </span>
               </p>
             </div>
           </section>
