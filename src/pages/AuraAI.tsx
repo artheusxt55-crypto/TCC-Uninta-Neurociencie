@@ -93,14 +93,12 @@ interface ConversationSummary {
   updatedAt: number;
 }
 
-interface SpeechRecognitionResultEvent
-  extends Event {
+interface SpeechRecognitionResultEvent extends Event {
   resultIndex: number;
   results: SpeechRecognitionResultList;
 }
 
-interface SpeechRecognitionErrorEvent
-  extends Event {
+interface SpeechRecognitionErrorEvent extends Event {
   error: string;
 }
 
@@ -134,8 +132,7 @@ interface SpeechRecognitionConstructor {
   new (): SpeechRecognitionInstance;
 }
 
-interface WindowWithSpeechRecognition
-  extends Window {
+interface WindowWithSpeechRecognition extends Window {
   SpeechRecognition?: SpeechRecognitionConstructor;
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 }
@@ -2352,7 +2349,7 @@ export default function AuraEducacube() {
 
                   <span>
                     {
-                      AURA_STATE_LABEL[
+                      AURA_STATE_LABELS[
                         auraState
                       ]
                     }
