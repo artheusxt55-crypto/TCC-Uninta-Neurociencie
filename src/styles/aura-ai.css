@@ -33,11 +33,9 @@
    ================================================================ */
 
 :root {
-  /* ---- Brand primitives (do not replace) ---- */
   --aura-black: #0a0a0a;
   --aura-purple: #230740;
 
-  /* ---- Surfaces — tonal steps of #0A0A0A ---- */
   --aura-void: #050505;
   --aura-bg: #0a0a0a;
   --aura-bg-soft: #0c0a10;
@@ -46,7 +44,6 @@
   --aura-panel-3: #161022;
   --aura-elevated: #18101f;
 
-  /* ---- Purple ramp — same hue/saturation as #230740, lightness only ---- */
   --aura-purple-900: #230740;
   --aura-purple-800: hsl(269 78% 17%);
   --aura-purple-700: hsl(269 74% 24%);
@@ -56,48 +53,37 @@
   --aura-purple-300: hsl(265 84% 78%);
   --aura-purple-200: hsl(264 92% 89%);
 
-  /* ---- Text ---- */
   --aura-text: #f1edf8;
   --aura-text-soft: #b3aec0;
   --aura-text-muted: #726c80;
   --aura-text-faint: #4a4453;
 
-  /* ---- Borders ---- */
   --aura-border: rgba(255, 255, 255, 0.055);
   --aura-border-soft: rgba(255, 255, 255, 0.035);
   --aura-border-strong: rgba(255, 255, 255, 0.09);
   --aura-border-purple: rgba(147, 91, 214, 0.28);
   --aura-border-purple-soft: rgba(147, 91, 214, 0.15);
 
-  /* ---- Purple light system — light, not fill ----
-     micro  : barely-there ambient presence
-     soft   : resting-state identity signal
-     active : selected / hovered
-     focus  : direct interaction (composer, inputs)      */
   --aura-glow-micro: rgba(91, 33, 158, 0.05);
   --aura-glow-soft: rgba(101, 38, 176, 0.11);
   --aura-glow-active: rgba(116, 48, 199, 0.2);
   --aura-glow-focus: rgba(133, 61, 219, 0.32);
 
-  /* ---- Elevation ---- */
   --aura-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
   --aura-shadow-md: 0 12px 34px rgba(0, 0, 0, 0.4);
   --aura-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
 
-  /* ---- Radius scale ---- */
   --aura-radius-xs: 6px;
   --aura-radius-sm: 9px;
   --aura-radius-md: 13px;
   --aura-radius-lg: 18px;
   --aura-radius-pill: 999px;
 
-  /* ---- Motion ---- */
   --aura-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --aura-fast: 180ms;
   --aura-base: 240ms;
   --aura-slow: 420ms;
 
-  /* ---- Type ---- */
   --aura-font-sans:
     Inter,
     ui-sans-serif,
@@ -161,7 +147,6 @@
   text-rendering: optimizeLegibility;
 }
 
-/* Architectural grid — implied structure, not decoration */
 .aura-page::before {
   content: "";
 
@@ -186,6 +171,7 @@
     black,
     transparent 62%
   );
+
   mask-image: radial-gradient(
     circle at 50% 0%,
     black,
@@ -196,7 +182,6 @@
   pointer-events: none;
 }
 
-/* Grain — extremely subtle, inline (no external asset) */
 .aura-page::after {
   content: "";
 
@@ -270,7 +255,6 @@
   z-index: 50;
 }
 
-/* Console glow — the sidebar's identity light, top-anchored */
 .aura-sidebar::before {
   content: "";
 
@@ -302,9 +286,6 @@
   z-index: 1;
 }
 
-
-/* ---- Brand ---- */
-
 .aura-brand {
   display: flex;
   align-items: center;
@@ -333,7 +314,8 @@
 
   color: var(--aura-purple-300);
 
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04),
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 0 20px var(--aura-glow-micro);
 }
 
@@ -360,9 +342,6 @@
   text-transform: uppercase;
 }
 
-
-/* ---- Mobile close ---- */
-
 .aura-drawer-close {
   display: none;
 
@@ -379,9 +358,6 @@
 .aura-drawer-close:hover {
   color: var(--aura-text-soft);
 }
-
-
-/* ---- Nova conversa — premium instrument, not a solid button ---- */
 
 .aura-new-chat {
   position: relative;
@@ -411,7 +387,8 @@
 
   cursor: pointer;
 
-  transition: border-color var(--aura-base) var(--aura-ease),
+  transition:
+    border-color var(--aura-base) var(--aura-ease),
     background var(--aura-base) var(--aura-ease),
     color var(--aura-base) var(--aura-ease),
     box-shadow var(--aura-base) var(--aura-ease);
@@ -434,7 +411,8 @@
 
   color: var(--aura-text);
 
-  box-shadow: 0 0 0 1px var(--aura-border-purple-soft) inset,
+  box-shadow:
+    0 0 0 1px var(--aura-border-purple-soft) inset,
     0 6px 22px var(--aura-glow-micro);
 }
 
@@ -484,11 +462,11 @@
 
   cursor: pointer;
 
-  transition: color var(--aura-fast) var(--aura-ease),
+  transition:
+    color var(--aura-fast) var(--aura-ease),
     background var(--aura-fast) var(--aura-ease);
 }
 
-/* Left indicator — a whisper of a microbar, not a button outline */
 .aura-nav-item::before {
   content: "";
 
@@ -577,9 +555,6 @@
   background: rgba(133, 61, 219, 0.4);
 }
 
-
-/* ---- Search ---- */
-
 .aura-history-search {
   display: flex;
   align-items: center;
@@ -623,9 +598,6 @@
   color: var(--aura-text-faint);
 }
 
-
-/* ---- Groups & rows — a library index, not cards ---- */
-
 .aura-history-title {
   padding: 12px 8px 7px;
 
@@ -659,7 +631,8 @@
 
   cursor: pointer;
 
-  transition: background var(--aura-fast) var(--aura-ease),
+  transition:
+    background var(--aura-fast) var(--aura-ease),
     color var(--aura-fast) var(--aura-ease);
 }
 
@@ -679,7 +652,8 @@
 
   transform: translateY(-50%);
 
-  transition: background var(--aura-fast) var(--aura-ease),
+  transition:
+    background var(--aura-fast) var(--aura-ease),
     box-shadow var(--aura-fast) var(--aura-ease);
 }
 
@@ -754,7 +728,8 @@
 
   cursor: pointer;
 
-  transition: background var(--aura-fast) var(--aura-ease),
+  transition:
+    background var(--aura-fast) var(--aura-ease),
     color var(--aura-fast) var(--aura-ease);
 }
 
@@ -788,9 +763,6 @@
   font-size: 11px;
   line-height: 1.6;
 }
-
-
-/* ---- Sidebar bottom ---- */
 
 .aura-sidebar-bottom {
   position: relative;
@@ -910,9 +882,6 @@
   min-width: 0;
 }
 
-
-/* ---- AURA logo slot — structure untouched ---- */
-
 .aura-header-logo-slot {
   position: relative;
 
@@ -957,9 +926,6 @@
 
   filter: drop-shadow(0 0 14px rgba(91, 33, 158, 0.28));
 }
-
-
-/* ---- Header title ---- */
 
 .aura-header-title-group {
   display: flex;
@@ -1006,9 +972,6 @@
   animation: auraStatusPulse 2.6s var(--aura-ease) infinite;
 }
 
-
-/* ---- Mobile menu ---- */
-
 .aura-mobile-menu-button {
   display: none;
 
@@ -1053,6 +1016,24 @@
   overflow: hidden;
 }
 
+
+/* ================================================================
+   FUNDO DO CHAT
+   ================================================================ */
+
+/*
+ * A imagem está em:
+ *
+ * public/fundo-aura.png
+ *
+ * Como ela está dentro de public/, usamos:
+ *
+ * /fundo-aura.png
+ *
+ * A imagem fica somente atrás da conversa.
+ * Header, sidebar e composer permanecem independentes.
+ */
+
 .aura-chat-scroll {
   position: relative;
 
@@ -1071,6 +1052,40 @@
   scrollbar-color: rgba(133, 61, 219, 0.24) transparent;
 
   -webkit-overflow-scrolling: touch;
+
+  /*
+   * Imagem principal.
+   *
+   * A primeira camada é um véu escuro.
+   * A segunda camada é a imagem.
+   *
+   * Isso mantém o texto legível mesmo se a imagem
+   * tiver regiões claras.
+   */
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(10, 10, 10, 0.78) 0%,
+      rgba(10, 10, 10, 0.56) 45%,
+      rgba(10, 10, 10, 0.88) 100%
+    ),
+    url("/fundo-aura.png");
+
+  background-size:
+    cover,
+    cover;
+
+  background-position:
+    center,
+    center;
+
+  background-repeat:
+    no-repeat,
+    no-repeat;
+
+  background-attachment:
+    local,
+    local;
 }
 
 .aura-chat-scroll::-webkit-scrollbar {
@@ -1090,7 +1105,16 @@
   background: rgba(133, 61, 219, 0.42);
 }
 
+
+/* ================================================================
+   CONTEÚDO DO CHAT
+   ================================================================ */
+
 .aura-chat-content {
+  position: relative;
+
+  z-index: 1;
+
   width: min(100%, 900px);
 
   min-height: 100%;
@@ -1160,7 +1184,6 @@
   letter-spacing: -0.03em;
 }
 
-/* The single deliberate typographic accent in the whole system */
 .aura-welcome-title em {
   color: var(--aura-purple-300);
 
@@ -1183,7 +1206,9 @@
 }
 
 
-/* ---- Suggestions — a quiet index, not app icons ---- */
+/* ================================================================
+   SUGGESTIONS
+   ================================================================ */
 
 .aura-suggestions {
   display: grid;
@@ -1217,7 +1242,8 @@
 
   overflow: hidden;
 
-  transition: border-color var(--aura-base) var(--aura-ease),
+  transition:
+    border-color var(--aura-base) var(--aura-ease),
     background var(--aura-base) var(--aura-ease),
     transform var(--aura-base) var(--aura-ease);
 }
@@ -1306,16 +1332,16 @@
   justify-content: flex-end;
 }
 
-
-/* ---- User — compact block, not a bubble ---- */
-
 .aura-user-message {
   max-width: min(74%, 660px);
 
   padding: 11px 16px;
 
   border: 1px solid var(--aura-border-strong);
-  border-radius: var(--aura-radius-md) var(--aura-radius-md) var(--aura-radius-xs)
+  border-radius:
+    var(--aura-radius-md)
+    var(--aura-radius-md)
+    var(--aura-radius-xs)
     var(--aura-radius-md);
 
   background: var(--aura-panel-2);
@@ -1329,9 +1355,6 @@
 
   overflow-wrap: anywhere;
 }
-
-
-/* ---- Assistant — a document, anchored by a manuscript spine ---- */
 
 .aura-assistant-message {
   position: relative;
@@ -1449,7 +1472,9 @@
 }
 
 
-/* ---- Message actions ---- */
+/* ================================================================
+   MESSAGE ACTIONS
+   ================================================================ */
 
 .aura-message-actions {
   display: flex;
@@ -1476,7 +1501,8 @@
 
   cursor: pointer;
 
-  transition: color var(--aura-fast) var(--aura-ease),
+  transition:
+    color var(--aura-fast) var(--aura-ease),
     background var(--aura-fast) var(--aura-ease),
     border-color var(--aura-fast) var(--aura-ease);
 }
@@ -1490,7 +1516,9 @@
 }
 
 
-/* ---- Tooltips ---- */
+/* ================================================================
+   TOOLTIPS
+   ================================================================ */
 
 .aura-tooltip-trigger {
   position: relative;
@@ -1521,7 +1549,8 @@
   opacity: 0;
   pointer-events: none;
 
-  transition: opacity var(--aura-fast) var(--aura-ease),
+  transition:
+    opacity var(--aura-fast) var(--aura-ease),
     transform var(--aura-fast) var(--aura-ease);
 
   z-index: 100;
@@ -1534,7 +1563,9 @@
 }
 
 
-/* ---- Thinking ---- */
+/* ================================================================
+   THINKING
+   ================================================================ */
 
 .aura-thinking {
   display: flex;
@@ -1599,7 +1630,9 @@
 }
 
 
-/* ---- Error ---- */
+/* ================================================================
+   ERROR
+   ================================================================ */
 
 .aura-error {
   display: flex;
@@ -1624,7 +1657,9 @@
 }
 
 
-/* ---- Scroll to latest ---- */
+/* ================================================================
+   SCROLL TO LATEST
+   ================================================================ */
 
 .aura-scroll-latest {
   position: sticky;
@@ -1655,14 +1690,17 @@
   font-size: 10px;
   font-weight: 600;
 
-  box-shadow: var(--aura-shadow-md), 0 0 22px var(--aura-glow-micro);
+  box-shadow:
+    var(--aura-shadow-md),
+    0 0 22px var(--aura-glow-micro);
 
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 
   cursor: pointer;
 
-  transition: transform var(--aura-base) var(--aura-ease),
+  transition:
+    transform var(--aura-base) var(--aura-ease),
     border-color var(--aura-base) var(--aura-ease);
 }
 
@@ -1706,7 +1744,6 @@
   margin: 0 auto;
 }
 
-/* The instrument — a near-black surface, gently elevated */
 .aura-composer-box {
   position: relative;
 
@@ -1721,18 +1758,22 @@
     var(--aura-bg-soft) 100%
   );
 
-  box-shadow: var(--aura-shadow-lg),
+  box-shadow:
+    var(--aura-shadow-lg),
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     inset 0 0 0 1px rgba(0, 0, 0, 0.2);
 
-  transition: border-color var(--aura-base) var(--aura-ease),
+  transition:
+    border-color var(--aura-base) var(--aura-ease),
     box-shadow var(--aura-base) var(--aura-ease);
 }
 
 .aura-composer-box:focus-within {
   border-color: var(--aura-border-purple);
 
-  box-shadow: var(--aura-shadow-lg), 0 0 0 3px var(--aura-glow-focus),
+  box-shadow:
+    var(--aura-shadow-lg),
+    0 0 0 3px var(--aura-glow-focus),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -1807,9 +1848,6 @@
   color: var(--aura-text);
 }
 
-
-/* ---- Input wrapper ---- */
-
 .aura-input-wrapper {
   position: relative;
 
@@ -1830,7 +1868,6 @@
   background: rgba(91, 33, 158, 0.06);
 }
 
-/* Drop overlay — declared here; it had no visual treatment before */
 .aura-drop-overlay {
   position: absolute;
   inset: 6px;
@@ -1859,9 +1896,6 @@
   color: var(--aura-purple-300);
 }
 
-
-/* ---- Composer buttons ---- */
-
 .aura-composer-button,
 .aura-microphone-button {
   display: flex;
@@ -1882,7 +1916,8 @@
 
   cursor: pointer;
 
-  transition: color var(--aura-fast) var(--aura-ease),
+  transition:
+    color var(--aura-fast) var(--aura-ease),
     background var(--aura-fast) var(--aura-ease),
     border-color var(--aura-fast) var(--aura-ease),
     box-shadow var(--aura-fast) var(--aura-ease);
@@ -1904,7 +1939,9 @@
 
   border-color: var(--aura-border-purple);
 
-  box-shadow: 0 0 0 3px var(--aura-glow-micro), 0 0 18px var(--aura-glow-soft);
+  box-shadow:
+    0 0 0 3px var(--aura-glow-micro),
+    0 0 18px var(--aura-glow-soft);
 
   animation: auraMicPulse 1.6s var(--aura-ease) infinite;
 }
@@ -1912,16 +1949,17 @@
 @keyframes auraMicPulse {
   0%,
   100% {
-    box-shadow: 0 0 0 3px var(--aura-glow-micro), 0 0 16px var(--aura-glow-soft);
+    box-shadow:
+      0 0 0 3px var(--aura-glow-micro),
+      0 0 16px var(--aura-glow-soft);
   }
 
   50% {
-    box-shadow: 0 0 0 5px var(--aura-glow-micro), 0 0 22px var(--aura-glow-active);
+    box-shadow:
+      0 0 0 5px var(--aura-glow-micro),
+      0 0 22px var(--aura-glow-active);
   }
 }
-
-
-/* ---- Textarea ---- */
 
 .aura-textarea {
   flex: 1;
@@ -1960,9 +1998,6 @@
   opacity: 0.55;
 }
 
-
-/* ---- Send button — small, deliberate, not a purple slab ---- */
-
 .aura-send-button {
   display: flex;
   align-items: center;
@@ -1982,7 +2017,8 @@
 
   cursor: pointer;
 
-  transition: transform var(--aura-fast) var(--aura-ease),
+  transition:
+    transform var(--aura-fast) var(--aura-ease),
     border-color var(--aura-fast) var(--aura-ease),
     background var(--aura-fast) var(--aura-ease),
     color var(--aura-fast) var(--aura-ease),
@@ -2016,9 +2052,6 @@
   color: var(--aura-purple-200);
 }
 
-
-/* ---- Composer meta ---- */
-
 .aura-composer-meta {
   display: flex;
   align-items: center;
@@ -2049,7 +2082,7 @@
 
 
 /* ================================================================
-   13. STATES — mobile overlay
+   13. STATES — MOBILE OVERLAY
    ================================================================ */
 
 .aura-mobile-overlay {
@@ -2207,7 +2240,9 @@
 }
 
 
-/* ---- Small mobile ---- */
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
 
 @media (max-width: 520px) {
   .aura-header-title {
