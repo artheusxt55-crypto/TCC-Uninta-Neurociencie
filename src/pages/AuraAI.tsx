@@ -461,18 +461,16 @@ function stripMarkdown(
     .trim();
 }
 
-const AURA_STATE_LABEL: Record<
-  AuraState,
-  string
-> = {
-  idle: "Pronta",
+const AURA_STATE_LABELS: Record<AuraState, string> = {
+  idle: "Em espera",
   listening: "Ouvindo",
-  thinking: "Pensando",
-  generating: "Respondendo",
-  complete: "Concluído",
+  sending: "Enviando mensagem",
+  thinking: "Processando",
+  generating: "Gerando resposta",
+  complete: "Resposta concluída",
   speaking: "Falando",
-  error: "Erro",
-  offline: "Offline",
+  error: "Ocorreu um erro",
+  offline: "Sem conexão",
 };
 
 /* ================================================================
