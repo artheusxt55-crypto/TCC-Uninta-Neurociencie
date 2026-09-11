@@ -1,6 +1,14 @@
+import { useMemo, type CSSProperties } from "react";
+
+/**
+ * Estados possíveis da AURA. Este tipo é a fonte da verdade para
+ * qualquer componente que precise refletir o estado da inteligência
+ * (composer, orb, indicadores de conexão etc.).
+ */
 export type AuraState =
   | "idle"
   | "listening"
+  | "sending"
   | "thinking"
   | "generating"
   | "complete"
@@ -8,169 +16,78 @@ export type AuraState =
   | "error"
   | "offline";
 
+const STATE_LABEL: Record<AuraState, string> = {
+  idle: "Em espera",
+  listening: "Ouvindo",
+  sending: "Enviando mensagem",
+  thinking: "Processando",
+  generating: "Gerando resposta",
+  complete: "Resposta concluída",
+  speaking: "Falando",
+  error: "Ocorreu um erro",
+  offline: "Sem conexão",
+};
+
 interface NeuralOrbProps {
   state: AuraState;
   size?: number;
+  /**
+   * Nível de amplitude de áudio (0–1). Ponto de integração:
+   * alimentar com o valor retornado por `useAudioAnalyzer` quando o
+   * microfone ou a síntese de voz estiverem ativos. Sem o hook
+   * conectado, o valor fica em 0 e o núcleo usa apenas sua animação
+   * idle/estado.
+   */
   audioLevel?: number;
 }
 
-const STATE_LABELS: Record<AuraState, string> = {
-  idle: "AURA pronta",
-  listening: "AURA ouvindo",
-  thinking: "AURA processando",
-  generating: "AURA gerando resposta",
-  complete: "AURA concluiu a resposta",
-  speaking: "AURA falando",
-  error: "Erro na AURA",
-  offline: "AURA offline",
-};
-
-export default function NeuralOrb({
-  state,
-  size = 40,
-  audioLevel,
-}: NeuralOrbProps) {
-  const scale =
-    typeof audioLevel === "number" &&
-    (state === "listening" || state === "speaking")
-      ? 1 + Math.min(Math.max(audioLevel, 0), 1) * 0.16
-      : 1;
+/**
+ * Núcleo visual da AURA — "knowledge core".
+ * Geometria estratificada (não é um cérebro, robô ou esfera neon):
+ * dois hexágonos concêntricos + eixos internos, representando
+ * conhecimento estruturado em camadas. A animação é conduzida
+ * inteiramente por CSS (transform/opacity) e reage ao estado atual.
+ */
+export default function NeuralOrb({ state, size = 84, audioLevel = 0 }: NeuralOrbProps) {
+  const scale = useMemo(() => {
+    if (state === "listening" || state === "speaking") {
+      return 1 + Math.min(Math.max(audioLevel, 0), 1) * 0.1;
+    }
+    return 1;
+  }, [state, audioLevel]);
 
   return (
-    <svg
-      className="aura-orb"
-      data-state={state}
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <div
+      className={`aura-orb aura-orb-${state}`}
+      style={{ width: size, height: size, "--orb-scale": scale } as CSSProperties}
       role="img"
-      aria-label={STATE_LABELS[state]}
+      aria-label={`Núcleo da AURA — ${STATE_LABEL[state]}`}
     >
-      <g
-        className="aura-orb-ring"
-        style={{ transformOrigin: "20px 20px" }}
-      >
-        <path
-          d="M20 3 A17 17 0 0 1 34.7 11"
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinecap="round"
-          opacity="0.55"
-        />
+      <svg viewBox="0 0 120 120" className="aura-orb-svg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="aura-orb-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="var(--purple-light)" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="var(--purple-light)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
 
-        <path
-          d="M37 20 A17 17 0 0 1 30 34.5"
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinecap="round"
-          opacity="0.35"
-        />
+        <circle cx="60" cy="60" r="48" fill="url(#aura-orb-glow)" className="aura-orb-glow" />
 
-        <path
-          d="M11 35 A17 17 0 0 1 3.3 21.5"
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinecap="round"
-          opacity="0.25"
-        />
-      </g>
-
-      <g
-        className="aura-orb-core"
-        style={{
-          transformOrigin: "20px 20px",
-          transform: `scale(${scale})`,
-        }}
-      >
-        <path
-          d="M20 9.5 L28.5 15 L28.5 25 L20 30.5 L11.5 25 L11.5 15 Z"
-          stroke="currentColor"
-          strokeWidth="1.1"
-          opacity="0.8"
-        />
-
-        <path
-          d="M20 9.5 L20 30.5"
-          stroke="currentColor"
-          strokeWidth="0.75"
-          opacity="0.35"
-        />
-
-        <path
-          d="M11.5 15 L28.5 25"
-          stroke="currentColor"
-          strokeWidth="0.75"
-          opacity="0.3"
-        />
-
-        <path
-          d="M28.5 15 L11.5 25"
-          stroke="currentColor"
-          strokeWidth="0.75"
-          opacity="0.3"
-        />
-      </g>
-
-      <circle
-        className="aura-orb-node"
-        cx="20"
-        cy="9.5"
-        r="1.4"
-        fill="currentColor"
-      />
-
-      <circle
-        className="aura-orb-node"
-        cx="28.5"
-        cy="15"
-        r="1.2"
-        fill="currentColor"
-        opacity="0.85"
-      />
-
-      <circle
-        className="aura-orb-node"
-        cx="28.5"
-        cy="25"
-        r="1.2"
-        fill="currentColor"
-        opacity="0.85"
-      />
-
-      <circle
-        className="aura-orb-node"
-        cx="20"
-        cy="30.5"
-        r="1.4"
-        fill="currentColor"
-      />
-
-      <circle
-        className="aura-orb-node"
-        cx="11.5"
-        cy="25"
-        r="1.2"
-        fill="currentColor"
-        opacity="0.85"
-      />
-
-      <circle
-        className="aura-orb-node"
-        cx="11.5"
-        cy="15"
-        r="1.2"
-        fill="currentColor"
-        opacity="0.85"
-      />
-
-      <circle
-        cx="20"
-        cy="20"
-        r="2"
-        fill="currentColor"
-      />
-    </svg>
+        <g className="aura-orb-core">
+          <polygon
+            points="60,18 97,40 97,80 60,102 23,80 23,40"
+            className="aura-orb-shell aura-orb-shell-outer"
+          />
+          <polygon
+            points="60,35 81,48 81,72 60,85 39,72 39,48"
+            className="aura-orb-shell aura-orb-shell-inner"
+          />
+          <line x1="60" y1="18" x2="60" y2="102" className="aura-orb-line" />
+          <line x1="23" y1="40" x2="97" y2="80" className="aura-orb-line" />
+          <line x1="97" y1="40" x2="23" y2="80" className="aura-orb-line" />
+          <circle cx="60" cy="60" r="4" className="aura-orb-core-dot" />
+        </g>
+      </svg>
+    </div>
   );
 }
