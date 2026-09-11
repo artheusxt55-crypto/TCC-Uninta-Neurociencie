@@ -9,27 +9,59 @@
    ================================================================
 
    TABLE OF CONTENTS
-   01. Design tokens
-   02. Base
-   03. Layout
-   04. Sidebar
-   05. Navigation
-   06. Header
-   07. Welcome
-   08. Chat
-   09. Messages
-   10. Markdown
-   11. Composer
-   12. Attachments
-   13. States
-   14. Motion
-   15. Responsive
-   16. Accessibility
+   01. Viewport lock (mobile fix)
+   02. Design tokens
+   03. Base
+   04. Layout
+   05. Sidebar
+   06. Navigation
+   07. Header
+   08. Welcome
+   09. Chat
+   10. Messages
+   11. Markdown
+   12. Composer
+   13. Attachments
+   14. States
+   15. Motion
+   16. Responsive
+   17. Accessibility
    ================================================================ */
 
 
 /* ================================================================
-   01. DESIGN TOKENS
+   01. VIEWPORT LOCK — resolve bug de 100vh no mobile
+   ================================================================ */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  overscroll-behavior: none;
+
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  background: #0a0a0a;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  isolation: isolate;
+}
+
+
+/* ================================================================
+   02. DESIGN TOKENS
    ================================================================ */
 
 :root {
@@ -114,7 +146,7 @@
 
 
 /* ================================================================
-   02. BASE
+   03. BASE
    ================================================================ */
 
 .aura-page,
@@ -126,7 +158,10 @@
   position: relative;
 
   width: 100%;
+  height: 100vh;
   height: 100dvh;
+  height: -webkit-fill-available;
+
   min-height: 0;
 
   overflow: hidden;
@@ -155,6 +190,8 @@
 
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+
+  overscroll-behavior: none;
 }
 
 /* Architectural grid */
@@ -223,9 +260,16 @@
   color: #fff;
 }
 
+/* Touch optimizations */
+.aura-page button,
+.aura-page [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 
 /* ================================================================
-   03. LAYOUT
+   04. LAYOUT
    ================================================================ */
 
 .aura-layout {
@@ -244,7 +288,7 @@
 
 
 /* ================================================================
-   04. SIDEBAR
+   05. SIDEBAR
    ================================================================ */
 
 .aura-sidebar {
@@ -443,7 +487,7 @@
 
 
 /* ================================================================
-   05. NAVIGATION
+   06. NAVIGATION
    ================================================================ */
 
 .aura-navigation {
@@ -557,6 +601,9 @@
 
   scrollbar-width: thin;
   scrollbar-color: rgba(133, 61, 219, 0.22) transparent;
+
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .aura-history::-webkit-scrollbar {
@@ -584,7 +631,7 @@
   align-items: center;
   gap: 8px;
 
-  height: 32px;
+  height: 34px;
 
   padding: 0 10px;
 
@@ -615,7 +662,7 @@
 
   color: var(--aura-text-soft);
 
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .aura-history-search input::placeholder {
@@ -648,9 +695,9 @@
   display: flex;
   align-items: center;
 
-  min-height: 34px;
+  min-height: 38px;
 
-  padding: 7px 8px 7px 15px;
+  padding: 8px 8px 8px 15px;
 
   border-radius: var(--aura-radius-xs);
 
@@ -716,7 +763,7 @@
 
   padding-right: 44px;
 
-  font-size: 11px;
+  font-size: 11.5px;
   line-height: 1.4;
 }
 
@@ -743,8 +790,8 @@
   align-items: center;
   justify-content: center;
 
-  width: 25px;
-  height: 25px;
+  width: 32px;
+  height: 32px;
 
   border: 0;
   border-radius: var(--aura-radius-xs);
@@ -768,7 +815,7 @@
 .aura-history-rename-input {
   width: 100%;
 
-  padding: 5px 7px;
+  padding: 6px 8px;
 
   border: 1px solid var(--aura-border-purple);
   border-radius: var(--aura-radius-xs);
@@ -779,7 +826,7 @@
 
   color: var(--aura-text);
 
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .aura-history-empty {
@@ -787,7 +834,7 @@
 
   color: var(--aura-text-faint);
 
-  font-size: 11px;
+  font-size: 11.5px;
   line-height: 1.6;
 }
 
@@ -813,7 +860,7 @@
   align-items: center;
   gap: 9px;
 
-  padding: 7px;
+  padding: 8px;
 
   border-radius: var(--aura-radius-xs);
 
@@ -850,7 +897,7 @@
 
   color: var(--aura-text-soft);
 
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
 
   white-space: nowrap;
@@ -865,7 +912,7 @@
 
 
 /* ================================================================
-   06. HEADER
+   07. HEADER
    ================================================================ */
 
 .aura-main {
@@ -1038,7 +1085,7 @@
 
 
 /* ================================================================
-   07. WELCOME / CHAT AREA
+   08. WELCOME / CHAT AREA
    ================================================================ */
 
 .aura-chat-section {
@@ -1078,20 +1125,14 @@
   scrollbar-color: rgba(133, 61, 219, 0.24) transparent;
 
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 
-  /* Fundo base da área do chat */
   background: var(--aura-black);
 }
 
 
 /* ================================================================
    FUNDO AURA
-   ---------------------------------------------------------------
-   Arquivo:
-   public/fundo-aura.png
-
-   A imagem fica restrita à área do chat.
-   Não afeta sidebar, header, composer ou homepage.
    ================================================================ */
 
 .aura-chat-scroll::before {
@@ -1106,10 +1147,6 @@
   background-position: center center;
   background-repeat: no-repeat;
 
-  /*
-     Intensidade da imagem.
-     0.35 mantém o fundo visível sem prejudicar a leitura.
-  */
   opacity: 0.35;
 
   pointer-events: none;
@@ -1379,7 +1416,7 @@
 
 
 /* ================================================================
-   08. CHAT / 09. MESSAGES
+   09. MESSAGES
    ================================================================ */
 
 .aura-messages {
@@ -1529,1795 +1566,4 @@
 }
 
 .aura-markdown li::marker {
-  color: var(--aura-purple-400);
-}
-
-.aura-markdown code {
-  padding: 2px 6px;
-
-  border: 1px solid var(--aura-border-purple-soft);
-
-  border-radius: var(--aura-radius-xs);
-
-  background: rgba(91, 33, 158, 0.1);
-
-  color: var(--aura-purple-200);
-
-  font-size: 0.88em;
-}
-
-
-/* ---- Message actions ---- */
-
-.aura-message-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-
-  margin-top: 13px;
-}
-
-.aura-message-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 28px;
-  height: 28px;
-
-  border: 1px solid transparent;
-
-  border-radius: var(--aura-radius-xs);
-
-  background: transparent;
-
-  color: var(--aura-text-muted);
-
-  cursor: pointer;
-
-  transition:
-    color var(--aura-fast) var(--aura-ease),
-    background var(--aura-fast) var(--aura-ease),
-    border-color var(--aura-fast) var(--aura-ease);
-}
-
-.aura-message-action:hover {
-  color: var(--aura-purple-300);
-
-  background: rgba(91, 33, 158, 0.1);
-
-  border-color: var(--aura-border-purple-soft);
-}
-
-
-/* ---- Tooltips ---- */
-
-.aura-tooltip-trigger {
-  position: relative;
-
-  display: inline-flex;
-}
-
-.aura-tooltip {
-  position: absolute;
-
-  left: 50%;
-  bottom: calc(100% + 8px);
-
-  transform: translateX(-50%) translateY(3px);
-
-  padding: 5px 9px;
-
-  border: 1px solid var(--aura-border-strong);
-
-  border-radius: var(--aura-radius-xs);
-
-  background: var(--aura-elevated);
-
-  color: var(--aura-text-soft);
-
-  font-size: 9px;
-  white-space: nowrap;
-
-  opacity: 0;
-  pointer-events: none;
-
-  transition:
-    opacity var(--aura-fast) var(--aura-ease),
-    transform var(--aura-fast) var(--aura-ease);
-
-  z-index: 100;
-}
-
-.aura-tooltip-trigger:hover .aura-tooltip {
-  opacity: 1;
-
-  transform: translateX(-50%) translateY(0);
-}
-
-
-/* ---- Thinking ---- */
-
-.aura-thinking {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding-left: 6px;
-
-  color: var(--aura-text-muted);
-
-  font-size: 11px;
-}
-
-.aura-thinking-dots {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.aura-thinking-dot {
-  width: 3px;
-  height: 3px;
-
-  border-radius: 50%;
-
-  background: var(--aura-purple-400);
-
-  animation: auraThinkingDot 1.2s infinite ease-in-out;
-}
-
-.aura-thinking-dot:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.aura-thinking-dot:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes auraThinkingDot {
-  0%,
-  60%,
-  100% {
-    opacity: 0.25;
-    transform: translateY(0);
-  }
-
-  30% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes auraStatusPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.45;
-  }
-}
-
-
-/* ---- Error ---- */
-
-.aura-error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 12px 15px;
-
-  border: 1px solid rgba(214, 92, 92, 0.2);
-
-  border-radius: var(--aura-radius-sm);
-
-  background: rgba(214, 92, 92, 0.05);
-
-  color: var(--aura-text-soft);
-
-  font-size: 11px;
-}
-
-.aura-error svg {
-  flex-shrink: 0;
-
-  color: #cf7a7a;
-}
-
-
-/* ---- Scroll to latest ---- */
-
-.aura-scroll-latest {
-  position: sticky;
-
-  left: 50%;
-  bottom: 18px;
-
-  z-index: 25;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-
-  width: max-content;
-
-  margin: -52px auto 18px;
-
-  padding: 8px 14px;
-
-  border: 1px solid var(--aura-border-purple);
-
-  border-radius: var(--aura-radius-pill);
-
-  background: rgba(16, 11, 22, 0.94);
-
-  color: var(--aura-text-soft);
-
-  font-size: 10px;
-  font-weight: 600;
-
-  box-shadow:
-    var(--aura-shadow-md),
-    0 0 22px var(--aura-glow-micro);
-
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-
-  cursor: pointer;
-
-  transition:
-    transform var(--aura-base) var(--aura-ease),
-    border-color var(--aura-base) var(--aura-ease);
-}
-
-.aura-scroll-latest:hover {
-  transform: translateY(-2px);
-
-  border-color: rgba(147, 91, 214, 0.5);
-}
-
-.aura-scroll-latest svg {
-  color: var(--aura-purple-300);
-}
-
-
-/* ================================================================
-   11. COMPOSER
-   ================================================================ */
-
-.aura-composer-area {
-  position: relative;
-
-  flex-shrink: 0;
-
-  width: 100%;
-
-  padding: 14px 28px 18px;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 10, 0),
-    rgba(10, 10, 10, 0.92) 30%,
-    var(--aura-black) 60%
-  );
-
-  z-index: 30;
-}
-
-.aura-composer {
-  width: min(100%, 900px);
-
-  margin: 0 auto;
-}
-
-.aura-composer-box {
-  position: relative;
-
-  width: 100%;
-
-  border: 1px solid var(--aura-border-strong);
-
-  border-radius: var(--aura-radius-lg);
-
-  background: linear-gradient(
-    175deg,
-    var(--aura-panel-3) 0%,
-    var(--aura-bg-soft) 100%
-  );
-
-  box-shadow:
-    var(--aura-shadow-lg),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.2);
-
-  transition:
-    border-color var(--aura-base) var(--aura-ease),
-    box-shadow var(--aura-base) var(--aura-ease);
-}
-
-.aura-composer-box:focus-within {
-  border-color: var(--aura-border-purple);
-
-  box-shadow:
-    var(--aura-shadow-lg),
-    0 0 0 3px var(--aura-glow-focus),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-
-/* ================================================================
-   12. ATTACHMENTS
-   ================================================================ */
-
-.aura-attachments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-
-  padding: 11px 12px 0;
-}
-
-.aura-attachment-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  max-width: 100%;
-
-  padding: 6px 9px;
-
-  border: 1px solid var(--aura-border-purple-soft);
-
-  border-radius: var(--aura-radius-xs);
-
-  background: rgba(91, 33, 158, 0.07);
-
-  color: var(--aura-text-soft);
-
-  font-size: 9px;
-}
-
-.aura-attachment-chip svg {
-  color: var(--aura-purple-300);
-
-  flex-shrink: 0;
-}
-
-.aura-attachment-chip span {
-  overflow: hidden;
-
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.aura-attachment-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 19px;
-  height: 19px;
-
-  margin-left: 2px;
-
-  border: 0;
-  border-radius: var(--aura-radius-xs);
-
-  background: transparent;
-
-  color: var(--aura-text-muted);
-
-  cursor: pointer;
-
-  flex-shrink: 0;
-}
-
-.aura-attachment-remove:hover {
-  background: rgba(255, 255, 255, 0.06);
-
-  color: var(--aura-text);
-}
-
-
-/* ---- Input wrapper ---- */
-
-.aura-input-wrapper {
-  position: relative;
-
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-
-  min-height: 58px;
-
-  padding: 9px 9px 9px 12px;
-
-  border-radius: var(--aura-radius-lg);
-
-  transition: background var(--aura-base) var(--aura-ease);
-}
-
-.aura-input-wrapper[data-dragover="true"] {
-  background: rgba(91, 33, 158, 0.06);
-}
-
-
-/* ---- Drop overlay ---- */
-
-.aura-drop-overlay {
-  position: absolute;
-  inset: 6px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  border: 1px dashed var(--aura-border-purple);
-
-  border-radius: var(--aura-radius-md);
-
-  background: rgba(91, 33, 158, 0.09);
-
-  color: var(--aura-purple-200);
-
-  font-size: 11px;
-  font-weight: 600;
-
-  pointer-events: none;
-
-  z-index: 5;
-}
-
-.aura-drop-overlay svg {
-  color: var(--aura-purple-300);
-}
-
-
-/* ---- Composer buttons ---- */
-
-.aura-composer-button,
-.aura-microphone-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-
-  flex-shrink: 0;
-
-  border: 1px solid transparent;
-
-  border-radius: var(--aura-radius-xs);
-
-  background: transparent;
-
-  color: var(--aura-text-muted);
-
-  cursor: pointer;
-
-  transition:
-    color var(--aura-fast) var(--aura-ease),
-    background var(--aura-fast) var(--aura-ease),
-    border-color var(--aura-fast) var(--aura-ease),
-    box-shadow var(--aura-fast) var(--aura-ease);
-}
-
-.aura-composer-button:hover,
-.aura-microphone-button:hover {
-  color: var(--aura-text-soft);
-
-  background: rgba(255, 255, 255, 0.032);
-
-  border-color: var(--aura-border-strong);
-}
-
-.aura-microphone-button.active {
-  color: var(--aura-purple-200);
-
-  background: rgba(91, 33, 158, 0.16);
-
-  border-color: var(--aura-border-purple);
-
-  box-shadow:
-    0 0 0 3px var(--aura-glow-micro),
-    0 0 18px var(--aura-glow-soft);
-
-  animation: auraMicPulse 1.6s var(--aura-ease) infinite;
-}
-
-@keyframes auraMicPulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 3px var(--aura-glow-micro),
-      0 0 16px var(--aura-glow-soft);
-  }
-
-  50% {
-    box-shadow:
-      0 0 0 5px var(--aura-glow-micro),
-      0 0 22px var(--aura-glow-active);
-  }
-}
-
-
-/* ---- Textarea ---- */
-
-.aura-textarea {
-  flex: 1;
-
-  width: 100%;
-  min-width: 0;
-
-  min-height: 34px;
-  max-height: 180px;
-
-  padding: 8px 6px;
-
-  border: 0;
-  outline: 0;
-
-  resize: none;
-
-  overflow-y: auto;
-
-  background: transparent;
-
-  color: var(--aura-text);
-
-  font-size: 12.5px;
-  line-height: 1.6;
-
-  scrollbar-width: thin;
-}
-
-.aura-textarea::placeholder {
-  color: var(--aura-text-faint);
-}
-
-.aura-textarea:disabled {
-  cursor: not-allowed;
-
-  opacity: 0.55;
-}
-
-
-/* ---- Send button ---- */
-
-.aura-send-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-
-  flex-shrink: 0;
-
-  border: 1px solid var(--aura-border-strong);
-
-  border-radius: var(--aura-radius-xs);
-
-  background: rgba(255, 255, 255, 0.03);
-
-  color: var(--aura-text-soft);
-
-  cursor: pointer;
-
-  transition:
-    transform var(--aura-fast) var(--aura-ease),
-    border-color var(--aura-fast) var(--aura-ease),
-    background var(--aura-fast) var(--aura-ease),
-    color var(--aura-fast) var(--aura-ease),
-    box-shadow var(--aura-fast) var(--aura-ease),
-    opacity var(--aura-fast) var(--aura-ease);
-}
-
-.aura-send-button:hover:not(:disabled) {
-  border-color: var(--aura-border-purple);
-
-  background: rgba(91, 33, 158, 0.16);
-
-  color: var(--aura-purple-200);
-
-  transform: translateY(-1px);
-
-  box-shadow: 0 6px 18px var(--aura-glow-micro);
-}
-
-.aura-send-button:disabled {
-  opacity: 0.3;
-
-  cursor: not-allowed;
-}
-
-.aura-send-button[data-mode="stop"] {
-  border-color: var(--aura-border-purple);
-
-  background: rgba(91, 33, 158, 0.14);
-
-  color: var(--aura-purple-200);
-}
-
-
-/* ---- Composer meta ---- */
-
-.aura-composer-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 9px 5px 0;
-
-  color: var(--aura-text-faint);
-
-  font-size: 9px;
-}
-
-.aura-composer-hint {
-  display: flex;
-  align-items: center;
-
-  color: var(--aura-text-faint);
-}
-
-.aura-composer-model {
-  color: var(--aura-text-faint);
-
-  font-size: 8px;
-  font-weight: 650;
-
-  letter-spacing: 0.09em;
-}
-
-
-/* ================================================================
-   13. STATES — MOBILE OVERLAY
-   ================================================================ */
-
-.aura-mobile-overlay {
-  display: none;
-
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0, 0, 0, 0.6);
-
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-
-  z-index: 90;
-}
-
-
-/* ================================================================
-   15. RESPONSIVE
-   ================================================================ */
-
-@media (max-width: 900px) {
-  .aura-sidebar {
-    position: fixed;
-
-    top: 0;
-    left: 0;
-
-    width: min(292px, 84vw);
-
-    min-width: 0;
-
-    transform: translateX(-105%);
-
-    box-shadow: 18px 0 60px rgba(0, 0, 0, 0.5);
-
-    transition: transform var(--aura-slow) var(--aura-ease);
-
-    z-index: 100;
-  }
-
-  .aura-sidebar.open {
-    transform: translateX(0);
-  }
-
-  .aura-sidebar.open ~ .aura-mobile-overlay {
-    display: block;
-  }
-
-  .aura-mobile-overlay {
-    display: block;
-
-    opacity: 0;
-    pointer-events: none;
-
-    transition: opacity var(--aura-slow) var(--aura-ease);
-  }
-
-  .aura-mobile-overlay {
-    pointer-events: auto;
-
-    opacity: 1;
-  }
-
-  .aura-drawer-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    position: absolute;
-
-    top: 19px;
-    right: 15px;
-
-    width: 30px;
-    height: 30px;
-  }
-
-  .aura-mobile-menu-button {
-    display: flex;
-  }
-
-  .aura-header {
-    height: 58px;
-    min-height: 58px;
-
-    padding: 0 14px;
-  }
-
-  .aura-header-logo-slot {
-    width: 42px;
-  }
-
-  .aura-header-logo {
-    height: 30px;
-
-    max-width: 42px;
-  }
-
-  .aura-header-title-group {
-    padding-left: 10px;
-  }
-
-  .aura-chat-content {
-    width: 100%;
-
-    padding: 26px 15px 150px;
-  }
-
-  .aura-welcome {
-    padding-top: 4vh;
-  }
-
-  .aura-welcome-title {
-    font-size: clamp(25px, 8vw, 34px);
-  }
-
-  .aura-welcome-subtitle {
-    max-width: 94%;
-
-    font-size: 12px;
-  }
-
-  .aura-suggestions {
-    grid-template-columns: 1fr;
-
-    width: 100%;
-
-    margin-top: 26px;
-  }
-
-  .aura-suggestion {
-    min-height: 68px;
-  }
-
-  .aura-user-message {
-    max-width: 88%;
-  }
-
-  .aura-assistant-content {
-    max-width: calc(100% - 45px);
-  }
-
-  .aura-composer-area {
-    padding: 10px 12px 14px;
-  }
-
-  .aura-composer-meta {
-    padding-left: 3px;
-    padding-right: 3px;
-  }
-
-  .aura-composer-model {
-    display: none;
-  }
-
-  .aura-scroll-latest {
-    bottom: 12px;
-  }
-}
-
-
-/* ---- Small mobile ---- */
-
-@media (max-width: 520px) {
-  .aura-header-title {
-    font-size: 12px;
-  }
-
-  .aura-header-status {
-    font-size: 8px;
-  }
-
-  .aura-welcome-title {
-    font-size: 27px;
-  }
-
-  .aura-welcome-subtitle {
-    font-size: 11px;
-
-    line-height: 1.65;
-  }
-
-  .aura-orb-slot {
-    margin-bottom: 18px;
-  }
-
-  .aura-assistant-message {
-    gap: 11px;
-  }
-
-  .aura-assistant-avatar {
-    width: 28px;
-    height: 28px;
-  }
-
-  .aura-assistant-content {
-    padding-left: 13px;
-  }
-
-  .aura-markdown,
-  .aura-user-message {
-    font-size: 12.5px;
-  }
-
-  .aura-input-wrapper {
-    min-height: 55px;
-
-    padding: 8px;
-  }
-
-  .aura-composer-button,
-  .aura-microphone-button,
-  .aura-send-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .aura-composer-hint {
-    font-size: 8px;
-  }
-}
-
-
-/* ================================================================
-   16. ACCESSIBILITY
-   ================================================================ */
-
-.aura-page button:focus-visible,
-.aura-page input:focus-visible,
-.aura-page textarea:focus-visible,
-.aura-page [role="button"]:focus-visible {
-  outline: 2px solid var(--aura-purple-400);
-
-  outline-offset: 2px;
-
-  border-radius: var(--aura-radius-xs);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .aura-page *,
-  .aura-page *::before,
-  .aura-page *::after {
-    scroll-behavior: auto !important;
-
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-
-    transition-duration: 0.01ms !important;
-  }
-}
-/* ================================================================
-   EDUCACUBE · AURA
-   PREMIUM MOTION SYSTEM
-   ================================================================ */
-
-/* ------------------------------------------------
-   01. MOTION TOKENS
------------------------------------------------- */
-
-.aura-page {
-  --aura-motion-distance: 18px;
-  --aura-motion-duration: 720ms;
-  --aura-motion-spring: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-
-/* ------------------------------------------------
-   02. PAGE ENTRANCE
------------------------------------------------- */
-
-.aura-layout {
-  animation: auraPageReveal 700ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraPageReveal {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-
-/* ------------------------------------------------
-   03. SIDEBAR ENTRANCE
------------------------------------------------- */
-
-.aura-sidebar {
-  animation: auraSidebarReveal 720ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraSidebarReveal {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.aura-brand {
-  animation: auraBrandReveal 650ms 80ms var(--aura-motion-spring) both;
-}
-
-.aura-new-chat {
-  animation: auraElementReveal 600ms 140ms var(--aura-motion-spring) both;
-}
-
-.aura-navigation {
-  animation: auraElementReveal 600ms 190ms var(--aura-motion-spring) both;
-}
-
-.aura-history {
-  animation: auraElementReveal 600ms 240ms var(--aura-motion-spring) both;
-}
-
-.aura-sidebar-bottom {
-  animation: auraElementReveal 600ms 300ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraBrandReveal {
-  from {
-    opacity: 0;
-    transform: translateY(-7px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes auraElementReveal {
-  from {
-    opacity: 0;
-    transform: translateY(9px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-/* ------------------------------------------------
-   04. NAVIGATION MICRO MOTION
------------------------------------------------- */
-
-.aura-nav-item {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.aura-nav-item:hover {
-  transform: translateX(2px);
-}
-
-.aura-nav-item svg {
-  transform: translateZ(0);
-}
-
-.aura-nav-item:hover svg {
-  transform: translateX(1px) scale(1.04);
-}
-
-.aura-nav-item.active svg {
-  filter: drop-shadow(0 0 7px rgba(133, 61, 219, 0.32));
-}
-
-
-/* ------------------------------------------------
-   05. HISTORY MOTION
------------------------------------------------- */
-
-.aura-history-item {
-  transform: translateZ(0);
-}
-
-.aura-history-item:hover {
-  transform: translateX(2px);
-}
-
-.aura-history-item-actions {
-  transform: translateX(4px);
-}
-
-.aura-history-item:hover .aura-history-item-actions,
-.aura-history-item.active .aura-history-item-actions {
-  transform: translateX(0);
-}
-
-
-/* ------------------------------------------------
-   06. HEADER
------------------------------------------------- */
-
-.aura-header {
-  animation: auraHeaderReveal 620ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraHeaderReveal {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.aura-header-logo {
-  animation: auraLogoFloat 4.5s ease-in-out infinite;
-  will-change: transform;
-}
-
-@keyframes auraLogoFloat {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-
-  50% {
-    transform: translateY(-1px) scale(1.015);
-  }
-}
-
-.aura-header-title-group {
-  animation: auraHeaderTextReveal 700ms 100ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraHeaderTextReveal {
-  from {
-    opacity: 0;
-    transform: translateX(-6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-
-/* ------------------------------------------------
-   07. STATUS
------------------------------------------------- */
-
-.aura-header-status-dot {
-  animation:
-    auraStatusPulse 2.6s var(--aura-ease) infinite,
-    auraStatusGlow 2.6s var(--aura-ease) infinite;
-}
-
-@keyframes auraStatusGlow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 7px rgba(133, 61, 219, 0.55);
-  }
-
-  50% {
-    box-shadow:
-      0 0 13px rgba(133, 61, 219, 0.9);
-  }
-}
-
-
-/* ------------------------------------------------
-   08. WELCOME ORB
------------------------------------------------- */
-
-.aura-orb-slot {
-  animation:
-    auraOrbEntrance 1000ms 80ms var(--aura-motion-spring) both,
-    auraOrbFloat 5.5s 1100ms ease-in-out infinite;
-}
-
-@keyframes auraOrbEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.82);
-    filter: blur(8px);
-  }
-
-  60% {
-    opacity: 1;
-    transform: translateY(-3px) scale(1.025);
-    filter: blur(0);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes auraOrbFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-.aura-orb-slot::before {
-  animation: auraOrbHalo 4.8s ease-in-out infinite;
-}
-
-@keyframes auraOrbHalo {
-  0%,
-  100% {
-    opacity: 0.62;
-    transform: scale(0.94);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.08);
-  }
-}
-
-
-/* ------------------------------------------------
-   09. NEURAL ORB CORE
------------------------------------------------- */
-
-.aura-orb {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transform:
-    scale(var(--orb-scale, 1))
-    translateZ(0);
-
-  transform-origin: center;
-
-  transition:
-    transform 300ms var(--aura-motion-spring),
-    filter 400ms var(--aura-motion-spring);
-
-  will-change: transform, filter;
-}
-
-.aura-orb-svg {
-  width: 100%;
-  height: 100%;
-
-  overflow: visible;
-
-  filter:
-    drop-shadow(0 0 12px rgba(133, 61, 219, 0.18));
-}
-
-.aura-orb-core {
-  transform-origin: 60px 60px;
-
-  animation: auraOrbRotate 18s linear infinite;
-}
-
-@keyframes auraOrbRotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.aura-orb-shell {
-  fill: none;
-
-  stroke: url(#aura-orb-shell-gradient);
-
-  vector-effect: non-scaling-stroke;
-
-  transform-origin: 60px 60px;
-
-  transition:
-    stroke-width 400ms var(--aura-motion-spring),
-    opacity 400ms var(--aura-motion-spring);
-}
-
-.aura-orb-shell-outer {
-  stroke-width: 1.1;
-  opacity: 0.82;
-}
-
-.aura-orb-shell-inner {
-  stroke-width: 1.35;
-  opacity: 0.68;
-}
-
-.aura-orb-line {
-  stroke: var(--aura-purple-400);
-
-  stroke-width: 0.7;
-
-  stroke-linecap: round;
-
-  opacity: 0.34;
-
-  vector-effect: non-scaling-stroke;
-
-  animation: auraOrbLinePulse 3.2s ease-in-out infinite;
-}
-
-.aura-orb-line:nth-of-type(2) {
-  animation-delay: 180ms;
-}
-
-.aura-orb-line:nth-of-type(3) {
-  animation-delay: 360ms;
-}
-
-@keyframes auraOrbLinePulse {
-  0%,
-  100% {
-    opacity: 0.24;
-  }
-
-  50% {
-    opacity: 0.62;
-  }
-}
-
-.aura-orb-core-dot {
-  fill: var(--aura-purple-200);
-
-  filter:
-    drop-shadow(0 0 5px rgba(167, 139, 250, 0.9));
-
-  animation: auraCorePulse 2.2s ease-in-out infinite;
-}
-
-@keyframes auraCorePulse {
-  0%,
-  100% {
-    opacity: 0.62;
-    transform: scale(0.82);
-    transform-origin: 60px 60px;
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.18);
-    transform-origin: 60px 60px;
-  }
-}
-
-.aura-orb-glow {
-  transform-origin: 60px 60px;
-
-  animation: auraGlowPulse 3.8s ease-in-out infinite;
-}
-
-@keyframes auraGlowPulse {
-  0%,
-  100% {
-    opacity: 0.62;
-    transform: scale(0.94);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.08);
-  }
-}
-
-
-/* ------------------------------------------------
-   10. ORB STATES
------------------------------------------------- */
-
-.aura-orb-listening,
-.aura-orb-speaking {
-  filter:
-    drop-shadow(0 0 15px rgba(167, 139, 250, 0.28));
-}
-
-.aura-orb-listening .aura-orb-core,
-.aura-orb-speaking .aura-orb-core {
-  animation-duration: 8s;
-}
-
-.aura-orb-thinking .aura-orb-core,
-.aura-orb-generating .aura-orb-core {
-  animation-duration: 4.5s;
-}
-
-.aura-orb-thinking .aura-orb-shell-outer,
-.aura-orb-generating .aura-orb-shell-outer {
-  opacity: 1;
-  stroke-width: 1.5;
-}
-
-.aura-orb-complete {
-  filter:
-    drop-shadow(0 0 20px rgba(167, 139, 250, 0.34));
-}
-
-.aura-orb-complete .aura-orb-core-dot {
-  animation:
-    auraCoreComplete 700ms var(--aura-motion-spring) both,
-    auraCorePulse 2.2s 700ms ease-in-out infinite;
-}
-
-@keyframes auraCoreComplete {
-  0% {
-    transform: scale(0.6);
-    transform-origin: 60px 60px;
-  }
-
-  70% {
-    transform: scale(1.35);
-    transform-origin: 60px 60px;
-  }
-
-  100% {
-    transform: scale(1);
-    transform-origin: 60px 60px;
-  }
-}
-
-.aura-orb-error {
-  filter:
-    drop-shadow(0 0 14px rgba(214, 92, 92, 0.18));
-}
-
-.aura-orb-offline {
-  filter: grayscale(0.35);
-  opacity: 0.62;
-}
-
-
-/* ------------------------------------------------
-   11. WELCOME TITLE
------------------------------------------------- */
-
-.aura-welcome-title {
-  animation:
-    auraTitleReveal 900ms 300ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraTitleReveal {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-    filter: blur(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-.aura-welcome-title em {
-  display: inline-block;
-
-  animation:
-    auraEducaWordGlow 1.2s 850ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraEducaWordGlow {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.96);
-    filter: blur(5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-
-/* ------------------------------------------------
-   12. SUBTITLE
------------------------------------------------- */
-
-.aura-welcome-subtitle {
-  animation:
-    auraSubtitleReveal 800ms 520ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraSubtitleReveal {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-
-/* ------------------------------------------------
-   13. SUGGESTIONS
------------------------------------------------- */
-
-.aura-suggestions {
-  animation:
-    auraSuggestionsReveal 800ms 650ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraSuggestionsReveal {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.aura-suggestion {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.aura-suggestion:hover {
-  transform: translateY(-3px) scale(1.005);
-}
-
-.aura-suggestion:active {
-  transform: translateY(-1px) scale(0.99);
-}
-
-.aura-suggestion-title svg {
-  transition:
-    transform 280ms var(--aura-motion-spring),
-    filter 280ms var(--aura-motion-spring);
-}
-
-.aura-suggestion:hover .aura-suggestion-title svg {
-  transform: translateX(3px) scale(1.06);
-  filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.45));
-}
-
-
-/* ------------------------------------------------
-   14. CHAT MESSAGE ENTRANCE
------------------------------------------------- */
-
-.aura-message {
-  animation:
-    auraMessageReveal 500ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraMessageReveal {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(3px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-.aura-user-message {
-  transition:
-    border-color 240ms var(--aura-motion-spring),
-    box-shadow 240ms var(--aura-motion-spring),
-    transform 240ms var(--aura-motion-spring);
-}
-
-.aura-user-message:hover {
-  border-color: var(--aura-border-purple-soft);
-
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.18);
-}
-
-.aura-assistant-avatar {
-  transition:
-    transform 280ms var(--aura-motion-spring),
-    box-shadow 280ms var(--aura-motion-spring);
-}
-
-.aura-assistant-message:hover .aura-assistant-avatar {
-  transform: translateY(-1px) scale(1.025);
-
-  box-shadow:
-    0 0 24px rgba(91, 33, 158, 0.12);
-}
-
-
-/* ------------------------------------------------
-   15. THINKING
------------------------------------------------- */
-
-.aura-thinking {
-  animation:
-    auraThinkingReveal 420ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraThinkingReveal {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.aura-thinking-dots {
-  padding: 5px 7px;
-
-  border: 1px solid var(--aura-border-purple-soft);
-
-  border-radius: var(--aura-radius-pill);
-
-  background: rgba(91, 33, 158, 0.05);
-}
-
-.aura-thinking-dot {
-  width: 4px;
-  height: 4px;
-
-  box-shadow:
-    0 0 7px rgba(167, 139, 250, 0.42);
-}
-
-
-/* ------------------------------------------------
-   16. MESSAGE ACTIONS
------------------------------------------------- */
-
-.aura-message-action {
-  transform: translateZ(0);
-}
-
-.aura-message-action:hover {
-  transform: translateY(-1px);
-}
-
-.aura-message-action:active {
-  transform: translateY(0) scale(0.94);
-}
-
-
-/* ------------------------------------------------
-   17. COMPOSER
------------------------------------------------- */
-
-.aura-composer-area {
-  animation:
-    auraComposerReveal 700ms 180ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraComposerReveal {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.aura-composer-box {
-  transform: translateZ(0);
-
-  transition:
-    border-color 320ms var(--aura-motion-spring),
-    box-shadow 320ms var(--aura-motion-spring),
-    transform 320ms var(--aura-motion-spring);
-}
-
-.aura-composer-box:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-
-  transform: translateY(-1px);
-}
-
-.aura-composer-box:focus-within {
-  transform: translateY(-2px);
-}
-
-
-/* ------------------------------------------------
-   18. COMPOSER BUTTONS
------------------------------------------------- */
-
-.aura-composer-button,
-.aura-microphone-button,
-.aura-send-button {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.aura-composer-button:hover,
-.aura-microphone-button:hover {
-  transform: translateY(-1px) scale(1.025);
-}
-
-.aura-composer-button:active,
-.aura-microphone-button:active {
-  transform: scale(0.92);
-}
-
-.aura-send-button:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.035);
-}
-
-.aura-send-button:active:not(:disabled) {
-  transform: translateY(0) scale(0.91);
-}
-
-
-/* ------------------------------------------------
-   19. ATTACHMENTS
------------------------------------------------- */
-
-.aura-attachment-chip {
-  animation:
-    auraAttachmentReveal 350ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraAttachmentReveal {
-  from {
-    opacity: 0;
-    transform: translateY(5px) scale(0.96);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-
-/* ------------------------------------------------
-   20. SCROLL BUTTON
------------------------------------------------- */
-
-.aura-scroll-latest {
-  animation:
-    auraScrollButtonReveal 420ms var(--aura-motion-spring) both;
-}
-
-@keyframes auraScrollButtonReveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.94);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.aura-scroll-latest:active {
-  transform: translateY(1px) scale(0.96);
-}
-
-
-/* ------------------------------------------------
-   21. MOBILE
------------------------------------------------- */
-
-@media (max-width: 900px) {
-  .aura-sidebar {
-    animation: none;
-  }
-
-  .aura-sidebar.open {
-    animation: auraDrawerReveal 500ms var(--aura-motion-spring) both;
-  }
-
-  @keyframes auraDrawerReveal {
-    from {
-      transform: translateX(-105%);
-    }
-
-    to {
-      transform: translateX(0);
-    }
-  }
-
-  .aura-mobile-overlay {
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-  }
-}
-
-
-/* ------------------------------------------------
-   22. REDUCED MOTION
------------------------------------------------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .aura-page *,
-  .aura-page *::before,
-  .aura-page *::after {
-    animation: none !important;
-
-    transition: none !important;
-
-    scroll-behavior: auto !important;
-
-    transform: none !important;
-
-    filter: none !important;
-  }
-}
+  color: var(--aura-purple-400
