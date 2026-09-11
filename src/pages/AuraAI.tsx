@@ -43,7 +43,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import NeuralOrb, { type AuraState } from "./NeuralOrb";
+import NeuralOrb, { type AuraState } from "./NeuralOrb.tsx";
 import "./aura-educacube.css";
 
 /* ================================================================
