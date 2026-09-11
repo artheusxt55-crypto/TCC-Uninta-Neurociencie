@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 
 import NeuralOrb, { type AuraState } from "../components/NeuralOrb";
-import "../styles/aura-educacube.css";
+import "../styles/aura-ai.css";
 
 /* ================================================================
    TYPES
@@ -199,7 +199,11 @@ function groupLabel(ts: number): string {
   const date = new Date(ts);
 
   const startOfDay = (d: Date) =>
-    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    new Date(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    ).getTime();
 
   const diffDays = Math.round(
     (startOfDay(now) - startOfDay(date)) / 86400000
@@ -212,15 +216,24 @@ function groupLabel(ts: number): string {
   return "Anteriores";
 }
 
-const GROUP_ORDER = ["Hoje", "Ontem", "Últimos 7 dias", "Anteriores"];
+const GROUP_ORDER = [
+  "Hoje",
+  "Ontem",
+  "Últimos 7 dias",
+  "Anteriores",
+];
 
 /* ================================================================
    LIGHTWEIGHT MARKDOWN RENDERING
    ================================================================ */
 
-function renderInline(text: string, keyPrefix: string): ReactNode[] {
+function renderInline(
+  text: string,
+  keyPrefix: string
+): ReactNode[] {
   const nodes: ReactNode[] = [];
-  const pattern = /(\*\*.+?\*\*|`.+?`|\[.+?\]\(.+?\))/g;
+  const pattern =
+    /(\*\*.+?\*\*|`.+?`|\[.+?\]\(.+?\))/g;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -228,7 +241,9 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
 
   while ((match = pattern.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index));
+      nodes.push(
+        text.slice(lastIndex, match.index)
+      );
     }
 
     const token = match[0];
@@ -241,12 +256,16 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
       );
     } else if (token.startsWith("`")) {
       nodes.push(
-        <code key={`${keyPrefix}-c-${i}`} className="aura-inline-code">
+        <code
+          key={`${keyPrefix}-c-${i}`}
+          className="aura-inline-code"
+        >
           {token.slice(1, -1)}
         </code>
       );
     } else {
-      const linkMatch = /\[(.+?)\]\((.+?)\)/.exec(token);
+      const linkMatch =
+        /\[(.+?)\]\((.+?)\)/.exec(token);
 
       if (linkMatch) {
         nodes.push(
@@ -294,7 +313,10 @@ function renderMarkdown(content: string): ReactNode {
 
       i += 1;
 
-      while (i < lines.length && !lines[i].startsWith("```")) {
+      while (
+        i < lines.length &&
+        !lines[i].startsWith("```")
+      ) {
         code.push(lines[i]);
         i += 1;
       }
@@ -302,7 +324,10 @@ function renderMarkdown(content: string): ReactNode {
       i += 1;
 
       blocks.push(
-        <pre key={`b-${blockIndex++}`} className="aura-code-block">
+        <pre
+          key={`b-${blockIndex++}`}
+          className="aura-code-block"
+        >
           <code>{code.join("\n")}</code>
         </pre>
       );
@@ -311,16 +336,31 @@ function renderMarkdown(content: string): ReactNode {
     }
 
     if (/^#{1,3}\s/.test(line)) {
-      const level = line.match(/^#{1,3}/)?.[0].length ?? 1;
-      const text = line.replace(/^#{1,3}\s/, "");
+      const level =
+        line.match(/^#{1,3}/)?.[0].length ?? 1;
+
+      const text = line.replace(
+        /^#{1,3}\s/,
+        ""
+      );
 
       const Tag = (
-        level === 1 ? "h3" : level === 2 ? "h4" : "h5"
+        level === 1
+          ? "h3"
+          : level === 2
+            ? "h4"
+            : "h5"
       ) as keyof JSX.IntrinsicElements;
 
       blocks.push(
-        <Tag key={`b-${blockIndex++}`} className="aura-md-heading">
-          {renderInline(text, `h-${blockIndex}`)}
+        <Tag
+          key={`b-${blockIndex++}`}
+          className="aura-md-heading"
+        >
+          {renderInline(
+            text,
+            `h-${blockIndex}`
+          )}
         </Tag>
       );
 
@@ -331,8 +371,14 @@ function renderMarkdown(content: string): ReactNode {
     if (line.startsWith(">")) {
       const quote: string[] = [];
 
-      while (i < lines.length && lines[i].startsWith(">")) {
-        quote.push(lines[i].replace(/^>\s?/, ""));
+      while (
+        i < lines.length &&
+        lines[i].startsWith(">")
+      ) {
+        quote.push(
+          lines[i].replace(/^>\s?/, "")
+        );
+
         i += 1;
       }
 
@@ -341,7 +387,10 @@ function renderMarkdown(content: string): ReactNode {
           key={`b-${blockIndex++}`}
           className="aura-md-quote"
         >
-          {renderInline(quote.join(" "), `q-${blockIndex}`)}
+          {renderInline(
+            quote.join(" "),
+            `q-${blockIndex}`
+          )}
         </blockquote>
       );
 
@@ -351,16 +400,28 @@ function renderMarkdown(content: string): ReactNode {
     if (/^[-*]\s/.test(line)) {
       const items: string[] = [];
 
-      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^[-*]\s/, ""));
+      while (
+        i < lines.length &&
+        /^[-*]\s/.test(lines[i])
+      ) {
+        items.push(
+          lines[i].replace(/^[-*]\s/, "")
+        );
+
         i += 1;
       }
 
       blocks.push(
-        <ul key={`b-${blockIndex++}`} className="aura-md-list">
+        <ul
+          key={`b-${blockIndex++}`}
+          className="aura-md-list"
+        >
           {items.map((item, idx) => (
             <li key={idx}>
-              {renderInline(item, `ul-${blockIndex}-${idx}`)}
+              {renderInline(
+                item,
+                `ul-${blockIndex}-${idx}`
+              )}
             </li>
           ))}
         </ul>
@@ -372,16 +433,28 @@ function renderMarkdown(content: string): ReactNode {
     if (/^\d+\.\s/.test(line)) {
       const items: string[] = [];
 
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s/, ""));
+      while (
+        i < lines.length &&
+        /^\d+\.\s/.test(lines[i])
+      ) {
+        items.push(
+          lines[i].replace(/^\d+\.\s/, "")
+        );
+
         i += 1;
       }
 
       blocks.push(
-        <ol key={`b-${blockIndex++}`} className="aura-md-list">
+        <ol
+          key={`b-${blockIndex++}`}
+          className="aura-md-list"
+        >
           {items.map((item, idx) => (
             <li key={idx}>
-              {renderInline(item, `ol-${blockIndex}-${idx}`)}
+              {renderInline(
+                item,
+                `ol-${blockIndex}-${idx}`
+              )}
             </li>
           ))}
         </ol>
@@ -397,7 +470,9 @@ function renderMarkdown(content: string): ReactNode {
     while (
       i < lines.length &&
       lines[i].trim() !== "" &&
-      !/^(#{1,3}\s|[-*]\s|\d+\.\s|>|```)/.test(lines[i])
+      !/^(#{1,3}\s|[-*]\s|\d+\.\s|>|```)/.test(
+        lines[i]
+      )
     ) {
       paragraph.push(lines[i]);
       i += 1;
@@ -411,7 +486,10 @@ function renderMarkdown(content: string): ReactNode {
           animationDelay: `${blockIndex * 45}ms`,
         }}
       >
-        {renderInline(paragraph.join(" "), `p-${blockIndex}`)}
+        {renderInline(
+          paragraph.join(" "),
+          `p-${blockIndex}`
+        )}
       </p>
     );
   }
@@ -425,11 +503,20 @@ function renderMarkdown(content: string): ReactNode {
 
 export default function AuraEducacube() {
   const [activeNav, setActiveNav] = useState("chat");
-  const [messages, setMessages] = useState<AuraMessage[]>([]);
+
+  const [messages, setMessages] =
+    useState<AuraMessage[]>([]);
+
   const [input, setInput] = useState("");
-  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
-  const [isMicActive, setIsMicActive] = useState(false);
+
+  const [attachments, setAttachments] =
+    useState<AttachmentFile[]>([]);
+
+  const [isDraggingFile, setIsDraggingFile] =
+    useState(false);
+
+  const [isMicActive, setIsMicActive] =
+    useState(false);
 
   const [auraState, setAuraState] =
     useState<AuraState>("idle");
@@ -437,11 +524,16 @@ export default function AuraEducacube() {
   const [connection, setConnection] =
     useState<"online" | "offline">("online");
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [historyQuery, setHistoryQuery] = useState("");
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
+
+  const [historyQuery, setHistoryQuery] =
+    useState("");
 
   const [conversations, setConversations] =
-    useState<ConversationSummary[]>(MOCK_CONVERSATIONS);
+    useState<ConversationSummary[]>(
+      MOCK_CONVERSATIONS
+    );
 
   const [openMenuId, setOpenMenuId] =
     useState<string | null>(null);
@@ -449,7 +541,8 @@ export default function AuraEducacube() {
   const [renamingId, setRenamingId] =
     useState<string | null>(null);
 
-  const [renameValue, setRenameValue] = useState("");
+  const [renameValue, setRenameValue] =
+    useState("");
 
   const [copiedId, setCopiedId] =
     useState<string | null>(null);
@@ -469,7 +562,8 @@ export default function AuraEducacube() {
   const generationTimeouts =
     useRef<number[]>([]);
 
-  const hasConversation = messages.length > 0;
+  const hasConversation =
+    messages.length > 0;
 
   const isBusy =
     auraState === "sending" ||
@@ -477,7 +571,8 @@ export default function AuraEducacube() {
     auraState === "generating";
 
   const canSend =
-    (input.trim().length > 0 || attachments.length > 0) &&
+    (input.trim().length > 0 ||
+      attachments.length > 0) &&
     !isBusy &&
     connection === "online";
 
@@ -487,7 +582,11 @@ export default function AuraEducacube() {
     if (!el) return;
 
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+
+    el.style.height = `${Math.min(
+      el.scrollHeight,
+      160
+    )}px`;
   }, [input]);
 
   useEffect(() => {
@@ -513,7 +612,9 @@ export default function AuraEducacube() {
       container.scrollTop -
       container.clientHeight;
 
-    setIsNearBottom(distanceFromBottom < 120);
+    setIsNearBottom(
+      distanceFromBottom < 120
+    );
   }
 
   useEffect(() => {
@@ -526,7 +627,9 @@ export default function AuraEducacube() {
   }, [sidebarOpen]);
 
   useEffect(() => {
-    function onKeyDown(event: globalThis.KeyboardEvent) {
+    function onKeyDown(
+      event: globalThis.KeyboardEvent
+    ) {
       if (event.key === "Escape") {
         setSidebarOpen(false);
         setOpenMenuId(null);
@@ -547,10 +650,16 @@ export default function AuraEducacube() {
       }
     }
 
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener(
+      "keydown",
+      onKeyDown
+    );
 
     return () =>
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener(
+        "keydown",
+        onKeyDown
+      );
   }, []);
 
   useEffect(() => {
@@ -562,23 +671,39 @@ export default function AuraEducacube() {
       setConnection("offline");
     }
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener(
+      "online",
+      handleOnline
+    );
+
+    window.addEventListener(
+      "offline",
+      handleOffline
+    );
 
     setConnection(
-      navigator.onLine ? "online" : "offline"
+      navigator.onLine
+        ? "online"
+        : "offline"
     );
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener(
+        "online",
+        handleOnline
+      );
+
+      window.removeEventListener(
+        "offline",
+        handleOffline
+      );
     };
   }, []);
 
   useEffect(() => {
     return () => {
-      generationTimeouts.current.forEach((id) =>
-        window.clearTimeout(id)
+      generationTimeouts.current.forEach(
+        (id) => window.clearTimeout(id)
       );
     };
   }, []);
@@ -586,8 +711,16 @@ export default function AuraEducacube() {
   function sendMessage(text: string) {
     const trimmed = text.trim();
 
-    if (!trimmed && attachments.length === 0) return;
-    if (connection === "offline") return;
+    if (
+      !trimmed &&
+      attachments.length === 0
+    ) {
+      return;
+    }
+
+    if (connection === "offline") {
+      return;
+    }
 
     const userMessage: AuraMessage = {
       id: generateId(),
@@ -596,7 +729,11 @@ export default function AuraEducacube() {
       createdAt: Date.now(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+    ]);
+
     setInput("");
     setAttachments([]);
     setIsNearBottom(true);
@@ -633,12 +770,16 @@ export default function AuraEducacube() {
       generationTimeouts.current.push(t4);
     }, 2000);
 
-    generationTimeouts.current.push(t1, t2, t3);
+    generationTimeouts.current.push(
+      t1,
+      t2,
+      t3
+    );
   }
 
   function cancelGeneration() {
-    generationTimeouts.current.forEach((id) =>
-      window.clearTimeout(id)
+    generationTimeouts.current.forEach(
+      (id) => window.clearTimeout(id)
     );
 
     generationTimeouts.current = [];
@@ -667,12 +808,16 @@ export default function AuraEducacube() {
 
     window.setTimeout(() => {
       setCopiedId((current) =>
-        current === message.id ? null : current
+        current === message.id
+          ? null
+          : current
       );
     }, 1600);
   }
 
-  function handleRegenerate(messageId: string) {
+  function handleRegenerate(
+    messageId: string
+  ) {
     setAuraState("thinking");
 
     const t = window.setTimeout(() => {
@@ -681,7 +826,8 @@ export default function AuraEducacube() {
           m.id === messageId
             ? {
                 ...m,
-                content: PLACEHOLDER_RESPONSE,
+                content:
+                  PLACEHOLDER_RESPONSE,
                 createdAt: Date.now(),
               }
             : m
@@ -694,7 +840,9 @@ export default function AuraEducacube() {
     generationTimeouts.current.push(t);
   }
 
-  function handleContinue(messageId: string) {
+  function handleContinue(
+    messageId: string
+  ) {
     setAuraState("generating");
 
     const t = window.setTimeout(() => {
@@ -717,7 +865,9 @@ export default function AuraEducacube() {
     generationTimeouts.current.push(t);
   }
 
-  function handleToggleSpeak(messageId: string) {
+  function handleToggleSpeak(
+    messageId: string
+  ) {
     if (speakingId === messageId) {
       setSpeakingId(null);
       setAuraState("idle");
@@ -739,7 +889,9 @@ export default function AuraEducacube() {
     });
   }
 
-  function handleFiles(fileList: FileList | null) {
+  function handleFiles(
+    fileList: FileList | null
+  ) {
     if (!fileList) return;
 
     const next: AttachmentFile[] =
@@ -763,67 +915,93 @@ export default function AuraEducacube() {
 
     setIsDraggingFile(false);
 
-    handleFiles(event.dataTransfer.files);
+    handleFiles(
+      event.dataTransfer.files
+    );
   }
 
-  const filteredConversations = useMemo(() => {
-    const query =
-      historyQuery.trim().toLowerCase();
+  const filteredConversations =
+    useMemo(() => {
+      const query =
+        historyQuery
+          .trim()
+          .toLowerCase();
 
-    const filtered = query
-      ? conversations.filter((c) =>
-          c.title
-            .toLowerCase()
-            .includes(query)
+      const filtered = query
+        ? conversations.filter((c) =>
+            c.title
+              .toLowerCase()
+              .includes(query)
+          )
+        : conversations;
+
+      return [...filtered].sort(
+        (a, b) => {
+          if (
+            !!a.pinned !==
+            !!b.pinned
+          ) {
+            return a.pinned ? -1 : 1;
+          }
+
+          return (
+            b.updatedAt -
+            a.updatedAt
+          );
+        }
+      );
+    }, [
+      conversations,
+      historyQuery,
+    ]);
+
+  const groupedConversations =
+    useMemo(() => {
+      const groups = new Map<
+        string,
+        ConversationSummary[]
+      >();
+
+      filteredConversations.forEach(
+        (c) => {
+          const label = c.pinned
+            ? "Fixadas"
+            : groupLabel(c.updatedAt);
+
+          const list =
+            groups.get(label) ?? [];
+
+          list.push(c);
+          groups.set(label, list);
+        }
+      );
+
+      const order = [
+        "Fixadas",
+        ...GROUP_ORDER,
+      ];
+
+      return order
+        .filter((label) =>
+          groups.has(label)
         )
-      : conversations;
-
-    return [...filtered].sort((a, b) => {
-      if (!!a.pinned !== !!b.pinned) {
-        return a.pinned ? -1 : 1;
-      }
-
-      return b.updatedAt - a.updatedAt;
-    });
-  }, [conversations, historyQuery]);
-
-  const groupedConversations = useMemo(() => {
-    const groups = new Map<
-      string,
-      ConversationSummary[]
-    >();
-
-    filteredConversations.forEach((c) => {
-      const label = c.pinned
-        ? "Fixadas"
-        : groupLabel(c.updatedAt);
-
-      const list = groups.get(label) ?? [];
-
-      list.push(c);
-      groups.set(label, list);
-    });
-
-    const order = [
-      "Fixadas",
-      ...GROUP_ORDER,
-    ];
-
-    return order
-      .filter((label) =>
-        groups.has(label)
-      )
-      .map((label) => ({
-        label,
-        items: groups.get(label) as ConversationSummary[],
-      }));
-  }, [filteredConversations]);
+        .map((label) => ({
+          label,
+          items:
+            groups.get(label) as ConversationSummary[],
+        }));
+    }, [
+      filteredConversations,
+    ]);
 
   function togglePin(id: string) {
     setConversations((prev) =>
       prev.map((c) =>
         c.id === id
-          ? { ...c, pinned: !c.pinned }
+          ? {
+              ...c,
+              pinned: !c.pinned,
+            }
           : c
       )
     );
@@ -831,9 +1009,13 @@ export default function AuraEducacube() {
     setOpenMenuId(null);
   }
 
-  function deleteConversation(id: string) {
+  function deleteConversation(
+    id: string
+  ) {
     setConversations((prev) =>
-      prev.filter((c) => c.id !== id)
+      prev.filter(
+        (c) => c.id !== id
+      )
     );
 
     setOpenMenuId(null);
@@ -842,19 +1024,31 @@ export default function AuraEducacube() {
   function startRename(
     conversation: ConversationSummary
   ) {
-    setRenamingId(conversation.id);
-    setRenameValue(conversation.title);
+    setRenamingId(
+      conversation.id
+    );
+
+    setRenameValue(
+      conversation.title
+    );
+
     setOpenMenuId(null);
   }
 
-  function commitRename(id: string) {
-    const value = renameValue.trim();
+  function commitRename(
+    id: string
+  ) {
+    const value =
+      renameValue.trim();
 
     if (value) {
       setConversations((prev) =>
         prev.map((c) =>
           c.id === id
-            ? { ...c, title: value }
+            ? {
+                ...c,
+                title: value,
+              }
             : c
         )
       );
