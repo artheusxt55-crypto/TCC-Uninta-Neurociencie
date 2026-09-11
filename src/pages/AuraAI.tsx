@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 
 import NeuralOrb, { type AuraState } from "../components/NeuralOrb";
-import "./aura-educacube.css";
+import "../styles/aura-educacube.css";
 
 /* ================================================================
    TYPES
@@ -302,10 +302,7 @@ function renderMarkdown(content: string): ReactNode {
       i += 1;
 
       blocks.push(
-        <pre
-          key={`b-${blockIndex++}`}
-          className="aura-code-block"
-        >
+        <pre key={`b-${blockIndex++}`} className="aura-code-block">
           <code>{code.join("\n")}</code>
         </pre>
       );
@@ -322,10 +319,7 @@ function renderMarkdown(content: string): ReactNode {
       ) as keyof JSX.IntrinsicElements;
 
       blocks.push(
-        <Tag
-          key={`b-${blockIndex++}`}
-          className="aura-md-heading"
-        >
+        <Tag key={`b-${blockIndex++}`} className="aura-md-heading">
           {renderInline(text, `h-${blockIndex}`)}
         </Tag>
       );
@@ -363,10 +357,7 @@ function renderMarkdown(content: string): ReactNode {
       }
 
       blocks.push(
-        <ul
-          key={`b-${blockIndex++}`}
-          className="aura-md-list"
-        >
+        <ul key={`b-${blockIndex++}`} className="aura-md-list">
           {items.map((item, idx) => (
             <li key={idx}>
               {renderInline(item, `ul-${blockIndex}-${idx}`)}
@@ -387,10 +378,7 @@ function renderMarkdown(content: string): ReactNode {
       }
 
       blocks.push(
-        <ol
-          key={`b-${blockIndex++}`}
-          className="aura-md-list"
-        >
+        <ol key={`b-${blockIndex++}`} className="aura-md-list">
           {items.map((item, idx) => (
             <li key={idx}>
               {renderInline(item, `ol-${blockIndex}-${idx}`)}
@@ -493,8 +481,6 @@ export default function AuraEducacube() {
     !isBusy &&
     connection === "online";
 
-  /* ---------- textarea auto-grow ---------- */
-
   useEffect(() => {
     const el = textareaRef.current;
 
@@ -503,8 +489,6 @@ export default function AuraEducacube() {
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [input]);
-
-  /* ---------- smart scroll ---------- */
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -531,8 +515,6 @@ export default function AuraEducacube() {
 
     setIsNearBottom(distanceFromBottom < 120);
   }
-
-  /* ---------- mobile drawer ---------- */
 
   useEffect(() => {
     document.body.style.overflow =
@@ -571,8 +553,6 @@ export default function AuraEducacube() {
       window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  /* ---------- conectividade ---------- */
-
   useEffect(() => {
     function handleOnline() {
       setConnection("online");
@@ -602,8 +582,6 @@ export default function AuraEducacube() {
       );
     };
   }, []);
-
-  /* ---------- send flow ---------- */
 
   function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -788,8 +766,6 @@ export default function AuraEducacube() {
     handleFiles(event.dataTransfer.files);
   }
 
-  /* ---------- conversation history ---------- */
-
   const filteredConversations = useMemo(() => {
     const query =
       historyQuery.trim().toLowerCase();
@@ -901,10 +877,6 @@ export default function AuraEducacube() {
       )}
 
       <div className="aura-layout">
-        {/* ================================================= */}
-        {/* SIDEBAR                                            */}
-        {/* ================================================= */}
-
         <aside
           className={`aura-sidebar ${
             sidebarOpen
@@ -1226,10 +1198,6 @@ export default function AuraEducacube() {
           </button>
         </aside>
 
-        {/* ================================================= */}
-        {/* MAIN                                               */}
-        {/* ================================================= */}
-
         <main className="aura-main">
           <header className="aura-header">
             <div className="aura-header-left">
@@ -1250,6 +1218,7 @@ export default function AuraEducacube() {
               <div>
                 <div className="aura-header-title-row">
                   <h1>AURA</h1>
+
                   <span className="aura-beta-badge">
                     Beta
                   </span>
@@ -1589,13 +1558,10 @@ export default function AuraEducacube() {
                     onClick={() => {
                       setIsNearBottom(true);
 
-                      scrollRef.current?.scrollTo(
-                        {
-                          top: scrollRef.current
-                            .scrollHeight,
-                          behavior: "smooth",
-                        }
-                      );
+                      scrollRef.current?.scrollTo({
+                        top: scrollRef.current.scrollHeight,
+                        behavior: "smooth",
+                      });
                     }}
                   >
                     <ArrowDown
@@ -1607,10 +1573,6 @@ export default function AuraEducacube() {
                 )}
               </div>
             )}
-
-            {/* ================================================= */}
-            {/* COMPOSER                                          */}
-            {/* ================================================= */}
 
             <div className="aura-input-area">
               {attachments.length > 0 && (
@@ -1780,15 +1742,19 @@ export default function AuraEducacube() {
 
               <p className="aura-footer-note">
                 <span>Enter para enviar</span>
+
                 <span className="aura-footer-dot">
                   •
                 </span>
+
                 <span>
                   Shift + Enter para nova linha
                 </span>
+
                 <span className="aura-footer-dot">
                   •
                 </span>
+
                 <span>
                   AURA IA · Educacube
                 </span>
