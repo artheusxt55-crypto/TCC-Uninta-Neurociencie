@@ -1,37 +1,3 @@
-/* ================================================================
-   EDUCACUBE · AURA
-   "Obsidian Educational Intelligence"
-
-   A proprietary interface system, not a chatbot skin.
-   Every surface is a tonal step of #0A0A0A.
-   Every accent is light — a halo, a glow, a spine —
-   derived from #230740, never a flat fill.
-   ================================================================
-
-   TABLE OF CONTENTS
-   01. Design tokens
-   02. Base
-   03. Layout
-   04. Sidebar
-   05. Navigation
-   06. History
-   07. Header
-   08. Welcome / Chat
-   09. Messages
-   10. Markdown
-   11. Composer
-   12. Attachments
-   13. Mobile overlay
-   14. Motion
-   15. Responsive
-   16. Accessibility
-   ================================================================ */
-
-
-/* ================================================================
-   01. DESIGN TOKENS
-   ================================================================ */
-
 .aura-page {
   --aura-black: #0a0a0a;
   --aura-purple: #230740;
@@ -3769,4 +3735,65 @@
     }
 
   }
+}
+
+
+/* ================================================================
+   17. ORB — CORUJA (Rive)
+   ================================================================
+   Estilo aplicado ao NeuralOrb quando ele passa a renderizar
+   a coruja via @rive-app/react-canvas em vez do SVG antigo.
+   As classes .aura-orb-<state> continuam funcionando por cima
+   deste bloco (mira na própria div, não nos elementos do SVG).
+   ================================================================ */
+
+.aura-owl {
+  position: relative;
+}
+
+.aura-owl canvas {
+  width: 100% !important;
+  height: 100% !important;
+
+  /*
+    Tinge a coruja (já colorida no asset original) para o roxo
+    da identidade da AURA. Ajuste hue-rotate/saturate se o
+    designer reexportar o asset já roxo (aí é só remover o filter).
+  */
+  filter:
+    grayscale(1)
+    sepia(1)
+    hue-rotate(232deg)
+    saturate(3.4)
+    brightness(0.95);
+
+  transition: filter 320ms var(--aura-ease);
+}
+
+.aura-owl.aura-orb-error canvas {
+  filter:
+    grayscale(1)
+    sepia(1)
+    hue-rotate(340deg)
+    saturate(2.6)
+    brightness(0.95);
+}
+
+.aura-owl.aura-orb-offline canvas {
+  filter:
+    grayscale(1)
+    sepia(1)
+    hue-rotate(232deg)
+    saturate(1.4)
+    brightness(0.7);
+}
+
+.aura-owl.aura-orb-complete canvas {
+  filter:
+    grayscale(1)
+    sepia(1)
+    hue-rotate(232deg)
+    saturate(3.8)
+    brightness(1.05)
+    drop-shadow(0 0 10px rgba(133, 61, 219, 0.4));
 }
