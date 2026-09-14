@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
+
 import {
   useRive,
   useViewModelInstanceBoolean,
@@ -32,51 +33,73 @@ export default function NeuralOrb({
   audioLevel = 0,
 }: NeuralOrbProps) {
   const reducedMotion = useReducedMotion();
+
   const previousStateRef = useRef<AuraState>(state);
 
   const { rive, RiveComponent } = useRive({
     src: "/ai-orb-mascot.riv",
     autoplay: !reducedMotion,
     autoBind: true,
+
     layout: new Layout({
-      fit: Fit.Contain,
+      fit: Fit.Cover,
       alignment: Alignment.Center,
     }),
   });
 
   const vmInstance = rive?.viewModelInstance;
 
-  const { setValue: setLoading } = useViewModelInstanceBoolean(
-    "loadingBoolean",
-    vmInstance
-  );
+  /*
+   * ============================================================
+   * CONTROLES DO RIVE
+   * ============================================================
+   */
 
-  const { setValue: setTyping } = useViewModelInstanceBoolean(
-    "typingBoolean",
-    vmInstance
-  );
+  const { setValue: setLoading } =
+    useViewModelInstanceBoolean(
+      "loadingBoolean",
+      vmInstance
+    );
 
-  const { trigger: fireCorrect } = useViewModelInstanceTrigger(
-    "correct",
-    vmInstance
-  );
+  const { setValue: setTyping } =
+    useViewModelInstanceBoolean(
+      "typingBoolean",
+      vmInstance
+    );
 
-  const { trigger: fireWrong } = useViewModelInstanceTrigger(
-    "wrong",
-    vmInstance
-  );
+  const { trigger: fireCorrect } =
+    useViewModelInstanceTrigger(
+      "correct",
+      vmInstance
+    );
 
-  const { trigger: fireJump } = useViewModelInstanceTrigger(
-    "jump",
-    vmInstance
-  );
+  const { trigger: fireWrong } =
+    useViewModelInstanceTrigger(
+      "wrong",
+      vmInstance
+    );
+
+  const { trigger: fireJump } =
+    useViewModelInstanceTrigger(
+      "jump",
+      vmInstance
+    );
+
+  /*
+   * ============================================================
+   * AURA → RIVE
+   *
+   * Faz a animação acompanhar o estado real da IA.
+   * ============================================================
+   */
 
   useEffect(() => {
-    void audioLevel;
-
     if (!setLoading || !setTyping) return;
 
     switch (state) {
+      /*
+       * AURA recebeu a mensagem e está processando.
+       */
       case "sending":
       case "thinking":
       case "generating":
@@ -84,35 +107,86 @@ export default function NeuralOrb({
         setTyping(false);
         break;
 
+      /*
+       * AURA está falando a resposta.
+       */
       case "speaking":
         setLoading(false);
         setTyping(true);
         break;
 
+      /*
+       * Estados parados.
+       */
+      case "idle":
+      case "complete":
+      case "offline":
+      case "error":
+      case "listening":
       default:
         setLoading(false);
         setTyping(false);
         break;
     }
-  }, [state, audioLevel, setLoading, setTyping]);
+  }, [
+    state,
+    setLoading,
+    setTyping,
+  ]);
+
+  /*
+   * ============================================================
+   * REAÇÕES PONTUAIS
+   * ============================================================
+   */
 
   useEffect(() => {
-    const previousState = previousStateRef.current;
+    const previousState =
+      previousStateRef.current;
 
-    if (previousState !== "complete" && state === "complete") {
+    /*
+     * Resposta concluída
+     */
+    if (
+      previousState !== "complete" &&
+      state === "complete"
+    ) {
       fireCorrect?.();
     }
 
-    if (previousState !== "error" && state === "error") {
+    /*
+     * Erro
+     */
+    if (
+      previousState !== "error" &&
+      state === "error"
+    ) {
       fireWrong?.();
     }
 
-    if (previousState !== "listening" && state === "listening") {
+    /*
+     * Usuário começou a falar
+     */
+    if (
+      previousState !== "listening" &&
+      state === "listening"
+    ) {
       fireJump?.();
     }
 
     previousStateRef.current = state;
-  }, [state, fireCorrect, fireWrong, fireJump]);
+  }, [
+    state,
+    fireCorrect,
+    fireWrong,
+    fireJump,
+  ]);
+
+  /*
+   * ============================================================
+   * MOVIMENTO
+   * ============================================================
+   */
 
   useEffect(() => {
     if (!rive) return;
@@ -122,7 +196,30 @@ export default function NeuralOrb({
     } else {
       rive.play();
     }
-  }, [rive, reducedMotion]);
+  }, [
+    rive,
+    reducedMotion,
+  ]);
+
+  /*
+   * ============================================================
+   * AUDIO LEVEL
+   *
+   * Mantemos compatibilidade com o AuraAI.
+   * O ViewModel pode usar isso futuramente para
+   * fazer a personagem reagir à voz.
+   * ============================================================
+   */
+
+  useEffect(() => {
+    void audioLevel;
+  }, [audioLevel]);
+
+  /*
+   * ============================================================
+   * RENDER
+   * ============================================================
+   */
 
   return (
     <div
@@ -132,9 +229,11 @@ export default function NeuralOrb({
         height: `${size}px`,
         minWidth: `${size}px`,
         minHeight: `${size}px`,
-        display: "block",
         position: "relative",
+        display: "block",
+        flex: "0 0 auto",
         overflow: "visible",
+        lineHeight: 0,
       }}
       aria-hidden="true"
     >
@@ -142,6 +241,8 @@ export default function NeuralOrb({
         style={{
           width: "100%",
           height: "100%",
+          minWidth: "100%",
+          minHeight: "100%",
           display: "block",
         }}
       />
