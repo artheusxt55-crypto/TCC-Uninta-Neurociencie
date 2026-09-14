@@ -3797,3 +3797,33 @@
     brightness(1.05)
     drop-shadow(0 0 10px rgba(133, 61, 219, 0.4));
 }
+/* Rive isolado dentro da Aura */
+.aura-page .aura-orb {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+  line-height: 0;
+}
+
+.aura-page .aura-orb canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.aura-page .aura-orb > div {
+  width: 100%;
+  height: 100%;
+}
+
+.aura-page .aura-orb-thinking,
+.aura-page .aura-orb-generating,
+.aura-page .aura-orb-sending {
+  opacity: 1;
+  visibility: visible;
+}
