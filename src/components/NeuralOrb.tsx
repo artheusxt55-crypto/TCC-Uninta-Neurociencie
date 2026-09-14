@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
 import {
   useRive,
-  useStateMachineInput,
+  useViewModelInstanceBoolean,
+  useViewModelInstanceTrigger,
   Layout,
   Fit,
   Alignment,
@@ -22,89 +23,87 @@ export type AuraState =
 interface NeuralOrbProps {
   state: AuraState;
   size?: number;
-  audioLevel?: number;
 }
 
-/*
- * A coruja dorme (awake=false) nos estados ociosos/offline
- * e acorda (awake=true) em qualquer estado de atividade.
- */
-function isAwakeForState(state: AuraState): boolean {
-  return state !== "idle" && state !== "offline";
-}
-
-export default function NeuralOrb({
-  state,
-  size = 48,
-  audioLevel = 0,
-}: NeuralOrbProps) {
+export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
   const reducedMotion = useReducedMotion();
 
   const { rive, RiveComponent } = useRive({
-    src: "/aura-owl.riv",
+    src: "/ai-orb-mascot.riv",
     artboard: "Main",
     stateMachines: "State Machine 1",
     autoplay: !reducedMotion,
+    autoBind: true, // liga automaticamente a instância padrão do ViewModel
     layout: new Layout({
       fit: Fit.Contain,
       alignment: Alignment.Center,
     }),
   });
 
-  const awakeInput = useStateMachineInput(
-    rive,
-    "State Machine 1",
-    "awake"
+  const vmInstance = rive?.viewModelInstance;
+
+  // booleans: controlam estados contínuos (carregando / digitando)
+  const { setValue: setLoading } = useViewModelInstanceBoolean(
+    "loadingBoolean",
+    vmInstance
+  );
+  const { setValue: setTyping } = useViewModelInstanceBoolean(
+    "typingBoolean",
+    vmInstance
   );
 
-  const moveInput = useStateMachineInput(
-    rive,
-    "State Machine 1",
-    "move"
+  // triggers: disparam animações pontuais (acerto / erro / reação)
+  const { trigger: fireCorrect } = useViewModelInstanceTrigger(
+    "correct",
+    vmInstance
   );
-
-  const clickInput = useStateMachineInput(
-    rive,
-    "State Machine 1",
-    "Click in"
+  const { trigger: fireWrong } = useViewModelInstanceTrigger(
+    "wrong",
+    vmInstance
+  );
+  const { trigger: fireJump } = useViewModelInstanceTrigger(
+    "jump",
+    vmInstance
   );
 
   const previousStateRef = useRef<AuraState>(state);
 
-  /* liga/desliga o "awake" conforme o estado da AURA */
+  /* liga loading/typing conforme o estado da AURA */
   useEffect(() => {
-    if (!awakeInput) return;
-    awakeInput.value = isAwakeForState(state);
-  }, [state, awakeInput]);
+    if (!setLoading || !setTyping) return;
 
-  /* dispara uma reação (piscar/animação de clique) ao concluir uma resposta */
-  useEffect(() => {
-    if (
-      clickInput &&
-      previousStateRef.current !== "complete" &&
-      state === "complete"
-    ) {
-      clickInput.fire();
+    switch (state) {
+      case "sending":
+      case "thinking":
+      case "generating":
+        setLoading(true);
+        setTyping(false);
+        break;
+      case "speaking":
+        setLoading(false);
+        setTyping(true);
+        break;
+      default:
+        setLoading(false);
+        setTyping(false);
+        break;
     }
+  }, [state, setLoading, setTyping]);
+
+  /* dispara os triggers pontuais nas transições relevantes */
+  useEffect(() => {
+    const prev = previousStateRef.current;
+
+    if (prev !== "complete" && state === "complete") fireCorrect?.();
+    if (prev !== "error" && state === "error") fireWrong?.();
+    if (prev !== "listening" && state === "listening") fireJump?.();
 
     previousStateRef.current = state;
-  }, [state, clickInput]);
-
-  /* usa o nível de áudio (microfone) para dar vida ao "move" durante a escuta */
-  useEffect(() => {
-    if (!moveInput) return;
-
-    if (state === "listening") {
-      moveInput.value = (audioLevel - 0.5) * 2;
-    } else {
-      moveInput.value = 0;
-    }
-  }, [state, audioLevel, moveInput]);
+  }, [state, fireCorrect, fireWrong, fireJump]);
 
   /* pausa completamente se o usuário preferir menos movimento */
   useEffect(() => {
     if (!rive) return;
-
     if (reducedMotion) {
       rive.pause();
     } else {
@@ -114,7 +113,7 @@ export default function NeuralOrb({
 
   return (
     <div
-      className={`aura-orb aura-owl aura-orb-${state}`}
+      className={`aura-orb aura-orb-${state}`}
       style={{ width: size, height: size }}
     >
       <RiveComponent />
