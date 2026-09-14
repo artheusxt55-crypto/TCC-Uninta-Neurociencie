@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
+
 import {
   useRive,
   useViewModelInstanceBoolean,
@@ -23,9 +24,14 @@ export type AuraState =
 interface NeuralOrbProps {
   state: AuraState;
   size?: number;
+  audioLevel?: number;
 }
 
-export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
+export default function NeuralOrb({
+  state,
+  size = 48,
+  audioLevel = 0,
+}: NeuralOrbProps) {
   const reducedMotion = useReducedMotion();
 
   const { rive, RiveComponent } = useRive({
@@ -33,7 +39,7 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
     artboard: "Main",
     stateMachines: "State Machine 1",
     autoplay: !reducedMotion,
-    autoBind: true, // liga automaticamente a instância padrão do ViewModel
+    autoBind: true,
     layout: new Layout({
       fit: Fit.Contain,
       alignment: Alignment.Center,
@@ -42,25 +48,26 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
 
   const vmInstance = rive?.viewModelInstance;
 
-  // booleans: controlam estados contínuos (carregando / digitando)
   const { setValue: setLoading } = useViewModelInstanceBoolean(
     "loadingBoolean",
     vmInstance
   );
+
   const { setValue: setTyping } = useViewModelInstanceBoolean(
     "typingBoolean",
     vmInstance
   );
 
-  // triggers: disparam animações pontuais (acerto / erro / reação)
   const { trigger: fireCorrect } = useViewModelInstanceTrigger(
     "correct",
     vmInstance
   );
+
   const { trigger: fireWrong } = useViewModelInstanceTrigger(
     "wrong",
     vmInstance
   );
+
   const { trigger: fireJump } = useViewModelInstanceTrigger(
     "jump",
     vmInstance
@@ -68,7 +75,12 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
 
   const previousStateRef = useRef<AuraState>(state);
 
-  /* liga loading/typing conforme o estado da AURA */
+  useEffect(() => {
+    // Mantém compatibilidade com o AuraAI.tsx.
+    // O Rive atual não utiliza audioLevel diretamente.
+    void audioLevel;
+  }, [audioLevel]);
+
   useEffect(() => {
     if (!setLoading || !setTyping) return;
 
@@ -79,10 +91,12 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
         setLoading(true);
         setTyping(false);
         break;
+
       case "speaking":
         setLoading(false);
         setTyping(true);
         break;
+
       default:
         setLoading(false);
         setTyping(false);
@@ -90,20 +104,36 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
     }
   }, [state, setLoading, setTyping]);
 
-  /* dispara os triggers pontuais nas transições relevantes */
   useEffect(() => {
-    const prev = previousStateRef.current;
+    const previousState = previousStateRef.current;
 
-    if (prev !== "complete" && state === "complete") fireCorrect?.();
-    if (prev !== "error" && state === "error") fireWrong?.();
-    if (prev !== "listening" && state === "listening") fireJump?.();
+    if (
+      previousState !== "complete" &&
+      state === "complete"
+    ) {
+      fireCorrect?.();
+    }
+
+    if (
+      previousState !== "error" &&
+      state === "error"
+    ) {
+      fireWrong?.();
+    }
+
+    if (
+      previousState !== "listening" &&
+      state === "listening"
+    ) {
+      fireJump?.();
+    }
 
     previousStateRef.current = state;
   }, [state, fireCorrect, fireWrong, fireJump]);
 
-  /* pausa completamente se o usuário preferir menos movimento */
   useEffect(() => {
     if (!rive) return;
+
     if (reducedMotion) {
       rive.pause();
     } else {
@@ -114,7 +144,11 @@ export default function NeuralOrb({ state, size = 48 }: NeuralOrbProps) {
   return (
     <div
       className={`aura-orb aura-orb-${state}`}
-      style={{ width: size, height: size }}
+      style={{
+        width: size,
+        height: size,
+      }}
+      aria-hidden="true"
     >
       <RiveComponent />
     </div>
