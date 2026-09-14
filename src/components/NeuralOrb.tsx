@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
-
 import {
   useRive,
   useViewModelInstanceBoolean,
@@ -33,11 +32,10 @@ export default function NeuralOrb({
   audioLevel = 0,
 }: NeuralOrbProps) {
   const reducedMotion = useReducedMotion();
+  const previousStateRef = useRef<AuraState>(state);
 
   const { rive, RiveComponent } = useRive({
     src: "/ai-orb-mascot.riv",
-    artboard: "Main",
-    stateMachines: "State Machine 1",
     autoplay: !reducedMotion,
     autoBind: true,
     layout: new Layout({
@@ -73,15 +71,9 @@ export default function NeuralOrb({
     vmInstance
   );
 
-  const previousStateRef = useRef<AuraState>(state);
-
   useEffect(() => {
-    // Mantém compatibilidade com o AuraAI.tsx.
-    // O Rive atual não utiliza audioLevel diretamente.
     void audioLevel;
-  }, [audioLevel]);
 
-  useEffect(() => {
     if (!setLoading || !setTyping) return;
 
     switch (state) {
@@ -102,29 +94,20 @@ export default function NeuralOrb({
         setTyping(false);
         break;
     }
-  }, [state, setLoading, setTyping]);
+  }, [state, audioLevel, setLoading, setTyping]);
 
   useEffect(() => {
     const previousState = previousStateRef.current;
 
-    if (
-      previousState !== "complete" &&
-      state === "complete"
-    ) {
+    if (previousState !== "complete" && state === "complete") {
       fireCorrect?.();
     }
 
-    if (
-      previousState !== "error" &&
-      state === "error"
-    ) {
+    if (previousState !== "error" && state === "error") {
       fireWrong?.();
     }
 
-    if (
-      previousState !== "listening" &&
-      state === "listening"
-    ) {
+    if (previousState !== "listening" && state === "listening") {
       fireJump?.();
     }
 
@@ -139,18 +122,29 @@ export default function NeuralOrb({
     } else {
       rive.play();
     }
-  }, [reducedMotion, rive]);
+  }, [rive, reducedMotion]);
 
   return (
     <div
       className={`aura-orb aura-orb-${state}`}
       style={{
-        width: size,
-        height: size,
+        width: `${size}px`,
+        height: `${size}px`,
+        minWidth: `${size}px`,
+        minHeight: `${size}px`,
+        display: "block",
+        position: "relative",
+        overflow: "visible",
       }}
       aria-hidden="true"
     >
-      <RiveComponent />
+      <RiveComponent
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "block",
+        }}
+      />
     </div>
   );
 }
