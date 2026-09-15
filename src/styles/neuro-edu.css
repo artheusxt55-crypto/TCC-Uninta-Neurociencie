@@ -36,6 +36,19 @@
 
         --edu-focus: var(--edu-purple-400);
 
+        /* Acento de vidro/gradiente usado no cartão de acesso e no CTA
+           principal — mantém a mesma família de roxos do sistema, só
+           concentra mais luz no centro para dar peso ao ponto de conversão. */
+        --edu-gradient-primary: linear-gradient(
+            135deg,
+            var(--edu-purple-500),
+            var(--edu-purple-700)
+        );
+        --edu-card-glass: rgba(17, 13, 26, 0.6);
+        --edu-card-glass-strong: rgba(24, 18, 34, 0.82);
+        --edu-card-line: rgba(197, 181, 224, 0.14);
+        --edu-card-line-strong: rgba(197, 181, 224, 0.32);
+
         --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
         --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
@@ -301,18 +314,54 @@
         background:
             color-mix(
                 in srgb,
-                var(--edu-bg) 82%,
+                var(--edu-bg) 78%,
                 transparent
             );
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(10px);
         border-block-end: 1px solid var(--edu-line);
     }
 
     .brand-mark {
         display: flex;
         align-items: center;
-        gap: var(--space-2xs);
+        gap: var(--space-xs);
         flex-shrink: 0;
+    }
+
+    /* Selo hexagonal — reaproveita a coruja real do EducaCube dentro de um
+       contorno geométrico, como âncora visual da marca em toda a página. */
+    .brand-badge {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+        clip-path: polygon(
+            50% 0%, 100% 25%, 100% 75%,
+            50% 100%, 0% 25%, 0% 75%
+        );
+        background: linear-gradient(
+            160deg,
+            var(--edu-purple-600),
+            var(--edu-purple-900) 78%
+        );
+        padding: 1.5px;
+    }
+
+    .brand-badge::before {
+        content: "";
+        position: absolute;
+        inset: 1.5px;
+        clip-path: inherit;
+        background: var(--edu-bg-sunken);
+    }
+
+    .brand-badge img {
+        position: relative;
+        width: 74%;
+        height: 74%;
+        object-fit: contain;
     }
 
     .brand-glyph {
@@ -324,9 +373,15 @@
 
     .brand-name {
         font-family: var(--font-display);
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--edu-text);
+        letter-spacing: -0.01em;
+    }
+
+    .brand-name em {
+        font-style: normal;
+        color: var(--edu-purple-400);
     }
 
     .brand-affiliation {
@@ -376,6 +431,22 @@
         }
     }
 
+    /* Selo discreto de posicionamento, no espírito da linha + microlabel
+       do topo direito da referência — some antes do menu ficar apertado. */
+    .site-tagline {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2xs);
+        padding-inline-start: var(--space-xs);
+        border-inline-start: 1px solid var(--edu-line-strong);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--edu-text-faint);
+        white-space: nowrap;
+    }
+
     .site-actions {
         display: flex;
         align-items: center;
@@ -423,20 +494,21 @@
     }
 
     .btn-primary {
-        background: var(--edu-purple-700);
+        background: var(--edu-gradient-primary);
         color: var(--edu-text);
         border: 1px solid var(--edu-purple-600);
         box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
         &:hover,
         &:focus-visible {
-            background: var(--edu-purple-600);
+            filter: brightness(1.08);
             transform: translateY(-1px);
         }
 
         &:active {
             transform: translateY(0);
+            filter: brightness(0.98);
         }
     }
 
@@ -478,6 +550,9 @@
         align-items: center;
     }
 
+    /* O traço + rótulo em mono preserva a "voz" original do laboratório
+       (a réguazinha de latão é a mesma da versão anterior do site);
+       o roxo fica reservado para o que é interativo (cartão, botões). */
     .hero-kicker {
         display: flex;
         align-items: baseline;
@@ -513,38 +588,122 @@
         color: var(--edu-text-muted);
     }
 
-    .access-card {
-        /* Paleta local da caixa de login — vidro discreto sobre preto, com
-           um único acento em violeta profundo, sem preenchimento gradiente */
-        --access-black: #0a0a0a;
-        --access-violet: #1f003d;
-        --access-accent: #8a7ca8;
-        --access-line: rgba(255, 255, 255, 0.09);
-        --access-line-strong: rgba(138, 124, 168, 0.4);
+    /* ================================================================
+       CARTÃO DE ACESSO — reconstruído sobre a referência visual: selo +
+       nome no topo, saudação, campos com ícone embutido, lembrete de
+       sessão e um único CTA em gradiente. A paleta continua vidro sobre
+       preto (identidade antiga do cartão), só ganhou mais estrutura.
+       ================================================================ */
 
+    .access-card {
+        --access-accent: #a996cf;
+        --access-line: var(--edu-card-line);
+        --access-line-strong: var(--edu-card-line-strong);
+
+        position: relative;
         margin-block-start: var(--space-lg);
-        max-width: 420px;
+        max-width: 408px;
         padding: var(--space-md);
-        background: color-mix(
-            in srgb,
-            var(--access-violet) 14%,
-            rgba(12, 10, 16, 0.55)
-        );
-        backdrop-filter: blur(18px) saturate(120%);
-        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        background:
+            linear-gradient(
+                165deg,
+                rgba(80, 58, 122, 0.16),
+                rgba(12, 10, 16, 0)
+                45%
+            ),
+            var(--edu-card-glass);
+        backdrop-filter: blur(20px) saturate(130%);
+        -webkit-backdrop-filter: blur(20px) saturate(130%);
         border: 1px solid var(--access-line);
         border-radius: var(--radius-md);
         box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.04) inset,
-            0 20px 40px -28px rgba(0, 0, 0, 0.6);
+            0 1px 0 rgba(255, 255, 255, 0.05) inset,
+            0 24px 48px -28px rgba(0, 0, 0, 0.65);
     }
 
-    .access-card__title {
+    .access-card__brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        margin-block-end: var(--space-md);
+        padding-block-end: var(--space-md);
+        border-block-end: 1px solid var(--access-line);
+    }
+
+    .access-card__brand .brand-badge {
+        width: 44px;
+        height: 44px;
+    }
+
+    .access-card__brand-text strong {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.15;
+        color: var(--edu-text);
+    }
+
+    .access-card__brand-text strong em {
+        font-style: normal;
+        color: var(--edu-purple-400);
+    }
+
+    .access-card__brand-text span {
+        display: block;
+        margin-block-start: 3px;
         font-family: var(--font-mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.04em;
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
         color: var(--edu-text-faint);
-        margin-block-end: var(--space-sm);
+    }
+
+    .access-card__heading h2 {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--edu-text);
+    }
+
+    .access-card__heading p {
+        margin-block-start: 5px;
+        max-width: 36ch;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--edu-text-muted);
+    }
+
+    .access-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        margin-block: var(--space-md) var(--space-sm);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--access-line);
+        border-radius: var(--radius-sm);
+    }
+
+    .access-tabs button {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--edu-text-muted);
+        border-radius: calc(var(--radius-sm) - 2px);
+        transition:
+            background var(--dur-fast) var(--ease),
+            color var(--dur-fast) var(--ease);
+
+        &.is-active {
+            background: var(--edu-gradient-primary);
+            color: var(--edu-text);
+        }
+
+        &:not(.is-active):hover,
+        &:not(.is-active):focus-visible {
+            color: var(--edu-text);
+        }
     }
 
     .field-label {
@@ -553,6 +712,60 @@
         font-size: 0.8rem;
         font-weight: 500;
         color: var(--edu-text-muted);
+    }
+
+    /* Dentro do cartão, o rótulo continua no DOM para leitores de tela,
+       mas o ícone + placeholder já identificam o campo visualmente. */
+    .access-card .field-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .access-card .field-group {
+        position: relative;
+        margin-block-end: var(--space-xs);
+    }
+
+    .access-card .field-icon {
+        position: absolute;
+        inset-inline-start: 13px;
+        inset-block-start: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: var(--access-accent);
+        pointer-events: none;
+    }
+
+    .access-card .field-toggle {
+        position: absolute;
+        inset-inline-end: 6px;
+        inset-block-start: 50%;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        color: var(--edu-text-faint);
+        border-radius: var(--radius-sm);
+        transition: color var(--dur-fast) var(--ease);
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover,
+        &:focus-visible {
+            color: var(--edu-text);
+        }
     }
 
     :is(
@@ -587,7 +800,8 @@
         }
     }
 
-    /* Inputs dentro da caixa de login: vidro discreto, sem brilho saturado */
+    /* Inputs dentro da caixa de login: vidro discreto, com espaço reservado
+       para o ícone à esquerda (e o alternador de senha à direita). */
     .access-card :is(
         input[type="text"],
         input[type="email"],
@@ -596,6 +810,7 @@
         select,
         textarea
     ) {
+        padding-inline-start: 40px;
         background: rgba(255, 255, 255, 0.04);
         border-color: var(--access-line);
         border-radius: var(--radius-sm);
@@ -609,6 +824,10 @@
             border-color: var(--access-accent);
             box-shadow: none;
         }
+    }
+
+    .access-card .field-group--password input {
+        padding-inline-end: 40px;
     }
 
     select {
@@ -632,24 +851,57 @@
         padding-inline-end: 30px;
     }
 
-    .access-card .btn-primary {
-        width: 100%;
-        margin-block-start: var(--space-sm);
-        padding-block: 12px;
-        background: var(--access-violet);
-        border: 1px solid var(--access-line-strong);
+    .access-remember-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+        margin-block: 2px var(--space-sm);
+        font-size: 0.8rem;
+    }
+
+    .access-remember {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--edu-text-muted);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .access-remember input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        accent-color: var(--edu-purple-500);
+        cursor: pointer;
+    }
+
+    .access-forgot {
+        color: var(--edu-text-muted);
+        text-decoration: none;
+        border-block-end: 1px solid transparent;
         transition:
-            background var(--dur-base) var(--ease),
-            border-color var(--dur-base) var(--ease);
+            color var(--dur-fast) var(--ease),
+            border-color var(--dur-fast) var(--ease);
 
         &:hover,
         &:focus-visible {
-            background: color-mix(
-                in srgb,
-                var(--access-violet) 80%,
-                white 8%
-            );
+            color: var(--edu-purple-400);
+            border-color: var(--edu-purple-400);
         }
+    }
+
+    .access-card .btn-primary {
+        width: 100%;
+        margin-block-start: var(--space-2xs);
+        padding-block: 12px;
+        border: 1px solid var(--edu-purple-600);
+    }
+
+    .access-card .btn-primary svg {
+        width: 15px;
+        height: 15px;
     }
 
     .access-divider {
@@ -657,7 +909,10 @@
         align-items: center;
         gap: var(--space-xs);
         margin-block: var(--space-sm);
-        font-size: 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
         color: var(--edu-text-faint);
 
         &::before,
@@ -679,6 +934,13 @@
             border-color: var(--access-line-strong);
             background: rgba(255, 255, 255, 0.03);
         }
+    }
+
+    .access-card__footer {
+        margin-block-start: var(--space-md);
+        text-align: center;
+        font-size: 0.78rem;
+        color: var(--edu-text-faint);
     }
 
     .hero-links {
@@ -1414,6 +1676,10 @@
         }
 
         .brand-affiliation {
+            display: none;
+        }
+
+        .site-tagline {
             display: none;
         }
 
