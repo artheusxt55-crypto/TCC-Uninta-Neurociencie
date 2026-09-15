@@ -1,4 +1,3 @@
-
 import {
     lazy,
     Suspense,
@@ -1631,6 +1630,10 @@ function LabPage() {
                             </p>
 
                             <div className="access-card">
+
+                                <div className="access-card__badge">
+                                    <IconCube />
+                                </div>
 
                                 <p className="access-card__title">
                                     {modoAutenticacao === "login"
