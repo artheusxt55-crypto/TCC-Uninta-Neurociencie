@@ -514,17 +514,57 @@
     }
 
     .access-card {
+        /* Paleta local da caixa de login — preto + roxo (#0A0A0A / #1F003D) */
+        --access-black: #0a0a0a;
+        --access-violet: #1f003d;
+        --access-violet-soft: #3a1466;
+        --access-violet-line: rgba(155, 92, 224, 0.28);
+        --access-violet-line-strong: rgba(155, 92, 224, 0.48);
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         margin-block-start: var(--space-lg);
         max-width: 420px;
         padding: var(--space-md);
         background:
-            color-mix(
-                in srgb,
-                var(--edu-bg-raised) 92%,
-                transparent
+            linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.06) 0%,
+                var(--access-violet) 45%,
+                var(--access-black) 100%
             );
-        border: 1px solid var(--edu-line);
-        border-radius: var(--radius-md);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--access-violet-line);
+        border-radius: 28px;
+        box-shadow:
+            0 24px 60px -24px rgba(31, 0, 61, 0.65),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .access-card > * {
+        width: 100%;
+    }
+
+    .access-card__badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin-block-end: var(--space-xs);
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        box-shadow:
+            0 8px 20px -8px rgba(31, 0, 61, 0.7),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .access-card__badge svg {
+        width: 22px;
+        height: 22px;
+        color: var(--edu-text);
     }
 
     .access-card__title {
@@ -533,6 +573,7 @@
         letter-spacing: 0.06em;
         color: var(--edu-text-faint);
         margin-block-end: var(--space-sm);
+        text-align: center;
     }
 
     .field-label {
@@ -575,6 +616,30 @@
         }
     }
 
+    /* Inputs dentro da caixa de login herdam a paleta preto+roxo */
+    .access-card :is(
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input:not([type]),
+        select,
+        textarea
+    ) {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--access-violet-line);
+        border-radius: 14px;
+        color: var(--edu-text);
+
+        &:hover {
+            border-color: var(--access-violet-line-strong);
+        }
+
+        &:focus {
+            border-color: #9b5ce0;
+            box-shadow: 0 0 0 3px rgba(155, 92, 224, 0.18);
+        }
+    }
+
     select {
         appearance: none;
         background-image:
@@ -600,6 +665,22 @@
         width: 100%;
         margin-block-start: var(--space-sm);
         padding-block: 12px;
+        border-radius: 999px;
+        background: linear-gradient(
+            135deg,
+            var(--access-violet-soft),
+            var(--access-violet)
+        );
+        border: 1px solid var(--access-violet-line-strong);
+
+        &:hover,
+        &:focus-visible {
+            background: linear-gradient(
+                135deg,
+                #4d1c85,
+                var(--access-violet-soft)
+            );
+        }
     }
 
     .access-divider {
@@ -615,12 +696,21 @@
             content: "";
             flex: 1;
             height: 1px;
-            background: var(--edu-line);
+            background: var(--access-violet-line);
         }
     }
 
     .access-card .btn-ghost {
         width: 100%;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--access-violet-line);
+
+        &:hover,
+        &:focus-visible {
+            border-color: var(--access-violet-line-strong);
+            background: rgba(255, 255, 255, 0.09);
+        }
     }
 
     .hero-links {
