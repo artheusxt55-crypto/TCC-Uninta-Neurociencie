@@ -1694,6 +1694,14 @@
 
 /* ---- Thinking ---- */
 
+.aura-morphing-square {
+  flex: 0 0 auto;
+
+  background: var(--aura-purple-400);
+
+  box-shadow: 0 0 10px 1px rgba(147, 91, 214, 0.45);
+}
+
 .aura-thinking {
   display: flex;
   align-items: center;
