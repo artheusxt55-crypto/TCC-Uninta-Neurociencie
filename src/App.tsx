@@ -78,19 +78,99 @@ type Resultados = {
  * ÍCONES
  * ========================================================= */
 
-function IconCube({ className }: { className?: string }) {
+function IconUser({ className }: { className?: string }) {
     return (
         <svg
             className={className}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.4"
+            strokeWidth="1.6"
             aria-hidden="true"
         >
-            <path d="M12 3 L20.5 7.5 V16.5 L12 21 L3.5 16.5 V7.5 Z" />
-            <path d="M3.5 7.5 L12 12 L20.5 7.5" />
-            <path d="M12 12 V21" />
+            <circle cx="12" cy="8" r="3.4" />
+            <path d="M4.5 20 C5.8 15.8 8.5 14 12 14 C15.5 14 18.2 15.8 19.5 20" />
+        </svg>
+    );
+}
+
+function IconLock({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+        >
+            <rect x="5" y="11" width="14" height="9.5" rx="2" />
+            <path d="M8 11 V7.5 A4 4 0 0 1 16 7.5 V11" />
+        </svg>
+    );
+}
+
+function IconEye({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+        >
+            <path d="M2.5 12 C5 7 8.3 4.7 12 4.7 C15.7 4.7 19 7 21.5 12 C19 17 15.7 19.3 12 19.3 C8.3 19.3 5 17 2.5 12 Z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    );
+}
+
+function IconEyeOff({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+        >
+            <path d="M3.5 3.5 L20.5 20.5" />
+            <path d="M10.6 5.1 C11.06 5 11.53 4.95 12 4.95 C15.7 4.95 19 7.2 21.5 12 C20.7 13.6 19.75 14.9 18.7 15.95" />
+            <path d="M6.9 6.9 C4.9 8.2 3.5 10 2.5 12 C5 16.8 8.3 19.05 12 19.05 C13.35 19.05 14.65 18.75 15.85 18.15" />
+            <path d="M9.6 10.1 A3 3 0 0 0 14 14.35" />
+        </svg>
+    );
+}
+
+function IconArrowRight({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+        >
+            <path d="M4 12 H19" />
+            <path d="M13.5 6 L19.5 12 L13.5 18" />
+        </svg>
+    );
+}
+
+function IconGoogle({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+                fill="#EA4335"
+                d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.2s2.7-6.2 6-6.2c1.9 0 3.15.8 3.88 1.5l2.64-2.55C16.86 3.02 14.68 2 12 2 6.98 2 2.9 6.03 2.9 11s4.08 9 9.1 9c5.25 0 8.74-3.7 8.74-8.9 0-.6-.07-1.06-.15-1.5H12Z"
+            />
         </svg>
     );
 }
@@ -287,6 +367,12 @@ function LabPage() {
     const [carregandoAuth, setCarregandoAuth] =
         useState(false);
 
+    const [mostrarSenha, setMostrarSenha] =
+        useState(false);
+
+    const [lembrarDeMim, setLembrarDeMim] =
+        useState(true);
+
     const [diagDescricao, setDiagDescricao] =
         useState("");
 
@@ -335,6 +421,23 @@ function LabPage() {
             aceitarAnalytics();
         } else {
             recusarAnalytics();
+        }
+    }, []);
+
+    /* =====================================================
+     * LEMBRAR E-MAIL NO ACESSO
+     * ===================================================== */
+
+    useEffect(() => {
+        const emailLembrado =
+            localStorage.getItem(
+                "educacube_remembered_email"
+            );
+
+        if (emailLembrado) {
+            setEmailInput(emailLembrado);
+        } else {
+            setLembrarDeMim(false);
         }
     }, []);
 
@@ -994,6 +1097,17 @@ function LabPage() {
                 return;
             }
 
+            if (lembrarDeMim) {
+                localStorage.setItem(
+                    "educacube_remembered_email",
+                    email
+                );
+            } else {
+                localStorage.removeItem(
+                    "educacube_remembered_email"
+                );
+            }
+
             await registrarAcesso();
 
             window.location.href =
@@ -1364,12 +1478,17 @@ function LabPage() {
 
                 <div className="brand-mark">
 
-                    <IconCube
-                        className="brand-glyph"
-                    />
+                    <span className="brand-badge">
+                        <img
+                            src="/educacubelogo.webp"
+                            alt=""
+                            aria-hidden="true"
+                        />
+                    </span>
 
                     <span className="brand-name">
-                        EducaCube
+                        Educa
+                        <em>Cube</em>
                     </span>
 
                     <span className="brand-affiliation">
@@ -1398,6 +1517,10 @@ function LabPage() {
                     <a href="/atlas.html">
                         Mapa da aprendizagem
                     </a>
+
+                    <span className="site-tagline">
+                        Aprender · Planejar · Transformar
+                    </span>
 
                 </nav>
 
@@ -1631,63 +1754,87 @@ function LabPage() {
 
                             <div className="access-card">
 
-                                <p className="access-card__title">
-                                    {modoAutenticacao === "login"
-                                        ? "ENTRAR NO LABORATÓRIO"
-                                        : "CRIAR SUA CONTA"}
-                                </p>
+                                <div className="access-card__brand">
+
+                                    <span className="brand-badge">
+                                        <img
+                                            src="/educacubelogo.webp"
+                                            alt=""
+                                            aria-hidden="true"
+                                        />
+                                    </span>
+
+                                    <span className="access-card__brand-text">
+                                        <strong>
+                                            Educa
+                                            <em>Cube</em>
+                                        </strong>
+                                        <span>
+                                            Plataforma educacional
+                                        </span>
+                                    </span>
+
+                                </div>
+
+                                <div className="access-card__heading">
+                                    <h2>
+                                        {modoAutenticacao === "login"
+                                            ? "Bem-vindo de volta"
+                                            : "Crie sua conta"}
+                                    </h2>
+                                    <p>
+                                        {modoAutenticacao === "login"
+                                            ? "Acesse o laboratório e continue de onde parou."
+                                            : "Leva menos de um minuto para começar."}
+                                    </p>
+                                </div>
 
                                 <div
-                                    style={{
-                                        display:
-                                            "flex",
-
-                                        gap:
-                                            "8px",
-
-                                        marginBottom:
-                                            "18px",
-                                    }}
+                                    className="access-tabs"
+                                    role="tablist"
+                                    aria-label="Modo de acesso"
                                 >
 
                                     <button
                                         type="button"
+                                        role="tab"
+                                        aria-selected={
+                                            modoAutenticacao ===
+                                            "login"
+                                        }
                                         className={
                                             modoAutenticacao ===
                                             "login"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
+                                                ? "is-active"
+                                                : ""
                                         }
                                         onClick={() =>
                                             alternarModoAutenticacao(
                                                 "login"
                                             )
                                         }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
                                     >
                                         Entrar
                                     </button>
 
                                     <button
                                         type="button"
+                                        role="tab"
+                                        aria-selected={
+                                            modoAutenticacao ===
+                                            "cadastro"
+                                        }
                                         className={
                                             modoAutenticacao ===
                                             "cadastro"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
+                                                ? "is-active"
+                                                : ""
                                         }
                                         onClick={() =>
                                             alternarModoAutenticacao(
                                                 "cadastro"
                                             )
                                         }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
                                     >
                                         Criar conta
                                     </button>
@@ -1696,13 +1843,17 @@ function LabPage() {
 
                                 {modoAutenticacao ===
                                     "cadastro" && (
-                                    <>
+                                    <div className="field-group">
                                         <label
                                             className="field-label"
                                             htmlFor="nomeInput"
                                         >
                                             Nome
                                         </label>
+
+                                        <IconUser
+                                            className="field-icon"
+                                        />
 
                                         <input
                                             type="text"
@@ -1722,69 +1873,106 @@ function LabPage() {
                                             placeholder="Digite seu nome"
                                             autoComplete="name"
                                         />
-                                    </>
+                                    </div>
                                 )}
 
-                                <label
-                                    className="field-label"
-                                    htmlFor="emailInput"
-                                >
-                                    E-mail
-                                </label>
+                                <div className="field-group">
+                                    <label
+                                        className="field-label"
+                                        htmlFor="emailInput"
+                                    >
+                                        E-mail
+                                    </label>
 
-                                <input
-                                    type="email"
-                                    id="emailInput"
-                                    value={
-                                        emailInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setEmailInput(
+                                    <IconUser
+                                        className="field-icon"
+                                    />
+
+                                    <input
+                                        type="email"
+                                        id="emailInput"
+                                        value={
+                                            emailInput
+                                        }
+                                        onChange={(
                                             event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite seu e-mail"
-                                    autoComplete="email"
-                                />
+                                        ) =>
+                                            setEmailInput(
+                                                event
+                                                    .target
+                                                    .value
+                                            )
+                                        }
+                                        placeholder="Usuário ou e-mail"
+                                        autoComplete="email"
+                                    />
+                                </div>
 
-                                <label
-                                    className="field-label"
-                                    htmlFor="senhaInput"
-                                >
-                                    Senha
-                                </label>
+                                <div className="field-group field-group--password">
+                                    <label
+                                        className="field-label"
+                                        htmlFor="senhaInput"
+                                    >
+                                        Senha
+                                    </label>
 
-                                <input
-                                    type="password"
-                                    id="senhaInput"
-                                    value={
-                                        senhaInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setSenhaInput(
+                                    <IconLock
+                                        className="field-icon"
+                                    />
+
+                                    <input
+                                        type={
+                                            mostrarSenha
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        id="senhaInput"
+                                        value={
+                                            senhaInput
+                                        }
+                                        onChange={(
                                             event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite sua senha"
-                                    autoComplete={
-                                        modoAutenticacao ===
-                                        "login"
-                                            ? "current-password"
-                                            : "new-password"
-                                    }
-                                />
+                                        ) =>
+                                            setSenhaInput(
+                                                event
+                                                    .target
+                                                    .value
+                                            )
+                                        }
+                                        placeholder="Senha"
+                                        autoComplete={
+                                            modoAutenticacao ===
+                                            "login"
+                                                ? "current-password"
+                                                : "new-password"
+                                        }
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="field-toggle"
+                                        onClick={() =>
+                                            setMostrarSenha(
+                                                (valor) => !valor
+                                            )
+                                        }
+                                        aria-label={
+                                            mostrarSenha
+                                                ? "Ocultar senha"
+                                                : "Mostrar senha"
+                                        }
+                                    >
+                                        {mostrarSenha ? (
+                                            <IconEyeOff />
+                                        ) : (
+                                            <IconEye />
+                                        )}
+                                    </button>
+                                </div>
 
                                 {modoAutenticacao ===
                                     "cadastro" && (
-                                    <>
+                                    <div className="field-group field-group--password">
                                         <label
                                             className="field-label"
                                             htmlFor="confirmarSenhaInput"
@@ -1792,8 +1980,16 @@ function LabPage() {
                                             Confirmar senha
                                         </label>
 
+                                        <IconLock
+                                            className="field-icon"
+                                        />
+
                                         <input
-                                            type="password"
+                                            type={
+                                                mostrarSenha
+                                                    ? "text"
+                                                    : "password"
+                                            }
                                             id="confirmarSenhaInput"
                                             value={
                                                 confirmarSenhaInput
@@ -1810,7 +2006,41 @@ function LabPage() {
                                             placeholder="Digite a senha novamente"
                                             autoComplete="new-password"
                                         />
-                                    </>
+                                    </div>
+                                )}
+
+                                {modoAutenticacao ===
+                                    "login" && (
+                                    <div className="access-remember-row">
+                                        <label className="access-remember">
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    lembrarDeMim
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setLembrarDeMim(
+                                                        event
+                                                            .target
+                                                            .checked
+                                                    )
+                                                }
+                                            />
+                                            Lembrar de mim
+                                        </label>
+
+                                        <button
+                                            type="button"
+                                            className="access-forgot"
+                                            onClick={
+                                                recuperarSenha
+                                            }
+                                        >
+                                            Esqueceu sua senha?
+                                        </button>
+                                    </div>
                                 )}
 
                                 <button
@@ -1826,30 +2056,18 @@ function LabPage() {
                                         carregandoAuth
                                     }
                                 >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : modoAutenticacao ===
-                                          "login"
-                                            ? "Entrar no laboratório"
-                                            : "Criar conta"}
+                                    {carregandoAuth ? (
+                                        "Aguarde..."
+                                    ) : (
+                                        <>
+                                            <IconArrowRight />
+                                            {modoAutenticacao ===
+                                            "login"
+                                                ? "Entrar"
+                                                : "Criar conta"}
+                                        </>
+                                    )}
                                 </button>
-
-                                {modoAutenticacao ===
-                                    "login" && (
-                                    <button
-                                        type="button"
-                                        className="btn-ghost"
-                                        onClick={
-                                            recuperarSenha
-                                        }
-                                        style={{
-                                            marginTop:
-                                                "10px",
-                                        }}
-                                    >
-                                        Esqueci minha senha
-                                    </button>
-                                )}
 
                                 <div className="access-divider">
                                     ou
@@ -1865,10 +2083,20 @@ function LabPage() {
                                         carregandoAuth
                                     }
                                 >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : "Continuar com Google"}
+                                    {carregandoAuth ? (
+                                        "Aguarde..."
+                                    ) : (
+                                        <>
+                                            <IconGoogle />
+                                            Continuar com Google
+                                        </>
+                                    )}
                                 </button>
+
+                                <p className="access-card__footer">
+                                    Grandes descobertas começam
+                                    com o acesso certo.
+                                </p>
 
                             </div>
 
