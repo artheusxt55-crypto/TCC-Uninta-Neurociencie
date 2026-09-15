@@ -48,6 +48,8 @@ import NeuralOrb, {
   type AuraState,
 } from "../components/NeuralOrb";
 
+import MorphingSquare from "../components/MorphingSquare";
+
 import { renderAuraMarkdown } from "../components/aura-markdown";
 
 import "../styles/aura-ai.css";
@@ -3341,35 +3343,9 @@ export default function AuraEducacube() {
                             ease: easePremium,
                           }}
                         >
-                          <motion.div
-                            animate={
-                              reducedMotion
-                                ? undefined
-                                : {
-                                    scale: [
-                                      1,
-                                      1.08,
-                                      1,
-                                    ],
-                                  }
-                            }
-                            transition={
-                              reducedMotion
-                                ? undefined
-                                : {
-                                    duration: 1.2,
-                                    repeat:
-                                      Infinity,
-                                    ease:
-                                      "easeInOut",
-                                  }
-                            }
-                          >
-                            <NeuralOrb
-                              state="thinking"
-                              size={22}
-                            />
-                          </motion.div>
+                          <MorphingSquare
+                            size={16}
+                          />
 
                           <span>
                             AURA está
