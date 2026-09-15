@@ -514,66 +514,37 @@
     }
 
     .access-card {
-        /* Paleta local da caixa de login — preto + roxo (#0A0A0A / #1F003D) */
+        /* Paleta local da caixa de login — vidro discreto sobre preto, com
+           um único acento em violeta profundo, sem preenchimento gradiente */
         --access-black: #0a0a0a;
         --access-violet: #1f003d;
-        --access-violet-soft: #3a1466;
-        --access-violet-line: rgba(155, 92, 224, 0.28);
-        --access-violet-line-strong: rgba(155, 92, 224, 0.48);
+        --access-accent: #8a7ca8;
+        --access-line: rgba(255, 255, 255, 0.09);
+        --access-line-strong: rgba(138, 124, 168, 0.4);
 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         margin-block-start: var(--space-lg);
         max-width: 420px;
         padding: var(--space-md);
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.06) 0%,
-                var(--access-violet) 45%,
-                var(--access-black) 100%
-            );
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid var(--access-violet-line);
-        border-radius: 28px;
+        background: color-mix(
+            in srgb,
+            var(--access-violet) 14%,
+            rgba(12, 10, 16, 0.55)
+        );
+        backdrop-filter: blur(18px) saturate(120%);
+        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        border: 1px solid var(--access-line);
+        border-radius: var(--radius-md);
         box-shadow:
-            0 24px 60px -24px rgba(31, 0, 61, 0.65),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-
-    .access-card > * {
-        width: 100%;
-    }
-
-    .access-card__badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
-        margin-block-end: var(--space-xs);
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 999px;
-        box-shadow:
-            0 8px 20px -8px rgba(31, 0, 61, 0.7),
-            inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    }
-
-    .access-card__badge svg {
-        width: 22px;
-        height: 22px;
-        color: var(--edu-text);
+            0 1px 0 rgba(255, 255, 255, 0.04) inset,
+            0 20px 40px -28px rgba(0, 0, 0, 0.6);
     }
 
     .access-card__title {
         font-family: var(--font-mono);
         font-size: 0.7rem;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.04em;
         color: var(--edu-text-faint);
         margin-block-end: var(--space-sm);
-        text-align: center;
     }
 
     .field-label {
@@ -616,7 +587,7 @@
         }
     }
 
-    /* Inputs dentro da caixa de login herdam a paleta preto+roxo */
+    /* Inputs dentro da caixa de login: vidro discreto, sem brilho saturado */
     .access-card :is(
         input[type="text"],
         input[type="email"],
@@ -625,18 +596,18 @@
         select,
         textarea
     ) {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: var(--access-violet-line);
-        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--access-line);
+        border-radius: var(--radius-sm);
         color: var(--edu-text);
 
         &:hover {
-            border-color: var(--access-violet-line-strong);
+            border-color: var(--access-line-strong);
         }
 
         &:focus {
-            border-color: #9b5ce0;
-            box-shadow: 0 0 0 3px rgba(155, 92, 224, 0.18);
+            border-color: var(--access-accent);
+            box-shadow: none;
         }
     }
 
@@ -665,20 +636,18 @@
         width: 100%;
         margin-block-start: var(--space-sm);
         padding-block: 12px;
-        border-radius: 999px;
-        background: linear-gradient(
-            135deg,
-            var(--access-violet-soft),
-            var(--access-violet)
-        );
-        border: 1px solid var(--access-violet-line-strong);
+        background: var(--access-violet);
+        border: 1px solid var(--access-line-strong);
+        transition:
+            background var(--dur-base) var(--ease),
+            border-color var(--dur-base) var(--ease);
 
         &:hover,
         &:focus-visible {
-            background: linear-gradient(
-                135deg,
-                #4d1c85,
-                var(--access-violet-soft)
+            background: color-mix(
+                in srgb,
+                var(--access-violet) 80%,
+                white 8%
             );
         }
     }
@@ -696,20 +665,19 @@
             content: "";
             flex: 1;
             height: 1px;
-            background: var(--access-violet-line);
+            background: var(--access-line);
         }
     }
 
     .access-card .btn-ghost {
         width: 100%;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.05);
-        border-color: var(--access-violet-line);
+        background: transparent;
+        border-color: var(--access-line);
 
         &:hover,
         &:focus-visible {
-            border-color: var(--access-violet-line-strong);
-            background: rgba(255, 255, 255, 0.09);
+            border-color: var(--access-line-strong);
+            background: rgba(255, 255, 255, 0.03);
         }
     }
 
