@@ -1,8 +1,4 @@
-/* =========================================================
-   EDUCACUBE — LOGIN
-   CSS totalmente isolado da aplicação
-   ========================================================= */
-
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700&display=swap");
 .login-page {
   --login-black: #0A0A0A;
   --login-purple: #170033;
