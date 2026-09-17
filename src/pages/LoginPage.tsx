@@ -363,10 +363,6 @@ export default function LoginPage() {
     <main className="login-page">
       <div className="login-layout">
 
-        {/* ==================================================
-            LADO ESQUERDO
-            ================================================== */}
-
         <section className="login-left">
           <div className="login-container">
 
@@ -605,7 +601,6 @@ export default function LoginPage() {
 
                 {!estaNoCadastro && (
                   <div className="login-options">
-
                     <label className="login-remember">
                       <input
                         type="checkbox"
@@ -631,7 +626,6 @@ export default function LoginPage() {
                     >
                       Esqueceu sua senha?
                     </button>
-
                   </div>
                 )}
 
@@ -732,12 +726,7 @@ export default function LoginPage() {
           </div>
         </section>
 
-        {/* ==================================================
-            LADO DIREITO
-            ================================================== */}
-
         <section className="login-right">
-
           <div className="login-right-content">
 
             <div className="login-right-brand">
@@ -757,8 +746,7 @@ export default function LoginPage() {
               </span>
 
               <h2>
-                Estudos, materiais e{" "}
-                <span>apoio</span> em um só lugar.
+                Estudos, materiais e apoio em um só lugar.
               </h2>
 
               <p>
@@ -787,7 +775,6 @@ export default function LoginPage() {
             </div>
 
           </div>
-
         </section>
 
       </div>
