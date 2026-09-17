@@ -1,6 +1,12 @@
 
-import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import type {
+  FormEvent,
+} from "react";
 
 import {
   auth,
@@ -16,7 +22,9 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-import type { User } from "firebase/auth";
+import type {
+  User,
+} from "firebase/auth";
 
 import {
   doc,
@@ -35,14 +43,22 @@ import {
 
 import "../styles/login.css";
 
-type ModoAutenticacao = "login" | "cadastro";
 
-function mensagemFirebase(error: unknown): string {
+type ModoAutenticacao =
+  | "login"
+  | "cadastro";
+
+
+function mensagemFirebase(
+  error: unknown,
+): string {
   const code =
     typeof error === "object" &&
     error !== null &&
     "code" in error
-      ? String((error as { code: unknown }).code)
+      ? String(
+          (error as { code: unknown }).code,
+        )
       : "";
 
   switch (code) {
@@ -90,39 +106,41 @@ function mensagemFirebase(error: unknown): string {
   }
 }
 
+
 async function salvarUsuarioNoFirestore(
   user: User,
   nomeInformado?: string,
 ) {
-  const usuarioRef = doc(
-    db,
-    "usuarios",
-    user.uid,
-  );
+  const usuarioRef =
+    doc(
+      db,
+      "usuarios",
+      user.uid,
+    );
 
-  const usuarioAtual = await getDoc(
-    usuarioRef,
-  );
+  const usuarioAtual =
+    await getDoc(usuarioRef);
 
-  const dadosUsuario: Record<string, unknown> = {
-    uid: user.uid,
+  const dadosUsuario:
+    Record<string, unknown> = {
+      uid: user.uid,
 
-    nome:
-      user.displayName ||
-      nomeInformado ||
-      "",
+      nome:
+        user.displayName ||
+        nomeInformado ||
+        "",
 
-    email:
-      user.email ||
-      "",
+      email:
+        user.email ||
+        "",
 
-    foto:
-      user.photoURL ||
-      "",
+      foto:
+        user.photoURL ||
+        "",
 
-    ultimoLogin:
-      serverTimestamp(),
-  };
+      ultimoLogin:
+        serverTimestamp(),
+    };
 
   if (!usuarioAtual.exists()) {
     dadosUsuario.criadoEm =
@@ -137,6 +155,7 @@ async function salvarUsuarioNoFirestore(
     },
   );
 }
+
 
 async function registrarAcesso(
   user: User,
@@ -160,10 +179,14 @@ async function registrarAcesso(
       },
     );
   } catch {
-    // O login não é bloqueado
-    // caso o registro complementar falhe.
+    /*
+      O login não deve ser bloqueado
+      caso o registro complementar
+      de acesso falhe.
+    */
   }
 }
+
 
 async function enviarVerificacao(
   user: User,
@@ -187,68 +210,83 @@ async function enviarVerificacao(
       },
     );
   } catch {
-    // O cadastro continua mesmo
-    // se o envio complementar falhar.
+    /*
+      O cadastro continua mesmo se
+      o envio complementar falhar.
+    */
   }
 }
+
 
 export default function LoginPage() {
   const [
     modo,
     setModo,
-  ] = useState<ModoAutenticacao>(
-    "login",
-  );
+  ] =
+    useState<ModoAutenticacao>(
+      "login",
+    );
 
   const [
     emailInput,
     setEmailInput,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     senhaInput,
     setSenhaInput,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     confirmarSenhaInput,
     setConfirmarSenhaInput,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     nomeInput,
     setNomeInput,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     mostrarSenha,
     setMostrarSenha,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     mostrarConfirmacao,
     setMostrarConfirmacao,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     lembrarLogin,
     setLembrarLogin,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     carregandoAuth,
     setCarregandoAuth,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     mensagemErro,
     setMensagemErro,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     mensagemSucesso,
     setMensagemSucesso,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   useEffect(() => {
     const emailSalvo =
@@ -265,10 +303,12 @@ export default function LoginPage() {
     }
   }, []);
 
+
   function limparMensagens() {
     setMensagemErro("");
     setMensagemSucesso("");
   }
+
 
   function trocarModo(
     novoModo: ModoAutenticacao,
@@ -280,6 +320,7 @@ export default function LoginPage() {
     setSenhaInput("");
     setConfirmarSenhaInput("");
   }
+
 
   async function entrarComEmail(
     event: FormEvent<HTMLFormElement>,
@@ -346,6 +387,7 @@ export default function LoginPage() {
       setCarregandoAuth(false);
     }
   }
+
 
   async function criarConta(
     event: FormEvent<HTMLFormElement>,
@@ -447,6 +489,7 @@ export default function LoginPage() {
     }
   }
 
+
   async function entrarComGoogle() {
     limparMensagens();
 
@@ -491,6 +534,7 @@ export default function LoginPage() {
     }
   }
 
+
   async function recuperarSenha() {
     limparMensagens();
 
@@ -522,13 +566,19 @@ export default function LoginPage() {
     }
   }
 
+
   const estaNoCadastro =
     modo === "cadastro";
+
 
   return (
     <main className="login-page">
 
       <div className="login-layout">
+
+        {/* =================================================
+            LADO ESQUERDO
+            ================================================= */}
 
         <section className="login-left">
 
@@ -554,6 +604,7 @@ export default function LoginPage() {
 
             </div>
 
+
             <header className="login-header">
 
               <p className="login-eyebrow">
@@ -576,6 +627,7 @@ export default function LoginPage() {
 
             </header>
 
+
             {mensagemErro && (
               <div
                 className="login-error"
@@ -585,6 +637,7 @@ export default function LoginPage() {
               </div>
             )}
 
+
             {mensagemSucesso && (
               <div
                 className="login-success"
@@ -593,6 +646,7 @@ export default function LoginPage() {
                 {mensagemSucesso}
               </div>
             )}
+
 
             <form
               className="login-form"
@@ -641,6 +695,7 @@ export default function LoginPage() {
                 </div>
               )}
 
+
               <div className="login-field">
 
                 <label
@@ -677,6 +732,7 @@ export default function LoginPage() {
 
               </div>
 
+
               <div className="login-field">
 
                 <div className="login-field-header">
@@ -704,6 +760,7 @@ export default function LoginPage() {
                   )}
 
                 </div>
+
 
                 <div className="login-input-wrapper">
 
@@ -761,6 +818,7 @@ export default function LoginPage() {
                 </div>
 
               </div>
+
 
               {estaNoCadastro && (
                 <div className="login-field">
@@ -828,6 +886,7 @@ export default function LoginPage() {
                 </div>
               )}
 
+
               {!estaNoCadastro && (
                 <div
                   style={{
@@ -854,6 +913,7 @@ export default function LoginPage() {
                 </div>
               )}
 
+
               <button
                 type="submit"
                 className="login-primary-button"
@@ -879,17 +939,25 @@ export default function LoginPage() {
 
             </form>
 
+
             <div className="login-divider">
 
-              <span className="login-divider-line" />
+              <span
+                className="login-divider-line"
+              />
 
-              <span className="login-divider-text">
+              <span
+                className="login-divider-text"
+              >
                 ou
               </span>
 
-              <span className="login-divider-line" />
+              <span
+                className="login-divider-line"
+              />
 
             </div>
+
 
             <button
               type="button"
@@ -899,6 +967,8 @@ export default function LoginPage() {
               }
               disabled={carregandoAuth}
             >
+
+              {/* ÍCONE OFICIAL DO GOOGLE */}
 
               <svg
                 className="login-google-icon"
@@ -934,6 +1004,7 @@ export default function LoginPage() {
 
             </button>
 
+
             <p className="login-switch">
 
               {estaNoCadastro
@@ -958,6 +1029,7 @@ export default function LoginPage() {
 
             </p>
 
+
             <p className="login-footer">
               EducaCube · Área do Aluno
             </p>
@@ -965,6 +1037,11 @@ export default function LoginPage() {
           </div>
 
         </section>
+
+
+        {/* =================================================
+            LADO DIREITO
+            ================================================= */}
 
         <section className="login-right">
 
@@ -983,6 +1060,7 @@ export default function LoginPage() {
             aria-hidden="true"
           />
 
+
           <div className="login-right-content">
 
             <div className="login-right-brand">
@@ -1000,6 +1078,7 @@ export default function LoginPage() {
 
             </div>
 
+
             <div className="login-right-main">
 
               <div className="login-right-kicker">
@@ -1010,15 +1089,18 @@ export default function LoginPage() {
 
               </div>
 
+
               <h2 className="login-right-title">
                 Estudos, materiais e apoio em um só lugar.
               </h2>
+
 
               <p className="login-right-description">
                 Organize seus estudos, consulte seus materiais
                 e use a Aura quando precisar de ajuda para
                 entender um conteúdo.
               </p>
+
 
               <div className="login-quote">
 
@@ -1032,6 +1114,7 @@ export default function LoginPage() {
                 </span>
 
               </div>
+
 
               <div className="login-right-footer">
 
