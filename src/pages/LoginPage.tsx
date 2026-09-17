@@ -1,12 +1,7 @@
 
-import {
-  useEffect,
-  useState,
-} from "react";
 
-import type {
-  FormEvent,
-} from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 
 import {
   auth,
@@ -22,9 +17,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-import type {
-  User,
-} from "firebase/auth";
+import type { User } from "firebase/auth";
 
 import {
   doc,
@@ -43,22 +36,14 @@ import {
 
 import "../styles/login.css";
 
+type ModoAutenticacao = "login" | "cadastro";
 
-type ModoAutenticacao =
-  | "login"
-  | "cadastro";
-
-
-function mensagemFirebase(
-  error: unknown,
-): string {
+function mensagemFirebase(error: unknown): string {
   const code =
     typeof error === "object" &&
     error !== null &&
     "code" in error
-      ? String(
-          (error as { code: unknown }).code,
-        )
+      ? String((error as { code: unknown }).code)
       : "";
 
   switch (code) {
@@ -84,19 +69,19 @@ function mensagemFirebase(
       return "A janela do Google foi fechada antes da conclusão.";
 
     case "auth/popup-blocked":
-      return "O navegador bloqueou a janela de login do Google.";
+      return "O navegador bloqueou a janela do Google.";
 
     case "auth/account-exists-with-different-credential":
       return "Esse e-mail já está associado a outro método de acesso.";
 
     case "auth/too-many-requests":
-      return "Muitas tentativas foram feitas. Aguarde um pouco e tente novamente.";
+      return "Muitas tentativas. Aguarde um pouco e tente novamente.";
 
     case "auth/network-request-failed":
-      return "Não foi possível conectar ao serviço. Verifique sua internet.";
+      return "Não foi possível conectar ao serviço.";
 
     case "auth/operation-not-allowed":
-      return "Este método de acesso ainda não está habilitado.";
+      return "Este método de acesso não está habilitado.";
 
     case "auth/user-disabled":
       return "Esta conta está desativada.";
@@ -106,41 +91,41 @@ function mensagemFirebase(
   }
 }
 
-
 async function salvarUsuarioNoFirestore(
   user: User,
   nomeInformado?: string,
 ) {
-  const usuarioRef =
-    doc(
-      db,
-      "usuarios",
-      user.uid,
-    );
+  const usuarioRef = doc(
+    db,
+    "usuarios",
+    user.uid,
+  );
 
   const usuarioAtual =
     await getDoc(usuarioRef);
 
-  const dadosUsuario:
-    Record<string, unknown> = {
-      uid: user.uid,
+  const dadosUsuario: Record<
+    string,
+    unknown
+  > = {
+    uid: user.uid,
 
-      nome:
-        user.displayName ||
-        nomeInformado ||
-        "",
+    nome:
+      user.displayName ||
+      nomeInformado ||
+      "",
 
-      email:
-        user.email ||
-        "",
+    email:
+      user.email ||
+      "",
 
-      foto:
-        user.photoURL ||
-        "",
+    foto:
+      user.photoURL ||
+      "",
 
-      ultimoLogin:
-        serverTimestamp(),
-    };
+    ultimoLogin:
+      serverTimestamp(),
+  };
 
   if (!usuarioAtual.exists()) {
     dadosUsuario.criadoEm =
@@ -155,7 +140,6 @@ async function salvarUsuarioNoFirestore(
     },
   );
 }
-
 
 async function registrarAcesso(
   user: User,
@@ -179,14 +163,9 @@ async function registrarAcesso(
       },
     );
   } catch {
-    /*
-      O login não deve ser bloqueado
-      caso o registro complementar
-      de acesso falhe.
-    */
+    // O login não será bloqueado.
   }
 }
-
 
 async function enviarVerificacao(
   user: User,
@@ -210,83 +189,67 @@ async function enviarVerificacao(
       },
     );
   } catch {
-    /*
-      O cadastro continua mesmo se
-      o envio complementar falhar.
-    */
+    // O cadastro não será bloqueado.
   }
 }
-
 
 export default function LoginPage() {
   const [
     modo,
     setModo,
-  ] =
-    useState<ModoAutenticacao>(
-      "login",
-    );
+  ] = useState<ModoAutenticacao>(
+    "login",
+  );
 
   const [
     emailInput,
     setEmailInput,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     senhaInput,
     setSenhaInput,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     confirmarSenhaInput,
     setConfirmarSenhaInput,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     nomeInput,
     setNomeInput,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     mostrarSenha,
     setMostrarSenha,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   const [
     mostrarConfirmacao,
     setMostrarConfirmacao,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   const [
     lembrarLogin,
     setLembrarLogin,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   const [
     carregandoAuth,
     setCarregandoAuth,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   const [
     mensagemErro,
     setMensagemErro,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     mensagemSucesso,
     setMensagemSucesso,
-  ] =
-    useState("");
-
+  ] = useState("");
 
   useEffect(() => {
     const emailSalvo =
@@ -295,20 +258,15 @@ export default function LoginPage() {
       );
 
     if (emailSalvo) {
-      setEmailInput(
-        emailSalvo,
-      );
-
+      setEmailInput(emailSalvo);
       setLembrarLogin(true);
     }
   }, []);
-
 
   function limparMensagens() {
     setMensagemErro("");
     setMensagemSucesso("");
   }
-
 
   function trocarModo(
     novoModo: ModoAutenticacao,
@@ -320,7 +278,6 @@ export default function LoginPage() {
     setSenhaInput("");
     setConfirmarSenhaInput("");
   }
-
 
   async function entrarComEmail(
     event: FormEvent<HTMLFormElement>,
@@ -366,15 +323,12 @@ export default function LoginPage() {
           senhaInput,
         );
 
-      const user =
-        resultado.user;
-
       await salvarUsuarioNoFirestore(
-        user,
+        resultado.user,
       );
 
       await registrarAcesso(
-        user,
+        resultado.user,
       );
 
       window.location.href =
@@ -387,7 +341,6 @@ export default function LoginPage() {
       setCarregandoAuth(false);
     }
   }
-
 
   async function criarConta(
     event: FormEvent<HTMLFormElement>,
@@ -441,11 +394,8 @@ export default function LoginPage() {
           senhaInput,
         );
 
-      const user =
-        resultado.user;
-
       await updateProfile(
-        user,
+        resultado.user,
         {
           displayName:
             nomeInput.trim(),
@@ -453,16 +403,16 @@ export default function LoginPage() {
       );
 
       await salvarUsuarioNoFirestore(
-        user,
+        resultado.user,
         nomeInput.trim(),
       );
 
       await registrarAcesso(
-        user,
+        resultado.user,
       );
 
       await enviarVerificacao(
-        user,
+        resultado.user,
       );
 
       if (lembrarLogin) {
@@ -473,7 +423,7 @@ export default function LoginPage() {
       }
 
       setMensagemSucesso(
-        "Conta criada. Estamos preparando seu acesso.",
+        "Conta criada. Preparando seu acesso...",
       );
 
       setTimeout(() => {
@@ -489,7 +439,6 @@ export default function LoginPage() {
     }
   }
 
-
   async function entrarComGoogle() {
     limparMensagens();
 
@@ -502,24 +451,21 @@ export default function LoginPage() {
           googleProvider,
         );
 
-      const user =
-        resultado.user;
-
       await salvarUsuarioNoFirestore(
-        user,
+        resultado.user,
       );
 
       await registrarAcesso(
-        user,
+        resultado.user,
       );
 
       if (
-        user.email &&
+        resultado.user.email &&
         lembrarLogin
       ) {
         localStorage.setItem(
           "educacube_saved_email",
-          user.email,
+          resultado.user.email,
         );
       }
 
@@ -533,7 +479,6 @@ export default function LoginPage() {
       setCarregandoAuth(false);
     }
   }
-
 
   async function recuperarSenha() {
     limparMensagens();
@@ -566,26 +511,18 @@ export default function LoginPage() {
     }
   }
 
-
   const estaNoCadastro =
     modo === "cadastro";
 
-
   return (
     <main className="login-page">
-
       <div className="login-layout">
 
-        {/* =================================================
+        {/* ==========================================
             LADO ESQUERDO
-            ================================================= */}
+            ========================================== */}
 
         <section className="login-left">
-
-          <div
-            className="login-left-glow"
-            aria-hidden="true"
-          />
 
           <div className="login-container">
 
@@ -604,87 +541,114 @@ export default function LoginPage() {
 
             </div>
 
+            <div className="login-card">
 
-            <header className="login-header">
+              <header className="login-header">
 
-              <p className="login-eyebrow">
-                {estaNoCadastro
-                  ? "NOVO ACESSO"
-                  : "ÁREA DO ALUNO"}
-              </p>
+                <p className="login-eyebrow">
+                  {estaNoCadastro
+                    ? "NOVO ACESSO"
+                    : "ÁREA DO ALUNO"}
+                </p>
 
-              <h1 className="login-title">
-                {estaNoCadastro
-                  ? "Crie sua conta."
-                  : "Bem-vindo de volta."}
-              </h1>
+                <h1 className="login-title">
+                  {estaNoCadastro
+                    ? "Crie sua conta."
+                    : "Bem-vindo de volta."}
+                </h1>
 
-              <p className="login-description">
-                {estaNoCadastro
-                  ? "Preencha seus dados para acessar o EducaCube."
-                  : "Acesse sua conta para continuar seus estudos no EducaCube."}
-              </p>
+                <p className="login-description">
+                  {estaNoCadastro
+                    ? "Preencha seus dados para acessar o EducaCube."
+                    : "Acesse sua conta para continuar seus estudos no EducaCube."}
+                </p>
 
-            </header>
+              </header>
 
+              {mensagemErro && (
+                <div
+                  className="login-error"
+                  role="alert"
+                >
+                  {mensagemErro}
+                </div>
+              )}
 
-            {mensagemErro && (
-              <div
-                className="login-error"
-                role="alert"
+              {mensagemSucesso && (
+                <div
+                  className="login-success"
+                  role="status"
+                >
+                  {mensagemSucesso}
+                </div>
+              )}
+
+              <form
+                className="login-form"
+                onSubmit={
+                  estaNoCadastro
+                    ? criarConta
+                    : entrarComEmail
+                }
               >
-                {mensagemErro}
-              </div>
-            )}
 
+                {estaNoCadastro && (
+                  <div className="login-field">
 
-            {mensagemSucesso && (
-              <div
-                className="login-success"
-                role="status"
-              >
-                {mensagemSucesso}
-              </div>
-            )}
+                    <label
+                      className="login-label"
+                      htmlFor="nome"
+                    >
+                      Nome
+                    </label>
 
+                    <div className="login-input-wrapper">
 
-            <form
-              className="login-form"
-              onSubmit={
-                estaNoCadastro
-                  ? criarConta
-                  : entrarComEmail
-              }
-            >
+                      <input
+                        id="nome"
+                        className="login-input login-input-no-icon"
+                        type="text"
+                        autoComplete="name"
+                        placeholder="Seu nome"
+                        value={nomeInput}
+                        onChange={(event) =>
+                          setNomeInput(
+                            event.target.value,
+                          )
+                        }
+                      />
 
-              {estaNoCadastro && (
+                    </div>
+
+                  </div>
+                )}
+
                 <div className="login-field">
 
                   <label
                     className="login-label"
-                    htmlFor="nome"
+                    htmlFor="email"
                   >
-                    Nome
+                    E-mail
                   </label>
 
                   <div className="login-input-wrapper">
 
-                    <div
+                    <Mail
                       className="login-input-icon"
+                      size={17}
                       aria-hidden="true"
-                    >
-                      <Mail size={17} />
-                    </div>
+                    />
 
                     <input
-                      id="nome"
+                      id="email"
                       className="login-input"
-                      type="text"
-                      autoComplete="name"
-                      placeholder="Seu nome"
-                      value={nomeInput}
+                      type="email"
+                      autoComplete="email"
+                      placeholder="seu@email.com"
+                      value={emailInput}
                       onChange={(event) =>
-                        setNomeInput(
+                        setEmailInput(
                           event.target.value,
                         )
                       }
@@ -693,167 +657,57 @@ export default function LoginPage() {
                   </div>
 
                 </div>
-              )}
 
-
-              <div className="login-field">
-
-                <label
-                  className="login-label"
-                  htmlFor="email"
-                >
-                  E-mail
-                </label>
-
-                <div className="login-input-wrapper">
-
-                  <div
-                    className="login-input-icon"
-                    aria-hidden="true"
-                  >
-                    <Mail size={17} />
-                  </div>
-
-                  <input
-                    id="email"
-                    className="login-input"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="seu@email.com"
-                    value={emailInput}
-                    onChange={(event) =>
-                      setEmailInput(
-                        event.target.value,
-                      )
-                    }
-                  />
-
-                </div>
-
-              </div>
-
-
-              <div className="login-field">
-
-                <div className="login-field-header">
-
-                  <label
-                    className="login-label"
-                    htmlFor="senha"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                  >
-                    Senha
-                  </label>
-
-                  {!estaNoCadastro && (
-                    <button
-                      type="button"
-                      className="login-forgot"
-                      onClick={
-                        recuperarSenha
-                      }
-                    >
-                      Esqueceu sua senha?
-                    </button>
-                  )}
-
-                </div>
-
-
-                <div className="login-input-wrapper">
-
-                  <div
-                    className="login-input-icon"
-                    aria-hidden="true"
-                  >
-                    <LockKeyhole size={17} />
-                  </div>
-
-                  <input
-                    id="senha"
-                    className="login-input login-input-password"
-                    type={
-                      mostrarSenha
-                        ? "text"
-                        : "password"
-                    }
-                    autoComplete={
-                      estaNoCadastro
-                        ? "new-password"
-                        : "current-password"
-                    }
-                    placeholder="Digite sua senha"
-                    value={senhaInput}
-                    onChange={(event) =>
-                      setSenhaInput(
-                        event.target.value,
-                      )
-                    }
-                  />
-
-                  <button
-                    type="button"
-                    className="login-password-toggle"
-                    aria-label={
-                      mostrarSenha
-                        ? "Ocultar senha"
-                        : "Mostrar senha"
-                    }
-                    onClick={() =>
-                      setMostrarSenha(
-                        (valor) =>
-                          !valor,
-                      )
-                    }
-                  >
-                    {mostrarSenha ? (
-                      <EyeOff size={17} />
-                    ) : (
-                      <Eye size={17} />
-                    )}
-                  </button>
-
-                </div>
-
-              </div>
-
-
-              {estaNoCadastro && (
                 <div className="login-field">
 
-                  <label
-                    className="login-label"
-                    htmlFor="confirmar-senha"
-                  >
-                    Confirmar senha
-                  </label>
+                  <div className="login-field-header">
+
+                    <label
+                      className="login-label"
+                      htmlFor="senha"
+                    >
+                      Senha
+                    </label>
+
+                    {!estaNoCadastro && (
+                      <button
+                        type="button"
+                        className="login-forgot"
+                        onClick={
+                          recuperarSenha
+                        }
+                      >
+                        Esqueceu sua senha?
+                      </button>
+                    )}
+
+                  </div>
 
                   <div className="login-input-wrapper">
 
-                    <div
+                    <LockKeyhole
                       className="login-input-icon"
+                      size={17}
                       aria-hidden="true"
-                    >
-                      <LockKeyhole size={17} />
-                    </div>
+                    />
 
                     <input
-                      id="confirmar-senha"
+                      id="senha"
                       className="login-input login-input-password"
                       type={
-                        mostrarConfirmacao
+                        mostrarSenha
                           ? "text"
                           : "password"
                       }
-                      autoComplete="new-password"
-                      placeholder="Digite a senha novamente"
-                      value={
-                        confirmarSenhaInput
+                      autoComplete={
+                        estaNoCadastro
+                          ? "new-password"
+                          : "current-password"
                       }
+                      placeholder="Digite sua senha"
+                      value={senhaInput}
                       onChange={(event) =>
-                        setConfirmarSenhaInput(
+                        setSenhaInput(
                           event.target.value,
                         )
                       }
@@ -863,18 +717,18 @@ export default function LoginPage() {
                       type="button"
                       className="login-password-toggle"
                       aria-label={
-                        mostrarConfirmacao
-                          ? "Ocultar confirmação da senha"
-                          : "Mostrar confirmação da senha"
+                        mostrarSenha
+                          ? "Ocultar senha"
+                          : "Mostrar senha"
                       }
                       onClick={() =>
-                        setMostrarConfirmacao(
+                        setMostrarSenha(
                           (valor) =>
                             !valor,
                         )
                       }
                     >
-                      {mostrarConfirmacao ? (
+                      {mostrarSenha ? (
                         <EyeOff size={17} />
                       ) : (
                         <Eye size={17} />
@@ -884,151 +738,196 @@ export default function LoginPage() {
                   </div>
 
                 </div>
-              )}
 
+                {estaNoCadastro && (
+                  <div className="login-field">
 
-              {!estaNoCadastro && (
-                <div
-                  style={{
-                    marginBottom: "22px",
-                  }}
-                >
-                  <label className="login-remember">
+                    <label
+                      className="login-label"
+                      htmlFor="confirmar-senha"
+                    >
+                      Confirmar senha
+                    </label>
 
-                    <input
-                      type="checkbox"
-                      checked={lembrarLogin}
-                      onChange={(event) =>
-                        setLembrarLogin(
-                          event.target.checked,
-                        )
-                      }
-                    />
+                    <div className="login-input-wrapper">
 
-                    <span>
-                      Lembrar de mim
-                    </span>
+                      <LockKeyhole
+                        className="login-input-icon"
+                        size={17}
+                        aria-hidden="true"
+                      />
 
-                  </label>
-                </div>
-              )}
+                      <input
+                        id="confirmar-senha"
+                        className="login-input login-input-password"
+                        type={
+                          mostrarConfirmacao
+                            ? "text"
+                            : "password"
+                        }
+                        autoComplete="new-password"
+                        placeholder="Digite a senha novamente"
+                        value={
+                          confirmarSenhaInput
+                        }
+                        onChange={(event) =>
+                          setConfirmarSenhaInput(
+                            event.target.value,
+                          )
+                        }
+                      />
 
+                      <button
+                        type="button"
+                        className="login-password-toggle"
+                        aria-label={
+                          mostrarConfirmacao
+                            ? "Ocultar confirmação"
+                            : "Mostrar confirmação"
+                        }
+                        onClick={() =>
+                          setMostrarConfirmacao(
+                            (valor) =>
+                              !valor,
+                          )
+                        }
+                      >
+                        {mostrarConfirmacao ? (
+                          <EyeOff size={17} />
+                        ) : (
+                          <Eye size={17} />
+                        )}
+                      </button>
 
-              <button
-                type="submit"
-                className="login-primary-button"
-                disabled={carregandoAuth}
-              >
-                {carregandoAuth
-                  ? "Aguarde..."
-                  : estaNoCadastro
-                    ? "Criar conta"
-                    : "Entrar"}
+                    </div>
 
-                {!carregandoAuth && (
-                  <ArrowRight
-                    size={16}
-                    style={{
-                      marginLeft: 7,
-                      verticalAlign:
-                        "middle",
-                    }}
-                  />
+                  </div>
                 )}
-              </button>
 
-            </form>
+                {!estaNoCadastro && (
+                  <div className="login-options">
 
+                    <label className="login-remember">
 
-            <div className="login-divider">
+                      <input
+                        type="checkbox"
+                        checked={lembrarLogin}
+                        onChange={(event) =>
+                          setLembrarLogin(
+                            event.target.checked,
+                          )
+                        }
+                      />
 
-              <span
-                className="login-divider-line"
-              />
+                      <span>
+                        Lembrar de mim
+                      </span>
 
-              <span
-                className="login-divider-text"
-              >
-                ou
-              </span>
+                    </label>
 
-              <span
-                className="login-divider-line"
-              />
+                  </div>
+                )}
 
-            </div>
+                <button
+                  type="submit"
+                  className="login-primary-button"
+                  disabled={carregandoAuth}
+                >
+                  <span>
+                    {carregandoAuth
+                      ? "Aguarde..."
+                      : estaNoCadastro
+                        ? "Criar conta"
+                        : "Entrar"}
+                  </span>
 
+                  {!carregandoAuth && (
+                    <ArrowRight size={16} />
+                  )}
+                </button>
 
-            <button
-              type="button"
-              className="login-google-button"
-              onClick={
-                entrarComGoogle
-              }
-              disabled={carregandoAuth}
-            >
+              </form>
 
-              {/* ÍCONE OFICIAL DO GOOGLE */}
+              <div className="login-divider">
 
-              <svg
-                className="login-google-icon"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  fill="#4285F4"
-                  d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.24Z"
-                />
+                <span />
 
-                <path
-                  fill="#34A853"
-                  d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"
-                />
+                <small>
+                  ou
+                </small>
 
-                <path
-                  fill="#FBBC05"
-                  d="M6.54 13.58A5.86 5.86 0 0 1 6.23 12c0-.55.1-1.08.31-1.58V7.89H3.3A9.5 9.5 0 0 0 2.25 12c0 1.53.37 2.98 1.05 4.11l3.24-2.53Z"
-                />
+                <span />
 
-                <path
-                  fill="#EA4335"
-                  d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.45 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53c.77-2.31 2.92-4.03 5.46-4.03Z"
-                />
-              </svg>
-
-              <span>
-                Continuar com Google
-              </span>
-
-            </button>
-
-
-            <p className="login-switch">
-
-              {estaNoCadastro
-                ? "Já tem uma conta?"
-                : "Ainda não tem uma conta?"}
+              </div>
 
               <button
                 type="button"
-                className="login-switch-button"
-                onClick={() =>
-                  trocarModo(
-                    estaNoCadastro
-                      ? "login"
-                      : "cadastro",
-                  )
+                className="login-google-button"
+                onClick={
+                  entrarComGoogle
                 }
+                disabled={carregandoAuth}
               >
-                {estaNoCadastro
-                  ? "Entrar"
-                  : "Criar conta"}
+
+                <svg
+                  className="login-google-icon"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="#4285F4"
+                    d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.24Z"
+                  />
+
+                  <path
+                    fill="#34A853"
+                    d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"
+                  />
+
+                  <path
+                    fill="#FBBC05"
+                    d="M6.54 13.58A5.86 5.86 0 0 1 6.23 12c0-.55.1-1.08.31-1.58V7.89H3.3A9.5 9.5 0 0 0 2.25 12c0 1.53.37 2.98 1.05 4.11l3.24-2.53Z"
+                  />
+
+                  <path
+                    fill="#EA4335"
+                    d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.45 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53c.77-2.31 2.92-4.03 5.46-4.03Z"
+                  />
+                </svg>
+
+                <span>
+                  Continuar com Google
+                </span>
+
               </button>
 
-            </p>
+              <p className="login-switch">
 
+                {estaNoCadastro
+                  ? "Já tem uma conta?"
+                  : "Ainda não tem uma conta?"}
+
+                <button
+                  type="button"
+                  className="login-switch-button"
+                  onClick={() =>
+                    trocarModo(
+                      estaNoCadastro
+                        ? "login"
+                        : "cadastro",
+                    )
+                  }
+                >
+                  {estaNoCadastro
+                    ? "Entrar"
+                    : "Criar conta"}
+                </button>
+
+              </p>
+
+            </div>
 
             <p className="login-footer">
               EducaCube · Área do Aluno
@@ -1038,28 +937,11 @@ export default function LoginPage() {
 
         </section>
 
-
-        {/* =================================================
+        {/* ==========================================
             LADO DIREITO
-            ================================================= */}
+            ========================================== */}
 
         <section className="login-right">
-
-          <div
-            className="login-right-grid"
-            aria-hidden="true"
-          />
-
-          <div
-            className="login-decoration-circle one"
-            aria-hidden="true"
-          />
-
-          <div
-            className="login-decoration-circle two"
-            aria-hidden="true"
-          />
-
 
           <div className="login-right-content">
 
@@ -1072,65 +954,53 @@ export default function LoginPage() {
                 E
               </div>
 
-              <span className="login-right-brand-name">
+              <span>
                 EducaCube
               </span>
 
             </div>
 
-
             <div className="login-right-main">
 
-              <div className="login-right-kicker">
-
-                <span className="login-right-kicker-line" />
-
-                Área do aluno
-
-              </div>
-
+              <p className="login-right-kicker">
+                ÁREA DO ALUNO
+              </p>
 
               <h2 className="login-right-title">
                 Estudos, materiais e apoio em um só lugar.
               </h2>
 
-
               <p className="login-right-description">
-                Organize seus estudos, consulte seus materiais
-                e use a Aura quando precisar de ajuda para
-                entender um conteúdo.
+                Organize seus estudos, consulte seus
+                materiais e use a Aura quando precisar
+                de ajuda para entender um conteúdo.
               </p>
 
+              <div className="login-right-detail">
 
-              <div className="login-quote">
+                <span
+                  className="login-right-detail-line"
+                />
 
-                <p className="login-quote-text">
-                  O EducaCube reúne as ferramentas que fazem
-                  parte da rotina de estudo em um único ambiente.
+                <p>
+                  O EducaCube reúne as ferramentas
+                  que fazem parte da rotina de estudo
+                  em um único ambiente.
                 </p>
 
-                <span className="login-quote-label">
-                  EducaCube
-                </span>
-
               </div>
 
+            </div>
 
-              <div className="login-right-footer">
+            <div className="login-right-footer">
 
-                <span className="login-right-footer-label">
-                  Seu ambiente de estudos
-                </span>
+              <span>
+                EDUCACUBE
+              </span>
 
-                <span className="login-right-footer-text">
-                  Materiais, estudos e{" "}
-                  <span className="login-right-footer-aura">
-                    Aura AI
-                  </span>
-                  .
-                </span>
-
-              </div>
+              <p>
+                Seu ambiente de estudos.
+              </p>
 
             </div>
 
@@ -1139,8 +1009,8 @@ export default function LoginPage() {
         </section>
 
       </div>
-
     </main>
   );
 }
 
+  
