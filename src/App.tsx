@@ -287,6 +287,12 @@ function LabPage() {
     const [carregandoAuth, setCarregandoAuth] =
         useState(false);
 
+    const [mostrarLogin, setMostrarLogin] =
+        useState(false);
+
+    const [lembrarInput, setLembrarInput] =
+        useState(false);
+
     const [diagDescricao, setDiagDescricao] =
         useState("");
 
@@ -1632,242 +1638,65 @@ function LabPage() {
                             <div className="access-card">
 
                                 <p className="access-card__title">
-                                    {modoAutenticacao === "login"
-                                        ? "ENTRAR NO LABORATÓRIO"
-                                        : "CRIAR SUA CONTA"}
+                                    ACESSE SUA CONTA
                                 </p>
 
-                                <div
+                                <p
                                     style={{
-                                        display:
-                                            "flex",
-
-                                        gap:
-                                            "8px",
-
+                                        color:
+                                            "rgba(255,255,255,0.6)",
+                                        fontSize:
+                                            "14px",
                                         marginBottom:
                                             "18px",
                                     }}
                                 >
-
-                                    <button
-                                        type="button"
-                                        className={
-                                            modoAutenticacao ===
-                                            "login"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
-                                        }
-                                        onClick={() =>
-                                            alternarModoAutenticacao(
-                                                "login"
-                                            )
-                                        }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
-                                    >
-                                        Entrar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={
-                                            modoAutenticacao ===
-                                            "cadastro"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
-                                        }
-                                        onClick={() =>
-                                            alternarModoAutenticacao(
-                                                "cadastro"
-                                            )
-                                        }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
-                                    >
-                                        Criar conta
-                                    </button>
-
-                                </div>
-
-                                {modoAutenticacao ===
-                                    "cadastro" && (
-                                    <>
-                                        <label
-                                            className="field-label"
-                                            htmlFor="nomeInput"
-                                        >
-                                            Nome
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            id="nomeInput"
-                                            value={
-                                                nomeInput
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                setNomeInput(
-                                                    event
-                                                        .target
-                                                        .value
-                                                )
-                                            }
-                                            placeholder="Digite seu nome"
-                                            autoComplete="name"
-                                        />
-                                    </>
-                                )}
-
-                                <label
-                                    className="field-label"
-                                    htmlFor="emailInput"
-                                >
-                                    E-mail
-                                </label>
-
-                                <input
-                                    type="email"
-                                    id="emailInput"
-                                    value={
-                                        emailInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setEmailInput(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite seu e-mail"
-                                    autoComplete="email"
-                                />
-
-                                <label
-                                    className="field-label"
-                                    htmlFor="senhaInput"
-                                >
-                                    Senha
-                                </label>
-
-                                <input
-                                    type="password"
-                                    id="senhaInput"
-                                    value={
-                                        senhaInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setSenhaInput(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite sua senha"
-                                    autoComplete={
-                                        modoAutenticacao ===
-                                        "login"
-                                            ? "current-password"
-                                            : "new-password"
-                                    }
-                                />
-
-                                {modoAutenticacao ===
-                                    "cadastro" && (
-                                    <>
-                                        <label
-                                            className="field-label"
-                                            htmlFor="confirmarSenhaInput"
-                                        >
-                                            Confirmar senha
-                                        </label>
-
-                                        <input
-                                            type="password"
-                                            id="confirmarSenhaInput"
-                                            value={
-                                                confirmarSenhaInput
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                setConfirmarSenhaInput(
-                                                    event
-                                                        .target
-                                                        .value
-                                                )
-                                            }
-                                            placeholder="Digite a senha novamente"
-                                            autoComplete="new-password"
-                                        />
-                                    </>
-                                )}
+                                    Entre ou crie sua conta para
+                                    acessar os quatro instrumentos
+                                    do laboratório pedagógico.
+                                </p>
 
                                 <button
                                     type="button"
                                     className="btn-primary"
-                                    onClick={
-                                        modoAutenticacao ===
-                                        "login"
-                                            ? entrarComEmail
-                                            : criarConta
-                                    }
-                                    disabled={
-                                        carregandoAuth
-                                    }
+                                    onClick={() => {
+                                        alternarModoAutenticacao(
+                                            "login"
+                                        );
+
+                                        setMostrarLogin(
+                                            true
+                                        );
+                                    }}
+                                    style={{
+                                        width:
+                                            "100%",
+                                    }}
                                 >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : modoAutenticacao ===
-                                          "login"
-                                            ? "Entrar no laboratório"
-                                            : "Criar conta"}
+                                    Entrar no laboratório
                                 </button>
-
-                                {modoAutenticacao ===
-                                    "login" && (
-                                    <button
-                                        type="button"
-                                        className="btn-ghost"
-                                        onClick={
-                                            recuperarSenha
-                                        }
-                                        style={{
-                                            marginTop:
-                                                "10px",
-                                        }}
-                                    >
-                                        Esqueci minha senha
-                                    </button>
-                                )}
-
-                                <div className="access-divider">
-                                    ou
-                                </div>
 
                                 <button
                                     type="button"
                                     className="btn-ghost"
-                                    onClick={
-                                        loginComGoogle
-                                    }
-                                    disabled={
-                                        carregandoAuth
-                                    }
+                                    onClick={() => {
+                                        alternarModoAutenticacao(
+                                            "cadastro"
+                                        );
+
+                                        setMostrarLogin(
+                                            true
+                                        );
+                                    }}
+                                    style={{
+                                        width:
+                                            "100%",
+
+                                        marginTop:
+                                            "10px",
+                                    }}
                                 >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : "Continuar com Google"}
+                                    Criar conta
                                 </button>
 
                             </div>
@@ -2604,6 +2433,311 @@ function LabPage() {
                 )}
 
             </div>
+
+            {/* =================================================
+                TELA DE LOGIN — SPLIT SCREEN
+            ================================================= */}
+
+            {mostrarLogin && (
+                <div className="fixed inset-0 z-[100] flex h-screen w-screen bg-[#0A0A0A]">
+
+                    <button
+                        type="button"
+                        aria-label="Fechar"
+                        onClick={() =>
+                            setMostrarLogin(false)
+                        }
+                        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/70 transition hover:border-white/20 hover:text-white lg:right-6 lg:top-6"
+                    >
+                        <IconClose className="h-4 w-4" />
+                    </button>
+
+                    {/* ===========================================
+                        LADO ESQUERDO — CARD DE LOGIN
+                    =========================================== */}
+
+                    <div className="flex h-full w-full items-center justify-center overflow-y-auto px-6 py-10 lg:w-1/2">
+
+                        <div className="w-full max-w-[360px]">
+
+                            <div className="mb-8 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#170033]">
+                                    <IconCube className="h-5 w-5 text-white" />
+                                </div>
+                                <span className="text-base font-semibold text-white">
+                                    EducaCube
+                                </span>
+                            </div>
+
+                            <h2 className="text-2xl font-semibold text-white">
+                                {modoAutenticacao === "login"
+                                    ? "Entrar na sua conta"
+                                    : "Criar sua conta"}
+                            </h2>
+
+                            <p className="mt-1 text-sm text-white/50">
+                                {modoAutenticacao === "login"
+                                    ? "Bem-vindo de volta ao laboratório pedagógico."
+                                    : "Leva menos de um minuto para começar."}
+                            </p>
+
+                            <div className="mt-6 flex gap-2 rounded-xl border border-white/10 p-1">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        alternarModoAutenticacao(
+                                            "login"
+                                        )
+                                    }
+                                    className={`flex-1 rounded-lg py-1.5 text-sm font-medium transition ${
+                                        modoAutenticacao === "login"
+                                            ? "bg-[#170033] text-white"
+                                            : "text-white/50 hover:text-white"
+                                    }`}
+                                >
+                                    Entrar
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        alternarModoAutenticacao(
+                                            "cadastro"
+                                        )
+                                    }
+                                    className={`flex-1 rounded-lg py-1.5 text-sm font-medium transition ${
+                                        modoAutenticacao === "cadastro"
+                                            ? "bg-[#170033] text-white"
+                                            : "text-white/50 hover:text-white"
+                                    }`}
+                                >
+                                    Criar conta
+                                </button>
+                            </div>
+
+                            <form
+                                className="mt-6 flex flex-col gap-4"
+                                onSubmit={(event) => {
+                                    event.preventDefault();
+
+                                    if (modoAutenticacao === "login") {
+                                        entrarComEmail();
+                                    } else {
+                                        criarConta();
+                                    }
+                                }}
+                            >
+
+                                {modoAutenticacao === "cadastro" && (
+                                    <div>
+                                        <label
+                                            htmlFor="nomeInput"
+                                            className="mb-1.5 block text-xs font-medium text-white/60"
+                                        >
+                                            Nome
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="nomeInput"
+                                            value={nomeInput}
+                                            onChange={(event) =>
+                                                setNomeInput(
+                                                    event.target.value
+                                                )
+                                            }
+                                            placeholder="Digite seu nome"
+                                            autoComplete="name"
+                                            className="w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#170033] focus:ring-2 focus:ring-[#170033] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+                                        />
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label
+                                        htmlFor="emailInput"
+                                        className="mb-1.5 block text-xs font-medium text-white/60"
+                                    >
+                                        E-mail
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="emailInput"
+                                        value={emailInput}
+                                        onChange={(event) =>
+                                            setEmailInput(
+                                                event.target.value
+                                            )
+                                        }
+                                        placeholder="voce@email.com"
+                                        autoComplete="email"
+                                        className="w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#170033] focus:ring-2 focus:ring-[#170033] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        htmlFor="senhaInput"
+                                        className="mb-1.5 block text-xs font-medium text-white/60"
+                                    >
+                                        Senha
+                                    </label>
+                                    <input
+                                        type="password"
+                                        id="senhaInput"
+                                        value={senhaInput}
+                                        onChange={(event) =>
+                                            setSenhaInput(
+                                                event.target.value
+                                            )
+                                        }
+                                        placeholder="••••••••"
+                                        autoComplete={
+                                            modoAutenticacao === "login"
+                                                ? "current-password"
+                                                : "new-password"
+                                        }
+                                        className="w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#170033] focus:ring-2 focus:ring-[#170033] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+                                    />
+                                </div>
+
+                                {modoAutenticacao === "cadastro" && (
+                                    <div>
+                                        <label
+                                            htmlFor="confirmarSenhaInput"
+                                            className="mb-1.5 block text-xs font-medium text-white/60"
+                                        >
+                                            Confirmar senha
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="confirmarSenhaInput"
+                                            value={confirmarSenhaInput}
+                                            onChange={(event) =>
+                                                setConfirmarSenhaInput(
+                                                    event.target.value
+                                                )
+                                            }
+                                            placeholder="••••••••"
+                                            autoComplete="new-password"
+                                            className="w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#170033] focus:ring-2 focus:ring-[#170033] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+                                        />
+                                    </div>
+                                )}
+
+                                {modoAutenticacao === "login" && (
+                                    <div className="flex items-center justify-between">
+                                        <label className="flex items-center gap-2 text-sm text-white/60">
+                                            <input
+                                                type="checkbox"
+                                                checked={lembrarInput}
+                                                onChange={(event) =>
+                                                    setLembrarInput(
+                                                        event.target.checked
+                                                    )
+                                                }
+                                                className="h-4 w-4 rounded border-white/20 bg-[#0A0A0A] accent-[#170033]"
+                                            />
+                                            Lembrar de mim
+                                        </label>
+
+                                        <button
+                                            type="button"
+                                            onClick={recuperarSenha}
+                                            className="text-sm text-white/60 underline-offset-2 transition hover:text-white hover:underline"
+                                        >
+                                            Esqueceu a senha?
+                                        </button>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={carregandoAuth}
+                                    className="mt-1 w-full rounded-xl bg-[#170033] py-2.5 text-sm font-semibold text-white transition hover:bg-[#170033]/85 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {carregandoAuth
+                                        ? "Aguarde..."
+                                        : modoAutenticacao === "login"
+                                            ? "Entrar no laboratório"
+                                            : "Criar conta"}
+                                </button>
+
+                            </form>
+
+                            <div className="my-6 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-white/10" />
+                                <span className="text-xs text-white/40">
+                                    ou
+                                </span>
+                                <div className="h-px flex-1 bg-white/10" />
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={loginComGoogle}
+                                disabled={carregandoAuth}
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-transparent py-2.5 text-sm font-medium text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <svg
+                                    className="h-4 w-4"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fill="#EA4335"
+                                        d="M12 10.2v3.9h5.5c-.24 1.28-1.7 3.76-5.5 3.76-3.31 0-6.02-2.74-6.02-6.11S8.69 5.64 12 5.64c1.9 0 3.17.8 3.9 1.5l2.66-2.56C16.9 2.9 14.7 2 12 2 6.98 2 2.9 6.06 2.9 11.75 2.9 17.44 6.98 21.5 12 21.5c6.92 0 10.2-4.85 10.2-9.18 0-.62-.07-1.09-.15-1.55H12Z"
+                                    />
+                                </svg>
+                                {carregandoAuth
+                                    ? "Aguarde..."
+                                    : "Continuar com Google"}
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    {/* ===========================================
+                        LADO DIREITO — PAINEL DA MARCA
+                    =========================================== */}
+
+                    <div className="hidden h-full w-1/2 flex-col justify-between bg-gradient-to-br from-[#170033] to-[#0A0A0A] p-14 lg:flex">
+
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                                <IconCube className="h-4.5 w-4.5 text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-white/80">
+                                EducaCube
+                            </span>
+                        </div>
+
+                        <div className="max-w-md">
+                            <h1 className="text-4xl font-semibold leading-tight text-white">
+                                O laboratório pedagógico que
+                                acompanha a sua prática.
+                            </h1>
+
+                            <div className="mt-10 border-l-2 border-white/20 pl-4">
+                                <p className="text-lg text-white/80">
+                                    "Diagnóstico, currículo, plano
+                                    de aula e intervenção num só
+                                    lugar — economizo horas de
+                                    preparação todas as semanas."
+                                </p>
+                                <p className="mt-3 text-sm text-white/40">
+                                    Professora do Ensino Fundamental I
+                                </p>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-white/30">
+                            © {new Date().getFullYear()} EducaCube
+                        </p>
+
+                    </div>
+
+                </div>
+            )}
 
             {/* =================================================
                 BANNER DE COOKIES
