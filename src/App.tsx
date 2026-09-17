@@ -12,27 +12,6 @@ import {
     Route,
 } from "react-router-dom";
 
-import {
-    auth,
-    googleProvider,
-    db,
-} from "./lib/firebase";
-
-import {
-    createUserWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    updateProfile,
-} from "firebase/auth";
-
-import {
-    doc,
-    getDoc,
-    setDoc,
-    serverTimestamp,
-} from "firebase/firestore";
-
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
 import {
@@ -41,10 +20,11 @@ import {
 } from "./lib/analytics";
 
 /* =========================================================
- * AURA AI
+ * PÁGINAS
  * ========================================================= */
 
 import AuraAI from "./pages/AuraAI";
+import LoginPage from "./pages/LoginPage";
 
 /* =========================================================
  * COMPONENTES PESADOS
@@ -57,6 +37,10 @@ const OwlShowcase = lazy(
 const TransformDesktop = lazy(
     () => import("./components/TransformDesktop")
 );
+
+/* =========================================================
+ * TIPOS
+ * ========================================================= */
 
 type VideoIndex = 0 | 1 | 2;
 
@@ -78,7 +62,11 @@ type Resultados = {
  * ÍCONES
  * ========================================================= */
 
-function IconCube({ className }: { className?: string }) {
+function IconCube({
+    className,
+}: {
+    className?: string;
+}) {
     return (
         <svg
             className={className}
@@ -104,7 +92,12 @@ function IconDiagnostico() {
             strokeWidth="1.5"
             aria-hidden="true"
         >
-            <circle cx="10.5" cy="10.5" r="6.5" />
+            <circle
+                cx="10.5"
+                cy="10.5"
+                r="6.5"
+            />
+
             <path d="M15.5 15.5 L21 21" />
         </svg>
     );
@@ -141,6 +134,7 @@ function IconPlanejamento() {
                 height="16"
                 rx="1"
             />
+
             <path d="M8 9 H16 M8 13 H16 M8 17 H12.5" />
         </svg>
     );
@@ -155,8 +149,18 @@ function IconIntervencao() {
             strokeWidth="1.5"
             aria-hidden="true"
         >
-            <circle cx="12" cy="12" r="8" />
-            <circle cx="12" cy="12" r="3.2" />
+            <circle
+                cx="12"
+                cy="12"
+                r="8"
+            />
+
+            <circle
+                cx="12"
+                cy="12"
+                r="3.2"
+            />
+
             <path d="M12 2.5 V5 M12 19 V21.5" />
         </svg>
     );
@@ -199,7 +203,11 @@ function IconCookie() {
             strokeWidth="1.5"
             aria-hidden="true"
         >
-            <circle cx="12" cy="12" r="8.5" />
+            <circle
+                cx="12"
+                cy="12"
+                r="8.5"
+            />
 
             <circle
                 cx="9"
@@ -229,7 +237,7 @@ function IconCookie() {
 }
 
 /* =========================================================
- * LAB PAGE
+ * LAB PAGE — HOME
  * ========================================================= */
 
 function LabPage() {
@@ -267,24 +275,6 @@ function LabPage() {
         useState<ModuleName>(null);
 
     const [menuAberto, setMenuAberto] =
-        useState(false);
-
-    const [emailInput, setEmailInput] =
-        useState("");
-
-    const [senhaInput, setSenhaInput] =
-        useState("");
-
-    const [confirmarSenhaInput, setConfirmarSenhaInput] =
-        useState("");
-
-    const [nomeInput, setNomeInput] =
-        useState("");
-
-    const [modoAutenticacao, setModoAutenticacao] =
-        useState<"login" | "cadastro">("login");
-
-    const [carregandoAuth, setCarregandoAuth] =
         useState(false);
 
     const [diagDescricao, setDiagDescricao] =
@@ -331,7 +321,10 @@ function LabPage() {
             return;
         }
 
-        if (consentimento === "aceito") {
+        if (
+            consentimento ===
+            "aceito"
+        ) {
             aceitarAnalytics();
         } else {
             recusarAnalytics();
@@ -339,7 +332,9 @@ function LabPage() {
     }, []);
 
     const salvarConsentimento = (
-        escolha: "aceito" | "recusado"
+        escolha:
+            | "aceito"
+            | "recusado"
     ) => {
         localStorage.setItem(
             "educacube_cookie_consent",
@@ -352,7 +347,10 @@ function LabPage() {
             `Path=/; ` +
             `SameSite=Lax`;
 
-        if (escolha === "aceito") {
+        if (
+            escolha ===
+            "aceito"
+        ) {
             aceitarAnalytics();
         } else {
             recusarAnalytics();
@@ -361,267 +359,21 @@ function LabPage() {
         setShowCookieBanner(false);
     };
 
-    const abrirConfiguracoesCookies = () => {
-        window.location.href =
-            "/cookies.html";
-    };
-
-    /* =====================================================
-     * FIREBASE → FIRESTORE
-     * ===================================================== */
-
-    const salvarUsuarioNoFirestore = async (
-        user: any
-    ) => {
-        try {
-            if (!user || !user.uid) {
-                console.error(
-                    "Usuário Firebase inválido."
-                );
-
-                return false;
-            }
-
-            const usuarioRef =
-                doc(
-                    db,
-                    "usuarios",
-                    user.uid
-                );
-
-            const usuarioExistente =
-                await getDoc(
-                    usuarioRef
-                );
-
-            if (!usuarioExistente.exists()) {
-                await setDoc(
-                    usuarioRef,
-                    {
-                        uid: user.uid,
-                        nome: user.displayName || "",
-                        email: user.email || "",
-                        foto: user.photoURL || "",
-                        criadoEm: serverTimestamp(),
-                        ultimoLogin: serverTimestamp(),
-                    }
-                );
-
-                console.log(
-                    "✅ Perfil criado no Firestore."
-                );
-            } else {
-                await setDoc(
-                    usuarioRef,
-                    {
-                        uid: user.uid,
-                        nome: user.displayName || "",
-                        email: user.email || "",
-                        foto: user.photoURL || "",
-                        ultimoLogin: serverTimestamp(),
-                    },
-                    {
-                        merge: true,
-                    }
-                );
-
-                console.log(
-                    "✅ Perfil atualizado no Firestore."
-                );
-            }
-
-            return true;
-        } catch (error) {
-            console.error(
-                "❌ Erro ao salvar usuário no Firestore:",
-                error
-            );
-
-            return false;
-        }
-    };
-
-    /* =====================================================
-     * REGISTRAR ACESSO
-     * ===================================================== */
-
-    const registrarAcesso = async () => {
-        try {
-            const user =
-                auth.currentUser;
-
-            if (!user) {
-                console.warn(
-                    "⚠️ Não foi possível registrar acesso: usuário não autenticado."
-                );
-
-                return;
-            }
-
-            const idToken =
-                await user.getIdToken();
-
-            const response =
-                await fetch(
-                    "/api/registrar-acesso",
-                    {
-                        method: "POST",
-                        headers: {
-                            Authorization:
-                                `Bearer ${idToken}`,
-
-                            "Content-Type":
-                                "application/json",
-                        },
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-                console.error(
-                    "❌ Erro ao registrar acesso:",
-                    data
-                );
-
-                return;
-            }
-
-            console.log(
-                "✅ Acesso registrado:",
-                data
-            );
-        } catch (error) {
-            console.error(
-                "❌ Erro ao registrar acesso:",
-                error
-            );
-        }
-    };
-
-    /* =====================================================
-     * ENVIO DE VERIFICAÇÃO — RESEND
-     * ===================================================== */
-
-    const enviarEmailVerificacao = async (
-        user: any
-    ) => {
-        try {
-            const response =
-                await fetch(
-                    "/api/enviar-verificacao",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
-
-                        body: JSON.stringify({
-                            email: user.email,
-                        }),
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-                console.error(
-                    "Erro ao enviar verificação:",
-                    data
-                );
-
-                return false;
-            }
-
-            console.log(
-                "E-mail personalizado enviado pelo Resend:",
-                data
-            );
-
-            return true;
-        } catch (error) {
-            console.error(
-                "Erro ao chamar API de verificação:",
-                error
-            );
-
-            return false;
-        }
-    };
-
-    /* =====================================================
-     * LOGIN GOOGLE
-     * ===================================================== */
-
-    const loginComGoogle = async () => {
-        try {
-            setCarregandoAuth(true);
-
-            const result =
-                await signInWithPopup(
-                    auth,
-                    googleProvider
-                );
-
-            const user =
-                result.user;
-
-            console.log(
-                "Login Firebase realizado:",
-                {
-                    uid: user.uid,
-                    nome: user.displayName,
-                    email: user.email,
-                }
-            );
-
-            const salvo =
-                await salvarUsuarioNoFirestore(
-                    user
-                );
-
-            if (!salvo) {
-                alert(
-                    "Login realizado, mas não foi possível salvar seu perfil no Firestore."
-                );
-
-                return;
-            }
-
-            await registrarAcesso();
-
-            alert(
-                `Bem-vindo, ${
-                    user.displayName ||
-                    "usuário"
-                }!`
-            );
-
+    const abrirConfiguracoesCookies =
+        () => {
             window.location.href =
-                "/aura";
-        } catch (error) {
-            console.error(
-                "Erro no login com Google:",
-                error
-            );
-
-            alert(
-                "Não foi possível entrar com Google."
-            );
-        } finally {
-            setCarregandoAuth(false);
-        }
-    };
+                "/cookies.html";
+        };
 
     /* =====================================================
      * MÓDULOS
      * ===================================================== */
 
     const openModule = (
-        name: Exclude<ModuleName, null>
+        name: Exclude<
+            ModuleName,
+            null
+        >
     ) => {
         setActiveModule(name);
     };
@@ -667,7 +419,8 @@ function LabPage() {
         const firstVideo =
             videos[0];
 
-        firstVideo.currentTime = 0;
+        firstVideo.currentTime =
+            0;
 
         firstVideo
             .play()
@@ -687,7 +440,9 @@ function LabPage() {
             ) => {
                 const handleEnded =
                     () => {
-                        if (index === 2) {
+                        if (
+                            index === 2
+                        ) {
                             return;
                         }
 
@@ -706,7 +461,8 @@ function LabPage() {
 
                         const nextIndex =
                             (
-                                index + 1
+                                index +
+                                1
                             ) as VideoIndex;
 
                         const nextVideo =
@@ -833,433 +589,114 @@ function LabPage() {
      * DIAGNÓSTICO
      * ===================================================== */
 
-    const executarDiagnostico = () => {
-        if (
-            !diagDescricao.trim()
-        ) {
-            alert(
-                "Descreva a necessidade observada."
-            );
-
-            return;
-        }
-
-        setResultado(
-            (
-                prev
-            ) => ({
-                ...prev,
-
-                diagnostico:
-                    "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
-            })
-        );
-    };
-
-    /* =====================================================
-     * BNCC
-     * ===================================================== */
-
-    const consultarBNCC = () => {
-        if (
-            !buscaBNCC.trim()
-        ) {
-            alert(
-                "Digite algo para pesquisar."
-            );
-
-            return;
-        }
-
-        setResultado(
-            (
-                prev
-            ) => ({
-                ...prev,
-
-                bncc:
-                    "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
-            })
-        );
-    };
-
-    /* =====================================================
-     * PLANEJAMENTO
-     * ===================================================== */
-
-    const gerarPlano = () => {
-        if (
-            !temaPlano.trim() ||
-            !objetivoPlano.trim()
-        ) {
-            alert(
-                "Informe o tema e o objetivo."
-            );
-
-            return;
-        }
-
-        setResultado(
-            (
-                prev
-            ) => ({
-                ...prev,
-
-                planejamento:
-                    "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
-            })
-        );
-    };
-
-    /* =====================================================
-     * INTERVENÇÃO
-     * ===================================================== */
-
-    const gerarIntervencao = () => {
-        if (
-            !necessidadeIntervencao.trim()
-        ) {
-            alert(
-                "Informe a necessidade identificada."
-            );
-
-            return;
-        }
-
-        setResultado(
-            (
-                prev
-            ) => ({
-                ...prev,
-
-                intervencao:
-                    "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
-            })
-        );
-    };
-
-    /* =====================================================
-     * AUTENTICAÇÃO — LOGIN E-MAIL
-     * ===================================================== */
-
-    const entrarComEmail = async () => {
-        const email =
-            emailInput.trim();
-
-        const senha =
-            senhaInput;
-
-        if (
-            !email ||
-            !senha
-        ) {
-            alert(
-                "Digite seu e-mail e sua senha."
-            );
-
-            return;
-        }
-
-        setCarregandoAuth(true);
-
-        try {
-            const result =
-                await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    senha
-                );
-
-            console.log(
-                "Login com e-mail realizado:",
-                {
-                    uid:
-                        result.user.uid,
-
-                    email:
-                        result.user.email,
-                }
-            );
-
-            const salvo =
-                await salvarUsuarioNoFirestore(
-                    result.user
-                );
-
-            if (!salvo) {
+    const executarDiagnostico =
+        () => {
+            if (
+                !diagDescricao.trim()
+            ) {
                 alert(
-                    "Login realizado, mas não foi possível salvar seu perfil no Firestore."
+                    "Descreva a necessidade observada."
                 );
 
                 return;
             }
 
-            await registrarAcesso();
+            setResultado(
+                (
+                    prev
+                ) => ({
+                    ...prev,
 
-            window.location.href =
-                "/aura";
-        } catch (error: any) {
-            console.error(
-                "Erro no login com e-mail:",
-                error
+                    diagnostico:
+                        "A interface está funcionando. A integração com a IA ainda precisa ser conectada ao backend.",
+                })
             );
-
-            if (
-                error.code ===
-                    "auth/invalid-credential" ||
-                error.code ===
-                    "auth/wrong-password" ||
-                error.code ===
-                    "auth/user-not-found"
-            ) {
-                alert(
-                    "E-mail ou senha incorretos."
-                );
-            } else if (
-                error.code ===
-                "auth/invalid-email"
-            ) {
-                alert(
-                    "Digite um e-mail válido."
-                );
-            } else if (
-                error.code ===
-                "auth/too-many-requests"
-            ) {
-                alert(
-                    "Muitas tentativas. Aguarde alguns minutos e tente novamente."
-                );
-            } else {
-                alert(
-                    "Não foi possível entrar. Tente novamente."
-                );
-            }
-        } finally {
-            setCarregandoAuth(false);
-        }
-    };
+        };
 
     /* =====================================================
-     * CRIAR CONTA
+     * BNCC
      * ===================================================== */
 
-    const criarConta = async () => {
-        const nome =
-            nomeInput.trim();
-
-        const email =
-            emailInput.trim();
-
-        const senha =
-            senhaInput;
-
-        const confirmarSenha =
-            confirmarSenhaInput;
-
-        if (!nome) {
-            alert(
-                "Digite seu nome."
-            );
-
-            return;
-        }
-
-        if (
-            !email ||
-            !senha ||
-            !confirmarSenha
-        ) {
-            alert(
-                "Preencha todos os campos."
-            );
-
-            return;
-        }
-
-        if (
-            senha.length < 6
-        ) {
-            alert(
-                "A senha precisa ter pelo menos 6 caracteres."
-            );
-
-            return;
-        }
-
-        if (
-            senha !==
-            confirmarSenha
-        ) {
-            alert(
-                "As senhas não coincidem."
-            );
-
-            return;
-        }
-
-        setCarregandoAuth(true);
-
-        try {
-            const result =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    senha
-                );
-
-            await updateProfile(
-                result.user,
-                {
-                    displayName:
-                        nome,
-                }
-            );
-
-            const salvo =
-                await salvarUsuarioNoFirestore(
-                    result.user
-                );
-
-            if (!salvo) {
-                console.warn(
-                    "Conta Firebase criada, mas o perfil não foi salvo no Firestore."
-                );
-            }
-
-            await registrarAcesso();
-
-            const emailEnviado =
-                await enviarEmailVerificacao(
-                    result.user
-                );
-
-            if (!emailEnviado) {
-                console.warn(
-                    "Conta criada, mas o e-mail de verificação não pôde ser enviado pelo Resend."
-                );
-            }
-
-            console.log(
-                "Conta criada:",
-                {
-                    uid:
-                        result.user.uid,
-
-                    email:
-                        result.user.email,
-
-                    nome:
-                        result.user.displayName,
-                }
-            );
-
-            alert(
-                "Conta criada com sucesso! Enviamos um e-mail de verificação para você. Depois de confirmar seu e-mail, você poderá entrar no laboratório."
-            );
-
-            setModoAutenticacao(
-                "login"
-            );
-
-            setSenhaInput("");
-
-            setConfirmarSenhaInput("");
-        } catch (error: any) {
-            console.error(
-                "Erro ao criar conta:",
-                error
-            );
-
+    const consultarBNCC =
+        () => {
             if (
-                error.code ===
-                "auth/email-already-in-use"
+                !buscaBNCC.trim()
             ) {
                 alert(
-                    "Este e-mail já possui uma conta. Tente entrar."
+                    "Digite algo para pesquisar."
                 );
-            } else if (
-                error.code ===
-                "auth/invalid-email"
-            ) {
-                alert(
-                    "Digite um e-mail válido."
-                );
-            } else if (
-                error.code ===
-                "auth/weak-password"
-            ) {
-                alert(
-                    "A senha é muito fraca. Use pelo menos 6 caracteres."
-                );
-            } else {
-                alert(
-                    "Não foi possível criar a conta. Tente novamente."
-                );
+
+                return;
             }
-        } finally {
-            setCarregandoAuth(false);
-        }
-    };
+
+            setResultado(
+                (
+                    prev
+                ) => ({
+                    ...prev,
+
+                    bncc:
+                        "A interface de consulta está funcionando. A base BNCC ainda precisa ser conectada.",
+                })
+            );
+        };
 
     /* =====================================================
-     * RECUPERAÇÃO DE SENHA
+     * PLANEJAMENTO
      * ===================================================== */
 
-    const recuperarSenha = async () => {
-        const email =
-            emailInput.trim();
-
-        if (!email) {
-            alert(
-                "Digite seu e-mail no campo acima para recuperar sua senha."
-            );
-
-            return;
-        }
-
-        try {
-            await sendPasswordResetEmail(
-                auth,
-                email
-            );
-
-            alert(
-                "Se existir uma conta com esse e-mail, enviaremos as instruções para redefinir sua senha."
-            );
-        } catch (error: any) {
-            console.error(
-                "Erro ao recuperar senha:",
-                error
-            );
-
+    const gerarPlano =
+        () => {
             if (
-                error.code ===
-                "auth/invalid-email"
+                !temaPlano.trim() ||
+                !objetivoPlano.trim()
             ) {
                 alert(
-                    "Digite um e-mail válido."
+                    "Informe o tema e o objetivo."
                 );
-            } else {
-                alert(
-                    "Não foi possível enviar o e-mail de recuperação."
-                );
+
+                return;
             }
-        }
-    };
 
-    const alternarModoAutenticacao = (
-        modo:
-            | "login"
-            | "cadastro"
-    ) => {
-        setModoAutenticacao(
-            modo
-        );
+            setResultado(
+                (
+                    prev
+                ) => ({
+                    ...prev,
 
-        setSenhaInput("");
+                    planejamento:
+                        "O formulário está funcionando. A geração automática ainda precisa da integração com a IA.",
+                })
+            );
+        };
 
-        setConfirmarSenhaInput("");
-    };
+    /* =====================================================
+     * INTERVENÇÃO
+     * ===================================================== */
+
+    const gerarIntervencao =
+        () => {
+            if (
+                !necessidadeIntervencao.trim()
+            ) {
+                alert(
+                    "Informe a necessidade identificada."
+                );
+
+                return;
+            }
+
+            setResultado(
+                (
+                    prev
+                ) => ({
+                    ...prev,
+
+                    intervencao:
+                        "O módulo está funcionando. A geração da estratégia ainda precisa da integração com a IA.",
+                })
+            );
+        };
 
     /* =====================================================
      * DADOS DOS MÓDULOS
@@ -1403,20 +840,12 @@ function LabPage() {
 
                 <div className="site-actions">
 
-                    <button
-                        type="button"
+                    <a
+                        href="/login"
                         className="btn-ghost"
-                        onClick={
-                            loginComGoogle
-                        }
-                        disabled={
-                            carregandoAuth
-                        }
                     >
-                        {carregandoAuth
-                            ? "Aguarde..."
-                            : "Entrar com Google"}
-                    </button>
+                        Área do Aluno
+                    </a>
 
                     <a
                         href="/aura"
@@ -1449,9 +878,12 @@ function LabPage() {
                 >
 
                     {menuAberto
-                        ? <IconClose />
-                        : <IconMenu />
-                    }
+                        ? (
+                            <IconClose />
+                        )
+                        : (
+                            <IconMenu />
+                        )}
 
                 </button>
 
@@ -1494,19 +926,9 @@ function LabPage() {
                         Mapa da aprendizagem
                     </a>
 
-                    <button
-                        type="button"
-                        onClick={
-                            loginComGoogle
-                        }
-                        disabled={
-                            carregandoAuth
-                        }
-                    >
-                        {carregandoAuth
-                            ? "Aguarde..."
-                            : "Entrar com Google"}
-                    </button>
+                    <a href="/login">
+                        Área do Aluno
+                    </a>
 
                     <a href="/aura">
                         AURA AI
@@ -1629,246 +1051,56 @@ function LabPage() {
                                 no lugar da prática, não em vez dela.
                             </p>
 
+                            {/* =================================================
+                                ACESSO AO LABORATÓRIO
+                                LOGIN REMOVIDO DA HOME
+                            ================================================= */}
+
                             <div className="access-card">
 
                                 <p className="access-card__title">
-                                    {modoAutenticacao === "login"
-                                        ? "ENTRAR NO LABORATÓRIO"
-                                        : "CRIAR SUA CONTA"}
+                                    ÁREA DO ALUNO
                                 </p>
 
-                                <div
+                                <p
+                                    style={{
+                                        margin:
+                                            "0 0 20px",
+
+                                        lineHeight:
+                                            1.7,
+
+                                        opacity:
+                                            0.78,
+                                    }}
+                                >
+                                    Acesse seu espaço de trabalho,
+                                    seus estudos e a inteligência
+                                    pedagógica do EducaCube.
+                                </p>
+
+                                <a
+                                    href="/login"
+                                    className="btn-primary"
                                     style={{
                                         display:
                                             "flex",
 
-                                        gap:
-                                            "8px",
+                                        width:
+                                            "100%",
 
-                                        marginBottom:
-                                            "18px",
+                                        justifyContent:
+                                            "center",
+
+                                        alignItems:
+                                            "center",
+
+                                        textDecoration:
+                                            "none",
                                     }}
                                 >
-
-                                    <button
-                                        type="button"
-                                        className={
-                                            modoAutenticacao ===
-                                            "login"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
-                                        }
-                                        onClick={() =>
-                                            alternarModoAutenticacao(
-                                                "login"
-                                            )
-                                        }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
-                                    >
-                                        Entrar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={
-                                            modoAutenticacao ===
-                                            "cadastro"
-                                                ? "btn-primary"
-                                                : "btn-ghost"
-                                        }
-                                        onClick={() =>
-                                            alternarModoAutenticacao(
-                                                "cadastro"
-                                            )
-                                        }
-                                        style={{
-                                            flex:
-                                                1,
-                                        }}
-                                    >
-                                        Criar conta
-                                    </button>
-
-                                </div>
-
-                                {modoAutenticacao ===
-                                    "cadastro" && (
-                                    <>
-                                        <label
-                                            className="field-label"
-                                            htmlFor="nomeInput"
-                                        >
-                                            Nome
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            id="nomeInput"
-                                            value={
-                                                nomeInput
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                setNomeInput(
-                                                    event
-                                                        .target
-                                                        .value
-                                                )
-                                            }
-                                            placeholder="Digite seu nome"
-                                            autoComplete="name"
-                                        />
-                                    </>
-                                )}
-
-                                <label
-                                    className="field-label"
-                                    htmlFor="emailInput"
-                                >
-                                    E-mail
-                                </label>
-
-                                <input
-                                    type="email"
-                                    id="emailInput"
-                                    value={
-                                        emailInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setEmailInput(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite seu e-mail"
-                                    autoComplete="email"
-                                />
-
-                                <label
-                                    className="field-label"
-                                    htmlFor="senhaInput"
-                                >
-                                    Senha
-                                </label>
-
-                                <input
-                                    type="password"
-                                    id="senhaInput"
-                                    value={
-                                        senhaInput
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setSenhaInput(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                    placeholder="Digite sua senha"
-                                    autoComplete={
-                                        modoAutenticacao ===
-                                        "login"
-                                            ? "current-password"
-                                            : "new-password"
-                                    }
-                                />
-
-                                {modoAutenticacao ===
-                                    "cadastro" && (
-                                    <>
-                                        <label
-                                            className="field-label"
-                                            htmlFor="confirmarSenhaInput"
-                                        >
-                                            Confirmar senha
-                                        </label>
-
-                                        <input
-                                            type="password"
-                                            id="confirmarSenhaInput"
-                                            value={
-                                                confirmarSenhaInput
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                setConfirmarSenhaInput(
-                                                    event
-                                                        .target
-                                                        .value
-                                                )
-                                            }
-                                            placeholder="Digite a senha novamente"
-                                            autoComplete="new-password"
-                                        />
-                                    </>
-                                )}
-
-                                <button
-                                    type="button"
-                                    className="btn-primary"
-                                    onClick={
-                                        modoAutenticacao ===
-                                        "login"
-                                            ? entrarComEmail
-                                            : criarConta
-                                    }
-                                    disabled={
-                                        carregandoAuth
-                                    }
-                                >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : modoAutenticacao ===
-                                          "login"
-                                            ? "Entrar no laboratório"
-                                            : "Criar conta"}
-                                </button>
-
-                                {modoAutenticacao ===
-                                    "login" && (
-                                    <button
-                                        type="button"
-                                        className="btn-ghost"
-                                        onClick={
-                                            recuperarSenha
-                                        }
-                                        style={{
-                                            marginTop:
-                                                "10px",
-                                        }}
-                                    >
-                                        Esqueci minha senha
-                                    </button>
-                                )}
-
-                                <div className="access-divider">
-                                    ou
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className="btn-ghost"
-                                    onClick={
-                                        loginComGoogle
-                                    }
-                                    disabled={
-                                        carregandoAuth
-                                    }
-                                >
-                                    {carregandoAuth
-                                        ? "Aguarde..."
-                                        : "Continuar com Google"}
-                                </button>
+                                    Entrar na plataforma
+                                </a>
 
                             </div>
 
@@ -2705,13 +1937,31 @@ function LabPage() {
 }
 
 /* =========================================================
- * APP (ROTEADOR)
+ * APP — ROTEADOR
  * ========================================================= */
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
+
+                {/* =================================================
+                    LOGIN INDEPENDENTE
+                ================================================= */}
+
+                <Route
+                    path="/login"
+                    element={<LoginPage />}
+                />
+
+                <Route
+                    path="/login/"
+                    element={<LoginPage />}
+                />
+
+                {/* =================================================
+                    AURA AI
+                ================================================= */}
 
                 <Route
                     path="/aura"
@@ -2722,6 +1972,10 @@ function App() {
                     path="/aura/"
                     element={<AuraAI />}
                 />
+
+                {/* =================================================
+                    HOME
+                ================================================= */}
 
                 <Route
                     path="/*"
