@@ -1,0 +1,326 @@
+
+/* =========================================================
+   EDUCACUBE — LOGIN
+   Paleta fechada:
+   #0A0A0A — preto
+   #170033 — roxo principal
+========================================================= */
+
+.login-page {
+  --login-black: #0A0A0A;
+  --login-purple: #170033;
+
+  min-height: 100vh;
+  width: 100%;
+  background: var(--login-black);
+  color: #ffffff;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+.login-page *,
+.login-page *::before,
+.login-page *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.login-layout {
+  min-height: 100vh;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* =========================================================
+   LADO ESQUERDO
+========================================================= */
+
+.login-left {
+  position: relative;
+
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 48px 32px;
+
+  background: var(--login-black);
+
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: "";
+
+  position: absolute;
+
+  width: 520px;
+  height: 520px;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(23, 0, 51, 0.42) 0%,
+      rgba(23, 0, 51, 0.18) 34%,
+      transparent 70%
+    );
+
+  filter: blur(50px);
+
+  pointer-events: none;
+}
+
+.login-container {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 360px;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.login-logo {
+  display: inline-flex;
+
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 52px;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.login-logo:hover {
+  opacity: 0.82;
+  transform: translateY(-1px);
+}
+
+.login-logo-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: var(--login-purple);
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+
+  color: #ffffff;
+
+  box-shadow:
+    0 10px 35px rgba(23, 0, 51, 0.35);
+}
+
+.login-logo-name {
+  font-size: 20px;
+  font-weight: 650;
+
+  letter-spacing: -0.04em;
+
+  color: #ffffff;
+}
+
+.login-logo-name span {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.login-header {
+  margin-bottom: 30px;
+}
+
+.login-eyebrow {
+  margin: 0 0 11px;
+
+  font-size: 10px;
+  line-height: 1;
+
+  font-weight: 700;
+
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.login-title {
+  margin: 0;
+
+  font-size: clamp(30px, 4vw, 38px);
+
+  line-height: 1.04;
+
+  font-weight: 650;
+
+  letter-spacing: -0.055em;
+
+  color: #ffffff;
+}
+
+.login-description {
+  max-width: 370px;
+
+  margin: 12px 0 0;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* =========================================================
+   MENSAGENS
+========================================================= */
+
+.login-error {
+  margin-bottom: 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: rgba(23, 0, 51, 0.65);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.login-success {
+  margin-bottom: 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: rgba(23, 0, 51, 0.8);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
+
+.login-form {
+  width: 100%;
+}
+
+.login-field {
+  margin-bottom: 18px;
+}
+
+.login-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 11px;
+
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.login-field-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+}
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.login-input-wrapper {
+  position: relative;
+
+  width: 100%;
+}
+
+.login-input-icon {
+  position: absolute;
+
+  left: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgba(255, 255, 255, 0.28);
+
+  pointer-events: none;
+
+  transition: color 180ms ease;
+}
+
+.login-input-wrapper:focus-within
+.login-input-icon {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.login-input {
+  width: 100%;
+  height:
+
