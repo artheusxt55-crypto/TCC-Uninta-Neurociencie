@@ -1,4 +1,3 @@
-
 import {
   useEffect,
   useState,
@@ -7,6 +6,8 @@ import {
 import type {
   FormEvent,
 } from "react";
+
+import "../styles/login.css";
 
 import {
   auth,
@@ -52,6 +53,7 @@ function CubeIcon() {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
+
       <path
         d="m4.5 7.4 7.5 4.2 7.5-4.2M12 11.6v9"
         stroke="currentColor"
@@ -80,6 +82,7 @@ function MailIcon() {
         stroke="currentColor"
         strokeWidth="1.7"
       />
+
       <path
         d="m4 7 8 6 8-6"
         stroke="currentColor"
@@ -109,6 +112,7 @@ function LockIcon() {
         stroke="currentColor"
         strokeWidth="1.7"
       />
+
       <path
         d="M8 10V7a4 4 0 0 1 8 0v3"
         stroke="currentColor"
@@ -135,6 +139,7 @@ function UserIcon() {
         stroke="currentColor"
         strokeWidth="1.7"
       />
+
       <path
         d="M5.5 20c.7-3.2 2.9-5 6.5-5s5.8 1.8 6.5 5"
         stroke="currentColor"
@@ -150,28 +155,33 @@ function EyeIcon({
 }: {
   aberto: boolean;
 }) {
-  return aberto ? (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M2.8 12s3.3-5.2 9.2-5.2S21.2 12 21.2 12s-3.3 5.2-9.2 5.2S2.8 12 2.8 12Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-      <circle
-        cx="12"
-        cy="12"
-        r="2.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-    </svg>
-  ) : (
+  if (aberto) {
+    return (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M2.8 12s3.3-5.2 9.2-5.2S21.2 12 21.2 12s-3.3 5.2-9.2 5.2S2.8 12 2.8 12Z"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        />
+
+        <circle
+          cx="12"
+          cy="12"
+          r="2.5"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        />
+      </svg>
+    );
+  }
+
+  return (
     <svg
       width="18"
       height="18"
@@ -185,6 +195,7 @@ function EyeIcon({
         strokeWidth="1.7"
         strokeLinecap="round"
       />
+
       <path
         d="M10.6 6.9A9.8 9.8 0 0 1 12 6.8c5.9 0 9.2 5.2 9.2 5.2a17.7 17.7 0 0 1-3.1 3.4M6.2 8.7C4 10.2 2.8 12 2.8 12S6.1 17.2 12 17.2c1.1 0 2.1-.2 3-.5"
         stroke="currentColor"
@@ -208,14 +219,17 @@ function GoogleIcon() {
         fill="#4285F4"
         d="M21.35 12.27c0-.72-.06-1.41-.19-2.07H12v3.91h5.23a4.47 4.47 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.92-4.18 2.92-7.2Z"
       />
+
       <path
         fill="#34A853"
         d="M12 21.75c2.63 0 4.84-.87 6.45-2.35l-3.14-2.43c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.29v2.5A9.75 9.75 0 0 0 12 21.75Z"
       />
+
       <path
         fill="#FBBC05"
         d="M6.54 13.86A5.86 5.86 0 0 1 6.23 12c0-.65.11-1.28.31-1.86v-2.5H3.29A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.04 4.36l3.25-2.5Z"
       />
+
       <path
         fill="#EA4335"
         d="M12 6.11c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.22 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.71 5.39l3.25 2.5C6.31 7.83 8.46 6.11 12 6.11Z"
@@ -229,31 +243,48 @@ function GoogleIcon() {
 ========================================================= */
 
 export default function LoginPage() {
-  const [modo, setModo] = useState<"login" | "cadastro">("login");
+  const [modo, setModo] =
+    useState<"login" | "cadastro">("login");
 
-  const [emailInput, setEmailInput] = useState("");
-  const [senhaInput, setSenhaInput] = useState("");
-  const [confirmarSenhaInput, setConfirmarSenhaInput] = useState("");
-  const [nomeInput, setNomeInput] = useState("");
+  const [emailInput, setEmailInput] =
+    useState("");
 
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+  const [senhaInput, setSenhaInput] =
+    useState("");
 
-  const [lembrarLogin, setLembrarLogin] = useState(false);
+  const [confirmarSenhaInput, setConfirmarSenhaInput] =
+    useState("");
 
-  const [carregandoAuth, setCarregandoAuth] = useState(false);
+  const [nomeInput, setNomeInput] =
+    useState("");
 
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [mostrarSenha, setMostrarSenha] =
+    useState(false);
+
+  const [mostrarConfirmacao, setMostrarConfirmacao] =
+    useState(false);
+
+  const [lembrarLogin, setLembrarLogin] =
+    useState(false);
+
+  const [carregandoAuth, setCarregandoAuth] =
+    useState(false);
+
+  const [mensagemErro, setMensagemErro] =
+    useState("");
+
+  const [mensagemSucesso, setMensagemSucesso] =
+    useState("");
 
   /* =========================================================
      RECUPERA E-MAIL SALVO
   ========================================================= */
 
   useEffect(() => {
-    const emailSalvo = localStorage.getItem(
-      "educacube_saved_email",
-    );
+    const emailSalvo =
+      localStorage.getItem(
+        "educacube_saved_email",
+      );
 
     if (emailSalvo) {
       setEmailInput(emailSalvo);
@@ -265,28 +296,42 @@ export default function LoginPage() {
      FIRESTORE
   ========================================================= */
 
-  async function salvarUsuarioNoFirestore(user: User) {
+  async function salvarUsuarioNoFirestore(
+    user: User,
+  ) {
     const usuarioRef = doc(
       db,
       "usuarios",
       user.uid,
     );
 
-    const usuarioAtual = await getDoc(usuarioRef);
+    const usuarioAtual =
+      await getDoc(usuarioRef);
 
-    const dadosUsuario: Record<string, unknown> = {
+    const dadosUsuario: Record<
+      string,
+      unknown
+    > = {
       uid: user.uid,
+
       nome:
         user.displayName ||
         nomeInput ||
         "",
-      email: user.email || "",
-      foto: user.photoURL || "",
-      ultimoLogin: serverTimestamp(),
+
+      email:
+        user.email || "",
+
+      foto:
+        user.photoURL || "",
+
+      ultimoLogin:
+        serverTimestamp(),
     };
 
     if (!usuarioAtual.exists()) {
-      dadosUsuario.criadoEm = serverTimestamp();
+      dadosUsuario.criadoEm =
+        serverTimestamp();
     }
 
     await setDoc(
@@ -302,17 +347,24 @@ export default function LoginPage() {
      REGISTRAR ACESSO
   ========================================================= */
 
-  async function registrarAcesso(user: User) {
+  async function registrarAcesso(
+    user: User,
+  ) {
     try {
-      const token = await user.getIdToken();
+      const token =
+        await user.getIdToken();
 
       await fetch(
         "/api/registrar-acesso",
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
           },
         },
       );
@@ -328,17 +380,24 @@ export default function LoginPage() {
      E-MAIL DE VERIFICAÇÃO
   ========================================================= */
 
-  async function enviarEmailVerificacao(user: User) {
+  async function enviarEmailVerificacao(
+    user: User,
+  ) {
     try {
-      const token = await user.getIdToken();
+      const token =
+        await user.getIdToken();
 
       await fetch(
         "/api/enviar-verificacao",
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
           },
         },
       );
@@ -354,12 +413,19 @@ export default function LoginPage() {
      FINALIZAR LOGIN
   ========================================================= */
 
-  async function finalizarLogin(user: User) {
-    await salvarUsuarioNoFirestore(user);
+  async function finalizarLogin(
+    user: User,
+  ) {
+    await salvarUsuarioNoFirestore(
+      user,
+    );
 
     await registrarAcesso(user);
 
-    if (lembrarLogin && user.email) {
+    if (
+      lembrarLogin &&
+      user.email
+    ) {
       localStorage.setItem(
         "educacube_saved_email",
         user.email,
@@ -370,7 +436,8 @@ export default function LoginPage() {
       );
     }
 
-    window.location.href = "/aura";
+    window.location.href =
+      "/aura";
   }
 
   /* =========================================================
@@ -396,7 +463,9 @@ export default function LoginPage() {
       console.error(error);
 
       setMensagemErro(
-        obterMensagemFirebase(error),
+        obterMensagemFirebase(
+          error,
+        ),
       );
     } finally {
       setCarregandoAuth(false);
@@ -412,6 +481,7 @@ export default function LoginPage() {
       setMensagemErro(
         "Digite seu e-mail.",
       );
+
       return;
     }
 
@@ -419,6 +489,7 @@ export default function LoginPage() {
       setMensagemErro(
         "Digite sua senha.",
       );
+
       return;
     }
 
@@ -441,7 +512,9 @@ export default function LoginPage() {
       console.error(error);
 
       setMensagemErro(
-        obterMensagemFirebase(error),
+        obterMensagemFirebase(
+          error,
+        ),
       );
     } finally {
       setCarregandoAuth(false);
@@ -457,6 +530,7 @@ export default function LoginPage() {
       setMensagemErro(
         "Digite seu nome.",
       );
+
       return;
     }
 
@@ -464,6 +538,7 @@ export default function LoginPage() {
       setMensagemErro(
         "Digite seu e-mail.",
       );
+
       return;
     }
 
@@ -471,6 +546,7 @@ export default function LoginPage() {
       setMensagemErro(
         "A senha precisa ter pelo menos 6 caracteres.",
       );
+
       return;
     }
 
@@ -481,6 +557,7 @@ export default function LoginPage() {
       setMensagemErro(
         "As senhas não coincidem.",
       );
+
       return;
     }
 
@@ -530,7 +607,7 @@ export default function LoginPage() {
         "Conta criada com sucesso. Redirecionando...",
       );
 
-      setTimeout(() => {
+      window.setTimeout(() => {
         window.location.href =
           "/aura";
       }, 900);
@@ -538,7 +615,9 @@ export default function LoginPage() {
       console.error(error);
 
       setMensagemErro(
-        obterMensagemFirebase(error),
+        obterMensagemFirebase(
+          error,
+        ),
       );
     } finally {
       setCarregandoAuth(false);
@@ -554,6 +633,7 @@ export default function LoginPage() {
       setMensagemErro(
         "Digite seu e-mail para recuperar a senha.",
       );
+
       return;
     }
 
@@ -574,7 +654,9 @@ export default function LoginPage() {
       console.error(error);
 
       setMensagemErro(
-        obterMensagemFirebase(error),
+        obterMensagemFirebase(
+          error,
+        ),
       );
     } finally {
       setCarregandoAuth(false);
@@ -617,75 +699,76 @@ export default function LoginPage() {
   ========================================================= */
 
   return (
-    <main
-      className="min-h-screen w-full bg-[#0A0A0A] text-white"
-      style={{
-        fontFamily:
-          "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}
-    >
-      <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
+    <main className="login-page">
+
+      <div className="login-layout">
+
         {/* =================================================
             LADO ESQUERDO
-        ================================================== */}
+        ================================================= */}
 
-        <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10 sm:px-10 lg:px-12">
-          {/* brilho extremamente discreto */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[130px]"
-            style={{
-              background:
-                "radial-gradient(circle, #170033 0%, transparent 68%)",
-            }}
-          />
+        <section className="login-left">
 
-          <div className="relative z-10 w-full max-w-[380px]">
+          <div className="login-left-glow" />
+
+          <div className="login-container">
+
             {/* LOGO */}
 
             <a
               href="/"
-              className="mb-12 flex w-fit items-center gap-3 transition-opacity hover:opacity-80"
+              className="login-logo"
               aria-label="Voltar para o EducaCube"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#170033] text-purple-300">
+              <span className="login-logo-icon">
                 <CubeIcon />
               </span>
 
-              <span className="text-[20px] font-semibold tracking-[-0.03em]">
-                Educa<span className="text-purple-400">Cube</span>
+              <span className="login-logo-name">
+                Educa<span>Cube</span>
               </span>
             </a>
 
             {/* CABEÇALHO */}
 
-            <div className="mb-8">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-400">
+            <div className="login-header">
+
+              <p className="login-eyebrow">
                 Área do aluno
               </p>
 
-              <h1 className="text-[32px] font-semibold tracking-[-0.04em] text-white sm:text-[36px]">
+              <h1 className="login-title">
                 {modo === "login"
                   ? "Bem-vindo de volta."
                   : "Crie sua conta."}
               </h1>
 
-              <p className="mt-3 text-[14px] leading-6 text-white/45">
+              <p className="login-description">
                 {modo === "login"
                   ? "Entre para continuar seus estudos no EducaCube."
                   : "Crie seu acesso ao laboratório educacional do EducaCube."}
               </p>
+
             </div>
 
-            {/* MENSAGENS */}
+            {/* MENSAGEM DE ERRO */}
 
             {mensagemErro && (
-              <div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[13px] leading-5 text-red-300">
+              <div
+                className="login-error"
+                role="alert"
+              >
                 {mensagemErro}
               </div>
             )}
 
+            {/* MENSAGEM DE SUCESSO */}
+
             {mensagemSucesso && (
-              <div className="mb-5 rounded-xl border border-purple-400/20 bg-purple-500/[0.08] px-4 py-3 text-[13px] leading-5 text-purple-200">
+              <div
+                className="login-success"
+                role="status"
+              >
                 {mensagemSucesso}
               </div>
             )}
@@ -694,21 +777,24 @@ export default function LoginPage() {
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-5"
+              className="login-form"
             >
+
               {/* NOME */}
 
               {modo === "cadastro" && (
-                <div>
+                <div className="login-field">
+
                   <label
                     htmlFor="nome"
-                    className="mb-2 block text-[12px] font-medium text-white/65"
+                    className="login-label"
                   >
                     Nome
                   </label>
 
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                  <div className="login-input-wrapper">
+
+                    <span className="login-input-icon">
                       <UserIcon />
                     </span>
 
@@ -723,24 +809,27 @@ export default function LoginPage() {
                       }
                       placeholder="Seu nome"
                       autoComplete="name"
-                      className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.035] pl-11 pr-4 text-[14px] text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-purple-500/70 focus:bg-white/[0.045] focus:ring-4 focus:ring-purple-500/10"
+                      className="login-input"
                     />
+
                   </div>
                 </div>
               )}
 
               {/* E-MAIL */}
 
-              <div>
+              <div className="login-field">
+
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-[12px] font-medium text-white/65"
+                  className="login-label"
                 >
                   E-mail
                 </label>
 
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                <div className="login-input-wrapper">
+
+                  <span className="login-input-icon">
                     <MailIcon />
                   </span>
 
@@ -755,18 +844,21 @@ export default function LoginPage() {
                     }
                     placeholder="voce@exemplo.com"
                     autoComplete="email"
-                    className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.035] pl-11 pr-4 text-[14px] text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-purple-500/70 focus:bg-white/[0.045] focus:ring-4 focus:ring-purple-500/10"
+                    className="login-input"
                   />
+
                 </div>
               </div>
 
               {/* SENHA */}
 
-              <div>
-                <div className="mb-2 flex items-center justify-between">
+              <div className="login-field">
+
+                <div className="login-field-header">
+
                   <label
                     htmlFor="senha"
-                    className="block text-[12px] font-medium text-white/65"
+                    className="login-label"
                   >
                     Senha
                   </label>
@@ -777,15 +869,17 @@ export default function LoginPage() {
                       onClick={() =>
                         void recuperarSenha()
                       }
-                      className="text-[12px] font-medium text-purple-400 transition hover:text-purple-300"
+                      className="login-forgot"
                     >
                       Esqueceu a senha?
                     </button>
                   )}
+
                 </div>
 
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                <div className="login-input-wrapper">
+
+                  <span className="login-input-icon">
                     <LockIcon />
                   </span>
 
@@ -808,7 +902,7 @@ export default function LoginPage() {
                         ? "current-password"
                         : "new-password"
                     }
-                    className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.035] pl-11 pr-12 text-[14px] text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-purple-500/70 focus:bg-white/[0.045] focus:ring-4 focus:ring-purple-500/10"
+                    className="login-input login-input-password"
                   />
 
                   <button
@@ -818,7 +912,7 @@ export default function LoginPage() {
                         (valor) => !valor,
                       )
                     }
-                    className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/5 hover:text-white/60"
+                    className="login-password-toggle"
                     aria-label={
                       mostrarSenha
                         ? "Ocultar senha"
@@ -829,22 +923,25 @@ export default function LoginPage() {
                       aberto={mostrarSenha}
                     />
                   </button>
+
                 </div>
               </div>
 
-              {/* CONFIRMAÇÃO */}
+              {/* CONFIRMAR SENHA */}
 
               {modo === "cadastro" && (
-                <div>
+                <div className="login-field">
+
                   <label
                     htmlFor="confirmarSenha"
-                    className="mb-2 block text-[12px] font-medium text-white/65"
+                    className="login-label"
                   >
                     Confirmar senha
                   </label>
 
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                  <div className="login-input-wrapper">
+
+                    <span className="login-input-icon">
                       <LockIcon />
                     </span>
 
@@ -865,7 +962,7 @@ export default function LoginPage() {
                       }
                       placeholder="••••••••"
                       autoComplete="new-password"
-                      className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.035] pl-11 pr-12 text-[14px] text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-purple-500/70 focus:bg-white/[0.045] focus:ring-4 focus:ring-purple-500/10"
+                      className="login-input login-input-password"
                     />
 
                     <button
@@ -875,7 +972,7 @@ export default function LoginPage() {
                           (valor) => !valor,
                         )
                       }
-                      className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/5 hover:text-white/60"
+                      className="login-password-toggle"
                       aria-label={
                         mostrarConfirmacao
                           ? "Ocultar confirmação de senha"
@@ -888,14 +985,16 @@ export default function LoginPage() {
                         }
                       />
                     </button>
+
                   </div>
                 </div>
               )}
 
-              {/* LEMBRAR */}
+              {/* LEMBRAR E-MAIL */}
 
               {modo === "login" && (
-                <label className="flex cursor-pointer items-center gap-3 text-[12px] text-white/45">
+                <label className="login-remember">
+
                   <input
                     type="checkbox"
                     checked={lembrarLogin}
@@ -904,12 +1003,12 @@ export default function LoginPage() {
                         event.target.checked,
                       )
                     }
-                    className="h-4 w-4 cursor-pointer rounded border-white/20 bg-white/5 accent-purple-600"
                   />
 
                   <span>
                     Lembrar meu e-mail
                   </span>
+
                 </label>
               )}
 
@@ -918,9 +1017,9 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={carregandoAuth}
-                className="group relative flex h-12 w-full items-center justify-center overflow-hidden rounded-xl bg-[#170033] text-[13px] font-semibold text-white transition duration-200 hover:bg-[#23004d] hover:shadow-[0_0_35px_rgba(91,33,182,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="login-primary-button"
               >
-                <span className="relative z-10">
+                <span>
                   {carregandoAuth
                     ? "Aguarde..."
                     : modo === "login"
@@ -928,18 +1027,21 @@ export default function LoginPage() {
                       : "Criar minha conta"}
                 </span>
               </button>
+
             </form>
 
             {/* DIVISOR */}
 
-            <div className="my-7 flex items-center gap-4">
-              <div className="h-px flex-1 bg-white/[0.08]" />
+            <div className="login-divider">
 
-              <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/25">
+              <span className="login-divider-line" />
+
+              <span className="login-divider-text">
                 ou
               </span>
 
-              <div className="h-px flex-1 bg-white/[0.08]" />
+              <span className="login-divider-line" />
+
             </div>
 
             {/* GOOGLE */}
@@ -950,7 +1052,7 @@ export default function LoginPage() {
                 void loginComGoogle()
               }
               disabled={carregandoAuth}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-transparent text-[13px] font-medium text-white/75 transition hover:border-white/20 hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="login-google-button"
             >
               <GoogleIcon />
 
@@ -961,94 +1063,81 @@ export default function LoginPage() {
 
             {/* TROCAR MODO */}
 
-            <p className="mt-8 text-center text-[13px] text-white/35">
+            <p className="login-switch">
+
               {modo === "login"
                 ? "Ainda não possui uma conta?"
                 : "Já possui uma conta?"}{" "}
+
               <button
                 type="button"
                 onClick={alternarModo}
-                className="font-medium text-purple-400 transition hover:text-purple-300"
+                className="login-switch-button"
               >
                 {modo === "login"
                   ? "Criar conta"
                   : "Entrar"}
               </button>
+
             </p>
 
             {/* RODAPÉ */}
 
-            <div className="mt-10 text-center">
-              <p className="text-[10px] leading-5 text-white/20">
-                EducaCube · Laboratório de Pesquisa
-                e Práticas Pedagógicas
-              </p>
+            <div className="login-footer">
+              EducaCube · Laboratório de Pesquisa
+              e Práticas Pedagógicas
             </div>
+
           </div>
         </section>
 
         {/* =================================================
             LADO DIREITO
-        ================================================== */}
+        ================================================= */}
 
-        <section className="relative hidden min-h-screen overflow-hidden bg-[#170033] lg:flex">
-          {/* textura / iluminação */}
+        <section className="login-right">
 
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 70% 25%, rgba(124,58,237,0.28), transparent 30%), radial-gradient(circle at 25% 80%, rgba(76,29,149,0.22), transparent 35%), #170033",
-            }}
-          />
+          <div className="login-right-grid" />
 
-          {/* grid discreto */}
+          <div className="login-decoration-circle one" />
 
-          <div
-            className="absolute inset-0 opacity-[0.055]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
-              backgroundSize:
-                "48px 48px",
-            }}
-          />
+          <div className="login-decoration-circle two" />
 
-          {/* círculo decorativo */}
+          <div className="login-right-content">
 
-          <div className="absolute -right-32 -top-32 h-[420px] w-[420px] rounded-full border border-white/[0.06]" />
-
-          <div className="absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full border border-white/[0.05]" />
-
-          <div className="relative z-10 flex w-full flex-col justify-between p-12 xl:p-16">
             {/* MARCA */}
 
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/20 text-purple-200">
-                <CubeIcon />
-              </div>
+            <div className="login-right-brand">
 
-              <span className="text-[17px] font-semibold tracking-[-0.02em] text-white/90">
+              <span className="login-right-brand-icon">
+                <CubeIcon />
+              </span>
+
+              <span className="login-right-brand-name">
                 EducaCube
               </span>
+
             </div>
 
-            {/* TEXTO PRINCIPAL */}
+            {/* CONTEÚDO PRINCIPAL */}
 
-            <div className="max-w-[590px]">
-              <div className="mb-7 flex items-center gap-3">
-                <span className="h-px w-10 bg-purple-300/50" />
+            <div className="login-right-main">
 
-                <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-200/70">
+              <div className="login-right-kicker">
+
+                <span className="login-right-kicker-line" />
+
+                <span>
                   Educação + tecnologia
                 </span>
+
               </div>
 
-              <h2 className="max-w-[570px] text-[48px] font-semibold leading-[1.05] tracking-[-0.055em] text-white xl:text-[58px]">
+              <h2 className="login-right-title">
                 A inteligência educacional começa com a prática pedagógica.
               </h2>
 
-              <p className="mt-7 max-w-[510px] text-[15px] leading-7 text-purple-100/55">
+              <p className="login-right-description">
                 Um ambiente pensado para quem
                 pesquisa, diagnostica, planeja e
                 intervém na aprendizagem — com
@@ -1058,46 +1147,57 @@ export default function LoginPage() {
 
               {/* PRINCÍPIO */}
 
-              <div className="mt-12 max-w-[500px] border-l border-purple-300/25 pl-5">
-                <p className="text-[15px] leading-7 text-white/65">
+              <div className="login-quote">
+
+                <p className="login-quote-text">
                   “Tecnologia para organizar o
                   trabalho pedagógico sem
                   substituir o olhar de quem
                   ensina.”
                 </p>
 
-                <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200/40">
+                <p className="login-quote-label">
                   Princípio EducaCube
                 </p>
+
               </div>
+
             </div>
 
             {/* RODAPÉ DIREITO */}
 
-            <div className="flex items-end justify-between gap-8">
+            <div className="login-right-footer">
+
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-purple-200/35">
+
+                <p className="login-right-footer-label">
                   Laboratório de Pesquisa
                 </p>
 
-                <p className="mt-1 text-[11px] text-white/30">
+                <p className="login-right-footer-text">
                   Práticas pedagógicas orientadas
                   por tecnologia.
                 </p>
+
               </div>
 
-              <div className="hidden text-right xl:block">
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/25">
+              <div className="login-right-footer-aura">
+
+                <strong>
                   EDUCACUBE
-                </p>
+                </strong>
 
-                <p className="mt-1 text-[10px] text-white/20">
+                <span>
                   AURA AI
-                </p>
+                </span>
+
               </div>
+
             </div>
+
           </div>
         </section>
+
       </div>
     </main>
   );
@@ -1119,8 +1219,9 @@ function obterMensagemFirebase(
   }
 
   const codigo = String(
-    (error as { code?: unknown }).code ||
-      "",
+    (error as {
+      code?: unknown;
+    }).code || "",
   );
 
   switch (codigo) {
@@ -1157,8 +1258,13 @@ function obterMensagemFirebase(
     case "auth/network-request-failed":
       return "Não foi possível conectar ao Firebase. Verifique sua internet.";
 
+    case "auth/operation-not-allowed":
+      return "Este método de login não está habilitado no Firebase.";
+
+    case "auth/user-disabled":
+      return "Esta conta foi desativada.";
+
     default:
       return "Não foi possível concluir o login. Tente novamente.";
   }
 }
-
