@@ -1,863 +1,781 @@
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700&display=swap");
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 
-.login-page {
-  --black: #0A0A0A;
-  --purple: #170033;
+import { auth, googleProvider, db } from "../lib/firebase";
 
-  width: 100%;
-  min-height: 100vh;
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
 
-  background: var(--black);
+import type { User } from "firebase/auth";
 
-  color: #ffffff;
+import {
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 
-  font-family: "Inter", sans-serif;
-}
+import {
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  Mail,
+  UserRound,
+  ArrowRight,
+} from "lucide-react";
 
-.login-layout {
-  display: grid;
+import "../styles/login.css";
 
-  grid-template-columns: 1fr 1fr;
+type ModoAutenticacao = "login" | "cadastro";
 
-  width: 100%;
-  min-height: 100vh;
-}
+const EMAIL_SALVO_KEY = "educacube_saved_email";
 
-/* =========================================
-   LEFT — BLACK
-   ========================================= */
+function obterMensagemErroFirebase(error: unknown): string {
+  const code =
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as { code?: unknown }).code === "string"
+      ? (error as { code: string }).code
+      : "";
 
-.login-left {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  switch (code) {
+    case "auth/invalid-email":
+      return "Digite um endereço de e-mail válido.";
 
-  min-height: 100vh;
+    case "auth/user-not-found":
+      return "Não encontramos uma conta com esse e-mail.";
 
-  padding: 36px 32px;
+    case "auth/wrong-password":
+      return "A senha informada está incorreta.";
 
-  background: #0A0A0A;
+    case "auth/invalid-credential":
+      return "E-mail ou senha incorretos.";
 
-  overflow: hidden;
-}
+    case "auth/email-already-in-use":
+      return "Este e-mail já possui uma conta.";
 
-.login-container {
-  width: 100%;
-  max-width: 420px;
+    case "auth/weak-password":
+      return "A senha precisa ter pelo menos 6 caracteres.";
 
-  display: flex;
-  flex-direction: column;
+    case "auth/popup-closed-by-user":
+      return "A janela do Google foi fechada.";
 
-  margin: 0 auto;
-}
+    case "auth/popup-blocked":
+      return "O navegador bloqueou a janela de login do Google.";
 
-.login-logo {
-  display: flex;
-  align-items: center;
+    case "auth/account-exists-with-different-credential":
+      return "Este e-mail já está associado a outro método de acesso.";
 
-  gap: 9px;
+    case "auth/too-many-requests":
+      return "Muitas tentativas. Aguarde alguns instantes e tente novamente.";
 
-  margin-bottom: 30px;
-}
+    case "auth/network-request-failed":
+      return "Não foi possível conectar ao servidor. Verifique sua internet.";
 
-.login-logo-icon {
-  width: 29px;
-  height: 29px;
+    case "auth/operation-not-allowed":
+      return "Este método de login ainda não está disponível.";
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    case "auth/user-disabled":
+      return "Esta conta foi desativada.";
 
-  border-radius: 8px;
-
-  background: #170033;
-
-  border: 1px solid rgba(255,255,255,0.12);
-
-  color: #ffffff;
-
-  font-family: "Manrope", sans-serif;
-
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.login-logo-name {
-  color: #ffffff;
-
-  font-size: 15px;
-  font-weight: 600;
-
-  letter-spacing: -0.02em;
-}
-
-/* =========================================
-   CARD
-   ========================================= */
-
-.login-card {
-  width: 100%;
-  max-width: 360px;
-
-  margin: 0 auto;
-}
-
-.login-header {
-  margin-bottom: 21px;
-}
-
-.login-eyebrow {
-  margin: 0 0 8px;
-
-  color: rgba(255,255,255,0.38);
-
-  font-size: 10px;
-  font-weight: 600;
-
-  letter-spacing: 0.13em;
-
-  text-transform: uppercase;
-}
-
-.login-title {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-family: "Manrope", sans-serif;
-
-  font-size: 29px;
-  font-weight: 700;
-
-  line-height: 1.08;
-
-  letter-spacing: -0.045em;
-}
-
-.login-description {
-  margin: 9px 0 0;
-
-  max-width: 340px;
-
-  color: rgba(255,255,255,0.48);
-
-  font-size: 12px;
-
-  line-height: 1.55;
-}
-
-/* =========================================
-   MESSAGES
-   ========================================= */
-
-.login-error,
-.login-success {
-  padding: 9px 11px;
-
-  margin-bottom: 14px;
-
-  border-radius: 9px;
-
-  font-size: 11px;
-
-  line-height: 1.4;
-}
-
-.login-error {
-  border: 1px solid rgba(255,70,70,0.2);
-
-  background: rgba(255,70,70,0.06);
-
-  color: #ffb5b5;
-}
-
-.login-success {
-  border: 1px solid rgba(150,100,255,0.2);
-
-  background: rgba(126,34,206,0.07);
-
-  color: #d8c5ff;
-}
-
-/* =========================================
-   FORM
-   ========================================= */
-
-.login-form {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 15px;
-}
-
-.login-field {
-  width: 100%;
-}
-
-.login-field-header {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  margin-bottom: 7px;
-}
-
-.login-label {
-  display: block;
-
-  margin-bottom: 7px;
-
-  color: rgba(255,255,255,0.72);
-
-  font-size: 11px;
-
-  font-weight: 500;
-}
-
-.login-field-header .login-label {
-  margin-bottom: 0;
-}
-
-.login-input-wrapper {
-  position: relative;
-
-  width: 100%;
-}
-
-.login-input {
-  width: 100%;
-
-  height: 44px;
-
-  box-sizing: border-box;
-
-  padding: 0 13px 0 39px;
-
-  border: 1px solid rgba(255,255,255,0.12);
-
-  border-radius: 12px;
-
-  outline: none;
-
-  background: rgba(255,255,255,0.025);
-
-  color: #ffffff;
-
-  font-family: "Inter", sans-serif;
-
-  font-size: 12px;
-
-  transition:
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.login-input-no-icon {
-  padding-left: 13px;
-}
-
-.login-input::placeholder {
-  color: rgba(255,255,255,0.25);
-}
-
-.login-input:hover {
-  border-color: rgba(255,255,255,0.18);
-}
-
-.login-input:focus {
-  border-color: rgba(124,58,237,0.75);
-
-  background: rgba(124,58,237,0.025);
-
-  box-shadow:
-    0 0 0 3px rgba(124,58,237,0.11);
-}
-
-.login-input-icon {
-  position: absolute;
-
-  top: 50%;
-  left: 13px;
-
-  transform: translateY(-50%);
-
-  color: rgba(255,255,255,0.32);
-
-  pointer-events: none;
-}
-
-.login-input-password {
-  padding-right: 42px;
-}
-
-.login-password-toggle {
-  position: absolute;
-
-  top: 50%;
-  right: 9px;
-
-  width: 28px;
-  height: 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transform: translateY(-50%);
-
-  border: 0;
-  border-radius: 7px;
-
-  background: transparent;
-
-  color: rgba(255,255,255,0.34);
-
-  cursor: pointer;
-}
-
-.login-password-toggle:hover {
-  color: #ffffff;
-
-  background: rgba(255,255,255,0.05);
-}
-
-.login-forgot {
-  padding: 0;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #b993ff;
-
-  font-family: "Inter", sans-serif;
-
-  font-size: 10px;
-
-  cursor: pointer;
-}
-
-.login-forgot:hover {
-  color: #d3bcff;
-}
-
-/* =========================================
-   REMEMBER
-   ========================================= */
-
-.login-options {
-  display: flex;
-
-  align-items: center;
-
-  margin-top: -1px;
-}
-
-.login-remember {
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  color: rgba(255,255,255,0.45);
-
-  font-size: 10px;
-
-  cursor: pointer;
-}
-
-.login-remember input {
-  width: 13px;
-  height: 13px;
-
-  margin: 0;
-
-  accent-color: #7c3aed;
-
-  cursor: pointer;
-}
-
-/* =========================================
-   PRIMARY
-   ========================================= */
-
-.login-primary-button {
-  width: 100%;
-
-  height: 44px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 6px;
-
-  margin-top: 1px;
-
-  border: 1px solid rgba(255,255,255,0.08);
-
-  border-radius: 12px;
-
-  background: #170033;
-
-  color: #ffffff;
-
-  font-family: "Inter", sans-serif;
-
-  font-size: 11px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.login-primary-button:hover:not(:disabled) {
-  background: #23004b;
-
-  transform: translateY(-1px);
-}
-
-.login-primary-button:focus-visible {
-  outline: none;
-
-  box-shadow:
-    0 0 0 3px rgba(124,58,237,0.15);
-}
-
-.login-primary-button:disabled {
-  opacity: 0.55;
-
-  cursor: not-allowed;
-}
-
-/* =========================================
-   DIVIDER
-   ========================================= */
-
-.login-divider {
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  margin: 18px 0 15px;
-}
-
-.login-divider span {
-  flex: 1;
-
-  height: 1px;
-
-  background: rgba(255,255,255,0.08);
-}
-
-.login-divider small {
-  color: rgba(255,255,255,0.28);
-
-  font-size: 9px;
-}
-
-/* =========================================
-   GOOGLE
-   ========================================= */
-
-.login-google-button {
-  width: 100%;
-
-  height: 44px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 9px;
-
-  border: 1px solid rgba(255,255,255,0.13);
-
-  border-radius: 12px;
-
-  background: transparent;
-
-  color: rgba(255,255,255,0.82);
-
-  font-family: "Inter", sans-serif;
-
-  font-size: 11px;
-
-  font-weight: 500;
-
-  cursor: pointer;
-
-  transition:
-    background 160ms ease,
-    border-color 160ms ease;
-}
-
-.login-google-button:hover:not(:disabled) {
-  background: rgba(255,255,255,0.035);
-
-  border-color: rgba(255,255,255,0.22);
-}
-
-.login-google-button:focus-visible {
-  outline: none;
-
-  box-shadow:
-    0 0 0 3px rgba(124,58,237,0.13);
-}
-
-.login-google-button:disabled {
-  opacity: 0.5;
-
-  cursor: not-allowed;
-}
-
-.login-google-icon {
-  display: block;
-
-  flex-shrink: 0;
-}
-
-/* =========================================
-   SWITCH
-   ========================================= */
-
-.login-switch {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 5px;
-
-  margin: 16px 0 0;
-
-  color: rgba(255,255,255,0.36);
-
-  font-size: 10px;
-}
-
-.login-switch-button {
-  padding: 0;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #b993ff;
-
-  font-family: "Inter", sans-serif;
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.login-switch-button:hover {
-  color: #d3bcff;
-}
-
-/* =========================================
-   FOOTER
-   ========================================= */
-
-.login-footer {
-  margin: 25px 0 0;
-
-  color: rgba(255,255,255,0.18);
-
-  font-size: 8px;
-
-  letter-spacing: 0.03em;
-}
-
-/* =========================================
-   RIGHT — PURPLE
-   ========================================= */
-
-.login-right {
-  position: relative;
-
-  min-height: 100vh;
-
-  background: #170033;
-
-  overflow: hidden;
-}
-
-.login-right::before {
-  content: "";
-
-  position: absolute;
-
-  width: 620px;
-  height: 620px;
-
-  right: -230px;
-  top: -230px;
-
-  border: 1px solid rgba(255,255,255,0.06);
-
-  border-radius: 50%;
-}
-
-.login-right::after {
-  content: "";
-
-  position: absolute;
-
-  width: 420px;
-  height: 420px;
-
-  right: -130px;
-  bottom: -170px;
-
-  border: 1px solid rgba(255,255,255,0.045);
-
-  border-radius: 50%;
-}
-
-.login-right-content {
-  position: relative;
-
-  z-index: 2;
-
-  width: 100%;
-  min-height: 100vh;
-
-  box-sizing: border-box;
-
-  display: flex;
-
-  flex-direction: column;
-
-  padding: 48px 58px;
-}
-
-.login-right-brand {
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
-  color: #ffffff;
-
-  font-size: 15px;
-
-  font-weight: 600;
-}
-
-.login-right-brand-icon {
-  width: 29px;
-  height: 29px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(255,255,255,0.17);
-
-  border-radius: 8px;
-
-  background: rgba(255,255,255,0.055);
-
-  font-family: "Manrope", sans-serif;
-
-  font-size: 14px;
-
-  font-weight: 700;
-}
-
-.login-right-main {
-  width: 100%;
-
-  max-width: 520px;
-
-  margin: auto 0;
-}
-
-.login-right-kicker {
-  margin: 0 0 15px;
-
-  color: rgba(255,255,255,0.43);
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.14em;
-}
-
-.login-right-title {
-  max-width: 510px;
-
-  margin: 0;
-
-  color: #ffffff;
-
-  font-family: "Manrope", sans-serif;
-
-  font-size: clamp(38px, 4vw, 58px);
-
-  line-height: 1.04;
-
-  letter-spacing: -0.055em;
-}
-
-.login-right-description {
-  max-width: 450px;
-
-  margin: 23px 0 0;
-
-  color: rgba(255,255,255,0.57);
-
-  font-size: 14px;
-
-  line-height: 1.7;
-}
-
-.login-right-detail {
-  display: flex;
-
-  align-items: flex-start;
-
-  gap: 14px;
-
-  max-width: 430px;
-
-  margin-top: 34px;
-}
-
-.login-right-detail-line {
-  width: 2px;
-  min-width: 2px;
-
-  height: 40px;
-
-  background: rgba(255,255,255,0.23);
-}
-
-.login-right-detail p {
-  margin: 0;
-
-  color: rgba(255,255,255,0.42);
-
-  font-size: 12px;
-
-  line-height: 1.65;
-}
-
-.login-right-footer {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  color: rgba(255,255,255,0.27);
-
-  font-size: 9px;
-
-  letter-spacing: 0.08em;
-}
-
-.login-right-footer span {
-  font-weight: 600;
-}
-
-.login-right-footer p {
-  margin: 0;
-
-  color: rgba(255,255,255,0.25);
-
-  font-size: 9px;
-
-  letter-spacing: 0;
-}
-
-/* =========================================
-   RESPONSIVE
-   ========================================= */
-
-@media (max-width: 1023px) {
-  .login-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .login-right {
-    display: none;
-  }
-
-  .login-left {
-    padding: 30px 24px;
-  }
-
-  .login-container {
-    max-width: 420px;
-  }
-
-  .login-logo {
-    align-self: center;
-
-    margin-bottom: 28px;
-  }
-
-  .login-footer {
-    text-align: center;
+    default:
+      return "Não foi possível concluir o acesso. Tente novamente.";
   }
 }
 
-@media (max-width: 480px) {
-  .login-left {
-    padding: 26px 18px;
-  }
+async function registrarUsuarioFirestore(
+  user: User,
+  nome?: string,
+) {
+  const referencia = doc(db, "usuarios", user.uid);
 
-  .login-card {
-    max-width: 360px;
-  }
+  await setDoc(
+    referencia,
+    {
+      uid: user.uid,
+      nome:
+        nome?.trim() ||
+        user.displayName ||
+        "Usuário EducaCube",
+      email: user.email || "",
+      foto: user.photoURL || "",
+      ultimoLogin: serverTimestamp(),
+      criadoEm: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
+}
 
-  .login-title {
-    font-size: 27px;
-  }
+async function registrarAcessoApi(user: User) {
+  try {
+    const token = await user.getIdToken();
 
-  .login-description {
-    font-size: 11px;
-  }
-
-  .login-form {
-    gap: 14px;
-  }
-
-  .login-input,
-  .login-primary-button,
-  .login-google-button {
-    height: 43px;
+    await fetch("/api/registrar-acesso", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch {
+    // O login não deve ser bloqueado caso o registro de acesso falhe.
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .login-input,
-  .login-primary-button,
-  .login-google-button,
-  .login-password-toggle {
-    transition: none;
+async function enviarVerificacaoApi(user: User) {
+  try {
+    const token = await user.getIdToken();
+
+    await fetch("/api/enviar-verificacao", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch {
+    // A criação da conta não deve ser bloqueada por uma falha no envio.
   }
 }
 
+export default function LoginPage() {
+  const [modo, setModo] =
+    useState<ModoAutenticacao>("login");
+
+  const [emailInput, setEmailInput] = useState("");
+  const [senhaInput, setSenhaInput] = useState("");
+  const [confirmarSenhaInput, setConfirmarSenhaInput] =
+    useState("");
+  const [nomeInput, setNomeInput] = useState("");
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] =
+    useState(false);
+
+  const [lembrarLogin, setLembrarLogin] = useState(false);
+
+  const [carregandoAuth, setCarregandoAuth] =
+    useState(false);
+
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [mensagemSucesso, setMensagemSucesso] =
+    useState("");
+
+  useEffect(() => {
+    const emailSalvo =
+      window.localStorage.getItem(EMAIL_SALVO_KEY);
+
+    if (emailSalvo) {
+      setEmailInput(emailSalvo);
+      setLembrarLogin(true);
+    }
+  }, []);
+
+  function limparMensagens() {
+    setMensagemErro("");
+    setMensagemSucesso("");
+  }
+
+  function trocarModo(novoModo: ModoAutenticacao) {
+    limparMensagens();
+    setModo(novoModo);
+  }
+
+  async function finalizarLogin(user: User) {
+    await registrarUsuarioFirestore(user);
+    await registrarAcessoApi(user);
+
+    if (lembrarLogin) {
+      window.localStorage.setItem(
+        EMAIL_SALVO_KEY,
+        emailInput.trim(),
+      );
+    } else {
+      window.localStorage.removeItem(EMAIL_SALVO_KEY);
+    }
+
+    window.location.href = "/aura";
+  }
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    limparMensagens();
+
+    const email = emailInput.trim();
+
+    if (!email || !senhaInput) {
+      setMensagemErro(
+        "Preencha seu e-mail e sua senha para continuar.",
+      );
+      return;
+    }
+
+    setCarregandoAuth(true);
+
+    try {
+      const resultado =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          senhaInput,
+        );
+
+      await finalizarLogin(resultado.user);
+    } catch (error) {
+      setMensagemErro(
+        obterMensagemErroFirebase(error),
+      );
+    } finally {
+      setCarregandoAuth(false);
+    }
+  }
+
+  async function handleCadastro(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    limparMensagens();
+
+    const nome = nomeInput.trim();
+    const email = emailInput.trim();
+
+    if (!nome || !email || !senhaInput || !confirmarSenhaInput) {
+      setMensagemErro(
+        "Preencha todos os campos para criar sua conta.",
+      );
+      return;
+    }
+
+    if (senhaInput.length < 6) {
+      setMensagemErro(
+        "A senha precisa ter pelo menos 6 caracteres.",
+      );
+      return;
+    }
+
+    if (senhaInput !== confirmarSenhaInput) {
+      setMensagemErro(
+        "As senhas não coincidem.",
+      );
+      return;
+    }
+
+    setCarregandoAuth(true);
+
+    try {
+      const resultado =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          senhaInput,
+        );
+
+      await updateProfile(resultado.user, {
+        displayName: nome,
+      });
+
+      await registrarUsuarioFirestore(
+        resultado.user,
+        nome,
+      );
+
+      await registrarAcessoApi(resultado.user);
+      await enviarVerificacaoApi(resultado.user);
+
+      window.location.href = "/aura";
+    } catch (error) {
+      setMensagemErro(
+        obterMensagemErroFirebase(error),
+      );
+    } finally {
+      setCarregandoAuth(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    limparMensagens();
+    setCarregandoAuth(true);
+
+    try {
+      const resultado = await signInWithPopup(
+        auth,
+        googleProvider,
+      );
+
+      await registrarUsuarioFirestore(resultado.user);
+      await registrarAcessoApi(resultado.user);
+
+      window.location.href = "/aura";
+    } catch (error) {
+      setMensagemErro(
+        obterMensagemErroFirebase(error),
+      );
+    } finally {
+      setCarregandoAuth(false);
+    }
+  }
+
+  async function handleEsqueciSenha() {
+    limparMensagens();
+
+    const email = emailInput.trim();
+
+    if (!email) {
+      setMensagemErro(
+        "Digite seu e-mail para receber o link de redefinição.",
+      );
+      return;
+    }
+
+    setCarregandoAuth(true);
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+
+      setMensagemSucesso(
+        "Enviamos um link para redefinir sua senha.",
+      );
+    } catch (error) {
+      setMensagemErro(
+        obterMensagemErroFirebase(error),
+      );
+    } finally {
+      setCarregandoAuth(false);
+    }
+  }
+
+  const estaNoCadastro = modo === "cadastro";
+
+  return (
+    <main className="login-page">
+      <div className="login-layout">
+        <section className="login-left">
+          <div className="login-container">
+            <a
+              href="/"
+              className="login-logo"
+              aria-label="Voltar para o EducaCube"
+            >
+              <span className="login-logo-mark">E</span>
+
+              <span className="login-logo-text">
+                Educa<span>Cube</span>
+              </span>
+            </a>
+
+            <div className="login-card">
+              <header className="login-header">
+                <span className="login-eyebrow">
+                  {estaNoCadastro
+                    ? "NOVO ACESSO"
+                    : "ÁREA DO ALUNO"}
+                </span>
+
+                <h1 className="login-title">
+                  {estaNoCadastro ? (
+                    <>
+                      Crie sua conta no{" "}
+                      <span>EducaCube.</span>
+                    </>
+                  ) : (
+                    <>
+                      Bem-vindo de volta ao{" "}
+                      <span>EducaCube.</span>
+                    </>
+                  )}
+                </h1>
+
+                <p className="login-description">
+                  {estaNoCadastro
+                    ? "Preencha seus dados para acessar o EducaCube."
+                    : "Acesse sua conta para continuar seus estudos no EducaCube."}
+                </p>
+              </header>
+
+              {mensagemErro && (
+                <div
+                  className="login-message login-message-error"
+                  role="alert"
+                >
+                  {mensagemErro}
+                </div>
+              )}
+
+              {mensagemSucesso && (
+                <div
+                  className="login-message login-message-success"
+                  role="status"
+                >
+                  {mensagemSucesso}
+                </div>
+              )}
+
+              <form
+                className="login-form"
+                onSubmit={
+                  estaNoCadastro
+                    ? handleCadastro
+                    : handleLogin
+                }
+              >
+                {estaNoCadastro && (
+                  <label className="login-field">
+                    <span className="login-label">
+                      Nome
+                    </span>
+
+                    <div className="login-input-wrapper">
+                      <UserRound
+                        size={18}
+                        strokeWidth={1.8}
+                        aria-hidden="true"
+                      />
+
+                      <input
+                        type="text"
+                        value={nomeInput}
+                        onChange={(event) =>
+                          setNomeInput(event.target.value)
+                        }
+                        placeholder="Seu nome"
+                        autoComplete="name"
+                        disabled={carregandoAuth}
+                      />
+                    </div>
+                  </label>
+                )}
+
+                <label className="login-field">
+                  <span className="login-label">
+                    E-mail
+                  </span>
+
+                  <div className="login-input-wrapper">
+                    <Mail
+                      size={18}
+                      strokeWidth={1.8}
+                      aria-hidden="true"
+                    />
+
+                    <input
+                      type="email"
+                      value={emailInput}
+                      onChange={(event) =>
+                        setEmailInput(event.target.value)
+                      }
+                      placeholder="seu@email.com"
+                      autoComplete="email"
+                      disabled={carregandoAuth}
+                    />
+                  </div>
+                </label>
+
+                <label className="login-field">
+                  <span className="login-label">
+                    Senha
+                  </span>
+
+                  <div className="login-input-wrapper">
+                    <LockKeyhole
+                      size={18}
+                      strokeWidth={1.8}
+                      aria-hidden="true"
+                    />
+
+                    <input
+                      type={
+                        mostrarSenha
+                          ? "text"
+                          : "password"
+                      }
+                      value={senhaInput}
+                      onChange={(event) =>
+                        setSenhaInput(event.target.value)
+                      }
+                      placeholder="Digite sua senha"
+                      autoComplete={
+                        estaNoCadastro
+                          ? "new-password"
+                          : "current-password"
+                      }
+                      disabled={carregandoAuth}
+                    />
+
+                    <button
+                      type="button"
+                      className="login-password-toggle"
+                      onClick={() =>
+                        setMostrarSenha(
+                          (valor) => !valor,
+                        )
+                      }
+                      aria-label={
+                        mostrarSenha
+                          ? "Ocultar senha"
+                          : "Mostrar senha"
+                      }
+                      disabled={carregandoAuth}
+                    >
+                      {mostrarSenha ? (
+                        <EyeOff
+                          size={18}
+                          strokeWidth={1.8}
+                        />
+                      ) : (
+                        <Eye
+                          size={18}
+                          strokeWidth={1.8}
+                        />
+                      )}
+                    </button>
+                  </div>
+                </label>
+
+                {estaNoCadastro && (
+                  <label className="login-field">
+                    <span className="login-label">
+                      Confirmar senha
+                    </span>
+
+                    <div className="login-input-wrapper">
+                      <LockKeyhole
+                        size={18}
+                        strokeWidth={1.8}
+                        aria-hidden="true"
+                      />
+
+                      <input
+                        type={
+                          mostrarConfirmacao
+                            ? "text"
+                            : "password"
+                        }
+                        value={confirmarSenhaInput}
+                        onChange={(event) =>
+                          setConfirmarSenhaInput(
+                            event.target.value,
+                          )
+                        }
+                        placeholder="Digite a senha novamente"
+                        autoComplete="new-password"
+                        disabled={carregandoAuth}
+                      />
+
+                      <button
+                        type="button"
+                        className="login-password-toggle"
+                        onClick={() =>
+                          setMostrarConfirmacao(
+                            (valor) => !valor,
+                          )
+                        }
+                        aria-label={
+                          mostrarConfirmacao
+                            ? "Ocultar confirmação"
+                            : "Mostrar confirmação"
+                        }
+                        disabled={carregandoAuth}
+                      >
+                        {mostrarConfirmacao ? (
+                          <EyeOff
+                            size={18}
+                            strokeWidth={1.8}
+                          />
+                        ) : (
+                          <Eye
+                            size={18}
+                            strokeWidth={1.8}
+                          />
+                        )}
+                      </button>
+                    </div>
+                  </label>
+                )}
+
+                {!estaNoCadastro && (
+                  <div className="login-options">
+                    <label className="login-remember">
+                      <input
+                        type="checkbox"
+                        checked={lembrarLogin}
+                        onChange={(event) =>
+                          setLembrarLogin(
+                            event.target.checked,
+                          )
+                        }
+                        disabled={carregandoAuth}
+                      />
+
+                      <span>
+                        Lembrar de mim
+                      </span>
+                    </label>
+
+                    <button
+                      type="button"
+                      className="login-forgot"
+                      onClick={handleEsqueciSenha}
+                      disabled={carregandoAuth}
+                    >
+                      Esqueceu sua senha?
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="login-primary-button"
+                  disabled={carregandoAuth}
+                >
+                  <span>
+                    {carregandoAuth
+                      ? "Aguarde..."
+                      : estaNoCadastro
+                        ? "Criar conta"
+                        : "Entrar"}
+                  </span>
+
+                  {!carregandoAuth && (
+                    <ArrowRight
+                      size={18}
+                      strokeWidth={2}
+                    />
+                  )}
+                </button>
+              </form>
+
+              <div className="login-divider">
+                <span />
+                <p>ou</p>
+                <span />
+              </div>
+
+              <button
+                type="button"
+                className="login-google-button"
+                onClick={handleGoogleLogin}
+                disabled={carregandoAuth}
+              >
+                <svg
+                  className="login-google-icon"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="#4285F4"
+                    d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.24Z"
+                  />
+
+                  <path
+                    fill="#34A853"
+                    d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"
+                  />
+
+                  <path
+                    fill="#FBBC05"
+                    d="M6.54 13.58A5.86 5.86 0 0 1 6.23 12c0-.55.1-1.08.31-1.58V7.89H3.3A9.5 9.5 0 0 0 2.25 12c0 1.53.37 2.98 1.05 4.11l3.24-2.53Z"
+                  />
+
+                  <path
+                    fill="#EA4335"
+                    d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.45 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53c.77-2.31 2.92-4.03 5.46-4.03Z"
+                  />
+                </svg>
+
+                <span>
+                  Continuar com Google
+                </span>
+              </button>
+
+              <div className="login-switch">
+                <span>
+                  {estaNoCadastro
+                    ? "Já possui uma conta?"
+                    : "Ainda não tem uma conta?"}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    trocarModo(
+                      estaNoCadastro
+                        ? "login"
+                        : "cadastro",
+                    )
+                  }
+                >
+                  {estaNoCadastro
+                    ? "Entrar"
+                    : "Criar conta"}
+                </button>
+              </div>
+            </div>
+
+            <footer className="login-footer">
+              EducaCube · Área do Aluno
+            </footer>
+          </div>
+        </section>
+
+        <section className="login-right">
+          <div className="login-right-content">
+            <div className="login-right-brand">
+              <span className="login-right-mark">
+                E
+              </span>
+
+              <span>
+                Educa<span>Cube</span>
+              </span>
+            </div>
+
+            <div className="login-right-main">
+              <span className="login-right-kicker">
+                ÁREA DO ALUNO
+              </span>
+
+              <h2>
+                Estudos, materiais e{" "}
+                <span>apoio</span> em um só lugar.
+              </h2>
+
+              <p>
+                Organize seus estudos, consulte seus
+                materiais e use a Aura quando precisar
+                de ajuda para entender um conteúdo.
+              </p>
+
+              <div className="login-right-detail">
+                <div className="login-detail-line" />
+
+                <p>
+                  Um ambiente pensado para acompanhar
+                  sua rotina de estudos.
+                </p>
+              </div>
+            </div>
+
+            <div className="login-right-footer">
+              <strong>EDUCACUBE</strong>
+              <span>
+                Seu ambiente de estudos.
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
