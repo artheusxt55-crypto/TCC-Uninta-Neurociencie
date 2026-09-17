@@ -7,8 +7,6 @@ import type {
   FormEvent,
 } from "react";
 
-import "../styles/login.css";
-
 import {
   auth,
   googleProvider,
@@ -30,255 +28,264 @@ import type {
 import {
   doc,
   getDoc,
-  setDoc,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 
-/* =========================================================
-   ÍCONES
-========================================================= */
+import {
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
 
-function CubeIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M12 2.8 20 7.3v9.4L12 21.2l-8-4.5V7.3L12 2.8Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
+import "../styles/login.css";
 
-      <path
-        d="m4.5 7.4 7.5 4.2 7.5-4.2M12 11.6v9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+
+type ModoAutenticacao =
+  | "login"
+  | "cadastro";
+
+
+function mensagemFirebase(
+  error: unknown,
+): string {
+  const code =
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error
+      ? String(
+          (error as { code: unknown }).code,
+        )
+      : "";
+
+  switch (code) {
+    case "auth/invalid-email":
+      return "Digite um endereço de e-mail válido.";
+
+    case "auth/user-not-found":
+      return "Não encontramos uma conta com esse e-mail.";
+
+    case "auth/wrong-password":
+      return "A senha informada não está correta.";
+
+    case "auth/invalid-credential":
+      return "E-mail ou senha incorretos.";
+
+    case "auth/email-already-in-use":
+      return "Esse e-mail já está cadastrado.";
+
+    case "auth/weak-password":
+      return "Escolha uma senha com pelo menos 6 caracteres.";
+
+    case "auth/popup-closed-by-user":
+      return "A janela do Google foi fechada antes da conclusão.";
+
+    case "auth/popup-blocked":
+      return "O navegador bloqueou a janela de login do Google.";
+
+    case "auth/account-exists-with-different-credential":
+      return "Esse e-mail já está associado a outro método de acesso.";
+
+    case "auth/too-many-requests":
+      return "Muitas tentativas foram feitas. Aguarde um pouco e tente novamente.";
+
+    case "auth/network-request-failed":
+      return "Não foi possível conectar ao serviço. Verifique sua internet.";
+
+    case "auth/operation-not-allowed":
+      return "Este método de acesso ainda não está habilitado.";
+
+    case "auth/user-disabled":
+      return "Esta conta está desativada.";
+
+    default:
+      return "Não foi possível concluir o acesso. Tente novamente.";
+  }
 }
 
-function MailIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <rect
-        x="3"
-        y="5"
-        width="18"
-        height="14"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
 
-      <path
-        d="m4 7 8 6 8-6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <rect
-        x="5"
-        y="10"
-        width="14"
-        height="10"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-
-      <path
-        d="M8 10V7a4 4 0 0 1 8 0v3"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle
-        cx="12"
-        cy="8"
-        r="3.2"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-
-      <path
-        d="M5.5 20c.7-3.2 2.9-5 6.5-5s5.8 1.8 6.5 5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function EyeIcon({
-  aberto,
-}: {
-  aberto: boolean;
-}) {
-  if (aberto) {
-    return (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M2.8 12s3.3-5.2 9.2-5.2S21.2 12 21.2 12s-3.3 5.2-9.2 5.2S2.8 12 2.8 12Z"
-          stroke="currentColor"
-          strokeWidth="1.7"
-        />
-
-        <circle
-          cx="12"
-          cy="12"
-          r="2.5"
-          stroke="currentColor"
-          strokeWidth="1.7"
-        />
-      </svg>
+async function salvarUsuarioNoFirestore(
+  user: User,
+  nomeInformado?: string,
+) {
+  const usuarioRef =
+    doc(
+      db,
+      "usuarios",
+      user.uid,
     );
+
+  const usuarioAtual =
+    await getDoc(usuarioRef);
+
+  const dadosUsuario:
+    Record<string, unknown> = {
+      uid: user.uid,
+
+      nome:
+        user.displayName ||
+        nomeInformado ||
+        "",
+
+      email:
+        user.email ||
+        "",
+
+      foto:
+        user.photoURL ||
+        "",
+
+      ultimoLogin:
+        serverTimestamp(),
+    };
+
+  if (!usuarioAtual.exists()) {
+    dadosUsuario.criadoEm =
+      serverTimestamp();
   }
 
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M3 3l18 18"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-
-      <path
-        d="M10.6 6.9A9.8 9.8 0 0 1 12 6.8c5.9 0 9.2 5.2 9.2 5.2a17.7 17.7 0 0 1-3.1 3.4M6.2 8.7C4 10.2 2.8 12 2.8 12S6.1 17.2 12 17.2c1.1 0 2.1-.2 3-.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+  await setDoc(
+    usuarioRef,
+    dadosUsuario,
+    {
+      merge: true,
+    },
   );
 }
 
-function GoogleIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        fill="#4285F4"
-        d="M21.35 12.27c0-.72-.06-1.41-.19-2.07H12v3.91h5.23a4.47 4.47 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.92-4.18 2.92-7.2Z"
-      />
 
-      <path
-        fill="#34A853"
-        d="M12 21.75c2.63 0 4.84-.87 6.45-2.35l-3.14-2.43c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.29v2.5A9.75 9.75 0 0 0 12 21.75Z"
-      />
+async function registrarAcesso(
+  user: User,
+) {
+  try {
+    const token =
+      await user.getIdToken();
 
-      <path
-        fill="#FBBC05"
-        d="M6.54 13.86A5.86 5.86 0 0 1 6.23 12c0-.65.11-1.28.31-1.86v-2.5H3.29A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.04 4.36l3.25-2.5Z"
-      />
+    await fetch(
+      "/api/registrar-acesso",
+      {
+        method: "POST",
 
-      <path
-        fill="#EA4335"
-        d="M12 6.11c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.22 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.71 5.39l3.25 2.5C6.31 7.83 8.46 6.11 12 6.11Z"
-      />
-    </svg>
-  );
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+      },
+    );
+  } catch {
+    /*
+      O login não deve ser bloqueado
+      caso o registro complementar
+      de acesso falhe.
+    */
+  }
 }
 
-/* =========================================================
-   COMPONENTE
-========================================================= */
+
+async function enviarVerificacao(
+  user: User,
+) {
+  try {
+    const token =
+      await user.getIdToken();
+
+    await fetch(
+      "/api/enviar-verificacao",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+      },
+    );
+  } catch {
+    /*
+      O cadastro continua mesmo se
+      o envio complementar falhar.
+    */
+  }
+}
+
 
 export default function LoginPage() {
-  const [modo, setModo] =
-    useState<"login" | "cadastro">("login");
+  const [
+    modo,
+    setModo,
+  ] =
+    useState<ModoAutenticacao>(
+      "login",
+    );
 
-  const [emailInput, setEmailInput] =
+  const [
+    emailInput,
+    setEmailInput,
+  ] =
     useState("");
 
-  const [senhaInput, setSenhaInput] =
+  const [
+    senhaInput,
+    setSenhaInput,
+  ] =
     useState("");
 
-  const [confirmarSenhaInput, setConfirmarSenhaInput] =
+  const [
+    confirmarSenhaInput,
+    setConfirmarSenhaInput,
+  ] =
     useState("");
 
-  const [nomeInput, setNomeInput] =
+  const [
+    nomeInput,
+    setNomeInput,
+  ] =
     useState("");
 
-  const [mostrarSenha, setMostrarSenha] =
+  const [
+    mostrarSenha,
+    setMostrarSenha,
+  ] =
     useState(false);
 
-  const [mostrarConfirmacao, setMostrarConfirmacao] =
+  const [
+    mostrarConfirmacao,
+    setMostrarConfirmacao,
+  ] =
     useState(false);
 
-  const [lembrarLogin, setLembrarLogin] =
+  const [
+    lembrarLogin,
+    setLembrarLogin,
+  ] =
     useState(false);
 
-  const [carregandoAuth, setCarregandoAuth] =
+  const [
+    carregandoAuth,
+    setCarregandoAuth,
+  ] =
     useState(false);
 
-  const [mensagemErro, setMensagemErro] =
+  const [
+    mensagemErro,
+    setMensagemErro,
+  ] =
     useState("");
 
-  const [mensagemSucesso, setMensagemSucesso] =
+  const [
+    mensagemSucesso,
+    setMensagemSucesso,
+  ] =
     useState("");
 
-  /* =========================================================
-     RECUPERA E-MAIL SALVO
-  ========================================================= */
 
   useEffect(() => {
     const emailSalvo =
@@ -287,196 +294,40 @@ export default function LoginPage() {
       );
 
     if (emailSalvo) {
-      setEmailInput(emailSalvo);
+      setEmailInput(
+        emailSalvo,
+      );
+
       setLembrarLogin(true);
     }
   }, []);
 
-  /* =========================================================
-     FIRESTORE
-  ========================================================= */
 
-  async function salvarUsuarioNoFirestore(
-    user: User,
-  ) {
-    const usuarioRef = doc(
-      db,
-      "usuarios",
-      user.uid,
-    );
-
-    const usuarioAtual =
-      await getDoc(usuarioRef);
-
-    const dadosUsuario: Record<
-      string,
-      unknown
-    > = {
-      uid: user.uid,
-
-      nome:
-        user.displayName ||
-        nomeInput ||
-        "",
-
-      email:
-        user.email || "",
-
-      foto:
-        user.photoURL || "",
-
-      ultimoLogin:
-        serverTimestamp(),
-    };
-
-    if (!usuarioAtual.exists()) {
-      dadosUsuario.criadoEm =
-        serverTimestamp();
-    }
-
-    await setDoc(
-      usuarioRef,
-      dadosUsuario,
-      {
-        merge: true,
-      },
-    );
-  }
-
-  /* =========================================================
-     REGISTRAR ACESSO
-  ========================================================= */
-
-  async function registrarAcesso(
-    user: User,
-  ) {
-    try {
-      const token =
-        await user.getIdToken();
-
-      await fetch(
-        "/api/registrar-acesso",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-        },
-      );
-    } catch (error) {
-      console.error(
-        "Erro ao registrar acesso:",
-        error,
-      );
-    }
-  }
-
-  /* =========================================================
-     E-MAIL DE VERIFICAÇÃO
-  ========================================================= */
-
-  async function enviarEmailVerificacao(
-    user: User,
-  ) {
-    try {
-      const token =
-        await user.getIdToken();
-
-      await fetch(
-        "/api/enviar-verificacao",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-        },
-      );
-    } catch (error) {
-      console.error(
-        "Erro ao enviar verificação:",
-        error,
-      );
-    }
-  }
-
-  /* =========================================================
-     FINALIZAR LOGIN
-  ========================================================= */
-
-  async function finalizarLogin(
-    user: User,
-  ) {
-    await salvarUsuarioNoFirestore(
-      user,
-    );
-
-    await registrarAcesso(user);
-
-    if (
-      lembrarLogin &&
-      user.email
-    ) {
-      localStorage.setItem(
-        "educacube_saved_email",
-        user.email,
-      );
-    } else {
-      localStorage.removeItem(
-        "educacube_saved_email",
-      );
-    }
-
-    window.location.href =
-      "/aura";
-  }
-
-  /* =========================================================
-     LOGIN GOOGLE
-  ========================================================= */
-
-  async function loginComGoogle() {
+  function limparMensagens() {
     setMensagemErro("");
     setMensagemSucesso("");
-    setCarregandoAuth(true);
-
-    try {
-      const resultado =
-        await signInWithPopup(
-          auth,
-          googleProvider,
-        );
-
-      await finalizarLogin(
-        resultado.user,
-      );
-    } catch (error: unknown) {
-      console.error(error);
-
-      setMensagemErro(
-        obterMensagemFirebase(
-          error,
-        ),
-      );
-    } finally {
-      setCarregandoAuth(false);
-    }
   }
 
-  /* =========================================================
-     LOGIN COM E-MAIL
-  ========================================================= */
 
-  async function entrarComEmail() {
+  function trocarModo(
+    novoModo: ModoAutenticacao,
+  ) {
+    limparMensagens();
+
+    setModo(novoModo);
+
+    setSenhaInput("");
+    setConfirmarSenhaInput("");
+  }
+
+
+  async function entrarComEmail(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    limparMensagens();
+
     if (!emailInput.trim()) {
       setMensagemErro(
         "Digite seu e-mail.",
@@ -494,10 +345,19 @@ export default function LoginPage() {
     }
 
     setCarregandoAuth(true);
-    setMensagemErro("");
-    setMensagemSucesso("");
 
     try {
+      if (lembrarLogin) {
+        localStorage.setItem(
+          "educacube_saved_email",
+          emailInput.trim(),
+        );
+      } else {
+        localStorage.removeItem(
+          "educacube_saved_email",
+        );
+      }
+
       const resultado =
         await signInWithEmailAndPassword(
           auth,
@@ -505,27 +365,36 @@ export default function LoginPage() {
           senhaInput,
         );
 
-      await finalizarLogin(
-        resultado.user,
-      );
-    } catch (error: unknown) {
-      console.error(error);
+      const user =
+        resultado.user;
 
+      await salvarUsuarioNoFirestore(
+        user,
+      );
+
+      await registrarAcesso(
+        user,
+      );
+
+      window.location.href =
+        "/aura";
+    } catch (error) {
       setMensagemErro(
-        obterMensagemFirebase(
-          error,
-        ),
+        mensagemFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  /* =========================================================
-     CRIAR CONTA
-  ========================================================= */
 
-  async function criarConta() {
+  async function criarConta(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    limparMensagens();
+
     if (!nomeInput.trim()) {
       setMensagemErro(
         "Digite seu nome.",
@@ -562,8 +431,6 @@ export default function LoginPage() {
     }
 
     setCarregandoAuth(true);
-    setMensagemErro("");
-    setMensagemSucesso("");
 
     try {
       const resultado =
@@ -573,8 +440,11 @@ export default function LoginPage() {
           senhaInput,
         );
 
+      const user =
+        resultado.user;
+
       await updateProfile(
-        resultado.user,
+        user,
         {
           displayName:
             nomeInput.trim(),
@@ -582,64 +452,97 @@ export default function LoginPage() {
       );
 
       await salvarUsuarioNoFirestore(
-        resultado.user,
+        user,
+        nomeInput.trim(),
       );
 
       await registrarAcesso(
-        resultado.user,
+        user,
       );
 
-      await enviarEmailVerificacao(
-        resultado.user,
+      await enviarVerificacao(
+        user,
       );
 
-      if (
-        lembrarLogin &&
-        resultado.user.email
-      ) {
+      if (lembrarLogin) {
         localStorage.setItem(
           "educacube_saved_email",
-          resultado.user.email,
+          emailInput.trim(),
         );
       }
 
       setMensagemSucesso(
-        "Conta criada com sucesso. Redirecionando...",
+        "Conta criada. Estamos preparando seu acesso.",
       );
 
-      window.setTimeout(() => {
+      setTimeout(() => {
         window.location.href =
           "/aura";
       }, 900);
-    } catch (error: unknown) {
-      console.error(error);
-
+    } catch (error) {
       setMensagemErro(
-        obterMensagemFirebase(
-          error,
-        ),
+        mensagemFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  /* =========================================================
-     RECUPERAR SENHA
-  ========================================================= */
+
+  async function entrarComGoogle() {
+    limparMensagens();
+
+    setCarregandoAuth(true);
+
+    try {
+      const resultado =
+        await signInWithPopup(
+          auth,
+          googleProvider,
+        );
+
+      const user =
+        resultado.user;
+
+      await salvarUsuarioNoFirestore(
+        user,
+      );
+
+      await registrarAcesso(
+        user,
+      );
+
+      if (user.email && lembrarLogin) {
+        localStorage.setItem(
+          "educacube_saved_email",
+          user.email,
+        );
+      }
+
+      window.location.href =
+        "/aura";
+    } catch (error) {
+      setMensagemErro(
+        mensagemFirebase(error),
+      );
+    } finally {
+      setCarregandoAuth(false);
+    }
+  }
+
 
   async function recuperarSenha() {
+    limparMensagens();
+
     if (!emailInput.trim()) {
       setMensagemErro(
-        "Digite seu e-mail para recuperar a senha.",
+        "Digite seu e-mail para receber o link de recuperação.",
       );
 
       return;
     }
 
     setCarregandoAuth(true);
-    setMensagemErro("");
-    setMensagemSucesso("");
 
     try {
       await sendPasswordResetEmail(
@@ -648,110 +551,75 @@ export default function LoginPage() {
       );
 
       setMensagemSucesso(
-        "Enviamos um link para redefinir sua senha.",
+        "Se esse e-mail estiver cadastrado, você receberá as instruções para redefinir sua senha.",
       );
-    } catch (error: unknown) {
-      console.error(error);
-
+    } catch (error) {
       setMensagemErro(
-        obterMensagemFirebase(
-          error,
-        ),
+        mensagemFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  /* =========================================================
-     SUBMIT
-  ========================================================= */
 
-  function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
+  const estaNoCadastro =
+    modo === "cadastro";
 
-    if (modo === "login") {
-      void entrarComEmail();
-    } else {
-      void criarConta();
-    }
-  }
-
-  /* =========================================================
-     TROCAR MODO
-  ========================================================= */
-
-  function alternarModo() {
-    setModo((atual) =>
-      atual === "login"
-        ? "cadastro"
-        : "login",
-    );
-
-    setMensagemErro("");
-    setMensagemSucesso("");
-  }
-
-  /* =========================================================
-     RENDER
-  ========================================================= */
 
   return (
     <main className="login-page">
-
       <div className="login-layout">
 
         {/* =================================================
             LADO ESQUERDO
-        ================================================= */}
+            ================================================= */}
 
         <section className="login-left">
 
-          <div className="login-left-glow" />
+          <div
+            className="login-left-glow"
+            aria-hidden="true"
+          />
 
           <div className="login-container">
 
-            {/* LOGO */}
-
-            <a
-              href="/"
-              className="login-logo"
-              aria-label="Voltar para o EducaCube"
-            >
-              <span className="login-logo-icon">
-                <CubeIcon />
-              </span>
+            <div className="login-logo">
+              <div
+                className="login-logo-icon"
+                aria-hidden="true"
+              >
+                E
+              </div>
 
               <span className="login-logo-name">
-                Educa<span>Cube</span>
+                EducaCube
               </span>
-            </a>
+            </div>
 
-            {/* CABEÇALHO */}
 
-            <div className="login-header">
+            <header className="login-header">
 
               <p className="login-eyebrow">
-                Área do aluno
+                {estaNoCadastro
+                  ? "NOVO ACESSO"
+                  : "ÁREA DO ALUNO"}
               </p>
 
               <h1 className="login-title">
-                {modo === "login"
-                  ? "Bem-vindo de volta."
-                  : "Crie sua conta."}
+                {estaNoCadastro
+                  ? "Crie sua conta."
+                  : "Bem-vindo de volta."}
               </h1>
 
               <p className="login-description">
-                {modo === "login"
-                  ? "Entre para continuar seus estudos no EducaCube."
-                  : "Crie seu acesso ao laboratório educacional do EducaCube."}
+                {estaNoCadastro
+                  ? "Preencha seus dados para acessar o EducaCube."
+                  : "Acesse sua conta para continuar seus estudos no EducaCube."}
               </p>
 
-            </div>
+            </header>
 
-            {/* MENSAGEM DE ERRO */}
 
             {mensagemErro && (
               <div
@@ -762,7 +630,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* MENSAGEM DE SUCESSO */}
 
             {mensagemSucesso && (
               <div
@@ -773,185 +640,208 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* FORMULÁRIO */}
 
             <form
-              onSubmit={handleSubmit}
               className="login-form"
+              onSubmit={
+                estaNoCadastro
+                  ? criarConta
+                  : entrarComEmail
+              }
             >
 
-              {/* NOME */}
-
-              {modo === "cadastro" && (
+              {estaNoCadastro && (
                 <div className="login-field">
 
                   <label
-                    htmlFor="nome"
                     className="login-label"
+                    htmlFor="nome"
                   >
                     Nome
                   </label>
 
                   <div className="login-input-wrapper">
 
-                    <span className="login-input-icon">
-                      <UserIcon />
-                    </span>
+                    <div
+                      className="login-input-icon"
+                      aria-hidden="true"
+                    >
+                      <Mail size={17} />
+                    </div>
 
                     <input
                       id="nome"
+                      className="login-input"
                       type="text"
+                      autoComplete="name"
+                      placeholder="Seu nome"
                       value={nomeInput}
                       onChange={(event) =>
                         setNomeInput(
                           event.target.value,
                         )
                       }
-                      placeholder="Seu nome"
-                      autoComplete="name"
-                      className="login-input"
                     />
 
                   </div>
+
                 </div>
               )}
 
-              {/* E-MAIL */}
 
               <div className="login-field">
 
                 <label
-                  htmlFor="email"
                   className="login-label"
+                  htmlFor="email"
                 >
                   E-mail
                 </label>
 
                 <div className="login-input-wrapper">
 
-                  <span className="login-input-icon">
-                    <MailIcon />
-                  </span>
+                  <div
+                    className="login-input-icon"
+                    aria-hidden="true"
+                  >
+                    <Mail size={17} />
+                  </div>
 
                   <input
                     id="email"
+                    className="login-input"
                     type="email"
+                    autoComplete="email"
+                    placeholder="seu@email.com"
                     value={emailInput}
                     onChange={(event) =>
                       setEmailInput(
                         event.target.value,
                       )
                     }
-                    placeholder="voce@exemplo.com"
-                    autoComplete="email"
-                    className="login-input"
                   />
 
                 </div>
+
               </div>
 
-              {/* SENHA */}
 
               <div className="login-field">
 
                 <div className="login-field-header">
 
                   <label
-                    htmlFor="senha"
                     className="login-label"
+                    htmlFor="senha"
+                    style={{
+                      marginBottom: 0,
+                    }}
                   >
                     Senha
                   </label>
 
-                  {modo === "login" && (
+                  {!estaNoCadastro && (
                     <button
                       type="button"
-                      onClick={() =>
-                        void recuperarSenha()
-                      }
                       className="login-forgot"
+                      onClick={
+                        recuperarSenha
+                      }
                     >
-                      Esqueceu a senha?
+                      Esqueceu sua senha?
                     </button>
                   )}
 
                 </div>
 
+
                 <div className="login-input-wrapper">
 
-                  <span className="login-input-icon">
-                    <LockIcon />
-                  </span>
+                  <div
+                    className="login-input-icon"
+                    aria-hidden="true"
+                  >
+                    <LockKeyhole size={17} />
+                  </div>
 
                   <input
                     id="senha"
+                    className="login-input login-input-password"
                     type={
                       mostrarSenha
                         ? "text"
                         : "password"
                     }
+                    autoComplete={
+                      estaNoCadastro
+                        ? "new-password"
+                        : "current-password"
+                    }
+                    placeholder="Digite sua senha"
                     value={senhaInput}
                     onChange={(event) =>
                       setSenhaInput(
                         event.target.value,
                       )
                     }
-                    placeholder="••••••••"
-                    autoComplete={
-                      modo === "login"
-                        ? "current-password"
-                        : "new-password"
-                    }
-                    className="login-input login-input-password"
                   />
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setMostrarSenha(
-                        (valor) => !valor,
-                      )
-                    }
                     className="login-password-toggle"
                     aria-label={
                       mostrarSenha
                         ? "Ocultar senha"
                         : "Mostrar senha"
                     }
+                    onClick={() =>
+                      setMostrarSenha(
+                        (valor) =>
+                          !valor,
+                      )
+                    }
                   >
-                    <EyeIcon
-                      aberto={mostrarSenha}
-                    />
+                    {mostrarSenha ? (
+                      <EyeOff size={17} />
+                    ) : (
+                      <Eye size={17} />
+                    )}
                   </button>
 
                 </div>
+
               </div>
 
-              {/* CONFIRMAR SENHA */}
 
-              {modo === "cadastro" && (
+              {estaNoCadastro && (
                 <div className="login-field">
 
                   <label
-                    htmlFor="confirmarSenha"
                     className="login-label"
+                    htmlFor="confirmar-senha"
                   >
                     Confirmar senha
                   </label>
 
                   <div className="login-input-wrapper">
 
-                    <span className="login-input-icon">
-                      <LockIcon />
-                    </span>
+                    <div
+                      className="login-input-icon"
+                      aria-hidden="true"
+                    >
+                      <LockKeyhole size={17} />
+                    </div>
 
                     <input
-                      id="confirmarSenha"
+                      id="confirmar-senha"
+                      className="login-input login-input-password"
                       type={
                         mostrarConfirmacao
                           ? "text"
                           : "password"
                       }
+                      autoComplete="new-password"
+                      placeholder="Digite a senha novamente"
                       value={
                         confirmarSenhaInput
                       }
@@ -960,158 +850,193 @@ export default function LoginPage() {
                           event.target.value,
                         )
                       }
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      className="login-input login-input-password"
                     />
 
                     <button
                       type="button"
-                      onClick={() =>
-                        setMostrarConfirmacao(
-                          (valor) => !valor,
-                        )
-                      }
                       className="login-password-toggle"
                       aria-label={
                         mostrarConfirmacao
-                          ? "Ocultar confirmação de senha"
-                          : "Mostrar confirmação de senha"
+                          ? "Ocultar confirmação da senha"
+                          : "Mostrar confirmação da senha"
+                      }
+                      onClick={() =>
+                        setMostrarConfirmacao(
+                          (valor) =>
+                            !valor,
+                        )
                       }
                     >
-                      <EyeIcon
-                        aberto={
-                          mostrarConfirmacao
-                        }
-                      />
+                      {mostrarConfirmacao ? (
+                        <EyeOff size={17} />
+                      ) : (
+                        <Eye size={17} />
+                      )}
                     </button>
 
                   </div>
+
                 </div>
               )}
 
-              {/* LEMBRAR E-MAIL */}
 
-              {modo === "login" && (
-                <label className="login-remember">
+              {!estaNoCadastro && (
+                <div
+                  style={{
+                    marginBottom: "22px",
+                  }}
+                >
+                  <label className="login-remember">
 
-                  <input
-                    type="checkbox"
-                    checked={lembrarLogin}
-                    onChange={(event) =>
-                      setLembrarLogin(
-                        event.target.checked,
-                      )
-                    }
-                  />
+                    <input
+                      type="checkbox"
+                      checked={lembrarLogin}
+                      onChange={(event) =>
+                        setLembrarLogin(
+                          event.target.checked,
+                        )
+                      }
+                    />
 
-                  <span>
-                    Lembrar meu e-mail
-                  </span>
+                    <span>
+                      Lembrar de mim
+                    </span>
 
-                </label>
+                  </label>
+                </div>
               )}
 
-              {/* BOTÃO PRINCIPAL */}
 
               <button
                 type="submit"
-                disabled={carregandoAuth}
                 className="login-primary-button"
+                disabled={carregandoAuth}
               >
-                <span>
-                  {carregandoAuth
-                    ? "Aguarde..."
-                    : modo === "login"
-                      ? "Entrar no EducaCube"
-                      : "Criar minha conta"}
-                </span>
+                {carregandoAuth
+                  ? "Aguarde..."
+                  : estaNoCadastro
+                    ? "Criar conta"
+                    : "Entrar"}
+
+                {!carregandoAuth && (
+                  <ArrowRight
+                    size={16}
+                    style={{
+                      marginLeft: 7,
+                      verticalAlign:
+                        "middle",
+                    }}
+                  />
+                )}
               </button>
 
             </form>
 
-            {/* DIVISOR */}
 
             <div className="login-divider">
 
-              <span className="login-divider-line" />
+              <span
+                className="login-divider-line"
+              />
 
-              <span className="login-divider-text">
+              <span
+                className="login-divider-text"
+              >
                 ou
               </span>
 
-              <span className="login-divider-line" />
+              <span
+                className="login-divider-line"
+              />
 
             </div>
 
-            {/* GOOGLE */}
 
             <button
               type="button"
-              onClick={() =>
-                void loginComGoogle()
+              className="login-google-button"
+              onClick={
+                entrarComGoogle
               }
               disabled={carregandoAuth}
-              className="login-google-button"
             >
-              <GoogleIcon />
+              <strong
+                style={{
+                  fontSize: "15px",
+                }}
+              >
+                G
+              </strong>
 
-              <span>
-                Continuar com Google
-              </span>
+              Continuar com Google
             </button>
 
-            {/* TROCAR MODO */}
 
             <p className="login-switch">
 
-              {modo === "login"
-                ? "Ainda não possui uma conta?"
-                : "Já possui uma conta?"}{" "}
+              {estaNoCadastro
+                ? "Já tem uma conta?"
+                : "Ainda não tem uma conta?"}
 
               <button
                 type="button"
-                onClick={alternarModo}
                 className="login-switch-button"
+                onClick={() =>
+                  trocarModo(
+                    estaNoCadastro
+                      ? "login"
+                      : "cadastro",
+                  )
+                }
               >
-                {modo === "login"
-                  ? "Criar conta"
-                  : "Entrar"}
+                {estaNoCadastro
+                  ? "Entrar"
+                  : "Criar conta"}
               </button>
 
             </p>
 
-            {/* RODAPÉ */}
 
-            <div className="login-footer">
-              EducaCube · Laboratório de Pesquisa
-              e Práticas Pedagógicas
-            </div>
+            <p className="login-footer">
+              EducaCube · Área do Aluno
+            </p>
 
           </div>
         </section>
 
+
         {/* =================================================
             LADO DIREITO
-        ================================================= */}
+            ================================================= */}
 
         <section className="login-right">
 
-          <div className="login-right-grid" />
+          <div
+            className="login-right-grid"
+            aria-hidden="true"
+          />
 
-          <div className="login-decoration-circle one" />
+          <div
+            className="login-decoration-circle one"
+            aria-hidden="true"
+          />
 
-          <div className="login-decoration-circle two" />
+          <div
+            className="login-decoration-circle two"
+            aria-hidden="true"
+          />
+
 
           <div className="login-right-content">
 
-            {/* MARCA */}
-
             <div className="login-right-brand">
 
-              <span className="login-right-brand-icon">
-                <CubeIcon />
-              </span>
+              <div
+                className="login-right-brand-icon"
+                aria-hidden="true"
+              >
+                E
+              </div>
 
               <span className="login-right-brand-name">
                 EducaCube
@@ -1119,7 +1044,6 @@ export default function LoginPage() {
 
             </div>
 
-            {/* CONTEÚDO PRINCIPAL */}
 
             <div className="login-right-main">
 
@@ -1127,68 +1051,49 @@ export default function LoginPage() {
 
                 <span className="login-right-kicker-line" />
 
-                <span>
-                  Educação + tecnologia
-                </span>
+                Área do aluno
 
               </div>
 
+
               <h2 className="login-right-title">
-                A inteligência educacional começa com a prática pedagógica.
+                Estudos, materiais e apoio em um só lugar.
               </h2>
 
+
               <p className="login-right-description">
-                Um ambiente pensado para quem
-                pesquisa, diagnostica, planeja e
-                intervém na aprendizagem — com
-                tecnologia desenvolvida para a
-                educação.
+                Organize seus estudos, consulte seus materiais
+                e use a Aura quando precisar de ajuda para
+                entender um conteúdo.
               </p>
 
-              {/* PRINCÍPIO */}
 
               <div className="login-quote">
 
                 <p className="login-quote-text">
-                  “Tecnologia para organizar o
-                  trabalho pedagógico sem
-                  substituir o olhar de quem
-                  ensina.”
+                  O EducaCube reúne as ferramentas que fazem
+                  parte da rotina de estudo em um único ambiente.
                 </p>
 
-                <p className="login-quote-label">
-                  Princípio EducaCube
-                </p>
+                <span className="login-quote-label">
+                  EducaCube
+                </span>
 
               </div>
 
-            </div>
 
-            {/* RODAPÉ DIREITO */}
+              <div className="login-right-footer">
 
-            <div className="login-right-footer">
+                <span className="login-right-footer-label">
+                  Seu ambiente de estudos
+                </span>
 
-              <div>
-
-                <p className="login-right-footer-label">
-                  Laboratório de Pesquisa
-                </p>
-
-                <p className="login-right-footer-text">
-                  Práticas pedagógicas orientadas
-                  por tecnologia.
-                </p>
-
-              </div>
-
-              <div className="login-right-footer-aura">
-
-                <strong>
-                  EDUCACUBE
-                </strong>
-
-                <span>
-                  AURA AI
+                <span className="login-right-footer-text">
+                  Materiais, estudos e{" "}
+                  <span className="login-right-footer-aura">
+                    Aura AI
+                  </span>
+                  .
                 </span>
 
               </div>
@@ -1196,75 +1101,10 @@ export default function LoginPage() {
             </div>
 
           </div>
+
         </section>
 
       </div>
     </main>
   );
-}
-
-/* =========================================================
-   TRATAMENTO DE ERROS DO FIREBASE
-========================================================= */
-
-function obterMensagemFirebase(
-  error: unknown,
-): string {
-  if (
-    typeof error !== "object" ||
-    error === null ||
-    !("code" in error)
-  ) {
-    return "Não foi possível concluir a operação. Tente novamente.";
-  }
-
-  const codigo = String(
-    (error as {
-      code?: unknown;
-    }).code || "",
-  );
-
-  switch (codigo) {
-    case "auth/invalid-email":
-      return "O e-mail informado não é válido.";
-
-    case "auth/user-not-found":
-      return "Não encontramos uma conta com esse e-mail.";
-
-    case "auth/wrong-password":
-      return "A senha informada está incorreta.";
-
-    case "auth/invalid-credential":
-      return "E-mail ou senha incorretos.";
-
-    case "auth/email-already-in-use":
-      return "Este e-mail já está cadastrado.";
-
-    case "auth/weak-password":
-      return "A senha precisa ter pelo menos 6 caracteres.";
-
-    case "auth/popup-closed-by-user":
-      return "A janela do Google foi fechada antes da conclusão.";
-
-    case "auth/popup-blocked":
-      return "O navegador bloqueou a janela de login do Google.";
-
-    case "auth/account-exists-with-different-credential":
-      return "Já existe uma conta usando este e-mail com outro método de login.";
-
-    case "auth/too-many-requests":
-      return "Muitas tentativas foram realizadas. Aguarde alguns minutos e tente novamente.";
-
-    case "auth/network-request-failed":
-      return "Não foi possível conectar ao Firebase. Verifique sua internet.";
-
-    case "auth/operation-not-allowed":
-      return "Este método de login não está habilitado no Firebase.";
-
-    case "auth/user-disabled":
-      return "Esta conta foi desativada.";
-
-    default:
-      return "Não foi possível concluir o login. Tente novamente.";
-  }
 }
