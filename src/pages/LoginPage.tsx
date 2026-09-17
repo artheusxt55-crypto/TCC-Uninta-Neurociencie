@@ -2,11 +2,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
-import {
-  auth,
-  googleProvider,
-  db,
-} from "../lib/firebase";
+import { auth, googleProvider, db } from "../lib/firebase";
 
 import {
   createUserWithEmailAndPassword,
@@ -20,29 +16,32 @@ import type { User } from "firebase/auth";
 
 import {
   doc,
-  getDoc,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
 
 import {
+  ArrowRight,
   Eye,
   EyeOff,
   LockKeyhole,
   Mail,
-  ArrowRight,
+  UserRound,
 } from "lucide-react";
 
 import "../styles/login.css";
 
 type ModoAutenticacao = "login" | "cadastro";
 
-function mensagemFirebase(error: unknown): string {
+const EMAIL_SALVO_KEY = "educacube_saved_email";
+
+function obterMensagemErroFirebase(error: unknown): string {
   const code =
     typeof error === "object" &&
     error !== null &&
-    "code" in error
-      ? String((error as { code: unknown }).code)
+    "code" in error &&
+    typeof (error as { code?: unknown }).code === "string"
+      ? (error as { code: string }).code
       : "";
 
   switch (code) {
@@ -53,208 +52,126 @@ function mensagemFirebase(error: unknown): string {
       return "Não encontramos uma conta com esse e-mail.";
 
     case "auth/wrong-password":
-      return "A senha informada não está correta.";
+      return "A senha informada está incorreta.";
 
     case "auth/invalid-credential":
       return "E-mail ou senha incorretos.";
 
     case "auth/email-already-in-use":
-      return "Esse e-mail já está cadastrado.";
+      return "Este e-mail já possui uma conta.";
 
     case "auth/weak-password":
-      return "Escolha uma senha com pelo menos 6 caracteres.";
+      return "A senha precisa ter pelo menos 6 caracteres.";
 
     case "auth/popup-closed-by-user":
-      return "A janela do Google foi fechada antes da conclusão.";
+      return "A janela do Google foi fechada.";
 
     case "auth/popup-blocked":
-      return "O navegador bloqueou a janela do Google.";
+      return "O navegador bloqueou a janela de login do Google.";
 
     case "auth/account-exists-with-different-credential":
-      return "Esse e-mail já está associado a outro método de acesso.";
+      return "Este e-mail já está associado a outro método de acesso.";
 
     case "auth/too-many-requests":
-      return "Muitas tentativas. Aguarde um pouco e tente novamente.";
+      return "Muitas tentativas. Aguarde alguns instantes e tente novamente.";
 
     case "auth/network-request-failed":
-      return "Não foi possível conectar ao serviço.";
+      return "Não foi possível conectar ao servidor. Verifique sua internet.";
 
     case "auth/operation-not-allowed":
-      return "Este método de acesso não está habilitado.";
+      return "Este método de login ainda não está disponível.";
 
     case "auth/user-disabled":
-      return "Esta conta está desativada.";
+      return "Esta conta foi desativada.";
 
     default:
       return "Não foi possível concluir o acesso. Tente novamente.";
   }
 }
 
-async function salvarUsuarioNoFirestore(
+async function registrarUsuarioFirestore(
   user: User,
-  nomeInformado?: string,
+  nome?: string,
 ) {
-  const usuarioRef = doc(
-    db,
-    "usuarios",
-    user.uid,
-  );
-
-  const usuarioAtual =
-    await getDoc(usuarioRef);
-
-  const dadosUsuario: Record<
-    string,
-    unknown
-  > = {
-    uid: user.uid,
-
-    nome:
-      user.displayName ||
-      nomeInformado ||
-      "",
-
-    email:
-      user.email ||
-      "",
-
-    foto:
-      user.photoURL ||
-      "",
-
-    ultimoLogin:
-      serverTimestamp(),
-  };
-
-  if (!usuarioAtual.exists()) {
-    dadosUsuario.criadoEm =
-      serverTimestamp();
-  }
+  const referencia = doc(db, "usuarios", user.uid);
 
   await setDoc(
-    usuarioRef,
-    dadosUsuario,
+    referencia,
+    {
+      uid: user.uid,
+      nome:
+        nome?.trim() ||
+        user.displayName ||
+        "Usuário EducaCube",
+      email: user.email || "",
+      foto: user.photoURL || "",
+      ultimoLogin: serverTimestamp(),
+      criadoEm: serverTimestamp(),
+    },
     {
       merge: true,
     },
   );
 }
 
-async function registrarAcesso(
-  user: User,
-) {
+async function registrarAcessoApi(user: User) {
   try {
-    const token =
-      await user.getIdToken();
+    const token = await user.getIdToken();
 
-    await fetch(
-      "/api/registrar-acesso",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          Authorization:
-            `Bearer ${token}`,
-        },
+    await fetch("/api/registrar-acesso", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
   } catch {
-    // O login não será bloqueado.
+    // O login continua mesmo se o registro falhar.
   }
 }
 
-async function enviarVerificacao(
-  user: User,
-) {
+async function enviarVerificacaoApi(user: User) {
   try {
-    const token =
-      await user.getIdToken();
+    const token = await user.getIdToken();
 
-    await fetch(
-      "/api/enviar-verificacao",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          Authorization:
-            `Bearer ${token}`,
-        },
+    await fetch("/api/enviar-verificacao", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
   } catch {
-    // O cadastro não será bloqueado.
+    // A criação da conta não será bloqueada.
   }
 }
 
 export default function LoginPage() {
-  const [
-    modo,
-    setModo,
-  ] = useState<ModoAutenticacao>(
-    "login",
-  );
+  const [modo, setModo] =
+    useState<ModoAutenticacao>("login");
 
-  const [
-    emailInput,
-    setEmailInput,
-  ] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [senhaInput, setSenhaInput] = useState("");
+  const [confirmarSenhaInput, setConfirmarSenhaInput] =
+    useState("");
+  const [nomeInput, setNomeInput] = useState("");
 
-  const [
-    senhaInput,
-    setSenhaInput,
-  ] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] =
+    useState(false);
 
-  const [
-    confirmarSenhaInput,
-    setConfirmarSenhaInput,
-  ] = useState("");
+  const [lembrarLogin, setLembrarLogin] = useState(false);
 
-  const [
-    nomeInput,
-    setNomeInput,
-  ] = useState("");
+  const [carregandoAuth, setCarregandoAuth] =
+    useState(false);
 
-  const [
-    mostrarSenha,
-    setMostrarSenha,
-  ] = useState(false);
-
-  const [
-    mostrarConfirmacao,
-    setMostrarConfirmacao,
-  ] = useState(false);
-
-  const [
-    lembrarLogin,
-    setLembrarLogin,
-  ] = useState(false);
-
-  const [
-    carregandoAuth,
-    setCarregandoAuth,
-  ] = useState(false);
-
-  const [
-    mensagemErro,
-    setMensagemErro,
-  ] = useState("");
-
-  const [
-    mensagemSucesso,
-    setMensagemSucesso,
-  ] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [mensagemSucesso, setMensagemSucesso] =
+    useState("");
 
   useEffect(() => {
     const emailSalvo =
-      localStorage.getItem(
-        "educacube_saved_email",
-      );
+      window.localStorage.getItem(EMAIL_SALVO_KEY);
 
     if (emailSalvo) {
       setEmailInput(emailSalvo);
@@ -267,100 +184,80 @@ export default function LoginPage() {
     setMensagemSucesso("");
   }
 
-  function trocarModo(
-    novoModo: ModoAutenticacao,
-  ) {
+  function trocarModo(novoModo: ModoAutenticacao) {
     limparMensagens();
-
     setModo(novoModo);
-
-    setSenhaInput("");
-    setConfirmarSenhaInput("");
   }
 
-  async function entrarComEmail(
+  async function finalizarLogin(user: User) {
+    await registrarUsuarioFirestore(user);
+    await registrarAcessoApi(user);
+
+    if (lembrarLogin) {
+      window.localStorage.setItem(
+        EMAIL_SALVO_KEY,
+        emailInput.trim(),
+      );
+    } else {
+      window.localStorage.removeItem(EMAIL_SALVO_KEY);
+    }
+
+    window.location.href = "/aura";
+  }
+
+  async function handleLogin(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-
     limparMensagens();
 
-    if (!emailInput.trim()) {
+    const email = emailInput.trim();
+
+    if (!email || !senhaInput) {
       setMensagemErro(
-        "Digite seu e-mail.",
+        "Preencha seu e-mail e sua senha para continuar.",
       );
-
-      return;
-    }
-
-    if (!senhaInput) {
-      setMensagemErro(
-        "Digite sua senha.",
-      );
-
       return;
     }
 
     setCarregandoAuth(true);
 
     try {
-      if (lembrarLogin) {
-        localStorage.setItem(
-          "educacube_saved_email",
-          emailInput.trim(),
-        );
-      } else {
-        localStorage.removeItem(
-          "educacube_saved_email",
-        );
-      }
-
       const resultado =
         await signInWithEmailAndPassword(
           auth,
-          emailInput.trim(),
+          email,
           senhaInput,
         );
 
-      await salvarUsuarioNoFirestore(
-        resultado.user,
-      );
-
-      await registrarAcesso(
-        resultado.user,
-      );
-
-      window.location.href =
-        "/aura";
+      await finalizarLogin(resultado.user);
     } catch (error) {
       setMensagemErro(
-        mensagemFirebase(error),
+        obterMensagemErroFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  async function criarConta(
+  async function handleCadastro(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-
     limparMensagens();
 
-    if (!nomeInput.trim()) {
+    const nome = nomeInput.trim();
+    const email = emailInput.trim();
+
+    if (
+      !nome ||
+      !email ||
+      !senhaInput ||
+      !confirmarSenhaInput
+    ) {
       setMensagemErro(
-        "Digite seu nome.",
+        "Preencha todos os campos para criar sua conta.",
       );
-
-      return;
-    }
-
-    if (!emailInput.trim()) {
-      setMensagemErro(
-        "Digite seu e-mail.",
-      );
-
       return;
     }
 
@@ -368,18 +265,11 @@ export default function LoginPage() {
       setMensagemErro(
         "A senha precisa ter pelo menos 6 caracteres.",
       );
-
       return;
     }
 
-    if (
-      senhaInput !==
-      confirmarSenhaInput
-    ) {
-      setMensagemErro(
-        "As senhas não coincidem.",
-      );
-
+    if (senhaInput !== confirmarSenhaInput) {
+      setMensagemErro("As senhas não coincidem.");
       return;
     }
 
@@ -389,171 +279,132 @@ export default function LoginPage() {
       const resultado =
         await createUserWithEmailAndPassword(
           auth,
-          emailInput.trim(),
+          email,
           senhaInput,
         );
 
-      await updateProfile(
+      await updateProfile(resultado.user, {
+        displayName: nome,
+      });
+
+      await registrarUsuarioFirestore(
         resultado.user,
-        {
-          displayName:
-            nomeInput.trim(),
-        },
+        nome,
       );
 
-      await salvarUsuarioNoFirestore(
-        resultado.user,
-        nomeInput.trim(),
-      );
+      await registrarAcessoApi(resultado.user);
+      await enviarVerificacaoApi(resultado.user);
 
-      await registrarAcesso(
-        resultado.user,
-      );
-
-      await enviarVerificacao(
-        resultado.user,
-      );
-
-      if (lembrarLogin) {
-        localStorage.setItem(
-          "educacube_saved_email",
-          emailInput.trim(),
-        );
-      }
-
-      setMensagemSucesso(
-        "Conta criada. Preparando seu acesso...",
-      );
-
-      setTimeout(() => {
-        window.location.href =
-          "/aura";
-      }, 900);
+      window.location.href = "/aura";
     } catch (error) {
       setMensagemErro(
-        mensagemFirebase(error),
+        obterMensagemErroFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  async function entrarComGoogle() {
+  async function handleGoogleLogin() {
     limparMensagens();
-
     setCarregandoAuth(true);
 
     try {
-      const resultado =
-        await signInWithPopup(
-          auth,
-          googleProvider,
-        );
-
-      await salvarUsuarioNoFirestore(
-        resultado.user,
+      const resultado = await signInWithPopup(
+        auth,
+        googleProvider,
       );
 
-      await registrarAcesso(
-        resultado.user,
-      );
+      await registrarUsuarioFirestore(resultado.user);
+      await registrarAcessoApi(resultado.user);
 
-      if (
-        resultado.user.email &&
-        lembrarLogin
-      ) {
-        localStorage.setItem(
-          "educacube_saved_email",
-          resultado.user.email,
-        );
-      }
-
-      window.location.href =
-        "/aura";
+      window.location.href = "/aura";
     } catch (error) {
       setMensagemErro(
-        mensagemFirebase(error),
+        obterMensagemErroFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  async function recuperarSenha() {
+  async function handleEsqueciSenha() {
     limparMensagens();
 
-    if (!emailInput.trim()) {
-      setMensagemErro(
-        "Digite seu e-mail para receber o link de recuperação.",
-      );
+    const email = emailInput.trim();
 
+    if (!email) {
+      setMensagemErro(
+        "Digite seu e-mail para receber o link de redefinição.",
+      );
       return;
     }
 
     setCarregandoAuth(true);
 
     try {
-      await sendPasswordResetEmail(
-        auth,
-        emailInput.trim(),
-      );
+      await sendPasswordResetEmail(auth, email);
 
       setMensagemSucesso(
-        "Se esse e-mail estiver cadastrado, você receberá as instruções para redefinir sua senha.",
+        "Enviamos um link para redefinir sua senha.",
       );
     } catch (error) {
       setMensagemErro(
-        mensagemFirebase(error),
+        obterMensagemErroFirebase(error),
       );
     } finally {
       setCarregandoAuth(false);
     }
   }
 
-  const estaNoCadastro =
-    modo === "cadastro";
+  const estaNoCadastro = modo === "cadastro";
 
   return (
     <main className="login-page">
       <div className="login-layout">
 
-        {/* ==========================================
+        {/* ==================================================
             LADO ESQUERDO
-            ========================================== */}
+            ================================================== */}
 
         <section className="login-left">
-
           <div className="login-container">
 
-            <div className="login-logo">
-
-              <div
-                className="login-logo-icon"
-                aria-hidden="true"
-              >
+            <a
+              href="/"
+              className="login-logo"
+              aria-label="Voltar para o EducaCube"
+            >
+              <span className="login-logo-mark">
                 E
-              </div>
-
-              <span className="login-logo-name">
-                EducaCube
               </span>
 
-            </div>
+              <span className="login-logo-text">
+                Educa<span>Cube</span>
+              </span>
+            </a>
 
             <div className="login-card">
 
               <header className="login-header">
-
-                <p className="login-eyebrow">
+                <span className="login-eyebrow">
                   {estaNoCadastro
                     ? "NOVO ACESSO"
                     : "ÁREA DO ALUNO"}
-                </p>
+                </span>
 
                 <h1 className="login-title">
-                  {estaNoCadastro
-                    ? "Crie sua conta."
-                    : "Bem-vindo de volta."}
+                  {estaNoCadastro ? (
+                    <>
+                      Crie sua conta no{" "}
+                      <span>EducaCube.</span>
+                    </>
+                  ) : (
+                    <>
+                      Bem-vindo de volta ao{" "}
+                      <span>EducaCube.</span>
+                    </>
+                  )}
                 </h1>
 
                 <p className="login-description">
@@ -561,12 +412,11 @@ export default function LoginPage() {
                     ? "Preencha seus dados para acessar o EducaCube."
                     : "Acesse sua conta para continuar seus estudos no EducaCube."}
                 </p>
-
               </header>
 
               {mensagemErro && (
                 <div
-                  className="login-error"
+                  className="login-message login-message-error"
                   role="alert"
                 >
                   {mensagemErro}
@@ -575,7 +425,7 @@ export default function LoginPage() {
 
               {mensagemSucesso && (
                 <div
-                  className="login-success"
+                  className="login-message login-message-success"
                   role="status"
                 >
                   {mensagemSucesso}
@@ -586,228 +436,177 @@ export default function LoginPage() {
                 className="login-form"
                 onSubmit={
                   estaNoCadastro
-                    ? criarConta
-                    : entrarComEmail
+                    ? handleCadastro
+                    : handleLogin
                 }
               >
 
                 {estaNoCadastro && (
-                  <div className="login-field">
-
-                    <label
-                      className="login-label"
-                      htmlFor="nome"
-                    >
+                  <label className="login-field">
+                    <span className="login-label">
                       Nome
-                    </label>
+                    </span>
 
                     <div className="login-input-wrapper">
-
-                      <input
-                        id="nome"
-                        className="login-input login-input-no-icon"
-                        type="text"
-                        autoComplete="name"
-                        placeholder="Seu nome"
-                        value={nomeInput}
-                        onChange={(event) =>
-                          setNomeInput(
-                            event.target.value,
-                          )
-                        }
+                      <UserRound
+                        size={18}
+                        strokeWidth={1.8}
+                        aria-hidden="true"
                       />
 
+                      <input
+                        type="text"
+                        value={nomeInput}
+                        onChange={(event) =>
+                          setNomeInput(event.target.value)
+                        }
+                        placeholder="Seu nome"
+                        autoComplete="name"
+                        disabled={carregandoAuth}
+                      />
                     </div>
-
-                  </div>
+                  </label>
                 )}
 
-                <div className="login-field">
-
-                  <label
-                    className="login-label"
-                    htmlFor="email"
-                  >
+                <label className="login-field">
+                  <span className="login-label">
                     E-mail
-                  </label>
+                  </span>
 
                   <div className="login-input-wrapper">
-
                     <Mail
-                      className="login-input-icon"
-                      size={17}
+                      size={18}
+                      strokeWidth={1.8}
                       aria-hidden="true"
                     />
 
                     <input
-                      id="email"
-                      className="login-input"
                       type="email"
-                      autoComplete="email"
-                      placeholder="seu@email.com"
                       value={emailInput}
                       onChange={(event) =>
-                        setEmailInput(
-                          event.target.value,
-                        )
+                        setEmailInput(event.target.value)
                       }
+                      placeholder="seu@email.com"
+                      autoComplete="email"
+                      disabled={carregandoAuth}
                     />
-
                   </div>
+                </label>
 
-                </div>
-
-                <div className="login-field">
-
-                  <div className="login-field-header">
-
-                    <label
-                      className="login-label"
-                      htmlFor="senha"
-                    >
-                      Senha
-                    </label>
-
-                    {!estaNoCadastro && (
-                      <button
-                        type="button"
-                        className="login-forgot"
-                        onClick={
-                          recuperarSenha
-                        }
-                      >
-                        Esqueceu sua senha?
-                      </button>
-                    )}
-
-                  </div>
+                <label className="login-field">
+                  <span className="login-label">
+                    Senha
+                  </span>
 
                   <div className="login-input-wrapper">
-
                     <LockKeyhole
-                      className="login-input-icon"
-                      size={17}
+                      size={18}
+                      strokeWidth={1.8}
                       aria-hidden="true"
                     />
 
                     <input
-                      id="senha"
-                      className="login-input login-input-password"
                       type={
                         mostrarSenha
                           ? "text"
                           : "password"
                       }
+                      value={senhaInput}
+                      onChange={(event) =>
+                        setSenhaInput(event.target.value)
+                      }
+                      placeholder="Digite sua senha"
                       autoComplete={
                         estaNoCadastro
                           ? "new-password"
                           : "current-password"
                       }
-                      placeholder="Digite sua senha"
-                      value={senhaInput}
-                      onChange={(event) =>
-                        setSenhaInput(
-                          event.target.value,
-                        )
-                      }
+                      disabled={carregandoAuth}
                     />
 
                     <button
                       type="button"
                       className="login-password-toggle"
+                      onClick={() =>
+                        setMostrarSenha(
+                          (valor) => !valor,
+                        )
+                      }
                       aria-label={
                         mostrarSenha
                           ? "Ocultar senha"
                           : "Mostrar senha"
                       }
-                      onClick={() =>
-                        setMostrarSenha(
-                          (valor) =>
-                            !valor,
-                        )
-                      }
+                      disabled={carregandoAuth}
                     >
                       {mostrarSenha ? (
-                        <EyeOff size={17} />
+                        <EyeOff size={18} />
                       ) : (
-                        <Eye size={17} />
+                        <Eye size={18} />
                       )}
                     </button>
-
                   </div>
-
-                </div>
+                </label>
 
                 {estaNoCadastro && (
-                  <div className="login-field">
-
-                    <label
-                      className="login-label"
-                      htmlFor="confirmar-senha"
-                    >
+                  <label className="login-field">
+                    <span className="login-label">
                       Confirmar senha
-                    </label>
+                    </span>
 
                     <div className="login-input-wrapper">
-
                       <LockKeyhole
-                        className="login-input-icon"
-                        size={17}
+                        size={18}
+                        strokeWidth={1.8}
                         aria-hidden="true"
                       />
 
                       <input
-                        id="confirmar-senha"
-                        className="login-input login-input-password"
                         type={
                           mostrarConfirmacao
                             ? "text"
                             : "password"
                         }
-                        autoComplete="new-password"
-                        placeholder="Digite a senha novamente"
-                        value={
-                          confirmarSenhaInput
-                        }
+                        value={confirmarSenhaInput}
                         onChange={(event) =>
                           setConfirmarSenhaInput(
                             event.target.value,
                           )
                         }
+                        placeholder="Digite a senha novamente"
+                        autoComplete="new-password"
+                        disabled={carregandoAuth}
                       />
 
                       <button
                         type="button"
                         className="login-password-toggle"
+                        onClick={() =>
+                          setMostrarConfirmacao(
+                            (valor) => !valor,
+                          )
+                        }
                         aria-label={
                           mostrarConfirmacao
                             ? "Ocultar confirmação"
                             : "Mostrar confirmação"
                         }
-                        onClick={() =>
-                          setMostrarConfirmacao(
-                            (valor) =>
-                              !valor,
-                          )
-                        }
+                        disabled={carregandoAuth}
                       >
                         {mostrarConfirmacao ? (
-                          <EyeOff size={17} />
+                          <EyeOff size={18} />
                         ) : (
-                          <Eye size={17} />
+                          <Eye size={18} />
                         )}
                       </button>
-
                     </div>
-
-                  </div>
+                  </label>
                 )}
 
                 {!estaNoCadastro && (
                   <div className="login-options">
 
                     <label className="login-remember">
-
                       <input
                         type="checkbox"
                         checked={lembrarLogin}
@@ -816,13 +615,22 @@ export default function LoginPage() {
                             event.target.checked,
                           )
                         }
+                        disabled={carregandoAuth}
                       />
 
                       <span>
                         Lembrar de mim
                       </span>
-
                     </label>
+
+                    <button
+                      type="button"
+                      className="login-forgot"
+                      onClick={handleEsqueciSenha}
+                      disabled={carregandoAuth}
+                    >
+                      Esqueceu sua senha?
+                    </button>
 
                   </div>
                 )}
@@ -841,33 +649,24 @@ export default function LoginPage() {
                   </span>
 
                   {!carregandoAuth && (
-                    <ArrowRight size={16} />
+                    <ArrowRight size={18} />
                   )}
                 </button>
 
               </form>
 
               <div className="login-divider">
-
                 <span />
-
-                <small>
-                  ou
-                </small>
-
+                <p>ou</p>
                 <span />
-
               </div>
 
               <button
                 type="button"
                 className="login-google-button"
-                onClick={
-                  entrarComGoogle
-                }
+                onClick={handleGoogleLogin}
                 disabled={carregandoAuth}
               >
-
                 <svg
                   className="login-google-icon"
                   width="18"
@@ -899,18 +698,17 @@ export default function LoginPage() {
                 <span>
                   Continuar com Google
                 </span>
-
               </button>
 
-              <p className="login-switch">
-
-                {estaNoCadastro
-                  ? "Já tem uma conta?"
-                  : "Ainda não tem uma conta?"}
+              <div className="login-switch">
+                <span>
+                  {estaNoCadastro
+                    ? "Já possui uma conta?"
+                    : "Ainda não tem uma conta?"}
+                </span>
 
                 <button
                   type="button"
-                  className="login-switch-button"
                   onClick={() =>
                     trocarModo(
                       estaNoCadastro
@@ -923,84 +721,69 @@ export default function LoginPage() {
                     ? "Entrar"
                     : "Criar conta"}
                 </button>
-
-              </p>
+              </div>
 
             </div>
 
-            <p className="login-footer">
+            <footer className="login-footer">
               EducaCube · Área do Aluno
-            </p>
+            </footer>
 
           </div>
-
         </section>
 
-        {/* ==========================================
+        {/* ==================================================
             LADO DIREITO
-            ========================================== */}
+            ================================================== */}
 
         <section className="login-right">
 
           <div className="login-right-content">
 
             <div className="login-right-brand">
-
-              <div
-                className="login-right-brand-icon"
-                aria-hidden="true"
-              >
+              <span className="login-right-mark">
                 E
-              </div>
-
-              <span>
-                EducaCube
               </span>
 
+              <span className="login-right-brand-text">
+                Educa<span>Cube</span>
+              </span>
             </div>
 
             <div className="login-right-main">
 
-              <p className="login-right-kicker">
+              <span className="login-right-kicker">
                 ÁREA DO ALUNO
-              </p>
+              </span>
 
-              <h2 className="login-right-title">
-                Estudos, materiais e apoio em um só lugar.
+              <h2>
+                Estudos, materiais e{" "}
+                <span>apoio</span> em um só lugar.
               </h2>
 
-              <p className="login-right-description">
+              <p>
                 Organize seus estudos, consulte seus
                 materiais e use a Aura quando precisar
                 de ajuda para entender um conteúdo.
               </p>
 
               <div className="login-right-detail">
-
-                <span
-                  className="login-right-detail-line"
-                />
+                <div className="login-detail-line" />
 
                 <p>
-                  O EducaCube reúne as ferramentas
-                  que fazem parte da rotina de estudo
-                  em um único ambiente.
+                  Um ambiente pensado para acompanhar
+                  sua rotina de estudos.
                 </p>
-
               </div>
 
             </div>
 
             <div className="login-right-footer">
+              <strong>EDUCACUBE</strong>
 
               <span>
-                EDUCACUBE
-              </span>
-
-              <p>
                 Seu ambiente de estudos.
-              </p>
-
+              </span>
             </div>
 
           </div>
