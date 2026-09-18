@@ -528,29 +528,59 @@
         color: var(--edu-purple-400);
     }
 
-    /* Palavra rotativa do título — troca de destaque a cada ciclo,
-       mantendo a largura do h1 estável (evita reflow do parágrafo). */
+    /* Palavra rotativa do título — todas as palavras ficam no DOM,
+       cada uma com sua posição (ativa / já passou / esperando embaixo),
+       então a troca de estado anima entrada E saída ao mesmo tempo.
+       O grid com todas no mesmo grid-area faz a largura do container
+       se ajustar à palavra mais larga — nenhuma delas (incluindo "vivo")
+       desalinha o restante do título. */
 
     .hero-rotator {
         position: relative;
         display: inline-grid;
         vertical-align: bottom;
         font-style: italic;
-        color: var(--edu-purple-400);
     }
 
     .hero-rotator__word {
         grid-area: 1 / 1;
-        animation:
-            hero-word-in var(--dur-entrance)
-            var(--ease) both;
+        font-weight: 700;
+        color: var(--edu-purple-dark);
         text-shadow:
-            0 0 28px
+            0 0 18px
             color-mix(
                 in srgb,
-                var(--edu-purple-500) 45%,
+                var(--edu-purple-vibrant) 75%,
+                transparent
+            ),
+            0 0 42px
+            color-mix(
+                in srgb,
+                var(--edu-purple-vibrant) 45%,
                 transparent
             );
+        transition:
+            translate var(--dur-entrance) var(--ease),
+            opacity var(--dur-entrance) var(--ease),
+            filter var(--dur-entrance) var(--ease);
+    }
+
+    .hero-rotator__word[data-state="active"] {
+        translate: 0 0;
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    .hero-rotator__word[data-state="prev"] {
+        translate: 0 -115%;
+        opacity: 0;
+        filter: blur(5px);
+    }
+
+    .hero-rotator__word[data-state="next"] {
+        translate: 0 115%;
+        opacity: 0;
+        filter: blur(5px);
     }
 
     .hero-lede {
@@ -1417,23 +1447,6 @@
             }
 
             to {
-                opacity: 1;
-                translate: 0 0;
-            }
-        }
-
-        @keyframes hero-word-in {
-            0% {
-                opacity: 0;
-                translate: 0 65%;
-                filter: blur(6px);
-            }
-
-            60% {
-                filter: blur(0);
-            }
-
-            100% {
                 opacity: 1;
                 translate: 0 0;
             }
