@@ -1091,18 +1091,32 @@ function LabPage() {
                                     className="hero-rotator"
                                     aria-hidden="true"
                                 >
-                                    <span
-                                        key={
-                                            heroWordIndex
-                                        }
-                                        className="hero-rotator__word"
-                                    >
-                                        {
-                                            HERO_ROTATING_WORDS[
-                                                heroWordIndex
-                                            ]
-                                        }
-                                    </span>
+                                    {HERO_ROTATING_WORDS.map(
+                                        (
+                                            word,
+                                            index
+                                        ) => (
+                                            <span
+                                                key={
+                                                    word
+                                                }
+                                                className="hero-rotator__word"
+                                                data-state={
+                                                    index ===
+                                                    heroWordIndex
+                                                        ? "active"
+                                                        : index <
+                                                            heroWordIndex
+                                                          ? "prev"
+                                                          : "next"
+                                                }
+                                            >
+                                                {
+                                                    word
+                                                }
+                                            </span>
+                                        )
+                                    )}
                                 </span>
                                 <span aria-hidden="true">
                                     {" "}do EducaCube
