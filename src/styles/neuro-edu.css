@@ -14,27 +14,41 @@
     :root {
         color-scheme: dark;
 
-        --edu-bg: #0c0b10;
-        --edu-bg-raised: #16141b;
-        --edu-bg-panel: #1c1922;
-        --edu-bg-sunken: #08070a;
-        --edu-line: #2a2631;
-        --edu-line-strong: #423b4d;
+        /* ---------------------------------------------------------------
+           Paleta EducaCube — preto quase absoluto + escala de roxos.
+           Os tons "-600" e "-200" são interpolados via color-mix a partir
+           das âncoras reais da marca, então qualquer ajuste futuro nas
+           âncoras já propaga para o resto do sistema. */
+
+        --edu-black: #000000;
+        --edu-near-black: #07060B;
+        --edu-bg-alt: #0D0B14;
+        --edu-purple-deep: #26004D;
+        --edu-purple-dark: #170033;
+        --edu-purple-vibrant: #7C3AED;
+        --edu-purple-light: #A78BFA;
+
+        --edu-bg: var(--edu-near-black);
+        --edu-bg-raised: var(--edu-bg-alt);
+        --edu-bg-panel: color-mix(in srgb, var(--edu-purple-dark) 58%, var(--edu-near-black) 42%);
+        --edu-bg-sunken: var(--edu-black);
+        --edu-line: color-mix(in srgb, var(--edu-purple-vibrant) 20%, transparent);
+        --edu-line-strong: color-mix(in srgb, var(--edu-purple-vibrant) 42%, transparent);
         --edu-text: #f1eef4;
-        --edu-text-muted: #a79fb0;
-        --edu-text-faint: #726b7d;
+        --edu-text-muted: color-mix(in srgb, var(--edu-purple-light) 22%, #b3abc0 78%);
+        --edu-text-faint: color-mix(in srgb, var(--edu-purple-light) 14%, #726b7d 86%);
 
-        --edu-purple-900: #241a35;
-        --edu-purple-700: #4f3874;
-        --edu-purple-600: #61458c;
-        --edu-purple-500: #7c5cab;
-        --edu-purple-400: #9b81c4;
-        --edu-purple-200: #d9cdec;
+        --edu-purple-900: var(--edu-purple-dark);
+        --edu-purple-700: var(--edu-purple-deep);
+        --edu-purple-600: color-mix(in srgb, var(--edu-purple-deep) 45%, var(--edu-purple-vibrant) 55%);
+        --edu-purple-500: var(--edu-purple-vibrant);
+        --edu-purple-400: var(--edu-purple-light);
+        --edu-purple-200: color-mix(in srgb, var(--edu-purple-light) 55%, white 45%);
 
-        --edu-brass: #b8935a;
-        --edu-brass-soft: rgba(184, 147, 90, 0.16);
+        --edu-brass: var(--edu-purple-vibrant);
+        --edu-brass-soft: color-mix(in srgb, var(--edu-purple-vibrant) 18%, transparent);
 
-        --edu-focus: var(--edu-purple-400);
+        --edu-focus: var(--edu-purple-light);
 
         --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
         --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -128,6 +142,15 @@
         margin: 0;
         padding: 0;
         list-style: none;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
     }
 
     ::selection {
@@ -227,7 +250,7 @@
         background:
             radial-gradient(
                 circle,
-                rgba(79, 56, 116, 0.16) 0%,
+                color-mix(in srgb, var(--edu-purple-vibrant) 22%, transparent) 0%,
                 transparent 68%
             );
     }
@@ -505,6 +528,31 @@
         color: var(--edu-purple-400);
     }
 
+    /* Palavra rotativa do título — troca de destaque a cada ciclo,
+       mantendo a largura do h1 estável (evita reflow do parágrafo). */
+
+    .hero-rotator {
+        position: relative;
+        display: inline-grid;
+        vertical-align: bottom;
+        font-style: italic;
+        color: var(--edu-purple-400);
+    }
+
+    .hero-rotator__word {
+        grid-area: 1 / 1;
+        animation:
+            hero-word-in var(--dur-entrance)
+            var(--ease) both;
+        text-shadow:
+            0 0 28px
+            color-mix(
+                in srgb,
+                var(--edu-purple-500) 45%,
+                transparent
+            );
+    }
+
     .hero-lede {
         margin-block-start: var(--space-sm);
         max-width: 46ch;
@@ -516,11 +564,11 @@
     .access-card {
         /* Paleta local da caixa de login — vidro discreto sobre preto, com
            um único acento em violeta profundo, sem preenchimento gradiente */
-        --access-black: #0a0a0a;
-        --access-violet: #1f003d;
-        --access-accent: #8a7ca8;
+        --access-black: var(--edu-black);
+        --access-violet: var(--edu-purple-dark);
+        --access-accent: var(--edu-purple-light);
         --access-line: rgba(255, 255, 255, 0.09);
-        --access-line-strong: rgba(138, 124, 168, 0.4);
+        --access-line-strong: color-mix(in srgb, var(--edu-purple-vibrant) 40%, transparent);
 
         margin-block-start: var(--space-lg);
         max-width: 420px;
@@ -1369,6 +1417,23 @@
             }
 
             to {
+                opacity: 1;
+                translate: 0 0;
+            }
+        }
+
+        @keyframes hero-word-in {
+            0% {
+                opacity: 0;
+                translate: 0 65%;
+                filter: blur(6px);
+            }
+
+            60% {
+                filter: blur(0);
+            }
+
+            100% {
                 opacity: 1;
                 translate: 0 0;
             }
