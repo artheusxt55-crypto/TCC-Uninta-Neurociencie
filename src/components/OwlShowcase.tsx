@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 
-*/
 
 export default function EducaCubeOwl() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
