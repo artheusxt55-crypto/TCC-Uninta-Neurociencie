@@ -51,6 +51,17 @@ type ModuleName =
     | "intervencao"
     | null;
 
+/* =========================================================
+ * PALAVRAS ROTATIVAS DO HERO
+ * ========================================================= */
+
+const HERO_ROTATING_WORDS = [
+    "pedagógico",
+    "investigativo",
+    "colaborativo",
+    "vivo",
+] as const;
+
 type Resultados = {
     diagnostico?: string;
     bncc?: string;
@@ -305,6 +316,9 @@ function LabPage() {
     const [showCookieBanner, setShowCookieBanner] =
         useState(false);
 
+    const [heroWordIndex, setHeroWordIndex] =
+        useState(0);
+
     /* =====================================================
      * COOKIES / PRIVACIDADE / ANALYTICS
      * ===================================================== */
@@ -551,6 +565,35 @@ function LabPage() {
         currentVideo,
         isFull,
     ]);
+
+    /* =====================================================
+     * PALAVRA ROTATIVA DO HERO
+     * ===================================================== */
+
+    useEffect(() => {
+        const prefersReducedMotion =
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches;
+
+        if (prefersReducedMotion) {
+            return;
+        }
+
+        const intervalId =
+            window.setInterval(() => {
+                setHeroWordIndex(
+                    (prev) =>
+                        (prev + 1) %
+                        HERO_ROTATING_WORDS.length
+                );
+            }, 2600);
+
+        return () =>
+            window.clearInterval(
+                intervalId
+            );
+    }, []);
 
     /* =====================================================
      * TECLA ESC
@@ -1037,9 +1080,33 @@ function LabPage() {
                             </p>
 
                             <h1>
-                                O laboratório{" "}
-                                <em>pedagógico</em>{" "}
-                                do EducaCube
+                                <span className="sr-only">
+                                    O laboratório pedagógico
+                                    do EducaCube
+                                </span>
+                                <span aria-hidden="true">
+                                    O laboratório{" "}
+                                </span>
+                                <span
+                                    className="hero-rotator"
+                                    aria-hidden="true"
+                                >
+                                    <span
+                                        key={
+                                            heroWordIndex
+                                        }
+                                        className="hero-rotator__word"
+                                    >
+                                        {
+                                            HERO_ROTATING_WORDS[
+                                                heroWordIndex
+                                            ]
+                                        }
+                                    </span>
+                                </span>
+                                <span aria-hidden="true">
+                                    {" "}do EducaCube
+                                </span>
                             </h1>
 
                             <p className="hero-lede">
