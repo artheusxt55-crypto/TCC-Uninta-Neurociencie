@@ -10,7 +10,6 @@ export default function EducaCubeOwl() {
         if (!video) {
             return;
         }
-
         const reducedMotionQuery = window.matchMedia(
             "(prefers-reduced-motion: reduce)"
         );
