@@ -15,43 +15,66 @@
         color-scheme: dark;
 
         /* ---------------------------------------------------------------
-           Paleta EducaCube — preto quase absoluto + escala de roxos.
-           Os tons "-600" e "-200" são interpolados via color-mix a partir
-           das âncoras reais da marca, então qualquer ajuste futuro nas
-           âncoras já propaga para o resto do sistema. */
+           Paleta EducaCube — hierarquia cromática em camadas.
+           A progressão vai do fundo mais profundo até a lavanda/branco,
+           e cada degrau existe para carregar um nível de importância —
+           não como decoração. Os nomes --edu-* são mantidos como a API
+           pública do sistema (outros componentes do app dependem deles);
+           os nomes --color-* abaixo são as âncoras reais da marca. */
+
+        --color-bg-0: #08070b;
+        --color-surface-1: #100e16;
+        --color-surface-2: #17131f;
+        --color-surface-3: #211a2c;
+
+        --color-purple-deep: #35205c;
+        --color-purple: #6d42b8;
+        --color-lavender: #b9a1e8;
+
+        --color-text-primary: #f5f2fa;
+        --color-text-secondary: #b9b2c5;
+        --color-text-muted: #777080;
+        --color-text-disabled: #4e4857;
+
+        --color-white: #f7f5fa;
+
+        /* ---- API existente (mapeada 1:1 para a nova paleta) ---- */
 
         --edu-black: #000000;
-        --edu-near-black: #07060B;
-        --edu-bg-alt: #0D0B14;
-        --edu-purple-deep: #26004D;
+        --edu-near-black: var(--color-bg-0);
+        --edu-bg-alt: var(--color-surface-1);
+        --edu-purple-deep: var(--color-purple-deep);
         --edu-purple-dark: #170033;
-        --edu-purple-vibrant: #7C3AED;
-        --edu-purple-light: #A78BFA;
+        --edu-purple-vibrant: var(--color-purple);
+        --edu-purple-light: var(--color-lavender);
 
         --edu-bg: var(--edu-near-black);
         --edu-bg-raised: var(--edu-bg-alt);
-        --edu-bg-panel: color-mix(in srgb, var(--edu-purple-dark) 58%, var(--edu-near-black) 42%);
+        --edu-bg-panel: var(--color-surface-2);
+        --edu-bg-elevated: var(--color-surface-3);
         --edu-bg-sunken: var(--edu-black);
-        --edu-line: color-mix(in srgb, var(--edu-purple-vibrant) 20%, transparent);
-        --edu-line-strong: color-mix(in srgb, var(--edu-purple-vibrant) 42%, transparent);
-        --edu-text: #f1eef4;
-        --edu-text-muted: color-mix(in srgb, var(--edu-purple-light) 22%, #b3abc0 78%);
-        --edu-text-faint: color-mix(in srgb, var(--edu-purple-light) 14%, #726b7d 86%);
+        --edu-line: color-mix(in srgb, var(--color-purple) 16%, transparent);
+        --edu-line-strong: color-mix(in srgb, var(--color-purple) 36%, transparent);
+        --edu-text: var(--color-text-primary);
+        --edu-text-muted: var(--color-text-secondary);
+        --edu-text-faint: var(--color-text-muted);
+        --edu-text-disabled: var(--color-text-disabled);
 
         --edu-purple-900: var(--edu-purple-dark);
-        --edu-purple-700: var(--edu-purple-deep);
-        --edu-purple-600: color-mix(in srgb, var(--edu-purple-deep) 45%, var(--edu-purple-vibrant) 55%);
-        --edu-purple-500: var(--edu-purple-vibrant);
-        --edu-purple-400: var(--edu-purple-light);
-        --edu-purple-200: color-mix(in srgb, var(--edu-purple-light) 55%, white 45%);
+        --edu-purple-700: var(--color-purple-deep);
+        --edu-purple-600: color-mix(in srgb, var(--color-purple-deep) 40%, var(--color-purple) 60%);
+        --edu-purple-500: var(--color-purple);
+        --edu-purple-400: var(--color-lavender);
+        --edu-purple-200: color-mix(in srgb, var(--color-lavender) 55%, var(--color-white) 45%);
 
-        --edu-brass: var(--edu-purple-vibrant);
-        --edu-brass-soft: color-mix(in srgb, var(--edu-purple-vibrant) 18%, transparent);
+        --edu-brass: var(--color-purple);
+        --edu-brass-soft: color-mix(in srgb, var(--color-purple) 18%, transparent);
 
-        --edu-focus: var(--edu-purple-light);
+        --edu-focus: var(--color-lavender);
 
         --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
         --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+        --font-editorial: "Fraunces", Georgia, serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
 
         --step-meta: 0.8125rem;
@@ -528,6 +551,14 @@
         color: var(--edu-purple-400);
     }
 
+    .hero-suffix {
+        font-family: var(--font-body);
+        font-weight: 500;
+        font-size: 0.56em;
+        letter-spacing: 0.01em;
+        color: var(--edu-text-muted);
+    }
+
     /* Palavra rotativa do título — todas as palavras ficam no DOM,
        cada uma com sua posição (ativa / já passou / esperando embaixo),
        então a troca de estado anima entrada E saída ao mesmo tempo.
@@ -544,21 +575,10 @@
 
     .hero-rotator__word {
         grid-area: 1 / 1;
-        font-weight: 700;
-        color: var(--edu-purple-dark);
-        text-shadow:
-            0 0 18px
-            color-mix(
-                in srgb,
-                var(--edu-purple-vibrant) 75%,
-                transparent
-            ),
-            0 0 42px
-            color-mix(
-                in srgb,
-                var(--edu-purple-vibrant) 45%,
-                transparent
-            );
+        font-family: var(--font-editorial);
+        font-weight: 600;
+        font-style: italic;
+        color: var(--color-lavender);
         transition:
             translate var(--dur-entrance) var(--ease),
             opacity var(--dur-entrance) var(--ease),
@@ -608,8 +628,8 @@
             var(--access-violet) 14%,
             rgba(12, 10, 16, 0.55)
         );
-        backdrop-filter: blur(18px) saturate(120%);
-        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        backdrop-filter: blur(9px) saturate(108%);
+        -webkit-backdrop-filter: blur(9px) saturate(108%);
         border: 1px solid var(--access-line);
         border-radius: var(--radius-md);
         box-shadow:
@@ -1581,6 +1601,29 @@
             object-fit: contain;
             object-position: center;
             display: block;
+        }
+    }
+
+    /* ================================================================
+       480px — TELEFONES PADRÃO
+       ================================================================ */
+
+    @media (max-width: 480px) {
+        .hero-kicker {
+            max-width: none;
+        }
+
+        .hero-lede {
+            max-width: none;
+        }
+
+        .hero-links {
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .access-card {
+            padding: var(--space-sm);
         }
     }
 
