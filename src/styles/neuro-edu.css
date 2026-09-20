@@ -22,19 +22,36 @@
            pública do sistema (outros componentes do app dependem deles);
            os nomes --color-* abaixo são as âncoras reais da marca. */
 
-        --color-bg-0: #08070b;
-        --color-surface-1: #100e16;
-        --color-surface-2: #17131f;
-        --color-surface-3: #211a2c;
+        /* ---------------------------------------------------------------
+           Paleta EducaCube — escala monocromática real (H≈258°), derivada
+           de #8b5cf6 (identidade) e ancorada em #210858. Os oito degraus
+           abaixo são a progressão matemática entre os dois; cada nome
+           --edu-* é um alias — a fonte de verdade é esta escala. */
 
-        --color-purple-deep: #35205c;
-        --color-purple: #6d42b8;
-        --color-lavender: #b9a1e8;
+        --color-mono-1: #060210; /* fundo mais profundo */
+        --color-mono-2: #0c0320; /* superfície 1 */
+        --color-mono-3: #150638; /* superfície 2 */
+        --color-mono-4: #210858; /* superfície 3 / roxo profundo — âncora do usuário */
+        --color-mono-5: #330e8b; /* roxo ativo/intermediário */
+        --color-mono-6: #4d15d1; /* roxo vívido — uso raro (hover/focus) */
+        --color-mono-7: #8b5cf6; /* roxo de identidade — âncora base */
+        --color-mono-8: #ccb9f8; /* lavanda clara */
 
-        --color-text-primary: #f5f2fa;
-        --color-text-secondary: #b9b2c5;
-        --color-text-muted: #777080;
-        --color-text-disabled: #4e4857;
+        --color-bg-0: var(--color-mono-1);
+        --color-surface-1: var(--color-mono-2);
+        --color-surface-2: var(--color-mono-3);
+        --color-surface-3: var(--color-mono-4);
+
+        --color-purple-deep: var(--color-mono-4);
+        --color-purple-mid: var(--color-mono-5);
+        --color-purple-strong: var(--color-mono-6);
+        --color-purple: var(--color-mono-7);
+        --color-lavender: var(--color-mono-8);
+
+        --color-text-primary: #f2f0f4;
+        --color-text-secondary: #bfbcc8;
+        --color-text-muted: #868093;
+        --color-text-disabled: #54515d;
 
         --color-white: #f7f5fa;
 
@@ -44,7 +61,7 @@
         --edu-near-black: var(--color-bg-0);
         --edu-bg-alt: var(--color-surface-1);
         --edu-purple-deep: var(--color-purple-deep);
-        --edu-purple-dark: #170033;
+        --edu-purple-dark: var(--color-mono-2);
         --edu-purple-vibrant: var(--color-purple);
         --edu-purple-light: var(--color-lavender);
 
@@ -62,7 +79,7 @@
 
         --edu-purple-900: var(--edu-purple-dark);
         --edu-purple-700: var(--color-purple-deep);
-        --edu-purple-600: color-mix(in srgb, var(--color-purple-deep) 40%, var(--color-purple) 60%);
+        --edu-purple-600: var(--color-purple-mid);
         --edu-purple-500: var(--color-purple);
         --edu-purple-400: var(--color-lavender);
         --edu-purple-200: color-mix(in srgb, var(--color-lavender) 55%, var(--color-white) 45%);
@@ -352,6 +369,16 @@
             );
         backdrop-filter: blur(8px);
         border-block-end: 1px solid var(--edu-line);
+    }
+
+    @media (min-width: 981px) {
+        .site-header {
+            inset-inline: 14px;
+            inset-block-start: 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--edu-line);
+            border-block-end: 1px solid var(--edu-line);
+        }
     }
 
     .brand-mark {
@@ -964,7 +991,7 @@
 
     .chalk-tray {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
         border: 1px solid var(--edu-line);
         border-radius: var(--radius-md);
         overflow: hidden;
@@ -981,8 +1008,22 @@
         text-align: start;
         background: var(--edu-bg-raised);
         border-inline-end: 1px solid var(--edu-line);
+        border-block-start: 2px solid transparent;
         transition:
             background var(--dur-base) var(--ease);
+
+        &:first-child {
+            background: var(--edu-bg-panel);
+            border-block-start-color: var(--edu-purple-500);
+        }
+
+        &:not(:first-child) .tray-name {
+            font-size: 0.92rem;
+        }
+
+        &:not(:first-child) .tray-desc {
+            color: var(--edu-text-faint);
+        }
 
         &:last-child {
             border-inline-end: none;
@@ -1037,6 +1078,10 @@
         font-size: 1.05rem;
         font-weight: 600;
         color: var(--edu-text);
+    }
+
+    .tray-item:first-child .tray-name {
+        font-size: 1.3rem;
     }
 
     .tray-desc {
@@ -1159,7 +1204,7 @@
             clamp(72px, 8vw, 88px)
             clamp(24px, 4vw, 48px)
             56px;
-        background: var(--edu-bg-panel);
+        background: var(--edu-bg-elevated);
         color: var(--edu-text);
         border-inline-start: 1px solid var(--edu-line-strong);
         overflow-y: auto;
@@ -1339,7 +1384,7 @@
         padding:
             var(--space-sm)
             var(--space-md);
-        background: var(--edu-bg-raised);
+        background: var(--edu-bg-elevated);
         border: 1px solid var(--edu-line-strong);
         border-radius: var(--radius-md);
         box-shadow: var(--shadow-overlay);
