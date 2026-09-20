@@ -849,7 +849,7 @@ function LabPage() {
                     />
 
                     <span className="brand-name">
-                        EducaCube
+                        Educa<span className="brand-name__cube">Cube</span>
                     </span>
 
                     <span className="brand-affiliation">
@@ -1143,7 +1143,7 @@ function LabPage() {
                             <div className="access-card">
 
                                 <p className="access-card__title">
-                                    ÁREA DO ALUNO
+                                    Área do aluno
                                 </p>
 
                                 <p
@@ -1268,7 +1268,7 @@ function LabPage() {
                             </strong>
 
                             <span>
-                                EducaCube
+                                Educa<span className="brand-name__cube">Cube</span>
                             </span>
 
                         </div>
