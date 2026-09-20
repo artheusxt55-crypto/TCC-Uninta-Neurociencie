@@ -372,7 +372,11 @@
         font-family: var(--font-display);
         font-size: 1.05rem;
         font-weight: 600;
-        color: var(--edu-text);
+        color: var(--color-white);
+    }
+
+    .brand-name__cube {
+        color: var(--color-lavender);
     }
 
     .brand-affiliation {
@@ -431,8 +435,8 @@
 
     .nav-toggle {
         display: none;
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
         align-items: center;
         justify-content: center;
         border: 1px solid var(--edu-line-strong);
@@ -638,10 +642,10 @@
     }
 
     .access-card__title {
-        font-family: var(--font-mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.04em;
-        color: var(--edu-text-faint);
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--edu-text-muted);
         margin-block-end: var(--space-sm);
     }
 
@@ -913,8 +917,8 @@
     }
 
     .brain-label span {
-        font-family: var(--font-mono);
-        font-size: 0.7rem;
+        font-family: var(--font-body);
+        font-size: 0.78rem;
         color: var(--edu-text-faint);
     }
 
@@ -1105,6 +1109,10 @@
         color: var(--edu-text-faint);
     }
 
+    .transform-header .brand-name__cube {
+        color: var(--color-lavender);
+    }
+
     .transform-header strong {
         font-family: var(--font-display);
         font-weight: 600;
@@ -1205,8 +1213,8 @@
 
     .close-tool {
         flex-shrink: 0;
-        width: 34px;
-        height: 34px;
+        width: 44px;
+        height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
