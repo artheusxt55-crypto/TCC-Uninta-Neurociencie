@@ -1118,7 +1118,10 @@ function LabPage() {
                                         )
                                     )}
                                 </span>
-                                <span aria-hidden="true">
+                                <span
+                                    className="hero-suffix"
+                                    aria-hidden="true"
+                                >
                                     {" "}do EducaCube
                                 </span>
                             </h1>
