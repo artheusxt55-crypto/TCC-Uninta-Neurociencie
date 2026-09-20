@@ -1075,8 +1075,8 @@ function LabPage() {
                             <p className="hero-kicker">
                                 Um espaço de trabalho para quem
                                 diagnostica, planeja e intervém
-                                na aprendizagem — não um
-                                assistente genérico.
+                                na aprendizagem, todos os dias,
+                                dentro da sala de aula.
                             </p>
 
                             <h1>
@@ -1128,11 +1128,12 @@ function LabPage() {
 
                             <p className="hero-lede">
                                 Quatro instrumentos construídos
-                                a partir da prática docente:
-                                leitura do processo de aprendizagem,
-                                consulta curricular, planejamento
-                                de aula e desenho de intervenções —
-                                no lugar da prática, não em vez dela.
+                                a partir da prática docente,
+                                para apoiar o trabalho do professor
+                                em cada etapa: leitura do processo
+                                de aprendizagem, consulta curricular,
+                                planejamento de aula e desenho
+                                de intervenções.
                             </p>
 
                             {/* =================================================
@@ -1159,8 +1160,8 @@ function LabPage() {
                                     }}
                                 >
                                     Acesse seu espaço de trabalho,
-                                    seus estudos e a inteligência
-                                    pedagógica do EducaCube.
+                                    seus estudos e as ferramentas
+                                    do EducaCube.
                                 </p>
 
                                 <a
