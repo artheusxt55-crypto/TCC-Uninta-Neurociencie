@@ -552,7 +552,40 @@
             minmax(0, 1fr)
             minmax(0, 0.86fr);
         gap: clamp(2rem, 4vw, 4.5rem);
-        align-items: center;
+        align-items: start;
+    }
+
+    /* A composição não é "texto | imagem": o painel da coruja começa
+       mais abaixo que o kicker e avança sobre a coluna de texto,
+       para que as duas metades leiam como uma peça só, não dois
+       blocos neutros lado a lado. Só em telas largas — no grid
+       empilhado (≤980px) a regra de responsivo zera esse deslocamento. */
+
+    @media (min-width: 981px) {
+        #brain-viewport {
+            margin-block-start: clamp(2.5rem, 6vw, 4.5rem);
+            margin-inline-start: calc(-1 * clamp(1.5rem, 3vw, 3rem));
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+        }
+
+        .hero-content::after {
+            content: "";
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-end: clamp(-2.5rem, -4vw, -1.5rem);
+            block-size: clamp(220px, 30vw, 340px);
+            inline-size: 1px;
+            background: linear-gradient(
+                180deg,
+                var(--edu-line-strong),
+                transparent
+            );
+        }
     }
 
     .hero-kicker {
@@ -676,6 +709,20 @@
         margin-block-end: var(--space-sm);
     }
 
+    .access-card__desc {
+        margin: 0 0 var(--space-sm);
+        line-height: 1.7;
+        color: var(--edu-text-muted);
+    }
+
+    .access-card__cta {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
     .field-label {
         display: block;
         margin-block-end: var(--space-3xs);
@@ -708,7 +755,11 @@
 
         &:focus {
             border-color: var(--edu-purple-400);
-            outline: none;
+        }
+
+        &:focus-visible {
+            border-color: var(--edu-purple-400);
+            box-shadow: 0 0 0 2px var(--edu-focus);
         }
 
         &::placeholder {
@@ -736,7 +787,11 @@
 
         &:focus {
             border-color: var(--access-accent);
-            box-shadow: none;
+        }
+
+        &:focus-visible {
+            border-color: var(--access-accent);
+            box-shadow: 0 0 0 2px var(--access-accent);
         }
     }
 
