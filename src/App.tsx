@@ -383,18 +383,38 @@ function LabPage() {
      * MÓDULOS
      * ===================================================== */
 
+    const lastTriggerRef =
+        useRef<HTMLElement | null>(null);
+
     const openModule = (
         name: Exclude<
             ModuleName,
             null
         >
     ) => {
+        lastTriggerRef.current =
+            document.activeElement as HTMLElement | null;
+
         setActiveModule(name);
     };
 
     const closeModule = () => {
         setActiveModule(null);
+
+        lastTriggerRef.current?.focus();
     };
+
+    useEffect(() => {
+        if (!activeModule) {
+            return;
+        }
+
+        const panel = document.querySelector<HTMLElement>(
+            ".tool-panel.active"
+        );
+
+        panel?.querySelector<HTMLElement>(".close-tool")?.focus();
+    }, [activeModule]);
 
     /* =====================================================
      * SISTEMA DE VÍDEOS
@@ -1147,18 +1167,7 @@ function LabPage() {
                                     Área do aluno
                                 </p>
 
-                                <p
-                                    style={{
-                                        margin:
-                                            "0 0 20px",
-
-                                        lineHeight:
-                                            1.7,
-
-                                        opacity:
-                                            0.78,
-                                    }}
-                                >
+                                <p className="access-card__desc">
                                     Acesse seu espaço de trabalho,
                                     seus estudos e as ferramentas
                                     do EducaCube.
@@ -1166,23 +1175,7 @@ function LabPage() {
 
                                 <a
                                     href="/login"
-                                    className="btn-primary"
-                                    style={{
-                                        display:
-                                            "flex",
-
-                                        width:
-                                            "100%",
-
-                                        justifyContent:
-                                            "center",
-
-                                        alignItems:
-                                            "center",
-
-                                        textDecoration:
-                                            "none",
-                                    }}
+                                    className="btn-primary access-card__cta"
                                 >
                                     Entrar na plataforma
                                 </a>
@@ -1386,6 +1379,10 @@ function LabPage() {
                         ? "active"
                         : ""
                 }`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="module-diagnostico-title"
+                aria-hidden={activeModule !== "diagnostico"}
             >
 
                 <div className="tool-header">
@@ -1396,7 +1393,7 @@ function LabPage() {
                             Módulo 01
                         </p>
 
-                        <h3>
+                        <h3 id="module-diagnostico-title">
                             Diagnóstico da Aprendizagem
                         </h3>
 
@@ -1551,6 +1548,10 @@ function LabPage() {
                         ? "active"
                         : ""
                 }`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="module-bncc-title"
+                aria-hidden={activeModule !== "bncc"}
             >
 
                 <div className="tool-header">
@@ -1561,7 +1562,7 @@ function LabPage() {
                             Módulo 02
                         </p>
 
-                        <h3>
+                        <h3 id="module-bncc-title">
                             Consulta Curricular
                         </h3>
 
@@ -1675,6 +1676,10 @@ function LabPage() {
                         ? "active"
                         : ""
                 }`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="module-planejamento-title"
+                aria-hidden={activeModule !== "planejamento"}
             >
 
                 <div className="tool-header">
@@ -1685,7 +1690,7 @@ function LabPage() {
                             Módulo 03
                         </p>
 
-                        <h3>
+                        <h3 id="module-planejamento-title">
                             Planejamento Pedagógico
                         </h3>
 
@@ -1820,6 +1825,10 @@ function LabPage() {
                         ? "active"
                         : ""
                 }`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="module-intervencao-title"
+                aria-hidden={activeModule !== "intervencao"}
             >
 
                 <div className="tool-header">
@@ -1830,7 +1839,7 @@ function LabPage() {
                             Módulo 04
                         </p>
 
-                        <h3>
+                        <h3 id="module-intervencao-title">
                             Intervenção Pedagógica
                         </h3>
 
