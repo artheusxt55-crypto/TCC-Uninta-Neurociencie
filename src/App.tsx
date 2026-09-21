@@ -38,11 +38,13 @@ const TransformDesktop = lazy(
     () => import("./components/TransformDesktop")
 );
 
+const RibbonGlow = lazy(
+    () => import("./components/RibbonGlow")
+);
+
 /* =========================================================
  * TIPOS
  * ========================================================= */
-
-type VideoIndex = 0 | 1 | 2;
 
 type ModuleName =
     | "diagnostico"
@@ -263,24 +265,8 @@ function LabPage() {
         performanceMode === "full";
 
     /* =====================================================
-     * REFERÊNCIAS DOS VÍDEOS
-     * ===================================================== */
-
-    const videosRef =
-        useRef<(HTMLVideoElement | null)[]>([]);
-
-    const transitioningRef =
-        useRef(false);
-
-    const transitionTimeoutRef =
-        useRef<number | null>(null);
-
-    /* =====================================================
      * ESTADOS
      * ===================================================== */
-
-    const [currentVideo, setCurrentVideo] =
-        useState<VideoIndex>(0);
 
     const [activeModule, setActiveModule] =
         useState<ModuleName>(null);
@@ -395,176 +381,6 @@ function LabPage() {
     const closeModule = () => {
         setActiveModule(null);
     };
-
-    /* =====================================================
-     * SISTEMA DE VÍDEOS
-     * ===================================================== */
-
-    useEffect(() => {
-        if (!isFull) {
-            return;
-        }
-
-        const videos =
-            videosRef.current.filter(
-                (
-                    video
-                ): video is HTMLVideoElement =>
-                    video !== null
-            );
-
-        if (!videos.length) {
-            return;
-        }
-
-        videos.forEach(
-            (
-                video,
-                index
-            ) => {
-                video.muted = true;
-                video.playsInline = true;
-                video.preload = "auto";
-                video.loop =
-                    index === 2;
-            }
-        );
-
-        const firstVideo =
-            videos[0];
-
-        firstVideo.currentTime =
-            0;
-
-        firstVideo
-            .play()
-            .catch(() => {
-                console.warn(
-                    "O navegador bloqueou o autoplay."
-                );
-            });
-
-        const cleanups:
-            Array<() => void> = [];
-
-        videos.forEach(
-            (
-                video,
-                index
-            ) => {
-                const handleEnded =
-                    () => {
-                        if (
-                            index === 2
-                        ) {
-                            return;
-                        }
-
-                        if (
-                            index !==
-                            currentVideo
-                        ) {
-                            return;
-                        }
-
-                        if (
-                            transitioningRef.current
-                        ) {
-                            return;
-                        }
-
-                        const nextIndex =
-                            (
-                                index +
-                                1
-                            ) as VideoIndex;
-
-                        const nextVideo =
-                            videos[
-                                nextIndex
-                            ];
-
-                        if (!nextVideo) {
-                            return;
-                        }
-
-                        transitioningRef.current =
-                            true;
-
-                        nextVideo.currentTime =
-                            0;
-
-                        nextVideo
-                            .play()
-                            .then(() => {
-                                nextVideo.classList.add(
-                                    "active"
-                                );
-
-                                transitionTimeoutRef.current =
-                                    window.setTimeout(
-                                        () => {
-                                            video.classList.remove(
-                                                "active"
-                                            );
-
-                                            video.pause();
-
-                                            video.currentTime =
-                                                0;
-
-                                            setCurrentVideo(
-                                                nextIndex
-                                            );
-
-                                            transitioningRef.current =
-                                                false;
-                                        },
-                                        1400
-                                    );
-                            })
-                            .catch(() => {
-                                transitioningRef.current =
-                                    false;
-                            });
-                    };
-
-                video.addEventListener(
-                    "ended",
-                    handleEnded
-                );
-
-                cleanups.push(
-                    () =>
-                        video.removeEventListener(
-                            "ended",
-                            handleEnded
-                        )
-                );
-            }
-        );
-
-        return () => {
-            cleanups.forEach(
-                (
-                    cleanup
-                ) =>
-                    cleanup()
-            );
-
-            if (
-                transitionTimeoutRef.current !==
-                null
-            ) {
-                window.clearTimeout(
-                    transitionTimeoutRef.current
-                );
-            }
-        };
-    }, [
-        currentVideo,
-        isFull,
-    ]);
 
     /* =====================================================
      * PALAVRA ROTATIVA DO HERO
@@ -1121,66 +937,25 @@ function LabPage() {
             )}
 
             {/* =================================================
-                VÍDEOS
+                FUNDO — RIBBON GLOW
             ================================================= */}
 
-            {isFull && (
-                <div className="video-background">
-
-                    <video
-                        ref={(element) => {
-                            videosRef.current[0] =
-                                element;
+            <div
+                className="ribbon-glow-background"
+                aria-hidden="true"
+            >
+                <Suspense fallback={null}>
+                    <RibbonGlow
+                        background="#0B0A10"
+                        color1="#000000"
+                        color2="#7B61FF"
+                        style={{
+                            minWidth: 0,
+                            minHeight: 0,
                         }}
-                        id="video1"
-                        className={`bg-video ${
-                            currentVideo === 0
-                                ? "active"
-                                : ""
-                        }`}
-                        src="/athenaslivro.mp4"
-                        muted
-                        playsInline
-                        preload="auto"
                     />
-
-                    <video
-                        ref={(element) => {
-                            videosRef.current[1] =
-                                element;
-                        }}
-                        id="video2"
-                        className={`bg-video ${
-                            currentVideo === 1
-                                ? "active"
-                                : ""
-                        }`}
-                        src="/maos%20mexendo.mp4"
-                        muted
-                        playsInline
-                        preload="metadata"
-                    />
-
-                    <video
-                        ref={(element) => {
-                            videosRef.current[2] =
-                                element;
-                        }}
-                        id="video3"
-                        className={`bg-video ${
-                            currentVideo === 2
-                                ? "active"
-                                : ""
-                        }`}
-                        src="/cubo.mp4"
-                        muted
-                        playsInline
-                        preload="metadata"
-                        loop
-                    />
-
-                </div>
-            )}
+                </Suspense>
+            </div>
 
             {/* =================================================
                 CAMADAS
@@ -1188,14 +963,10 @@ function LabPage() {
 
             <div className="video-overlay" />
 
-            {isFull && (
-                <>
-                    <div className="video-purple-glow" />
-                    <div className="architectural-grid" />
-                    <div className="side-line" />
-                    <div className="grain" />
-                </>
-            )}
+            <div className="video-purple-glow" />
+            <div className="architectural-grid" />
+            <div className="side-line" />
+            <div className="grain" />
 
             {/* =================================================
                 CONTEÚDO PRINCIPAL
