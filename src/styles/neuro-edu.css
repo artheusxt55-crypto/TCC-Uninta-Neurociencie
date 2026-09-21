@@ -4,7 +4,7 @@
    EDUCACUBE — sistema visual
    ===================================================================== */
 
-@layer reset, tokens, base, header, hero, stack, workspace, showcase, panel, cookie, motion, responsive;
+@layer reset, tokens, base, header, hero, workspace, showcase, panel, cookie, motion, responsive;
 
 /* =====================================================================
    1. TOKENS
@@ -535,13 +535,15 @@
    ===================================================================== */
 
 @layer hero {
-    /* O container agora é só o trilho dos painéis empilhados (ver
-       seção 6b). Largura máxima (1180px) e respiro lateral passaram
-       para .stack-panel, para que o fundo de cada painel ocupe a
-       tela inteira. */
     .main-container {
         position: relative;
         z-index: 3;
+        max-width: 1180px;
+        margin-inline: auto;
+        padding:
+            clamp(96px, 12vw, 132px)
+            clamp(20px, 4vw, 40px)
+            0;
     }
 
     .hero-grid {
@@ -963,76 +965,12 @@
 }
 
 /* =====================================================================
-   7b. PAINÉIS EMPILHADOS (scroll)
-   ---------------------------------------------------------------------
-   Cada seção do <main> é um "painel" sticky. Ao rolar, o painel
-   seguinte desliza por cima do anterior, que fica preso ao topo.
-
-   Como funciona em telas pequenas: um painel mais alto que a tela
-   (comum no mobile) não pode ficar preso em top:0, senão o fim dele
-   nunca seria visto. O hook useStackPanels grava a altura real em
-   --stack-h, e o `top` negativo abaixo faz o painel rolar até o fim
-   antes de ser coberto. Usamos svh (e não vh) para o valor não
-   "pulsar" quando a barra de endereço do celular some/aparece.
-   ===================================================================== */
-
-@layer stack {
-    /* Marcador de âncora: fica no fluxo normal (não sticky), então sua
-       posição é sempre a "posição natural" do painel seguinte. */
-    .stack-anchor {
-        display: block;
-        height: 0;
-        pointer-events: none;
-    }
-
-    .stack-panel {
-        --stack-gutter: max(
-            clamp(20px, 4vw, 40px),
-            calc((100% - 1180px) / 2)
-        );
-        --stack-radius: clamp(20px, 3.2vw, 36px);
-
-        position: relative;
-        isolation: isolate; /* conteúdo (ex.: z-index das quinas) não vaza por cima do painel seguinte */
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        align-content: center;
-        min-height: 100vh;
-        min-height: 100svh;
-        padding-block:
-            clamp(96px, 12vw, 132px)
-            var(--space-xl);
-        padding-inline: var(--stack-gutter);
-    }
-
-    /* Painéis que cobrem o anterior: fundo opaco + cantos superiores
-       arredondados + sombra para cima. O hero fica transparente para
-       mostrar o vídeo de fundo. */
-    .stack-panel--cover {
-        background: var(--edu-bg);
-        border-start-start-radius: var(--stack-radius);
-        border-start-end-radius: var(--stack-radius);
-        border-block-start: 1px solid var(--edu-line-strong);
-        box-shadow: 0 -28px 60px -24px rgba(0, 0, 0, 0.75);
-    }
-
-    /* Só empilha (sticky) para quem não pediu menos movimento. */
-    @media (prefers-reduced-motion: no-preference) {
-        .stack-panel {
-            position: sticky;
-            top: min(0px, calc(100vh - var(--stack-h, 100vh)));
-            top: min(0px, calc(100svh - var(--stack-h, 100svh)));
-        }
-    }
-}
-
-/* =====================================================================
    8. FLUXO DE TRABALHO
    ===================================================================== */
 
 @layer workspace {
     .workspace-section {
-        /* espaçamento vertical vem de .stack-panel */
+        margin: var(--space-xl) 0 var(--space-lg);
     }
 
     .workspace-header {
@@ -1197,7 +1135,7 @@
 
 @layer workspace {
     .transform-section {
-        /* espaçamento vertical vem de .stack-panel */
+        margin-block-end: var(--space-lg);
     }
 
     .transform-header {
@@ -1652,6 +1590,10 @@
             color: var(--edu-text-muted);
             text-align: start;
             border-block-end: 1px solid var(--edu-line);
+        }
+
+        .main-container {
+            padding-block-start: 96px;
         }
 
         .access-card {
