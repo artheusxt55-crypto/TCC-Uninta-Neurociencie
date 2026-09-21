@@ -2,44 +2,80 @@ import { useEffect, useState } from "react";
 
 export type PerformanceMode = "full" | "reduced" | "minimal";
 
+type NavigatorWithExtras = Navigator & {
+  connection?: {
+    saveData?: boolean;
+  };
+  deviceMemory?: number;
+};
+
 export function usePerformanceMode(): PerformanceMode {
   const [mode, setMode] = useState<PerformanceMode>("full");
 
   useEffect(() => {
     const updateMode = () => {
+      const nav = navigator as NavigatorWithExtras;
+
       const mobile = window.matchMedia(
         "(max-width: 768px)"
       ).matches;
 
-      const cores = navigator.hardwareConcurrency || 8;
+      const cores = nav.hardwareConcurrency || 8;
+      const memory = nav.deviceMemory;
+      const saveData = nav.connection?.saveData === true;
 
-      const connection = (
-        navigator as Navigator & {
-          connection?: {
-            saveData?: boolean;
-          };
-        }
-      ).connection;
-
-      const saveData = connection?.saveData === true;
-
-      const reducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-      // Dispositivo muito fraco ou economia de dados
-      if (saveData || cores <= 2) {
+      /*
+       * ECONOMIA DE DADOS
+       *
+       * Se o usuário ativou economia de dados,
+       * reduzimos efeitos pesados para economizar
+       * processamento e tráfego.
+       */
+      if (saveData) {
         setMode("minimal");
         return;
       }
 
-      // Celular ou computador mais limitado
-      if (mobile || cores <= 4 || reducedMotion) {
+      /*
+       * DISPOSITIVO MUITO FRACO
+       *
+       * Poucos núcleos ou pouca memória indicam
+       * que devemos priorizar fluidez.
+       */
+      if (
+        cores <= 2 ||
+        (memory !== undefined && memory <= 2)
+      ) {
+        setMode("minimal");
+        return;
+      }
+
+      /*
+       * DISPOSITIVO INTERMEDIÁRIO
+       */
+      if (
+        cores <= 4 ||
+        (memory !== undefined && memory <= 4)
+      ) {
         setMode("reduced");
         return;
       }
 
-      // Desktop com capacidade normal
+      /*
+       * CELULAR POTENTE
+       *
+       * Não reduzimos automaticamente só porque
+       * é mobile. Se o aparelho tiver recursos
+       * suficientes, mantém qualidade alta.
+       */
+      if (mobile) {
+        setMode("full");
+        return;
+      }
+
+      /*
+       * DESKTOP / NOTEBOOK POTENTE
+       */
       setMode("full");
     };
 
