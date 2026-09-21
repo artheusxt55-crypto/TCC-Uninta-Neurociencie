@@ -235,33 +235,17 @@
    ===================================================================== */
 
 @layer base {
-    .video-background {
+    .ribbon-glow-background {
         position: fixed;
         inset: 0;
         z-index: 0;
         overflow: hidden;
         background: var(--edu-bg);
+        pointer-events: none;
     }
 
-    .bg-video {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: 0;
-        filter:
-            grayscale(0.82)
-            contrast(1.06)
-            brightness(0.34)
-            sepia(0.08)
-            hue-rotate(228deg)
-            saturate(1.1);
-        transition: opacity 1.2s var(--ease);
-
-        &.active {
-            opacity: 1;
-        }
+    .ribbon-glow-background canvas {
+        pointer-events: auto;
     }
 
     .video-overlay {
