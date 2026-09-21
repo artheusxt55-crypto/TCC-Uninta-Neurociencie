@@ -494,11 +494,12 @@ export default function TransformParticles({
         let transitionStart =
             performance.now();
 
+        // Ritmo mais cinematográfico para a troca em queda.
         const transitionDuration =
-            1800;
+            1450;
 
         const holdDuration =
-            2200;
+            1650;
 
         let holding = true;
 
@@ -813,26 +814,61 @@ export default function TransformParticles({
                     const index =
                         i * 3;
 
+                    /*
+                     * QUEDA FLUIDA ENTRE PALAVRAS
+                     *
+                     * A palavra atual perde sustentação e cai,
+                     * enquanto a próxima entra suavemente de cima.
+                     * As duas trajetórias se cruzam no centro.
+                     */
+                    const fallOut =
+                        Math.pow(eased, 1.55);
+
+                    const enterIn =
+                        Math.pow(1 - eased, 1.35);
+
+                    const fallDistance = 1.9;
+                    const incomingDistance = 1.35;
+
+                    const oldWeight = 1 - eased;
+                    const newWeight = eased;
+
+                    const oldX = from[index];
+                    const oldY = from[index + 1];
+                    const oldZ = from[index + 2];
+
+                    const newX = to[index];
+                    const newY = to[index + 1];
+                    const newZ = to[index + 2];
+
                     const baseX =
-                        lerp(
-                            from[index],
-                            to[index],
-                            eased
-                        );
+                        oldX * oldWeight +
+                        newX * newWeight;
 
                     const baseY =
-                        lerp(
-                            from[index + 1],
-                            to[index + 1],
-                            eased
-                        );
+                        oldY * oldWeight +
+                        newY * newWeight +
+                        (fallOut * fallDistance * oldWeight) -
+                        (enterIn * incomingDistance * newWeight);
 
                     const baseZ =
-                        lerp(
-                            from[index + 2],
-                            to[index + 2],
-                            eased
-                        );
+                        oldZ * oldWeight +
+                        newZ * newWeight;
+
+                    /*
+                     * Pequena rotação 3D durante a queda.
+                     * Discreta para manter a estética acadêmica.
+                     */
+                    const orbital =
+                        Math.sin(eased * Math.PI) * 0.16;
+
+                    const rotatedX =
+                        baseX * Math.cos(orbital) -
+                        baseZ * Math.sin(orbital);
+
+                    const rotatedZ =
+                        baseX * Math.sin(orbital) +
+                        baseZ * Math.cos(orbital);
 
                     /*
                      * Guarda a posição da transformação.
@@ -840,7 +876,7 @@ export default function TransformParticles({
                      */
 
                     textPositions[index] =
-                        baseX;
+                        rotatedX;
 
                     textPositions[
                         index + 1
@@ -848,7 +884,7 @@ export default function TransformParticles({
 
                     textPositions[
                         index + 2
-                    ] = baseZ;
+                    ] = rotatedZ;
 
                     applyMouseForce(
                         i,
@@ -936,7 +972,7 @@ export default function TransformParticles({
                     ] *= 0.91;
 
                     positions[index] =
-                        baseX +
+                        rotatedX +
                         mouseOffsets[
                             index
                         ];
@@ -952,7 +988,7 @@ export default function TransformParticles({
                     positions[
                         index + 2
                     ] =
-                        baseZ +
+                        rotatedZ +
                         mouseOffsets[
                             index + 2
                         ];
