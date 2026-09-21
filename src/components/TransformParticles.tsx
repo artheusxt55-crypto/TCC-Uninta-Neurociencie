@@ -84,7 +84,7 @@ function createTextPoints(
 
 export default function TransformParticles({
     words = DEFAULT_WORDS,
-    color = "#7c5cab",
+    color = "#B56CFF",
     particleCount = 900,
     cursorStrength = 0.08,
     cursorReach = 2.8,
@@ -158,9 +158,9 @@ export default function TransformParticles({
 
         const material = new THREE.PointsMaterial({
             color: colorRef.current,
-            size: 0.045,
+            size: 0.052,
             transparent: true,
-            opacity: 0.92,
+            opacity: 1.0,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
             sizeAttenuation: true,
@@ -487,6 +487,9 @@ export default function TransformParticles({
                 minHeight: "420px",
                 position: "relative",
                 overflow: "hidden",
+                background: "transparent",
+                border: "none",
+                boxShadow: "none",
             }}
             aria-label="Animação de partículas formando palavras"
         />
