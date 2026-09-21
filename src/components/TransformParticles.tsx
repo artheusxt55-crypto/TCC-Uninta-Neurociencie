@@ -127,9 +127,16 @@ export default function TransformParticles({
         renderer.setPixelRatio(
             Math.min(window.devicePixelRatio || 1, 2)
         );
+        const getSize = () => ({
+            width: Math.max(mount.clientWidth || 0, 320),
+            height: Math.max(mount.clientHeight || 0, 420),
+        });
+
+        const initialSize = getSize();
+
         renderer.setSize(
-            Math.max(mount.clientWidth, 1),
-            Math.max(mount.clientHeight, 1),
+            initialSize.width,
+            initialSize.height,
             false
         );
         renderer.setClearColor(0x000000, 0);
@@ -215,8 +222,7 @@ export default function TransformParticles({
         mount.addEventListener("pointermove", onPointerMove);
 
         const onResize = () => {
-            const width = Math.max(mount.clientWidth, 1);
-            const height = Math.max(mount.clientHeight, 1);
+            const { width, height } = getSize();
 
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
@@ -318,19 +324,19 @@ export default function TransformParticles({
 
                 // Old word falls down.
                 const outgoing = easeIn(t);
-
-                // New word enters from above.
                 const incoming = easeOut(t);
 
                 const oldTarget = targets[currentIndex];
                 const newTarget = targets[nextIndex];
 
-                const fallDistance = 2.15;
-                const enterDistance = 2.15;
+                const fallDistance = 1.65;
+                const enterDistance = 1.65;
 
-                // One smooth 3D twist during the exchange.
+                // The old word falls while the next word rises into place.
+                // Both are blended continuously so the particle cloud never
+                // collapses to an empty point.
                 const rotation =
-                    Math.sin(t * Math.PI) * 0.18;
+                    Math.sin(t * Math.PI) * 0.12;
 
                 const cosR = Math.cos(rotation);
                 const sinR = Math.sin(rotation);
@@ -346,40 +352,34 @@ export default function TransformParticles({
                     const ny = newTarget[i3 + 1];
                     const nz = newTarget[i3 + 2];
 
-                    const oldWeight = 1 - outgoing;
-                    const newWeight = incoming;
+                    // Move the outgoing particles downward.
+                    const oldX = ox;
+                    const oldY = oy - fallDistance * outgoing;
+                    const oldZ = oz;
 
-                    const oldY =
-                        oy - fallDistance * outgoing;
-
+                    // Bring the incoming particles from above.
+                    const newX = nx;
                     const newY =
-                        ny +
-                        enterDistance *
-                            (1 - incoming);
+                        ny + enterDistance * (1 - incoming);
+                    const newZ = nz;
+
+                    // Use a proper crossfade between positions.
+                    const blend = easeInOut(t);
 
                     const baseX =
-                        ox * oldWeight +
-                        nx * newWeight;
-
+                        oldX * (1 - blend) + newX * blend;
                     const baseY =
-                        oldY * oldWeight +
-                        newY * newWeight;
-
+                        oldY * (1 - blend) + newY * blend;
                     const baseZ =
-                        oz * oldWeight +
-                        nz * newWeight;
+                        oldZ * (1 - blend) + newZ * blend;
 
-                    const rx =
-                        baseX * cosR -
-                        baseZ * sinR;
+                    positions[i3] =
+                        baseX * cosR - baseZ * sinR;
 
-                    const rz =
-                        baseX * sinR +
-                        baseZ * cosR;
-
-                    positions[i3] = rx;
                     positions[i3 + 1] = baseY;
-                    positions[i3 + 2] = rz;
+
+                    positions[i3 + 2] =
+                        baseX * sinR + baseZ * cosR;
                 }
             } else {
                 const target = targets[currentIndex];
@@ -484,6 +484,7 @@ export default function TransformParticles({
             style={{
                 width: "100%",
                 height: "100%",
+                minHeight: "420px",
                 position: "relative",
                 overflow: "hidden",
             }}
