@@ -837,6 +837,135 @@
 }
 
 /* =====================================================================
+   EDUCACUBE — SCROLL MOTION SYSTEM
+   ===================================================================== */
+
+@layer motion {
+    :root {
+        --edu-scroll-y: 0px;
+    }
+
+    .scroll-reveal {
+        opacity: 0;
+        translate: 0 34px;
+        scale: 0.985;
+        filter: blur(7px);
+        transition:
+            opacity 0.8s var(--ease) var(--reveal-delay, 0ms),
+            translate 0.95s var(--ease) var(--reveal-delay, 0ms),
+            scale 0.95s var(--ease) var(--reveal-delay, 0ms),
+            filter 0.8s var(--ease) var(--reveal-delay, 0ms);
+        will-change: opacity, translate, scale, filter;
+    }
+
+    .scroll-reveal.is-visible {
+        opacity: 1;
+        translate: 0 0;
+        scale: 1;
+        filter: blur(0);
+    }
+
+    .hero-grid {
+        --scroll-shift: 0px;
+        transform: translate3d(0, var(--scroll-shift), 0);
+        will-change: transform;
+    }
+
+    .hero-content {
+        --scroll-shift: 0px;
+        transform: translate3d(0, var(--scroll-shift), 0);
+        will-change: transform;
+    }
+
+    #brain-viewport {
+        --scroll-shift: 0px;
+        transform: translate3d(0, var(--scroll-shift), 0);
+        will-change: transform;
+    }
+
+    .transform-section {
+        position: relative;
+        min-height: 82vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: clip;
+        isolation: isolate;
+    }
+
+    .transform-section::before {
+        content: "";
+        position: absolute;
+        inset: 12% 4% auto;
+        height: 65%;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, color-mix(in srgb, var(--edu-purple-vibrant) 9%, transparent), transparent 68%);
+        opacity: 0;
+        scale: 0.82;
+        transition: opacity 1.2s var(--ease), scale 1.2s var(--ease);
+        z-index: -1;
+    }
+
+    .transform-section:has(.scroll-reveal.is-visible)::before {
+        opacity: 1;
+        scale: 1;
+    }
+
+    .transform-particles-wrapper {
+        --scroll-shift: 0px;
+        transform: translate3d(0, var(--scroll-shift), 0) scale(0.98);
+        transition: scale 1s var(--ease);
+        will-change: transform;
+    }
+
+    .transform-particles-wrapper.is-visible {
+        scale: 1;
+    }
+
+    .workspace-section {
+        position: relative;
+        scroll-margin-top: 110px;
+    }
+
+    .workspace-header {
+        transition: translate 0.9s var(--ease), opacity 0.8s var(--ease);
+    }
+
+    .tray-item {
+        transition:
+            opacity 0.75s var(--ease) var(--reveal-delay, 0ms),
+            translate 0.8s var(--ease) var(--reveal-delay, 0ms),
+            scale 0.75s var(--ease) var(--reveal-delay, 0ms),
+            border-color var(--dur-base) var(--ease),
+            background var(--dur-base) var(--ease);
+    }
+
+    .tray-item:nth-child(2) { --reveal-delay: 70ms; }
+    .tray-item:nth-child(3) { --reveal-delay: 140ms; }
+    .tray-item:nth-child(4) { --reveal-delay: 210ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scroll-reveal,
+        .scroll-reveal.is-visible,
+        .hero-grid,
+        .hero-content,
+        #brain-viewport,
+        .transform-particles-wrapper {
+            opacity: 1;
+            translate: none;
+            scale: 1;
+            transform: none;
+            filter: none;
+            transition: none;
+        }
+
+        .transform-section {
+            min-height: auto;
+        }
+    }
+}
+
+/* =====================================================================
    7. VITRINE DA CORUJA
    ===================================================================== */
 
