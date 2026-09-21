@@ -1882,22 +1882,17 @@ function __OriginkitBase_RibbonGlow(
 // PRESET
 // ============================================================
 
-const __originkitPresetProps = {
+const __originkitPresetProps: RibbonGlowProps = {
     color1: "#000000",
 }
 
 export default function RibbonGlow(
-    props: Record<string, unknown>
+    props: RibbonGlowProps
 ) {
-
     return React.createElement(
         __OriginkitBase_RibbonGlow,
         {
-            ...(
-                __originkitPresetProps
-                as Record<string, unknown>
-            ),
-
+            ...__originkitPresetProps,
             ...props,
         }
     )
