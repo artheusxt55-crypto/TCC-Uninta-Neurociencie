@@ -39,7 +39,7 @@ const TransformDesktop = lazy(
 );
 
 const RibbonGlow = lazy(
-    () => import("./components/RibbonGlow.tsx")
+    () => import("./components/RibbonGlow")
 );
 
 /* =========================================================
