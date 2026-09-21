@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 type TransformParticlesProps = {
-    words: string[];
+    words?: string[];
     color?: string;
     particleCount?: number;
 
@@ -238,7 +238,12 @@ function createTextPoints(
  * ============================================================ */
 
 export default function TransformParticles({
-    words,
+    words = [
+        "EducaCube",
+        "Conhecimento",
+        "Em Todas",
+        "Dimensões",
+    ],
     color = "#c4a265",
     particleCount = 900,
 
@@ -457,32 +462,40 @@ export default function TransformParticles({
         });
 
         /* ====================================================
-         * SEQUÊNCIA
+         * SEQUÊNCIA DE PALAVRAS
          *
-         * CUBO
-         *   ↓
-         * PALAVRA 1
-         *   ↓
-         * PALAVRA 2
-         *   ↓
-         * PALAVRA 3
-         *   ↓
-         * CUBO
-         *   ↓
-         * REPETE
+         * NÃO usamos mais o cubo como target.
+         * As partículas começam na primeira palavra e passam
+         * diretamente para a próxima, em loop:
+         *
+         * EducaCube → Conhecimento → Em Todas → Dimensões → ...
+         *
+         * Isso impede que a forma do cubo "prenda" a animação.
          * ==================================================== */
 
-        const targets = [
-            new Float32Array(
-                initialPositions
-            ),
+        const targets =
+            textTargets.length > 0
+                ? textTargets
+                : [
+                    new Float32Array(
+                        initialPositions
+                    ),
+                ];
 
-            ...textTargets,
-
-            new Float32Array(
-                initialPositions
-            ),
-        ];
+        // Começa já na primeira palavra, não no cubo.
+        for (
+            let i = 0;
+            i < particleCount;
+            i++
+        ) {
+            const index = i * 3;
+            positions[index] =
+                targets[0][index];
+            positions[index + 1] =
+                targets[0][index + 1];
+            positions[index + 2] =
+                targets[0][index + 2];
+        }
 
         let currentTarget = 0;
 
