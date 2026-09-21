@@ -1,5 +1,5 @@
 // Ribbon Glow — Originkit
-// Otimizado para desktop, mobile e dispositivos de baixo desempenho.
+// Performance adaptativa para desktop, mobile e dispositivos de baixo desempenho.
 
 "use client"
 
@@ -15,25 +15,28 @@ const NAME = "RibbonGlow"
 
 const PERFORMANCE_CONFIG = {
     full: {
-        dpr: 2,
-        resolution: 0.5,
-        layers: 84,
+        // Qualidade alta para desktop e mobile potente.
+        dpr: 1.5,
+        resolution: 0.45,
+        layers: 48,
         fps: 60,
         interaction: true,
     },
 
     reduced: {
+        // Qualidade intermediária.
         dpr: 1,
-        resolution: 0.3,
-        layers: 24,
+        resolution: 0.28,
+        layers: 18,
         fps: 30,
         interaction: false,
     },
 
     minimal: {
+        // Dispositivos muito limitados.
         dpr: 1,
-        resolution: 0.25,
-        layers: 16,
+        resolution: 0.20,
+        layers: 12,
         fps: 24,
         interaction: false,
     },
@@ -79,7 +82,6 @@ uniform vec2 uVel;
 
 out vec4 o;
 
-const float TAU = 6.28318530718;
 const float LAYERS = ${layers.toFixed(1)};
 const float TWIST = ${TWIST.toFixed(3)};
 const float DRAG = ${DRAG.toFixed(3)};
@@ -116,7 +118,7 @@ void main() {
         (gl_FragCoord.xy - 0.5 * R) / R.y;
 
     // --------------------------------------------------------
-    // Interação
+    // INTERAÇÃO
     // --------------------------------------------------------
 
     vec2 d = pos - uMouse;
@@ -142,7 +144,7 @@ void main() {
     }
 
     // --------------------------------------------------------
-    // Transformação
+    // TRANSFORMAÇÃO
     // --------------------------------------------------------
 
     pos =
@@ -180,7 +182,7 @@ void main() {
     vec3 col = vec3(0.0);
 
     // --------------------------------------------------------
-    // Ribbon
+    // RIBBON
     // --------------------------------------------------------
 
     for (
@@ -263,7 +265,7 @@ void main() {
     }
 
     // --------------------------------------------------------
-    // Tonemapping
+    // TONEMAPPING
     // --------------------------------------------------------
 
     vec3 x =
@@ -1236,7 +1238,7 @@ function __OriginkitBase_RibbonGlow(
         }
 
         // ----------------------------------------------------
-        // SHADER ESPECÍFICO DO MODO
+        // SHADERS
         // ----------------------------------------------------
 
         const field =
@@ -1342,6 +1344,76 @@ function __OriginkitBase_RibbonGlow(
             }
 
         // ----------------------------------------------------
+        // DIMENSÕES CACHEADAS
+        // ----------------------------------------------------
+
+        let cw =
+            root.clientWidth || 800
+
+        let ch =
+            root.clientHeight || 500
+
+        let dimensionsDirty = true
+
+        const updateDimensions =
+            (widthValue: number, heightValue: number) => {
+
+                const nextW =
+                    Math.max(
+                        1,
+                        Math.round(widthValue)
+                    )
+
+                const nextH =
+                    Math.max(
+                        1,
+                        Math.round(heightValue)
+                    )
+
+                if (
+                    nextW !== cw ||
+                    nextH !== ch
+                ) {
+                    cw = nextW
+                    ch = nextH
+                    dimensionsDirty = true
+                }
+            }
+
+        const resizeObserver =
+            typeof ResizeObserver !== "undefined"
+                ? new ResizeObserver(
+                    (entries) => {
+
+                        const rect =
+                            entries[0]?.contentRect
+
+                        if (!rect) return
+
+                        updateDimensions(
+                            rect.width,
+                            rect.height
+                        )
+                    }
+                )
+                : null
+
+        resizeObserver?.observe(root)
+
+        // ----------------------------------------------------
+        // VISIBILIDADE
+        // ----------------------------------------------------
+
+        let isVisible = true
+
+        let pageVisible =
+            document.visibilityState === "visible"
+
+        let running = false
+
+        let raf = 0
+
+        // ----------------------------------------------------
         // ESTADO
         // ----------------------------------------------------
 
@@ -1353,8 +1425,6 @@ function __OriginkitBase_RibbonGlow(
 
         let on = 0
 
-        let raf = 0
-
         let clock = 0
 
         let lastRender = 0
@@ -1363,20 +1433,123 @@ function __OriginkitBase_RibbonGlow(
             1000 / config.fps
 
         // ----------------------------------------------------
+        // CORES CACHEADAS
+        // ----------------------------------------------------
+
+        let cachedColor1Key =
+            ""
+
+        let cachedColor2Key =
+            ""
+
+        let cachedBackgroundKey =
+            ""
+
+        let cachedC1: RGB =
+            color(
+                color1,
+                DEFAULTS.color1
+            )
+
+        let cachedC2: RGB =
+            color(
+                color2,
+                DEFAULTS.color2
+            )
+
+        let cachedBg: RGB =
+            color(
+                background,
+                DEFAULTS.background
+            )
+
+        let cachedBgLum =
+            0.2126 * cachedBg[0] +
+            0.7152 * cachedBg[1] +
+            0.0722 * cachedBg[2]
+
+        // ----------------------------------------------------
+        // ATUALIZAÇÃO DE CORES
+        // ----------------------------------------------------
+
+        const updateColors =
+            () => {
+
+                const v =
+                    vRef.current
+
+                if (
+                    v.color1 !==
+                    cachedColor1Key
+                ) {
+
+                    cachedColor1Key =
+                        v.color1
+
+                    cachedC1 =
+                        color(
+                            v.color1,
+                            DEFAULTS.color1
+                        )
+                }
+
+                if (
+                    v.color2 !==
+                    cachedColor2Key
+                ) {
+
+                    cachedColor2Key =
+                        v.color2
+
+                    cachedC2 =
+                        color(
+                            v.color2,
+                            DEFAULTS.color2
+                        )
+                }
+
+                if (
+                    v.background !==
+                    cachedBackgroundKey
+                ) {
+
+                    cachedBackgroundKey =
+                        v.background
+
+                    cachedBg =
+                        color(
+                            v.background,
+                            DEFAULTS.background
+                        )
+
+                    cachedBgLum =
+                        0.2126 * cachedBg[0] +
+                        0.7152 * cachedBg[1] +
+                        0.0722 * cachedBg[2]
+                }
+            }
+
+        // ----------------------------------------------------
         // RENDER
         // ----------------------------------------------------
 
         const render =
             (now: number) => {
 
+                if (
+                    !isVisible ||
+                    !pageVisible
+                ) {
+
+                    running = false
+                    raf = 0
+                    return
+                }
+
                 raf =
                     requestAnimationFrame(
                         render
                     )
-
-                // ------------------------------------------------
-                // FPS LIMITER
-                // ------------------------------------------------
 
                 if (
                     lastRender !== 0 &&
@@ -1415,23 +1588,20 @@ function __OriginkitBase_RibbonGlow(
                     ) % 3600
 
                 // ------------------------------------------------
+                // CORES
+                // ------------------------------------------------
+
+                updateColors()
+
+                // ------------------------------------------------
                 // DPR
                 // ------------------------------------------------
 
                 const dpr =
                     Math.min(
-                        window.devicePixelRatio ||
-                            1,
+                        window.devicePixelRatio || 1,
                         config.dpr
                     )
-
-                const cw =
-                    canvas.clientWidth ||
-                    800
-
-                const ch =
-                    canvas.clientHeight ||
-                    500
 
                 const bw =
                     Math.max(
@@ -1456,30 +1626,41 @@ function __OriginkitBase_RibbonGlow(
 
                     canvas.width = bw
                     canvas.height = bh
+
+                    dimensionsDirty = true
                 }
 
                 // ------------------------------------------------
                 // FRAMEBUFFER REDUZIDO
                 // ------------------------------------------------
 
-                target.resize(
+                if (
+                    dimensionsDirty ||
+                    target.width() === 0 ||
+                    target.height() === 0
+                ) {
 
-                    Math.max(
-                        1,
-                        Math.round(
-                            bw *
-                            config.resolution
-                        )
-                    ),
+                    target.resize(
 
-                    Math.max(
-                        1,
-                        Math.round(
-                            bh *
-                            config.resolution
+                        Math.max(
+                            1,
+                            Math.round(
+                                bw *
+                                config.resolution
+                            )
+                        ),
+
+                        Math.max(
+                            1,
+                            Math.round(
+                                bh *
+                                config.resolution
+                            )
                         )
                     )
-                )
+
+                    dimensionsDirty = false
+                }
 
                 // ------------------------------------------------
                 // INTERAÇÃO
@@ -1576,7 +1757,6 @@ function __OriginkitBase_RibbonGlow(
 
                 } else {
 
-                    // Sem interação no mobile
                     on = 0
                     vx = 0
                     vy = 0
@@ -1597,33 +1777,6 @@ function __OriginkitBase_RibbonGlow(
                     vLen > 3
                         ? 3 / vLen
                         : 1
-
-                // ------------------------------------------------
-                // CORES
-                // ------------------------------------------------
-
-                const c1 =
-                    color(
-                        v.color1,
-                        DEFAULTS.color1
-                    )
-
-                const c2 =
-                    color(
-                        v.color2,
-                        DEFAULTS.color2
-                    )
-
-                const bg =
-                    color(
-                        v.background,
-                        DEFAULTS.background
-                    )
-
-                const bgLum =
-                    0.2126 * bg[0] +
-                    0.7152 * bg[1] +
-                    0.0722 * bg[2]
 
                 // ------------------------------------------------
                 // FIELD PASS
@@ -1658,16 +1811,16 @@ function __OriginkitBase_RibbonGlow(
 
                 gl.uniform3f(
                     uf.uC1,
-                    c1[0],
-                    c1[1],
-                    c1[2]
+                    cachedC1[0],
+                    cachedC1[1],
+                    cachedC1[2]
                 )
 
                 gl.uniform3f(
                     uf.uC2,
-                    c2[0],
-                    c2[1],
-                    c2[2]
+                    cachedC2[0],
+                    cachedC2[1],
+                    cachedC2[2]
                 )
 
                 gl.uniform1f(
@@ -1765,16 +1918,16 @@ function __OriginkitBase_RibbonGlow(
 
                 gl.uniform3f(
                     un.uBg,
-                    bg[0],
-                    bg[1],
-                    bg[2]
+                    cachedBg[0],
+                    cachedBg[1],
+                    cachedBg[2]
                 )
 
                 gl.uniform1f(
                     un.uPaper,
                     clampN(
                         (
-                            bgLum -
+                            cachedBgLum -
                             0.35
                         ) /
                         0.3,
@@ -1790,10 +1943,95 @@ function __OriginkitBase_RibbonGlow(
                 )
             }
 
-        raf =
-            requestAnimationFrame(
-                render
-            )
+        // ----------------------------------------------------
+        // CONTROLE DE EXECUÇÃO
+        // ----------------------------------------------------
+
+        const start =
+            () => {
+
+                if (
+                    running ||
+                    !isVisible ||
+                    !pageVisible
+                ) {
+                    return
+                }
+
+                running = true
+                lastRender = 0
+
+                raf =
+                    requestAnimationFrame(
+                        render
+                    )
+            }
+
+        const stop =
+            () => {
+
+                running = false
+
+                if (raf) {
+                    cancelAnimationFrame(raf)
+                    raf = 0
+                }
+            }
+
+        // ----------------------------------------------------
+        // INTERSECTION OBSERVER
+        // ----------------------------------------------------
+
+        const intersectionObserver =
+            typeof IntersectionObserver !== "undefined"
+                ? new IntersectionObserver(
+                    ([entry]) => {
+
+                        isVisible =
+                            entry.isIntersecting
+
+                        if (isVisible) {
+                            start()
+                        } else {
+                            stop()
+                        }
+                    },
+                    {
+                        threshold: 0.01,
+                    }
+                )
+                : null
+
+        intersectionObserver?.observe(root)
+
+        // ----------------------------------------------------
+        // VISIBILITY CHANGE
+        // ----------------------------------------------------
+
+        const handleVisibility =
+            () => {
+
+                pageVisible =
+                    document.visibilityState ===
+                    "visible"
+
+                if (pageVisible) {
+                    start()
+                } else {
+                    stop()
+                }
+            }
+
+        document.addEventListener(
+            "visibilitychange",
+            handleVisibility
+        )
+
+        // ----------------------------------------------------
+        // INÍCIO
+        // ----------------------------------------------------
+
+        start()
 
         // ----------------------------------------------------
         // CLEANUP
@@ -1801,9 +2039,16 @@ function __OriginkitBase_RibbonGlow(
 
         return () => {
 
-            cancelAnimationFrame(
-                raf
+            stop()
+
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibility
             )
+
+            intersectionObserver?.disconnect()
+
+            resizeObserver?.disconnect()
 
             pointer?.dispose()
 
