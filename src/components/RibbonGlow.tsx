@@ -1,3 +1,5 @@
+// Ribbon Glow — Originkit
+// Otimizado para desktop, mobile e dispositivos de baixo desempenho.
 
 "use client"
 
@@ -6,6 +8,10 @@ import { useEffect, useRef } from "react"
 import { usePerformanceMode } from "../hooks/usePerformanceMode"
 
 const NAME = "RibbonGlow"
+
+// ============================================================
+// CONFIGURAÇÃO DE PERFORMANCE
+// ============================================================
 
 const PERFORMANCE_CONFIG = {
     full: {
@@ -52,6 +58,9 @@ void main() {
 }
 `
 
+// ============================================================
+// FIELD SHADER
+// ============================================================
 
 function createFieldShader(layers: number) {
     return `#version 300 es
@@ -766,6 +775,7 @@ function locations(
         > = {}
 
     for (const n of names) {
+
         out[n] =
             gl.getUniformLocation(
                 prog,
@@ -1208,6 +1218,7 @@ function __OriginkitBase_RibbonGlow(
                     alpha: false,
                     depth: false,
                     stencil: false,
+
                     powerPreference:
                         performanceMode === "full"
                             ? "high-performance"
@@ -1225,7 +1236,7 @@ function __OriginkitBase_RibbonGlow(
         }
 
         // ----------------------------------------------------
-        // SHADERS
+        // SHADER ESPECÍFICO DO MODO
         // ----------------------------------------------------
 
         const field =
@@ -1302,7 +1313,9 @@ function __OriginkitBase_RibbonGlow(
         const vao =
             gl.createVertexArray()
 
-        gl.bindVertexArray(vao)
+        gl.bindVertexArray(
+            vao
+        )
 
         // ----------------------------------------------------
         // FRAMEBUFFER
@@ -1367,7 +1380,8 @@ function __OriginkitBase_RibbonGlow(
 
                 if (
                     lastRender !== 0 &&
-                    now - lastRender <
+                    now -
+                        lastRender <
                         frameInterval
                 ) {
                     return
@@ -1485,8 +1499,11 @@ function __OriginkitBase_RibbonGlow(
                         on < 0.02
                     ) {
 
-                        mx = ptr.tx
-                        my = ptr.ty
+                        mx =
+                            ptr.tx
+
+                        my =
+                            ptr.ty
                     }
 
                     on +=
@@ -1559,6 +1576,7 @@ function __OriginkitBase_RibbonGlow(
 
                 } else {
 
+                    // Sem interação no mobile
                     on = 0
                     vx = 0
                     vy = 0
@@ -1817,10 +1835,12 @@ function __OriginkitBase_RibbonGlow(
     // ROOT
     // ========================================================
 
-    return (
-        <div
-            ref={rootRef}
-            style={{
+    return React.createElement(
+        "div",
+        {
+            ref: rootRef,
+
+            style: {
                 position: "relative",
                 overflow: "hidden",
                 background,
@@ -1838,19 +1858,23 @@ function __OriginkitBase_RibbonGlow(
                         : "100%",
 
                 ...style,
-            }}
-        >
-            <canvas
-                ref={canvasRef}
-                style={{
+            },
+        },
+
+        React.createElement(
+            "canvas",
+            {
+                ref: canvasRef,
+
+                style: {
                     position: "absolute",
                     inset: 0,
                     width: "100%",
                     height: "100%",
                     display: "block",
-                }}
-            />
-        </div>
+                },
+            }
+        )
     )
 }
 
@@ -1865,13 +1889,16 @@ const __originkitPresetProps = {
 export default function RibbonGlow(
     props: Record<string, unknown>
 ) {
-    return (
-        <__OriginkitBase_RibbonGlow
-            {...(
+
+    return React.createElement(
+        __OriginkitBase_RibbonGlow,
+        {
+            ...(
                 __originkitPresetProps
                 as Record<string, unknown>
-            )}
-            {...props}
-        />
+            ),
+
+            ...props,
+        }
     )
 }
