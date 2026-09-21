@@ -1,5 +1,3 @@
-// Ribbon Glow — Originkit
-// Otimizado para desktop, mobile e dispositivos de baixo desempenho.
 
 "use client"
 
@@ -8,10 +6,6 @@ import { useEffect, useRef } from "react"
 import { usePerformanceMode } from "../hooks/usePerformanceMode"
 
 const NAME = "RibbonGlow"
-
-// ============================================================
-// CONFIGURAÇÃO DE PERFORMANCE
-// ============================================================
 
 const PERFORMANCE_CONFIG = {
     full: {
@@ -24,8 +18,8 @@ const PERFORMANCE_CONFIG = {
 
     reduced: {
         dpr: 1,
-        resolution: 0.35,
-        layers: 32,
+        resolution: 0.3,
+        layers: 24,
         fps: 30,
         interaction: false,
     },
@@ -58,9 +52,6 @@ void main() {
 }
 `
 
-// ============================================================
-// FIELD SHADER
-// ============================================================
 
 function createFieldShader(layers: number) {
     return `#version 300 es
@@ -1206,7 +1197,7 @@ function __OriginkitBase_RibbonGlow(
         }
 
         // ----------------------------------------------------
-        // WebGL2
+        // WEBGL2
         // ----------------------------------------------------
 
         const gl =
@@ -1234,7 +1225,7 @@ function __OriginkitBase_RibbonGlow(
         }
 
         // ----------------------------------------------------
-        // Shader específico do modo
+        // SHADERS
         // ----------------------------------------------------
 
         const field =
@@ -1257,8 +1248,21 @@ function __OriginkitBase_RibbonGlow(
             !field ||
             !finish
         ) {
+
+            if (field) {
+                gl.deleteProgram(field)
+            }
+
+            if (finish) {
+                gl.deleteProgram(finish)
+            }
+
             return
         }
+
+        // ----------------------------------------------------
+        // UNIFORMS
+        // ----------------------------------------------------
 
         const uf =
             locations(
@@ -1291,16 +1295,24 @@ function __OriginkitBase_RibbonGlow(
                 ]
             )
 
+        // ----------------------------------------------------
+        // VAO
+        // ----------------------------------------------------
+
         const vao =
             gl.createVertexArray()
 
         gl.bindVertexArray(vao)
 
+        // ----------------------------------------------------
+        // FRAMEBUFFER
+        // ----------------------------------------------------
+
         const target =
             fieldTarget(gl)
 
         // ----------------------------------------------------
-        // Pointer somente no desktop
+        // POINTER
         // ----------------------------------------------------
 
         const pointer =
@@ -1317,7 +1329,7 @@ function __OriginkitBase_RibbonGlow(
             }
 
         // ----------------------------------------------------
-        // Estado
+        // ESTADO
         // ----------------------------------------------------
 
         let mx = 0
@@ -1330,18 +1342,15 @@ function __OriginkitBase_RibbonGlow(
 
         let raf = 0
 
-        let last = -1
-
         let clock = 0
 
         let lastRender = 0
 
-        // Intervalo entre frames
         const frameInterval =
             1000 / config.fps
 
         // ----------------------------------------------------
-        // Render
+        // RENDER
         // ----------------------------------------------------
 
         const render =
@@ -1353,7 +1362,7 @@ function __OriginkitBase_RibbonGlow(
                     )
 
                 // ------------------------------------------------
-                // Limita FPS no mobile
+                // FPS LIMITER
                 // ------------------------------------------------
 
                 if (
@@ -1380,9 +1389,6 @@ function __OriginkitBase_RibbonGlow(
                         0,
                         0.05
                     )
-
-                last =
-                    now
 
                 const v =
                     vRef.current
@@ -1439,7 +1445,7 @@ function __OriginkitBase_RibbonGlow(
                 }
 
                 // ------------------------------------------------
-                // Framebuffer reduzido
+                // FRAMEBUFFER REDUZIDO
                 // ------------------------------------------------
 
                 target.resize(
@@ -1462,7 +1468,7 @@ function __OriginkitBase_RibbonGlow(
                 )
 
                 // ------------------------------------------------
-                // Mouse somente no desktop
+                // INTERAÇÃO
                 // ------------------------------------------------
 
                 if (
@@ -1553,14 +1559,13 @@ function __OriginkitBase_RibbonGlow(
 
                 } else {
 
-                    // Sem interação no mobile
                     on = 0
                     vx = 0
                     vy = 0
                 }
 
                 // ------------------------------------------------
-                // Velocidade
+                // VELOCIDADE
                 // ------------------------------------------------
 
                 const vLen =
@@ -1576,7 +1581,7 @@ function __OriginkitBase_RibbonGlow(
                         : 1
 
                 // ------------------------------------------------
-                // Cores
+                // CORES
                 // ------------------------------------------------
 
                 const c1 =
@@ -1603,7 +1608,7 @@ function __OriginkitBase_RibbonGlow(
                     0.0722 * bg[2]
 
                 // ------------------------------------------------
-                // FIELD
+                // FIELD PASS
                 // ------------------------------------------------
 
                 gl.bindFramebuffer(
@@ -1696,7 +1701,7 @@ function __OriginkitBase_RibbonGlow(
                 )
 
                 // ------------------------------------------------
-                // FINAL
+                // FINAL PASS
                 // ------------------------------------------------
 
                 gl.bindFramebuffer(
@@ -1773,7 +1778,7 @@ function __OriginkitBase_RibbonGlow(
             )
 
         // ----------------------------------------------------
-        // Cleanup
+        // CLEANUP
         // ----------------------------------------------------
 
         return () => {
@@ -1816,28 +1821,18 @@ function __OriginkitBase_RibbonGlow(
         <div
             ref={rootRef}
             style={{
-                position:
-                    "relative",
-
-                overflow:
-                    "hidden",
-
+                position: "relative",
+                overflow: "hidden",
                 background,
 
-                // Removido o minWidth/minHeight
-                // de 1200x800 que poderia pesar
-                // e estourar o layout mobile.
-
                 width:
-                    typeof width ===
-                        "number" &&
+                    typeof width === "number" &&
                     width > 0
                         ? width
                         : "100%",
 
                 height:
-                    typeof height ===
-                        "number" &&
+                    typeof height === "number" &&
                     height > 0
                         ? height
                         : "100%",
@@ -1845,26 +1840,16 @@ function __OriginkitBase_RibbonGlow(
                 ...style,
             }}
         >
-
             <canvas
                 ref={canvasRef}
                 style={{
-                    position:
-                        "absolute",
-
+                    position: "absolute",
                     inset: 0,
-
-                    width:
-                        "100%",
-
-                    height:
-                        "100%",
-
-                    display:
-                        "block",
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
                 }}
             />
-
         </div>
     )
 }
@@ -1880,7 +1865,6 @@ const __originkitPresetProps = {
 export default function RibbonGlow(
     props: Record<string, unknown>
 ) {
-
     return (
         <__OriginkitBase_RibbonGlow
             {...(
