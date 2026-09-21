@@ -596,6 +596,146 @@ function LabPage() {
     }, []);
 
     /* =====================================================
+     * SISTEMA DE SCROLL — EDUCACUBE MOTION
+     * ===================================================== */
+
+    useEffect(() => {
+        const reduceMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        );
+
+        if (reduceMotion.matches) {
+            return;
+        }
+
+        const main = document.querySelector<HTMLElement>(
+            ".main-container"
+        );
+
+        if (!main) {
+            return;
+        }
+
+        const revealSelectors = [
+            ".hero-kicker",
+            ".hero h1",
+            ".hero-lede",
+            ".access-card",
+            ".hero-links",
+            "#brain-viewport",
+            ".transform-header",
+            ".transform-particles-wrapper",
+            ".workspace-header",
+            ".tray-item",
+        ];
+
+        const revealElements = Array.from(
+            main.querySelectorAll<HTMLElement>(
+                revealSelectors.join(",")
+            )
+        );
+
+        revealElements.forEach((element, index) => {
+            element.classList.add("scroll-reveal");
+            element.style.setProperty(
+                "--reveal-delay",
+                `${Math.min(index * 45, 280)}ms`
+            );
+        });
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    entry.target.classList.toggle(
+                        "is-visible",
+                        entry.isIntersecting
+                    );
+                });
+            },
+            {
+                threshold: 0.12,
+                rootMargin: "0px 0px -8% 0px",
+            }
+        );
+
+        revealElements.forEach((element) => observer.observe(element));
+
+        const scrollTargets = [
+            {
+                element: main.querySelector<HTMLElement>(".hero-grid"),
+                strength: 0.12,
+            },
+            {
+                element: main.querySelector<HTMLElement>(".hero-content"),
+                strength: 0.055,
+            },
+            {
+                element: main.querySelector<HTMLElement>("#brain-viewport"),
+                strength: -0.09,
+            },
+            {
+                element: main.querySelector<HTMLElement>(".transform-particles-wrapper"),
+                strength: -0.12,
+            },
+        ].filter(
+            (item): item is { element: HTMLElement; strength: number } =>
+                item.element !== null
+        );
+
+        let frame = 0;
+
+        const updateScroll = () => {
+            frame = 0;
+            const viewport = window.innerHeight || 1;
+            const scrollY = window.scrollY;
+
+            document.documentElement.style.setProperty(
+                "--edu-scroll-y",
+                `${scrollY}px`
+            );
+
+            scrollTargets.forEach(({ element, strength }) => {
+                const rect = element.getBoundingClientRect();
+                const center = rect.top + rect.height / 2;
+                const distance = center - viewport / 2;
+                const normalized = Math.max(
+                    -1,
+                    Math.min(1, distance / viewport)
+                );
+
+                element.style.setProperty(
+                    "--scroll-shift",
+                    `${normalized * strength * -100}px`
+                );
+            });
+        };
+
+        const handleScroll = () => {
+            if (!frame) {
+                frame = window.requestAnimationFrame(updateScroll);
+            }
+        };
+
+        updateScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleScroll);
+            if (frame) {
+                window.cancelAnimationFrame(frame);
+            }
+
+            revealElements.forEach((element) => {
+                element.classList.remove("scroll-reveal", "is-visible");
+                element.style.removeProperty("--reveal-delay");
+            });
+        };
+    }, [isFull]);
+
+    /* =====================================================
      * TECLA ESC
      * ===================================================== */
 
