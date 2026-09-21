@@ -1,1265 +1,477 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-type TransformParticlesProps = {
+export interface TransformParticlesProps {
     words?: string[];
     color?: string;
     particleCount?: number;
-
-    // Controles inspirados no Text Fall original
     cursorStrength?: number;
     cursorReach?: number;
     cursorDamping?: number;
-};
-
-type Point3D = {
-    x: number;
-    y: number;
-    z: number;
-};
-
-const clamp = (value: number, min: number, max: number) =>
-    Math.max(min, Math.min(max, value));
-
-const lerp = (a: number, b: number, t: number) =>
-    a + (b - a) * t;
-
-const easeInOut = (t: number) => {
-    t = clamp(t, 0, 1);
-
-    return t < 0.5
-        ? 2 * t * t
-        : 1 - Math.pow(-2 * t + 2, 2) / 2;
-};
-
-/* ============================================================
- * CUBO
- * ============================================================ */
-
-function createCubePoints(
-    count: number,
-    size: number
-): Point3D[] {
-    const points: Point3D[] = [];
-
-    const half = size / 2;
-
-    for (let i = 0; i < count; i++) {
-        const face = Math.floor(Math.random() * 6);
-
-        const a = Math.random() * size - half;
-        const b = Math.random() * size - half;
-
-        let x = 0;
-        let y = 0;
-        let z = 0;
-
-        switch (face) {
-            case 0:
-                x = -half;
-                y = a;
-                z = b;
-                break;
-
-            case 1:
-                x = half;
-                y = a;
-                z = b;
-                break;
-
-            case 2:
-                x = a;
-                y = -half;
-                z = b;
-                break;
-
-            case 3:
-                x = a;
-                y = half;
-                z = b;
-                break;
-
-            case 4:
-                x = a;
-                y = b;
-                z = -half;
-                break;
-
-            case 5:
-                x = a;
-                y = b;
-                z = half;
-                break;
-        }
-
-        points.push({
-            x,
-            y,
-            z,
-        });
-    }
-
-    return points;
 }
 
-/* ============================================================
- * TEXTO
- * ============================================================ */
+const DEFAULT_WORDS = [
+    "EducaCube",
+    "Conhecimento",
+    "Em Todas",
+    "Dimensões",
+];
+
+type PointTarget = Float32Array;
 
 function createTextPoints(
     text: string,
-    count: number
-): Point3D[] {
+    count: number,
+    fontSize = 190,
+): PointTarget {
     const canvas = document.createElement("canvas");
-
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
-        return [];
+        return new Float32Array(count * 3);
     }
 
     canvas.width = 1600;
     canvas.height = 500;
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#ffffff";
-
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.font = `700 ${fontSize}px "Inter", "Arial", sans-serif`;
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
-    let fontSize = 220;
+    const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = image.data;
 
-    do {
-        ctx.font = `800 ${fontSize}px Arial`;
+    const candidates: Array<[number, number]> = [];
 
-        const width = ctx.measureText(text).width;
+    // Sample the glyphs. A moderate stride keeps the shape readable while
+    // leaving enough room for the particles to move fluidly.
+    const stride = 5;
 
-        if (width <= 1450) {
-            break;
-        }
+    for (let y = 0; y < canvas.height; y += stride) {
+        for (let x = 0; x < canvas.width; x += stride) {
+            const alpha = pixels[(y * canvas.width + x) * 4 + 3];
 
-        fontSize -= 8;
-    } while (fontSize > 60);
-
-    ctx.font = `800 ${fontSize}px Arial`;
-
-    ctx.fillText(
-        text,
-        canvas.width / 2,
-        canvas.height / 2
-    );
-
-    const image = ctx.getImageData(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    const candidates: Point3D[] = [];
-
-    const step = Math.max(
-        2,
-        Math.floor(
-            Math.sqrt(
-                (canvas.width * canvas.height) /
-                    (count * 8)
-            )
-        )
-    );
-
-    for (
-        let y = 0;
-        y < canvas.height;
-        y += step
-    ) {
-        for (
-            let x = 0;
-            x < canvas.width;
-            x += step
-        ) {
-            const index =
-                (y * canvas.width + x) * 4;
-
-            const alpha =
-                image.data[index + 3];
-
-            if (alpha > 100) {
-                const normalizedX =
-                    (x / canvas.width - 0.5) * 10;
-
-                const normalizedY =
-                    -(y / canvas.height - 0.5) * 3.1;
-
-                candidates.push({
-                    x: normalizedX,
-                    y: normalizedY,
-                    z:
-                        (Math.random() - 0.5) *
-                        0.12,
-                });
+            if (alpha > 120) {
+                candidates.push([x, y]);
             }
         }
     }
 
+    const result = new Float32Array(count * 3);
+
     if (candidates.length === 0) {
-        return [];
+        return result;
     }
 
-    const result: Point3D[] = [];
-
+    // Deterministic distribution avoids the text "jumping" randomly between
+    // transitions.
     for (let i = 0; i < count; i++) {
-        const source =
-            candidates[
-                Math.floor(
-                    Math.random() *
-                        candidates.length
-                )
-            ];
+        const index = Math.floor(
+            (i / count) * candidates.length
+        );
+        const [x, y] = candidates[index];
 
-        result.push({
-            x: source.x,
-            y: source.y,
-            z: source.z,
-        });
+        result[i * 3] = (x - canvas.width / 2) * 0.0065;
+        result[i * 3 + 1] = -(y - canvas.height / 2) * 0.0065;
+        result[i * 3 + 2] = 0;
     }
 
     return result;
 }
 
-/* ============================================================
- * COMPONENTE
- * ============================================================ */
-
 export default function TransformParticles({
-    words = [
-        "EducaCube",
-        "Conhecimento",
-        "Em Todas",
-        "Dimensões",
-    ],
-    color = "#c4a265",
+    words = DEFAULT_WORDS,
+    color = "#7c5cab",
     particleCount = 900,
-
-    cursorStrength = 150,
-    cursorReach = 30,
-    cursorDamping = 16,
+    cursorStrength = 0.08,
+    cursorReach = 2.8,
+    cursorDamping = 0.08,
 }: TransformParticlesProps) {
-    const containerRef =
-        useRef<HTMLDivElement | null>(null);
+    const mountRef = useRef<HTMLDivElement | null>(null);
+
+    const wordsRef = useRef(words);
+    const colorRef = useRef(color);
 
     useEffect(() => {
-        const container = containerRef.current;
+        wordsRef.current = words?.length ? words : DEFAULT_WORDS;
+        colorRef.current = color;
+    }, [words, color]);
 
-        if (!container) {
-            return;
-        }
+    useEffect(() => {
+        const mount = mountRef.current;
+        if (!mount) return;
 
-        let destroyed = false;
-
-        /* ====================================================
-         * THREE
-         * ==================================================== */
+        let disposed = false;
+        let animationFrame = 0;
 
         const scene = new THREE.Scene();
 
-        const camera =
-            new THREE.PerspectiveCamera(
-                45,
-                1,
-                0.1,
-                100
-            );
-
-        camera.position.set(
-            0,
-            0,
-            11
+        const camera = new THREE.PerspectiveCamera(
+            35,
+            Math.max(mount.clientWidth, 1) /
+                Math.max(mount.clientHeight, 1),
+            0.1,
+            100
         );
+        camera.position.set(0, 0, 11);
 
-        const renderer =
-            new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
-            });
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance",
+        });
 
         renderer.setPixelRatio(
-            Math.min(
-                window.devicePixelRatio || 1,
-                2
-            )
+            Math.min(window.devicePixelRatio || 1, 2)
         );
+        renderer.setSize(
+            Math.max(mount.clientWidth, 1),
+            Math.max(mount.clientHeight, 1),
+            false
+        );
+        renderer.setClearColor(0x000000, 0);
 
-        renderer.setClearColor(
-            0x000000,
+        mount.appendChild(renderer.domElement);
+
+        const count = Math.max(100, particleCount);
+
+        const positions = new Float32Array(count * 3);
+        const velocities = new Float32Array(count * 3);
+
+        const geometry = new THREE.BufferGeometry();
+
+        const positionAttribute = new THREE.BufferAttribute(
+            positions,
+            3
+        );
+        geometry.setAttribute("position", positionAttribute);
+
+        const material = new THREE.PointsMaterial({
+            color: colorRef.current,
+            size: 0.045,
+            transparent: true,
+            opacity: 0.92,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true,
+        });
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        const buildTargets = () => {
+            const activeWords =
+                wordsRef.current?.length > 0
+                    ? wordsRef.current
+                    : DEFAULT_WORDS;
+
+            return activeWords.map((word) =>
+                createTextPoints(word, count)
+            );
+        };
+
+        let targets = buildTargets();
+
+        // Start at the first word. There is NO cube target anywhere.
+        positions.set(targets[0]);
+
+        // Animation state.
+        let currentIndex = 0;
+        let nextIndex = 1 % targets.length;
+
+        const holdDuration = 1500;
+        const transitionDuration = 1250;
+
+        let phaseStart = performance.now();
+        let phase: "hold" | "transition" = "hold";
+
+        const mouse = new THREE.Vector2();
+        const mouseWorld = new THREE.Vector3();
+        const smoothMouse = new THREE.Vector3();
+
+        const raycaster = new THREE.Raycaster();
+        const plane = new THREE.Plane(
+            new THREE.Vector3(0, 0, 1),
             0
         );
 
-        container.innerHTML = "";
-
-        container.appendChild(
-            renderer.domElement
-        );
-
-        /* ====================================================
-         * GEOMETRIA
-         * ==================================================== */
-
-        const geometry =
-            new THREE.BufferGeometry();
-
-        const positions =
-            new Float32Array(
-                particleCount * 3
-            );
-
-        const initialPositions =
-            new Float32Array(
-                particleCount * 3
-            );
-
-        const textPositions =
-            new Float32Array(
-                particleCount * 3
-            );
-
-        /* ====================================================
-         * VELOCIDADE / OFFSET DO MOUSE
-         *
-         * Cada partícula recebe um deslocamento independente.
-         * Isso é o que cria o efeito de "empurrar" as partículas.
-         * ==================================================== */
-
-        const mouseOffsets =
-            new Float32Array(
-                particleCount * 3
-            );
-
-        const mouseVelocities =
-            new Float32Array(
-                particleCount * 3
-            );
-
-        /* ====================================================
-         * CUBO
-         * ==================================================== */
-
-        const cubePoints =
-            createCubePoints(
-                particleCount,
-                5.2
-            );
-
-        cubePoints.forEach(
-            (point, index) => {
-                const i = index * 3;
-
-                positions[i] =
-                    point.x;
-
-                positions[i + 1] =
-                    point.y;
-
-                positions[i + 2] =
-                    point.z;
-
-                initialPositions[i] =
-                    point.x;
-
-                initialPositions[i + 1] =
-                    point.y;
-
-                initialPositions[i + 2] =
-                    point.z;
-            }
-        );
-
-        geometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(
-                positions,
-                3
-            )
-        );
-
-        /* ====================================================
-         * MATERIAL
-         * ==================================================== */
-
-        const material =
-            new THREE.PointsMaterial({
-                color,
-                size: 0.035,
-                transparent: true,
-                opacity: 0.9,
-                depthWrite: false,
-                blending:
-                    THREE.AdditiveBlending,
-            });
-
-        const particleSystem =
-            new THREE.Points(
-                geometry,
-                material
-            );
-
-        scene.add(
-            particleSystem
-        );
-
-        /* ====================================================
-         * PALAVRAS
-         * ==================================================== */
-
-        const textTargets: Float32Array[] =
-            [];
-
-        words.forEach((word) => {
-            const points =
-                createTextPoints(
-                    word,
-                    particleCount
-                );
-
-            if (!points.length) {
-                return;
-            }
-
-            const target =
-                new Float32Array(
-                    particleCount * 3
-                );
-
-            for (
-                let i = 0;
-                i < particleCount;
-                i++
-            ) {
-                const point =
-                    points[
-                        i % points.length
-                    ];
-
-                const index = i * 3;
-
-                target[index] =
-                    point.x;
-
-                target[index + 1] =
-                    point.y;
-
-                target[index + 2] =
-                    point.z;
-            }
-
-            textTargets.push(target);
-        });
-
-        /* ====================================================
-         * SEQUÊNCIA DE PALAVRAS
-         *
-         * NÃO usamos mais o cubo como target.
-         * As partículas começam na primeira palavra e passam
-         * diretamente para a próxima, em loop:
-         *
-         * EducaCube → Conhecimento → Em Todas → Dimensões → ...
-         *
-         * Isso impede que a forma do cubo "prenda" a animação.
-         * ==================================================== */
-
-        const targets =
-            textTargets.length > 0
-                ? textTargets
-                : [
-                    new Float32Array(
-                        initialPositions
-                    ),
-                ];
-
-        // Começa já na primeira palavra, não no cubo.
-        for (
-            let i = 0;
-            i < particleCount;
-            i++
-        ) {
-            const index = i * 3;
-            positions[index] =
-                targets[0][index];
-            positions[index + 1] =
-                targets[0][index + 1];
-            positions[index + 2] =
-                targets[0][index + 2];
-        }
-
-        let currentTarget = 0;
-
-        let nextTarget =
-            targets.length > 1
-                ? 1
-                : 0;
-
-        let transitionStart =
-            performance.now();
-
-        // Ritmo mais cinematográfico para a troca em queda.
-        const transitionDuration =
-            1450;
-
-        const holdDuration =
-            1650;
-
-        let holding = true;
-
-        let holdStart =
-            performance.now();
-
-        /* ====================================================
-         * MOUSE
-         * ==================================================== */
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        let targetMouseX = 0;
-        let targetMouseY = 0;
-
-        let mouseActive = false;
-
-        const handleMouseMove = (
-            event: MouseEvent
-        ) => {
-            targetMouseX =
-                event.clientX /
-                    window.innerWidth -
-                0.5;
-
-            targetMouseY =
-                event.clientY /
-                    window.innerHeight -
-                0.5;
-
-            mouseActive = true;
-        };
-
-        const handleMouseLeave =
-            () => {
-                mouseActive = false;
-            };
-
-        window.addEventListener(
-            "mousemove",
-            handleMouseMove
-        );
-
-        window.addEventListener(
-            "mouseout",
-            handleMouseLeave
-        );
-
-        /* ====================================================
-         * RESIZE
-         * ==================================================== */
-
-        const resize = () => {
-            const width =
-                container.clientWidth ||
-                800;
-
-            const height =
-                container.clientHeight ||
-                500;
-
-            camera.aspect =
-                width / height;
-
-            camera.updateProjectionMatrix();
-
-            renderer.setSize(
-                width,
-                height,
-                false
-            );
-        };
-
-        resize();
-
-        window.addEventListener(
-            "resize",
-            resize
-        );
-
-        /* ====================================================
-         * REPULSÃO DO MOUSE
-         *
-         * O mouse é convertido para o espaço local do sistema
-         * de partículas.
-         *
-         * A força aumenta quando o cursor chega perto.
-         * ==================================================== */
-
-        const applyMouseForce = (
-            index: number,
-            baseX: number,
-            baseY: number,
-            baseZ: number,
-            delta: number
-        ) => {
-            const i = index * 3;
-
-            if (!mouseActive) {
-                return;
-            }
-
-            /*
-             * Coordenada do cursor no espaço visual.
-             *
-             * O range é propositalmente maior que a área do texto,
-             * permitindo que o efeito alcance as extremidades.
-             */
-
-            const cursorX =
-                targetMouseX * 7.5;
-
-            const cursorY =
-                -targetMouseY * 4.2;
-
-            const particleX =
-                baseX +
-                mouseOffsets[i];
-
-            const particleY =
-                baseY +
-                mouseOffsets[i + 1];
-
-            const dx =
-                particleX -
-                cursorX;
-
-            const dy =
-                particleY -
-                cursorY;
-
-            const distance =
-                Math.sqrt(
-                    dx * dx +
-                        dy * dy
-                );
-
-            /*
-             * reach original:
-             *
-             * 30 = 30% do tamanho útil.
-             */
-
-            const radius =
-                Math.max(
-                    0.5,
-                    (cursorReach / 100) *
-                        7.5
-                );
-
-            if (
-                distance >= radius ||
-                distance === 0
-            ) {
-                return;
-            }
-
-            /*
-             * 1 = mouse encostando
-             * 0 = limite do raio
-             */
-
-            const influence =
-                1 -
-                distance / radius;
-
-            /*
-             * Curva quadrática.
-             * Quanto mais perto do mouse,
-             * mais forte a repulsão.
-             */
-
-            const force =
-                influence *
-                influence *
-                (cursorStrength / 100) *
-                0.035;
+        const onPointerMove = (event: PointerEvent) => {
+            const rect = mount.getBoundingClientRect();
 
             const nx =
-                dx / distance;
-
+                ((event.clientX - rect.left) / rect.width) * 2 - 1;
             const ny =
-                dy / distance;
+                -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            /*
-             * Aplica velocidade em vez de simplesmente
-             * alterar a posição.
-             *
-             * Isso deixa o movimento mais orgânico.
-             */
+            mouse.set(nx, ny);
 
-            mouseVelocities[i] +=
-                nx *
-                force *
-                delta *
-                60;
-
-            mouseVelocities[i + 1] +=
-                ny *
-                force *
-                delta *
-                60;
-
-            /*
-             * Pequeno deslocamento em Z.
-             * Cria sensação de profundidade quando
-             * o cursor atravessa as partículas.
-             */
-
-            mouseVelocities[i + 2] +=
-                influence *
-                (Math.random() - 0.5) *
-                force *
-                0.2;
+            raycaster.setFromCamera(mouse, camera);
+            raycaster.ray.intersectPlane(plane, mouseWorld);
         };
 
-        /* ====================================================
-         * ANIMAÇÃO
-         * ==================================================== */
+        mount.addEventListener("pointermove", onPointerMove);
 
-        let animationFrame = 0;
+        const onResize = () => {
+            const width = Math.max(mount.clientWidth, 1);
+            const height = Math.max(mount.clientHeight, 1);
 
-        let lastTime =
-            performance.now();
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
 
-        const animate = (
-            now: number
-        ) => {
-            if (destroyed) {
-                return;
+            renderer.setSize(width, height, false);
+            renderer.setPixelRatio(
+                Math.min(window.devicePixelRatio || 1, 2)
+            );
+        };
+
+        window.addEventListener("resize", onResize);
+
+        const easeInOut = (value: number) => {
+            const t = Math.max(0, Math.min(1, value));
+            return t * t * (3 - 2 * t);
+        };
+
+        const easeIn = (value: number) => {
+            const t = Math.max(0, Math.min(1, value));
+            return t * t * t;
+        };
+
+        const easeOut = (value: number) => {
+            const t = Math.max(0, Math.min(1, value));
+            return 1 - Math.pow(1 - t, 3);
+        };
+
+        const startTransition = (now: number) => {
+            phase = "transition";
+            phaseStart = now;
+            nextIndex =
+                (currentIndex + 1) % targets.length;
+        };
+
+        const finishTransition = (now: number) => {
+            currentIndex = nextIndex;
+            nextIndex =
+                (currentIndex + 1) % targets.length;
+
+            // Snap exactly to the new target so numerical interpolation
+            // cannot accumulate error and lock the animation.
+            positions.set(targets[currentIndex]);
+            positionAttribute.needsUpdate = true;
+
+            phase = "hold";
+            phaseStart = now;
+        };
+
+        const rebuildTargetsIfNeeded = () => {
+            const nextWords =
+                wordsRef.current?.length > 0
+                    ? wordsRef.current
+                    : DEFAULT_WORDS;
+
+            if (nextWords.length !== targets.length) {
+                targets = buildTargets();
+
+                currentIndex = 0;
+                nextIndex =
+                    targets.length > 1 ? 1 : 0;
+
+                positions.set(targets[0]);
+                positionAttribute.needsUpdate = true;
+
+                phase = "hold";
+                phaseStart = performance.now();
+            }
+        };
+
+        const animate = (now: number) => {
+            if (disposed) return;
+
+            animationFrame = requestAnimationFrame(animate);
+
+            rebuildTargetsIfNeeded();
+
+            if (targets.length === 0) return;
+
+            if (
+                phase === "hold" &&
+                now - phaseStart >= holdDuration
+            ) {
+                startTransition(now);
             }
 
-            animationFrame =
-                requestAnimationFrame(
-                    animate
-                );
+            if (
+                phase === "transition" &&
+                now - phaseStart >= transitionDuration
+            ) {
+                finishTransition(now);
+            }
 
-            const delta =
-                Math.min(
-                    0.05,
-                    (now - lastTime) /
-                        1000
-                );
+            if (phase === "transition") {
+                const raw =
+                    (now - phaseStart) /
+                    transitionDuration;
 
-            lastTime = now;
+                const t = Math.max(0, Math.min(1, raw));
 
-            /* =================================================
-             * SUAVIZAÇÃO DO MOUSE
-             * ================================================= */
+                // Old word falls down.
+                const outgoing = easeIn(t);
 
-            mouseX = lerp(
-                mouseX,
-                targetMouseX,
-                0.035
-            );
+                // New word enters from above.
+                const incoming = easeOut(t);
 
-            mouseY = lerp(
-                mouseY,
-                targetMouseY,
-                0.035
-            );
+                const oldTarget = targets[currentIndex];
+                const newTarget = targets[nextIndex];
 
-            /* =================================================
-             * TRANSFORMAÇÃO
-             * ================================================= */
+                const fallDistance = 2.15;
+                const enterDistance = 2.15;
 
-            const elapsed =
-                now -
-                transitionStart;
+                // One smooth 3D twist during the exchange.
+                const rotation =
+                    Math.sin(t * Math.PI) * 0.18;
 
-            if (holding) {
-                if (
-                    now -
-                        holdStart >=
-                    holdDuration
-                ) {
-                    holding = false;
+                const cosR = Math.cos(rotation);
+                const sinR = Math.sin(rotation);
 
-                    transitionStart =
-                        now;
-                }
-            } else {
-                const progress =
-                    clamp(
-                        elapsed /
-                            transitionDuration,
-                        0,
-                        1
-                    );
+                for (let i = 0; i < count; i++) {
+                    const i3 = i * 3;
 
-                const eased =
-                    easeInOut(
-                        progress
-                    );
+                    const ox = oldTarget[i3];
+                    const oy = oldTarget[i3 + 1];
+                    const oz = oldTarget[i3 + 2];
 
-                const from =
-                    targets[
-                        currentTarget
-                    ];
+                    const nx = newTarget[i3];
+                    const ny = newTarget[i3 + 1];
+                    const nz = newTarget[i3 + 2];
 
-                const to =
-                    targets[
-                        nextTarget
-                    ];
+                    const oldWeight = 1 - outgoing;
+                    const newWeight = incoming;
 
-                for (
-                    let i = 0;
-                    i < particleCount;
-                    i++
-                ) {
-                    const index =
-                        i * 3;
+                    const oldY =
+                        oy - fallDistance * outgoing;
 
-                    /*
-                     * QUEDA FLUIDA ENTRE PALAVRAS
-                     *
-                     * A palavra atual perde sustentação e cai,
-                     * enquanto a próxima entra suavemente de cima.
-                     * As duas trajetórias se cruzam no centro.
-                     */
-                    const fallOut =
-                        Math.pow(eased, 1.55);
-
-                    const enterIn =
-                        Math.pow(1 - eased, 1.35);
-
-                    const fallDistance = 1.9;
-                    const incomingDistance = 1.35;
-
-                    const oldWeight = 1 - eased;
-                    const newWeight = eased;
-
-                    const oldX = from[index];
-                    const oldY = from[index + 1];
-                    const oldZ = from[index + 2];
-
-                    const newX = to[index];
-                    const newY = to[index + 1];
-                    const newZ = to[index + 2];
+                    const newY =
+                        ny +
+                        enterDistance *
+                            (1 - incoming);
 
                     const baseX =
-                        oldX * oldWeight +
-                        newX * newWeight;
+                        ox * oldWeight +
+                        nx * newWeight;
 
                     const baseY =
                         oldY * oldWeight +
-                        newY * newWeight +
-                        (fallOut * fallDistance * oldWeight) -
-                        (enterIn * incomingDistance * newWeight);
+                        newY * newWeight;
 
                     const baseZ =
-                        oldZ * oldWeight +
-                        newZ * newWeight;
+                        oz * oldWeight +
+                        nz * newWeight;
 
-                    /*
-                     * Pequena rotação 3D durante a queda.
-                     * Discreta para manter a estética acadêmica.
-                     */
-                    const orbital =
-                        Math.sin(eased * Math.PI) * 0.16;
+                    const rx =
+                        baseX * cosR -
+                        baseZ * sinR;
 
-                    const rotatedX =
-                        baseX * Math.cos(orbital) -
-                        baseZ * Math.sin(orbital);
+                    const rz =
+                        baseX * sinR +
+                        baseZ * cosR;
 
-                    const rotatedZ =
-                        baseX * Math.sin(orbital) +
-                        baseZ * Math.cos(orbital);
-
-                    /*
-                     * Guarda a posição da transformação.
-                     * O mouse será aplicado por cima dela.
-                     */
-
-                    textPositions[index] =
-                        rotatedX;
-
-                    textPositions[
-                        index + 1
-                    ] = baseY;
-
-                    textPositions[
-                        index + 2
-                    ] = rotatedZ;
-
-                    applyMouseForce(
-                        i,
-                        baseX,
-                        baseY,
-                        baseZ,
-                        delta
-                    );
-
-                    /* =========================================
-                     * DAMPING
-                     *
-                     * Equivalente ao retorno suave do original.
-                     * ========================================= */
-
-                    const damping =
-                        1 -
-                        Math.pow(
-                            1 -
-                                cursorDamping /
-                                    100,
-                            delta * 60
-                        );
-
-                    mouseVelocities[
-                        index
-                    ] *=
-                        1 -
-                        damping;
-
-                    mouseVelocities[
-                        index + 1
-                    ] *=
-                        1 -
-                        damping;
-
-                    mouseVelocities[
-                        index + 2
-                    ] *=
-                        1 -
-                        damping;
-
-                    /*
-                     * Movimento do offset.
-                     */
-
-                    mouseOffsets[
-                        index
-                    ] +=
-                        mouseVelocities[
-                            index
-                        ];
-
-                    mouseOffsets[
-                        index + 1
-                    ] +=
-                        mouseVelocities[
-                            index + 1
-                        ];
-
-                    mouseOffsets[
-                        index + 2
-                    ] +=
-                        mouseVelocities[
-                            index + 2
-                        ];
-
-                    /*
-                     * Retorno para a formação original.
-                     *
-                     * Isso impede que as partículas fiquem
-                     * permanentemente afastadas.
-                     */
-
-                    mouseOffsets[
-                        index
-                    ] *= 0.91;
-
-                    mouseOffsets[
-                        index + 1
-                    ] *= 0.91;
-
-                    mouseOffsets[
-                        index + 2
-                    ] *= 0.91;
-
-                    positions[index] =
-                        rotatedX +
-                        mouseOffsets[
-                            index
-                        ];
-
-                    positions[
-                        index + 1
-                    ] =
-                        baseY +
-                        mouseOffsets[
-                            index + 1
-                        ];
-
-                    positions[
-                        index + 2
-                    ] =
-                        rotatedZ +
-                        mouseOffsets[
-                            index + 2
-                        ];
+                    positions[i3] = rx;
+                    positions[i3 + 1] = baseY;
+                    positions[i3 + 2] = rz;
                 }
+            } else {
+                const target = targets[currentIndex];
 
-                geometry.attributes.position.needsUpdate =
-                    true;
+                // Keep the current word stable, with a tiny breathing motion.
+                const breathe =
+                    Math.sin(now * 0.0015) * 0.018;
 
-                if (
-                    progress >= 1
-                ) {
-                    currentTarget =
-                        nextTarget;
+                for (let i = 0; i < count; i++) {
+                    const i3 = i * 3;
 
-                    nextTarget++;
-
-                    if (
-                        nextTarget >=
-                        targets.length
-                    ) {
-                        nextTarget = 0;
-                    }
-
-                    transitionStart =
-                        now;
-
-                    holdStart =
-                        now;
-
-                    holding = true;
+                    positions[i3] = target[i3];
+                    positions[i3 + 1] =
+                        target[i3 + 1] + breathe;
+                    positions[i3 + 2] =
+                        target[i3 + 2];
                 }
             }
 
-            /* =================================================
-             * QUANDO ESTÁ PARADO
-             *
-             * Mesmo durante o hold, continuamos aplicando
-             * a física do mouse.
-             * ================================================= */
-
-            if (holding) {
-                const current =
-                    targets[
-                        currentTarget
-                    ];
-
-                for (
-                    let i = 0;
-                    i < particleCount;
-                    i++
-                ) {
-                    const index =
-                        i * 3;
-
-                    const baseX =
-                        current[index];
-
-                    const baseY =
-                        current[index + 1];
-
-                    const baseZ =
-                        current[index + 2];
-
-                    applyMouseForce(
-                        i,
-                        baseX,
-                        baseY,
-                        baseZ,
-                        delta
-                    );
-
-                    const damping =
-                        1 -
-                        Math.pow(
-                            1 -
-                                cursorDamping /
-                                    100,
-                            delta * 60
-                        );
-
-                    mouseVelocities[
-                        index
-                    ] *=
-                        1 -
-                        damping;
-
-                    mouseVelocities[
-                        index + 1
-                    ] *=
-                        1 -
-                        damping;
-
-                    mouseVelocities[
-                        index + 2
-                    ] *=
-                        1 -
-                        damping;
-
-                    mouseOffsets[
-                        index
-                    ] +=
-                        mouseVelocities[
-                            index
-                        ];
-
-                    mouseOffsets[
-                        index + 1
-                    ] +=
-                        mouseVelocities[
-                            index + 1
-                        ];
-
-                    mouseOffsets[
-                        index + 2
-                    ] +=
-                        mouseVelocities[
-                            index + 2
-                        ];
-
-                    mouseOffsets[
-                        index
-                    ] *= 0.91;
-
-                    mouseOffsets[
-                        index + 1
-                    ] *= 0.91;
-
-                    mouseOffsets[
-                        index + 2
-                    ] *= 0.91;
-
-                    positions[index] =
-                        baseX +
-                        mouseOffsets[
-                            index
-                        ];
-
-                    positions[
-                        index + 1
-                    ] =
-                        baseY +
-                        mouseOffsets[
-                            index + 1
-                        ];
-
-                    positions[
-                        index + 2
-                    ] =
-                        baseZ +
-                        mouseOffsets[
-                            index + 2
-                        ];
-                }
-
-                geometry.attributes.position.needsUpdate =
-                    true;
-            }
-
-            /* =================================================
-             * ROTAÇÃO PELO MOUSE
-             *
-             * Mantém a funcionalidade que já existia no seu
-             * TransformParticles.
-             * ================================================= */
-
-            particleSystem.rotation.y =
-                lerp(
-                    particleSystem.rotation.y,
-                    mouseX * 0.35,
-                    0.025
-                );
-
-            particleSystem.rotation.x =
-                lerp(
-                    particleSystem.rotation.x,
-                    -mouseY * 0.18,
-                    0.025
-                );
-
-            particleSystem.rotation.z =
-                Math.sin(
-                    now * 0.00035
-                ) * 0.025;
-
-            /* =================================================
-             * FLUTUAÇÃO
-             * ================================================= */
-
-            particleSystem.position.y =
-                Math.sin(
-                    now * 0.0008
-                ) * 0.08;
-
-            particleSystem.position.x =
-                Math.sin(
-                    now * 0.0005
-                ) * 0.04;
-
-            /* =================================================
-             * RENDER
-             * ================================================= */
-
-            renderer.render(
-                scene,
-                camera
+            // Subtle cursor displacement, without changing the word's shape.
+            smoothMouse.lerp(
+                mouseWorld,
+                Math.max(
+                    0.01,
+                    Math.min(0.35, cursorDamping)
+                )
             );
+
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+
+                const dx =
+                    smoothMouse.x - positions[i3];
+                const dy =
+                    smoothMouse.y - positions[i3 + 1];
+
+                const distance = Math.sqrt(
+                    dx * dx + dy * dy
+                );
+
+                if (distance < cursorReach) {
+                    const influence =
+                        (1 - distance / cursorReach) *
+                        cursorStrength;
+
+                    velocities[i3] +=
+                        dx * influence;
+                    velocities[i3 + 1] +=
+                        dy * influence;
+                }
+
+                velocities[i3] *= 0.88;
+                velocities[i3 + 1] *= 0.88;
+
+                positions[i3] += velocities[i3];
+                positions[i3 + 1] += velocities[i3 + 1];
+            }
+
+            positionAttribute.needsUpdate = true;
+
+            // Very subtle continuous rotation.
+            points.rotation.y =
+                Math.sin(now * 0.00035) * 0.035;
+
+            renderer.render(scene, camera);
         };
 
-        animationFrame =
-            requestAnimationFrame(
-                animate
-            );
-
-        /* ====================================================
-         * CLEANUP
-         * ==================================================== */
+        animationFrame = requestAnimationFrame(animate);
 
         return () => {
-            destroyed = true;
+            disposed = true;
 
-            cancelAnimationFrame(
-                animationFrame
+            cancelAnimationFrame(animationFrame);
+
+            mount.removeEventListener(
+                "pointermove",
+                onPointerMove
             );
-
-            window.removeEventListener(
-                "mousemove",
-                handleMouseMove
-            );
-
-            window.removeEventListener(
-                "mouseout",
-                handleMouseLeave
-            );
-
             window.removeEventListener(
                 "resize",
-                resize
+                onResize
             );
 
             geometry.dispose();
-
             material.dispose();
-
             renderer.dispose();
 
-            if (
-                renderer.domElement
-                    .parentNode ===
-                container
-            ) {
-                container.removeChild(
-                    renderer.domElement
-                );
+            if (renderer.domElement.parentNode === mount) {
+                mount.removeChild(renderer.domElement);
             }
         };
     }, [
-        words,
-        color,
         particleCount,
         cursorStrength,
         cursorReach,
@@ -1268,9 +480,14 @@ export default function TransformParticles({
 
     return (
         <div
-            ref={containerRef}
-            className="transform-particles"
-            aria-label="Visualização animada do conhecimento"
+            ref={mountRef}
+            style={{
+                width: "100%",
+                height: "100%",
+                position: "relative",
+                overflow: "hidden",
+            }}
+            aria-label="Animação de partículas formando palavras"
         />
     );
 }
