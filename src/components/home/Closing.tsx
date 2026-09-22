@@ -1,3 +1,4 @@
+import BlockTextReveal from "../BlockTextReveal";
 import { ROUTES } from "./content";
 
 /** Seção 09 — Encerramento. */
@@ -9,14 +10,37 @@ export default function Closing() {
             aria-labelledby="closing-title"
         >
             <div className="wrap closing__inner">
-                <h2
+                <div
                     id="closing-title"
                     className="closing__statement"
-                    data-reveal
+                    role="heading"
+                    aria-level={2}
                 >
-                    Uma plataforma para transformar conhecimento em
-                    prática pedagógica.
-                </h2>
+                    <BlockTextReveal
+                        text="Uma plataforma para transformar conhecimento em prática pedagógica."
+                        align="left"
+                        textColor="inherit"
+                        blockColor="#8b5cf6"
+                        revealType="lines"
+                        direction="left"
+                        rounded={0}
+                        speed={50}
+                        highlight={[]}
+                        font={{
+                            fontFamily: "inherit",
+                            fontWeight: "inherit",
+                            fontSize: "inherit",
+                            lineHeight: "inherit",
+                            letterSpacing: "inherit",
+                        }}
+                        style={{
+                            minHeight: "auto",
+                            height: "auto",
+                            alignItems: "flex-start",
+                            justifyContent: "flex-start",
+                        }}
+                    />
+                </div>
 
                 <div
                     className="closing__actions"
