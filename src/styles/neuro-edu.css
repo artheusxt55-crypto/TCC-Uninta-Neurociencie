@@ -667,31 +667,70 @@
         color: var(--color-white);
     }
 
-    /* 2.1 "que se transforma em prática" — "Conhecimento" fica estático;
-       este trecho herda a mesma fonte do h1 e apenas cicla a cor entre
-       variações de roxo da paleta. */
-    .hero-title__cycle {
-        display: inline;
-        animation: hero-title-cycle 6s var(--ease) infinite;
+    /* 2.1 Entrada editorial — "Conhecimento" ancora a frase;
+       o complemento é revelado palavra por palavra com máscara,
+       desfoque e rotação 3D sutil. */
+    .hero-title-reveal {
+        overflow: visible;
+        perspective: 800px;
     }
 
-    @keyframes hero-title-cycle {
-        0%,
+    .hero-title__static {
+        display: inline-block;
+    }
+
+    .hero-title__reveal {
+        display: inline;
+        color: var(--color-lavender);
+    }
+
+    .hero-title__word {
+        display: inline-block;
+        opacity: 0;
+        transform: translate3d(0, 0.72em, 0) rotateX(-24deg);
+        transform-origin: 50% 100%;
+        filter: blur(7px);
+        clip-path: inset(0 0 100% 0);
+        animation: hero-word-reveal 0.95s var(--ease) forwards;
+        animation-delay: calc(0.18s + (var(--i) * 0.075s));
+        will-change: transform, opacity, filter, clip-path;
+    }
+
+    .hero-title__word--accent {
+        color: var(--color-lavender);
+        text-shadow: 0 0 28px color-mix(in srgb, var(--color-purple) 22%, transparent);
+    }
+
+    @keyframes hero-word-reveal {
+        0% {
+            opacity: 0;
+            transform: translate3d(0, 0.72em, 0) rotateX(-24deg);
+            filter: blur(7px);
+            clip-path: inset(0 0 100% 0);
+        }
+        55% {
+            opacity: 1;
+            filter: blur(0);
+            clip-path: inset(0 0 0 0);
+        }
         100% {
-            color: var(--color-purple-mid);
-        }
-        33% {
-            color: var(--color-purple-strong);
-        }
-        66% {
-            color: var(--color-lavender);
+            opacity: 1;
+            transform: translate3d(0, 0, 0) rotateX(0);
+            filter: blur(0);
+            clip-path: inset(0 0 0 0);
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .hero-title__cycle {
+        .hero-title__word {
+            opacity: 1;
+            transform: none;
+            filter: none;
+            clip-path: none;
             animation: none;
-            color: var(--color-purple);
+        }
+        .hero-title__word--accent {
+            text-shadow: none;
         }
     }
 
