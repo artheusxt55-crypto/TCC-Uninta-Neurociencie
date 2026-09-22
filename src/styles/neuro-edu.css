@@ -14,19 +14,7 @@
     :root {
         color-scheme: dark;
 
-        /* ---------------------------------------------------------------
-           Paleta EducaCube — hierarquia cromática em camadas.
-           A progressão vai do fundo mais profundo até a lavanda/branco,
-           e cada degrau existe para carregar um nível de importância —
-           não como decoração. Os nomes --edu-* são mantidos como a API
-           pública do sistema (outros componentes do app dependem deles);
-           os nomes --color-* abaixo são as âncoras reais da marca. */
-
-        /* ---------------------------------------------------------------
-           Paleta EducaCube — escala monocromática real (H≈258°), derivada
-           de #8b5cf6 (identidade) e ancorada em #210858. Os oito degraus
-           abaixo são a progressão matemática entre os dois; cada nome
-           --edu-* é um alias — a fonte de verdade é esta escala. */
+     
 
         --color-mono-1: #060210; /* fundo mais profundo */
         --color-mono-2: #0c0320; /* superfície 1 */
@@ -2675,6 +2663,269 @@
 
         .brain-frame {
             width: min(100%, 260px);
+        }
+    }
+}
+
+/* =====================================================================
+   EDUCACUBE — MOTION SYSTEM v2
+   Scroll reveals com hierarquia editorial, stagger e microinterações.
+   Não adiciona movimento contínuo desnecessário.
+   ===================================================================== */
+
+@layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+        /* -------------------------------------------------------------
+           Plataforma — o ciclo pedagógico entra como uma sequência.
+           ------------------------------------------------------------- */
+        .platform .audience.is-visible .audience__item,
+        .platform .cycle.is-visible .cycle__item {
+            animation: edu-item-in 700ms var(--ease) both;
+        }
+
+        .platform .audience.is-visible .audience__item:nth-child(1),
+        .platform .cycle.is-visible .cycle__item:nth-child(1) {
+            animation-delay: 80ms;
+        }
+
+        .platform .audience.is-visible .audience__item:nth-child(2),
+        .platform .cycle.is-visible .cycle__item:nth-child(2) {
+            animation-delay: 160ms;
+        }
+
+        .platform .audience.is-visible .audience__item:nth-child(3),
+        .platform .cycle.is-visible .cycle__item:nth-child(3) {
+            animation-delay: 240ms;
+        }
+
+        .platform .audience.is-visible .audience__item:nth-child(4),
+        .platform .cycle.is-visible .cycle__item:nth-child(4) {
+            animation-delay: 320ms;
+        }
+
+        .platform .cycle.is-visible .cycle__item:nth-child(5) {
+            animation-delay: 400ms;
+        }
+
+        /* -------------------------------------------------------------
+           Problema — as respostas aparecem uma a uma, sem deslocamento
+           excessivo. O título continua sendo o ponto de ancoragem.
+           ------------------------------------------------------------- */
+        .problem__list.is-visible .problem__row {
+            animation: edu-item-in 650ms var(--ease) both;
+        }
+
+        .problem__list.is-visible .problem__row:nth-child(1) { animation-delay: 80ms; }
+        .problem__list.is-visible .problem__row:nth-child(2) { animation-delay: 150ms; }
+        .problem__list.is-visible .problem__row:nth-child(3) { animation-delay: 220ms; }
+        .problem__list.is-visible .problem__row:nth-child(4) { animation-delay: 290ms; }
+        .problem__list.is-visible .problem__row:nth-child(5) { animation-delay: 360ms; }
+
+        /* -------------------------------------------------------------
+           Jornada — cada etapa acende o nó e traz o conteúdo da linha.
+           ------------------------------------------------------------- */
+        .journey__step.is-visible .journey__body {
+            animation: edu-item-in 700ms var(--ease) both;
+        }
+
+        .journey__step.is-visible .journey__numeral {
+            animation: edu-numeral-in 900ms var(--ease) both;
+        }
+
+        .journey__step:nth-child(2) .journey__body,
+        .journey__step:nth-child(2) .journey__numeral { animation-delay: 70ms; }
+        .journey__step:nth-child(3) .journey__body,
+        .journey__step:nth-child(3) .journey__numeral { animation-delay: 140ms; }
+        .journey__step:nth-child(4) .journey__body,
+        .journey__step:nth-child(4) .journey__numeral { animation-delay: 210ms; }
+        .journey__step:nth-child(5) .journey__body,
+        .journey__step:nth-child(5) .journey__numeral { animation-delay: 280ms; }
+
+        /* -------------------------------------------------------------
+           Módulos — aqui o stagger é importante: transforma uma lista
+           estática em uma sequência de ferramentas.
+           ------------------------------------------------------------- */
+        .modules__lists .module-row.is-visible {
+            animation: edu-item-in 650ms var(--ease) both;
+        }
+
+        .modules__lists .module-row:nth-child(1) { animation-delay: 60ms; }
+        .modules__lists .module-row:nth-child(2) { animation-delay: 130ms; }
+        .modules__lists .module-row:nth-child(3) { animation-delay: 200ms; }
+        .modules__lists .module-row:nth-child(4) { animation-delay: 270ms; }
+        .modules__lists .module-row:nth-child(5) { animation-delay: 340ms; }
+
+        .modules__lists .module-row.is-visible .module-row__link {
+            transition:
+                background var(--dur-base) var(--ease),
+                border-color var(--dur-base) var(--ease),
+                translate var(--dur-base) var(--ease);
+        }
+
+        .modules__lists .module-row__link:hover,
+        .modules__lists .module-row__link:focus-visible {
+            translate: 4px 0;
+        }
+
+        /* -------------------------------------------------------------
+           AURA — a seção recebe movimento de sistema, não estética de
+           chatbot. As listas aparecem como decisões pedagógicas.
+           ------------------------------------------------------------- */
+        .aura__roles.is-visible .role-list li {
+            animation: edu-item-in 560ms var(--ease) both;
+        }
+
+        .aura__roles.is-visible .role-list li:nth-child(1) { animation-delay: 80ms; }
+        .aura__roles.is-visible .role-list li:nth-child(2) { animation-delay: 140ms; }
+        .aura__roles.is-visible .role-list li:nth-child(3) { animation-delay: 200ms; }
+        .aura__roles.is-visible .role-list li:nth-child(4) { animation-delay: 260ms; }
+        .aura__roles.is-visible .role-list li:nth-child(5) { animation-delay: 320ms; }
+
+        .aura-span.is-visible .aura-span__stages li {
+            animation: edu-item-in 560ms var(--ease) both;
+        }
+
+        .aura-span.is-visible .aura-span__stages li:nth-child(1) { animation-delay: 70ms; }
+        .aura-span.is-visible .aura-span__stages li:nth-child(2) { animation-delay: 140ms; }
+        .aura-span.is-visible .aura-span__stages li:nth-child(3) { animation-delay: 210ms; }
+        .aura-span.is-visible .aura-span__stages li:nth-child(4) { animation-delay: 280ms; }
+        .aura-span.is-visible .aura-span__stages li:nth-child(5) { animation-delay: 350ms; }
+
+        .aura-span.is-visible .aura-span__bracket {
+            animation: edu-line-grow 850ms var(--ease) 320ms both;
+            transform-origin: center top;
+        }
+
+        /* -------------------------------------------------------------
+           Conhecimento — a equação ganha progressão horizontal.
+           ------------------------------------------------------------- */
+        .equation.is-visible > li {
+            animation: edu-item-in 650ms var(--ease) both;
+        }
+
+        .equation.is-visible > li:nth-child(1) { animation-delay: 60ms; }
+        .equation.is-visible > li:nth-child(2) { animation-delay: 130ms; }
+        .equation.is-visible > li:nth-child(3) { animation-delay: 200ms; }
+        .equation.is-visible > li:nth-child(4) { animation-delay: 270ms; }
+        .equation.is-visible > li:nth-child(5) { animation-delay: 340ms; }
+
+        /* -------------------------------------------------------------
+           Ecossistema — primeiro o centro, depois os nós. O mapa não
+           fica girando: a informação é que ganha prioridade.
+           ------------------------------------------------------------- */
+        .eco-map.is-visible .eco-core {
+            animation: edu-core-in 850ms var(--ease) both;
+        }
+
+        .eco-map.is-visible .eco-node {
+            animation: edu-node-in 650ms var(--ease) both;
+        }
+
+        .eco-map.is-visible .eco-node:nth-child(1) { animation-delay: 120ms; }
+        .eco-map.is-visible .eco-node:nth-child(2) { animation-delay: 180ms; }
+        .eco-map.is-visible .eco-node:nth-child(3) { animation-delay: 240ms; }
+        .eco-map.is-visible .eco-node:nth-child(4) { animation-delay: 300ms; }
+        .eco-map.is-visible .eco-node:nth-child(5) { animation-delay: 360ms; }
+        .eco-map.is-visible .eco-node:nth-child(6) { animation-delay: 420ms; }
+        .eco-map.is-visible .eco-node:nth-child(7) { animation-delay: 480ms; }
+
+        .eco-map.is-visible .eco-map__cycle {
+            animation: edu-dash-flow 2.8s linear 650ms both;
+        }
+
+        /* -------------------------------------------------------------
+           Fechamento — só uma entrada curta. O CTA não deve competir
+           com o statement.
+           ------------------------------------------------------------- */
+        .closing__actions.is-visible {
+            animation: edu-item-in 700ms var(--ease) 120ms both;
+        }
+
+        @keyframes edu-item-in {
+            from {
+                opacity: 0;
+                translate: 0 16px;
+            }
+            to {
+                opacity: 1;
+                translate: 0 0;
+            }
+        }
+
+        @keyframes edu-numeral-in {
+            from {
+                opacity: 0;
+                scale: 0.97;
+                translate: 0 10px;
+            }
+            to {
+                opacity: 1;
+                scale: 1;
+                translate: 0 0;
+            }
+        }
+
+        @keyframes edu-core-in {
+            from {
+                opacity: 0;
+                scale: 0.94;
+            }
+            to {
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        @keyframes edu-node-in {
+            from {
+                opacity: 0;
+                scale: 0.96;
+            }
+            to {
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        @keyframes edu-line-grow {
+            from {
+                opacity: 0;
+                scale: 0.96 0.5;
+            }
+            to {
+                opacity: 1;
+                scale: 1 1;
+            }
+        }
+
+        @keyframes edu-dash-flow {
+            from {
+                stroke-dasharray: 0 1000;
+                opacity: 0.25;
+            }
+            to {
+                stroke-dasharray: 7 7;
+                opacity: 1;
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .platform .audience__item,
+        .platform .cycle__item,
+        .problem__row,
+        .journey__body,
+        .journey__numeral,
+        .role-list li,
+        .aura-span__stages li,
+        .aura-span__bracket,
+        .equation > li,
+        .eco-core,
+        .eco-node,
+        .closing__actions {
+            animation: none !important;
+            translate: none !important;
+            scale: none !important;
         }
     }
 }
