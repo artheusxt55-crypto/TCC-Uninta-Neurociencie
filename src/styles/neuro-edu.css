@@ -667,6 +667,34 @@
         color: var(--color-white);
     }
 
+    /* 2.1 "que se transforma em prática" — "Conhecimento" fica estático;
+       este trecho herda a mesma fonte do h1 e apenas cicla a cor entre
+       variações de roxo da paleta. */
+    .hero-title__cycle {
+        display: inline;
+        animation: hero-title-cycle 6s var(--ease) infinite;
+    }
+
+    @keyframes hero-title-cycle {
+        0%,
+        100% {
+            color: var(--color-purple-mid);
+        }
+        33% {
+            color: var(--color-purple-strong);
+        }
+        66% {
+            color: var(--color-lavender);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-title__cycle {
+            animation: none;
+            color: var(--color-purple);
+        }
+    }
+
     /* 3. Proposta de valor */
     .hero-lede {
         margin-block-start: var(--space-md);
