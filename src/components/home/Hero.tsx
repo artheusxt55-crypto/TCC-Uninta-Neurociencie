@@ -37,7 +37,11 @@ export default function Hero({ isFull }: HeroProps) {
                     </p>
 
                     <h1 id="hero-title">
-                        Conhecimento que se transforma em prática.
+                        Conhecimento{" "}
+                        <span className="hero-title__cycle">
+                            que se transforma em prática
+                        </span>
+                        .
                     </h1>
 
                     <p className="hero-lede">
