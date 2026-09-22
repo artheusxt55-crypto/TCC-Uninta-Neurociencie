@@ -1,3 +1,4 @@
+import BlockTextReveal from "../BlockTextReveal";
 import { AUDIENCE, STAGES } from "./content";
 
 /** Seção 02 — O que é o EducaCube, para quem, e o ciclo pedagógico. */
@@ -10,13 +11,37 @@ export default function Platform() {
         >
             <div className="wrap">
                 <div className="platform__intro">
-                    <h2
+                    <div
                         id="platform-title"
                         className="h-section"
-                        data-reveal
+                        role="heading"
+                        aria-level={2}
                     >
-                        O que é o EducaCube?
-                    </h2>
+                        <BlockTextReveal
+                            text="O que é o EducaCube?"
+                            align="left"
+                            textColor="inherit"
+                            blockColor="#8b5cf6"
+                            revealType="lines"
+                            direction="left"
+                            rounded={0}
+                            speed={50}
+                            highlight={[]}
+                            font={{
+                                fontFamily: "inherit",
+                                fontWeight: "inherit",
+                                fontSize: "inherit",
+                                lineHeight: "inherit",
+                                letterSpacing: "inherit",
+                            }}
+                            style={{
+                                minHeight: "auto",
+                                height: "auto",
+                                alignItems: "flex-start",
+                                justifyContent: "flex-start",
+                            }}
+                        />
+                    </div>
 
                     <div
                         className="platform__text"
@@ -34,9 +59,8 @@ export default function Platform() {
                             Não é uma coleção de ferramentas soltas.
                             Cada módulo continua o trabalho do
                             anterior, e todos partem da mesma base
-                            curricular. A plataforma nasce de um
-                            laboratório de pesquisa da UNINTA e da
-                            prática docente.
+                            curricular
+                        
                         </p>
                     </div>
                 </div>
