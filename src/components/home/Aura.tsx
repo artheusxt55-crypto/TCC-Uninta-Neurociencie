@@ -1,3 +1,4 @@
+import BlockTextReveal from "../BlockTextReveal";
 import {
     AURA_HELPS,
     ROUTES,
@@ -21,13 +22,37 @@ export default function Aura() {
                     >
                         <p className="label">AURA AI</p>
 
-                        <h2
+                        <div
                             id="aura-title"
                             className="h-section"
+                            role="heading"
+                            aria-level={2}
                         >
-                            Inteligência aplicada ao trabalho
-                            pedagógico.
-                        </h2>
+                            <BlockTextReveal
+                                text="Inteligência aplicada ao trabalho pedagógico."
+                                align="left"
+                                textColor="inherit"
+                                blockColor="#8b5cf6"
+                                revealType="lines"
+                                direction="left"
+                                rounded={0}
+                                speed={50}
+                                highlight={[]}
+                                font={{
+                                    fontFamily: "inherit",
+                                    fontWeight: "inherit",
+                                    fontSize: "inherit",
+                                    lineHeight: "inherit",
+                                    letterSpacing: "inherit",
+                                }}
+                                style={{
+                                    minHeight: "auto",
+                                    height: "auto",
+                                    alignItems: "flex-start",
+                                    justifyContent: "flex-start",
+                                }}
+                            />
+                        </div>
 
                         <p className="body-muted">
                             A AURA é uma ferramenta pedagógica
