@@ -36,10 +36,22 @@ export default function Hero({ isFull }: HeroProps) {
                         ao professor.
                     </p>
 
-                    <h1 id="hero-title">
-                        Conhecimento{" "}
-                        <span className="hero-title__cycle">
-                            que se transforma em prática
+                    <h1 id="hero-title" className="hero-title-reveal">
+                        <span className="hero-title__static">Conhecimento</span>{" "}
+                        <span
+                            className="hero-title__reveal"
+                            aria-label="que se transforma em prática"
+                        >
+                            <span className="hero-title__word" style={{ "--i": 0 } as React.CSSProperties}>que</span>{" "}
+                            <span className="hero-title__word" style={{ "--i": 1 } as React.CSSProperties}>se</span>{" "}
+                            <span className="hero-title__word" style={{ "--i": 2 } as React.CSSProperties}>transforma</span>{" "}
+                            <span className="hero-title__word" style={{ "--i": 3 } as React.CSSProperties}>em</span>{" "}
+                            <span
+                                className="hero-title__word hero-title__word--accent"
+                                style={{ "--i": 4 } as React.CSSProperties}
+                            >
+                                prática
+                            </span>
                         </span>
                         .
                     </h1>
