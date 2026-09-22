@@ -10,6 +10,52 @@ type HeroProps = {
     isFull: boolean;
 };
 
+type PhraseWord = {
+    text: string;
+    /** Marca a palavra que recebe o realce lavanda (ex.: "prática"). */
+    accent?: boolean;
+};
+
+/** "que se transforma em prática", entregue como texto puro para o aria-label. */
+const REVEAL_PHRASE: PhraseWord[] = [
+    { text: "que" },
+    { text: "se" },
+    { text: "transforma" },
+    { text: "em" },
+    { text: "prática", accent: true },
+];
+
+/**
+ * Divide cada palavra em letras individuais, cada uma com um índice global
+ * (--i) usado pelo CSS para escalonar a entrada e a varredura de cor.
+ */
+function renderRevealPhrase(words: PhraseWord[]) {
+    let letterIndex = 0;
+
+    return words.map((word, wordIndex) => (
+        <span className="hero-title__word" key={`${word.text}-${wordIndex}`}>
+            {wordIndex > 0 ? "\u00A0" : ""}
+            {word.text.split("").map((letter) => {
+                const i = letterIndex++;
+
+                return (
+                    <span
+                        key={i}
+                        className={
+                            word.accent
+                                ? "hero-title__letter hero-title__letter--accent"
+                                : "hero-title__letter"
+                        }
+                        style={{ "--i": i } as React.CSSProperties}
+                    >
+                        {letter}
+                    </span>
+                );
+            })}
+        </span>
+    ));
+}
+
 export default function Hero({ isFull }: HeroProps) {
     return (
         <section
@@ -42,16 +88,7 @@ export default function Hero({ isFull }: HeroProps) {
                             className="hero-title__reveal"
                             aria-label="que se transforma em prática"
                         >
-                            <span className="hero-title__word" style={{ "--i": 0 } as React.CSSProperties}>que</span>{" "}
-                            <span className="hero-title__word" style={{ "--i": 1 } as React.CSSProperties}>se</span>{" "}
-                            <span className="hero-title__word" style={{ "--i": 2 } as React.CSSProperties}>transforma</span>{" "}
-                            <span className="hero-title__word" style={{ "--i": 3 } as React.CSSProperties}>em</span>{" "}
-                            <span
-                                className="hero-title__word hero-title__word--accent"
-                                style={{ "--i": 4 } as React.CSSProperties}
-                            >
-                                prática
-                            </span>
+                            {renderRevealPhrase(REVEAL_PHRASE)}
                         </span>
                         .
                     </h1>
