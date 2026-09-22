@@ -667,11 +667,14 @@
         color: var(--color-white);
     }
 
-    /* 2.1 Entrada leve e premium — "Conhecimento" e o complemento
-       surgem com um fade suave, leve deslocamento vertical e
-       desfoque sutil, sem rotação 3D nem máscara de recorte,
-       com easing de desaceleração longa (expo-out) para uma
-       sensação mais refinada e menos mecânica. */
+    /* 2.1 Entrada leve e premium — "Conhecimento" surge com um fade
+       curto e discreto; o complemento entra letra por letra, cada
+       caractere subindo de leve enquanto sua cor acende de um tom
+       neutro até o lavanda da marca, como uma varredura de luz ao
+       longo da frase. Sem blur e sem rotação 3D: só opacidade,
+       um pequeno deslocamento e cor — leve para o navegador e
+       para o olho, com desaceleração longa (expo-out) no final
+       de cada entrada. */
     .hero-title-reveal {
         overflow: visible;
     }
@@ -679,59 +682,93 @@
     .hero-title__static {
         display: inline-block;
         opacity: 0;
-        transform: translate3d(0, 0.28em, 0);
-        filter: blur(5px);
-        animation: hero-title-in 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-        will-change: transform, opacity, filter;
+        transform: translate3d(0, 0.2em, 0);
+        animation: hero-title-in 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     }
 
     .hero-title__reveal {
         display: inline;
-        color: var(--color-lavender);
     }
 
     .hero-title__word {
         display: inline-block;
-        opacity: 0;
-        transform: translate3d(0, 0.28em, 0);
-        filter: blur(5px);
-        animation: hero-title-in 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-        animation-delay: calc(0.14s + (var(--i) * 0.065s));
-        will-change: transform, opacity, filter;
     }
 
-    .hero-title__word--accent {
-        color: var(--color-lavender);
-        text-shadow: 0 0 28px color-mix(in srgb, var(--color-purple) 22%, transparent);
+    .hero-title__letter {
+        display: inline-block;
+        opacity: 0;
+        color: color-mix(in srgb, var(--color-white) 55%, transparent);
+        transform: translate3d(0, 0.22em, 0);
+        animation: hero-letter-in 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        animation-delay: calc(0.16s + (var(--i) * 0.026s));
+        will-change: transform, opacity, color;
+    }
+
+    .hero-title__letter--accent {
+        animation-name: hero-letter-in-accent;
     }
 
     @keyframes hero-title-in {
         0% {
             opacity: 0;
-            transform: translate3d(0, 0.28em, 0);
-            filter: blur(5px);
-        }
-        60% {
-            opacity: 1;
-            filter: blur(0);
+            transform: translate3d(0, 0.2em, 0);
         }
         100% {
             opacity: 1;
             transform: translate3d(0, 0, 0);
-            filter: blur(0);
+        }
+    }
+
+    @keyframes hero-letter-in {
+        0% {
+            opacity: 0;
+            color: color-mix(in srgb, var(--color-white) 55%, transparent);
+            transform: translate3d(0, 0.22em, 0);
+        }
+        60% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        100% {
+            opacity: 1;
+            color: var(--color-lavender);
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @keyframes hero-letter-in-accent {
+        0% {
+            opacity: 0;
+            color: color-mix(in srgb, var(--color-white) 55%, transparent);
+            transform: translate3d(0, 0.22em, 0);
+            text-shadow: none;
+        }
+        60% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        100% {
+            opacity: 1;
+            color: var(--color-lavender);
+            transform: translate3d(0, 0, 0);
+            text-shadow: 0 0 28px color-mix(in srgb, var(--color-purple) 22%, transparent);
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .hero-title__static,
-        .hero-title__word {
+        .hero-title__static {
             opacity: 1;
             transform: none;
-            filter: none;
             animation: none;
         }
-        .hero-title__word--accent {
-            text-shadow: none;
+        .hero-title__letter {
+            opacity: 1;
+            transform: none;
+            animation: none;
+            color: var(--color-lavender);
+        }
+        .hero-title__letter--accent {
+            text-shadow: 0 0 28px color-mix(in srgb, var(--color-purple) 22%, transparent);
         }
     }
 
