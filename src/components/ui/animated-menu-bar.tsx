@@ -62,78 +62,21 @@ const MENU_ITEMS: MenuItem[] = [
 interface MenuItemButtonProps {
     item: MenuItem;
     active: boolean;
+    hovered: boolean;
+    onHover: (key: MenuItemKey) => void;
+    onLeave: () => void;
     onSelect?: (key: MenuItemKey) => void;
 }
 
 function MenuItemButton({
     item,
     active,
+    hovered,
+    onHover,
+    onLeave,
     onSelect,
 }: MenuItemButtonProps) {
-    const [hovered, setHovered] = React.useState(false);
-
-    const enterTimer = React.useRef<ReturnType<
-        typeof setTimeout
-    > | null>(null);
-
-    const leaveTimer = React.useRef<ReturnType<
-        typeof setTimeout
-    > | null>(null);
-
     const expanded = active || hovered;
-
-    const clearTimers = () => {
-        if (enterTimer.current) {
-            clearTimeout(enterTimer.current);
-            enterTimer.current = null;
-        }
-
-        if (leaveTimer.current) {
-            clearTimeout(leaveTimer.current);
-            leaveTimer.current = null;
-        }
-    };
-
-    const handleMouseEnter = () => {
-        clearTimers();
-
-        /*
-         * Pequeno atraso antes de abrir.
-         * Isso impede que o menu reaja a
-         * movimentos acidentais do mouse.
-         */
-        enterTimer.current = setTimeout(() => {
-            setHovered(true);
-        }, 180);
-    };
-
-    const handleMouseLeave = () => {
-        clearTimers();
-
-        /*
-         * O fechamento também espera um pouco.
-         * Isso cria uma sensação mais estável.
-         */
-        leaveTimer.current = setTimeout(() => {
-            setHovered(false);
-        }, 140);
-    };
-
-    const handleFocus = () => {
-        clearTimers();
-        setHovered(true);
-    };
-
-    const handleBlur = () => {
-        clearTimers();
-        setHovered(false);
-    };
-
-    React.useEffect(() => {
-        return () => {
-            clearTimers();
-        };
-    }, []);
 
     const handleClick = (
         event: React.MouseEvent<HTMLAnchorElement>
@@ -166,15 +109,16 @@ function MenuItemButton({
             className={[
                 "educacube-menu-item",
                 active ? "is-active" : "",
+                hovered ? "is-hovered" : "",
                 expanded ? "is-expanded" : "",
             ]
                 .filter(Boolean)
                 .join(" ")}
             aria-current={active ? "page" : undefined}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
+            onMouseEnter={() => onHover(item.key)}
+            onMouseLeave={onLeave}
+            onFocus={() => onHover(item.key)}
+            onBlur={onLeave}
             onClick={handleClick}
         >
             <span className="educacube-menu-item__icon">
@@ -199,16 +143,93 @@ export function AnimatedMenuBar({
     active = "inicio",
     onSelect,
 }: AnimatedMenuBarProps) {
+    const [hoveredItem, setHoveredItem] =
+        React.useState<MenuItemKey | null>(null);
+
+    const [confirmedHover, setConfirmedHover] =
+        React.useState<MenuItemKey | null>(null);
+
+    const hoverTimer = React.useRef<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const leaveTimer = React.useRef<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const clearTimers = () => {
+        if (hoverTimer.current) {
+            clearTimeout(hoverTimer.current);
+            hoverTimer.current = null;
+        }
+
+        if (leaveTimer.current) {
+            clearTimeout(leaveTimer.current);
+            leaveTimer.current = null;
+        }
+    };
+
+    const handleHover = (key: MenuItemKey) => {
+        clearTimers();
+
+        /*
+         * Se o usuário apenas atravessar o menu,
+         * não abrimos cada item instantaneamente.
+         *
+         * O item só expande se o cursor permanecer
+         * sobre ele.
+         */
+        setHoveredItem(key);
+
+        hoverTimer.current = setTimeout(() => {
+            setConfirmedHover(key);
+        }, 260);
+    };
+
+    const handleLeave = () => {
+        clearTimers();
+
+        setHoveredItem(null);
+
+        /*
+         * Pequena tolerância antes de fechar.
+         */
+        leaveTimer.current = setTimeout(() => {
+            setConfirmedHover(null);
+        }, 180);
+    };
+
+    React.useEffect(() => {
+        return () => {
+            clearTimers();
+        };
+    }, []);
+
     return (
         <nav
             className="educacube-animated-menu"
             aria-label="Navegação principal"
+            onMouseLeave={handleLeave}
         >
             {MENU_ITEMS.map((item) => (
                 <MenuItemButton
                     key={item.key}
                     item={item}
                     active={active === item.key}
+                    hovered={
+                        hoveredItem === item.key &&
+                        confirmedHover === item.key
+                    }
+                    onHover={handleHover}
+                    onLeave={() => {
+                        /*
+                         * Não fechamos imediatamente ao mudar
+                         * de um item para outro.
+                         *
+                         * O menu permanece estável até o cursor
+                         * realmente sair da área do menu.
+                         */
+                    }}
                     onSelect={onSelect}
                 />
             ))}
