@@ -30,31 +30,31 @@ const MENU_ITEMS: MenuItem[] = [
     {
         key: "inicio",
         label: "Início",
-        icon: <Home size={18} strokeWidth={1.7} />,
+        icon: <Home size={17} strokeWidth={1.7} />,
         href: "#inicio",
     },
     {
         key: "como-funciona",
         label: "Como funciona",
-        icon: <Sparkles size={18} strokeWidth={1.7} />,
+        icon: <Sparkles size={17} strokeWidth={1.7} />,
         href: "#como-funciona",
     },
     {
         key: "modulos",
         label: "Módulos",
-        icon: <Layers3 size={18} strokeWidth={1.7} />,
+        icon: <Layers3 size={17} strokeWidth={1.7} />,
         href: "#ferramentas",
     },
     {
         key: "biblioteca",
         label: "Biblioteca",
-        icon: <Library size={18} strokeWidth={1.7} />,
+        icon: <Library size={17} strokeWidth={1.7} />,
         href: "/biblioteca",
     },
     {
         key: "mapa",
         label: "Mapa da aprendizagem",
-        icon: <Map size={18} strokeWidth={1.7} />,
+        icon: <Map size={17} strokeWidth={1.7} />,
         href: "/atlas",
     },
 ];
@@ -89,6 +89,12 @@ function MenuItemButton({
                     behavior: "smooth",
                     block: "start",
                 });
+
+                window.history.replaceState(
+                    null,
+                    "",
+                    item.href
+                );
             }
         }
     };
@@ -96,9 +102,13 @@ function MenuItemButton({
     return (
         <a
             href={item.href}
-            className={`educacube-menu-item ${
-                active ? "is-active" : ""
-            } ${expanded ? "is-expanded" : ""}`}
+            className={[
+                "educacube-menu-item",
+                active ? "is-active" : "",
+                expanded ? "is-expanded" : "",
+            ]
+                .filter(Boolean)
+                .join(" ")}
             aria-current={active ? "page" : undefined}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -111,9 +121,12 @@ function MenuItemButton({
             </span>
 
             <span
-                className={`educacube-menu-item__label ${
-                    expanded ? "is-visible" : ""
-                }`}
+                className={[
+                    "educacube-menu-item__label",
+                    expanded ? "is-visible" : "",
+                ]
+                    .filter(Boolean)
+                    .join(" ")}
             >
                 {item.label}
             </span>
