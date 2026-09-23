@@ -1,0 +1,145 @@
+import React from "react";
+import {
+    Home,
+    Layers3,
+    Library,
+    Map,
+    Sparkles,
+} from "lucide-react";
+
+export type MenuItemKey =
+    | "inicio"
+    | "como-funciona"
+    | "modulos"
+    | "biblioteca"
+    | "mapa";
+
+interface AnimatedMenuBarProps {
+    active?: MenuItemKey;
+    onSelect?: (key: MenuItemKey) => void;
+}
+
+interface MenuItem {
+    key: MenuItemKey;
+    label: string;
+    icon: React.ReactNode;
+    href: string;
+}
+
+const MENU_ITEMS: MenuItem[] = [
+    {
+        key: "inicio",
+        label: "Início",
+        icon: <Home size={18} strokeWidth={1.7} />,
+        href: "#inicio",
+    },
+    {
+        key: "como-funciona",
+        label: "Como funciona",
+        icon: <Sparkles size={18} strokeWidth={1.7} />,
+        href: "#como-funciona",
+    },
+    {
+        key: "modulos",
+        label: "Módulos",
+        icon: <Layers3 size={18} strokeWidth={1.7} />,
+        href: "#ferramentas",
+    },
+    {
+        key: "biblioteca",
+        label: "Biblioteca",
+        icon: <Library size={18} strokeWidth={1.7} />,
+        href: "/biblioteca",
+    },
+    {
+        key: "mapa",
+        label: "Mapa da aprendizagem",
+        icon: <Map size={18} strokeWidth={1.7} />,
+        href: "/atlas",
+    },
+];
+
+interface MenuItemButtonProps {
+    item: MenuItem;
+    active: boolean;
+    onSelect?: (key: MenuItemKey) => void;
+}
+
+function MenuItemButton({
+    item,
+    active,
+    onSelect,
+}: MenuItemButtonProps) {
+    const [hovered, setHovered] = React.useState(false);
+
+    const expanded = active || hovered;
+
+    const handleClick = (
+        event: React.MouseEvent<HTMLAnchorElement>
+    ) => {
+        onSelect?.(item.key);
+
+        if (item.href.startsWith("#")) {
+            const target = document.querySelector(item.href);
+
+            if (target) {
+                event.preventDefault();
+
+                target.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            }
+        }
+    };
+
+    return (
+        <a
+            href={item.href}
+            className={`educacube-menu-item ${
+                active ? "is-active" : ""
+            } ${expanded ? "is-expanded" : ""}`}
+            aria-current={active ? "page" : undefined}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onFocus={() => setHovered(true)}
+            onBlur={() => setHovered(false)}
+            onClick={handleClick}
+        >
+            <span className="educacube-menu-item__icon">
+                {item.icon}
+            </span>
+
+            <span
+                className={`educacube-menu-item__label ${
+                    expanded ? "is-visible" : ""
+                }`}
+            >
+                {item.label}
+            </span>
+        </a>
+    );
+}
+
+export function AnimatedMenuBar({
+    active = "inicio",
+    onSelect,
+}: AnimatedMenuBarProps) {
+    return (
+        <nav
+            className="educacube-animated-menu"
+            aria-label="Navegação principal"
+        >
+            {MENU_ITEMS.map((item) => (
+                <MenuItemButton
+                    key={item.key}
+                    item={item}
+                    active={active === item.key}
+                    onSelect={onSelect}
+                />
+            ))}
+        </nav>
+    );
+}
+
+export default AnimatedMenuBar;
