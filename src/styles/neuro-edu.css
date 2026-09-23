@@ -3035,7 +3035,8 @@
     }
 }
 /* =========================================================
-   EDUCACUBE — MENU ANIMADO
+   EDUCACUBE
+   MENU PRINCIPAL ANIMADO
    ========================================================= */
 
 .educacube-animated-menu {
@@ -3043,13 +3044,14 @@
     align-items: center;
     justify-content: center;
 
-    gap: 5px;
+    gap: 4px;
 
     flex: 1 1 auto;
     min-width: 0;
 
     overflow: visible;
 }
+
 
 /* =========================================================
    ITEM
@@ -3067,7 +3069,7 @@
     height: 40px;
     min-width: 40px;
 
-    padding: 0 9px;
+    padding: 0 8px;
 
     border: 1px solid transparent;
     border-radius: 11px;
@@ -3078,26 +3080,18 @@
     white-space: nowrap;
 
     /*
-     * Transição deliberadamente mais lenta.
-     * Evita sensação de menu "nervoso".
+     * Transição geral deliberadamente suave.
      */
     transition:
-        background-color 360ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        ),
-        border-color 360ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        );
+        background-color 360ms
+            cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 360ms
+            cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+
 /* =========================================================
-   HOVER
+   HOVER / ACTIVE
    ========================================================= */
 
 .educacube-menu-item:hover {
@@ -3111,6 +3105,7 @@
 
     border-color: rgba(255, 255, 255, 0.09);
 }
+
 
 /* =========================================================
    ÍCONE
@@ -3127,12 +3122,8 @@
     flex: 0 0 22px;
 
     transition:
-        transform 420ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        ),
+        transform 420ms
+            cubic-bezier(0.22, 1, 0.36, 1),
         opacity 300ms ease;
 }
 
@@ -3140,6 +3131,7 @@
 .educacube-menu-item__icon {
     transform: translateY(-1px);
 }
+
 
 /* =========================================================
    TEXTO
@@ -3165,15 +3157,31 @@
 
     transform: translateX(-4px);
 
+    /*
+     * 520ms deixa a expansão perceptível,
+     * mas sem parecer lenta.
+     */
     transition:
-        max-width 520ms cubic-bezier(0.16, 1, 0.3, 1),
-        margin-left 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        max-width 520ms
+            cubic-bezier(0.16, 1, 0.3, 1),
+
+        margin-left 420ms
+            cubic-bezier(0.16, 1, 0.3, 1),
+
         opacity 320ms ease,
-        transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+
+        transform 520ms
+            cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+
+/* =========================================================
+   TEXTO EXPANDIDO
+   ========================================================= */
 
 .educacube-menu-item__label.is-visible {
     width: auto;
+
     max-width: 190px;
 
     margin-left: 7px;
@@ -3182,10 +3190,16 @@
 
     transform: translateX(0);
 }
+
+
+/* =========================================================
+   ITEM ATIVO
+   ========================================================= */
 
 .educacube-menu-item.is-active
 .educacube-menu-item__label {
     width: auto;
+
     max-width: 190px;
 
     margin-left: 7px;
@@ -3193,4 +3207,52 @@
     opacity: 1;
 
     transform: translateX(0);
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1180px) {
+    .educacube-animated-menu {
+        gap: 2px;
+    }
+
+    .educacube-menu-item {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .educacube-menu-item__label.is-visible,
+    .educacube-menu-item.is-active
+    .educacube-menu-item__label {
+        max-width: 145px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 900px) {
+    .educacube-animated-menu {
+        display: none;
+    }
+}
+
+
+/* =========================================================
+   ACESSIBILIDADE
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .educacube-menu-item,
+    .educacube-menu-item__icon,
+    .educacube-menu-item__label {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
 }
