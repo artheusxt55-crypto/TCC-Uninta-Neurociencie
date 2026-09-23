@@ -33,8 +33,8 @@ export default function SiteHeader({
                         alt=""
                         className="brand-glyph"
                         aria-hidden="true"
-                        width={46}
-                        height={46}
+                        width={55}
+                        height={55}
                         style={{
                             width: "55px",
                             height: "55px",
@@ -89,7 +89,9 @@ export default function SiteHeader({
                     type="button"
                     className="nav-toggle"
                     aria-label={
-                        menuOpen ? "Fechar menu" : "Abrir menu"
+                        menuOpen
+                            ? "Fechar menu"
+                            : "Abrir menu"
                     }
                     aria-expanded={menuOpen}
                     onClick={onToggleMenu}
