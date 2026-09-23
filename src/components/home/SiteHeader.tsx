@@ -22,11 +22,27 @@ export default function SiteHeader({
 }: SiteHeaderProps) {
     return (
         <>
-            <header className="site-header">
+            <header
+                className="site-header"
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    gap: "20px",
+                    flexWrap: "nowrap",
+                }}
+            >
+                {/* MARCA */}
                 <a
                     href="#inicio"
                     className="brand-mark"
                     aria-label="EducaCube — início"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap",
+                    }}
                 >
                     <img
                         src="/eduacubehomelogo.png"
@@ -55,24 +71,55 @@ export default function SiteHeader({
                     </span>
                 </a>
 
+                {/* NAVEGAÇÃO */}
                 <nav
                     className="site-nav"
                     aria-label="Navegação principal"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "28px",
+                        flex: 1,
+                        flexWrap: "nowrap",
+                        whiteSpace: "nowrap",
+                        minWidth: 0,
+                    }}
                 >
                     {NAV_LINKS.map((link) => (
                         <a
                             key={link.href}
                             href={link.href}
+                            style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                            }}
                         >
                             {link.label}
                         </a>
                     ))}
                 </nav>
 
-                <div className="site-actions">
+                {/* AÇÕES */}
+                <div
+                    className="site-actions"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap",
+                    }}
+                >
                     <a
                         href={ROUTES.login}
                         className="btn-ghost"
+                        style={{
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                        }}
                     >
                         Área do Aluno
                     </a>
@@ -80,11 +127,16 @@ export default function SiteHeader({
                     <a
                         href={ROUTES.aura}
                         className="btn-primary"
+                        style={{
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                        }}
                     >
                         AURA AI
                     </a>
                 </div>
 
+                {/* MENU MOBILE */}
                 <button
                     type="button"
                     className="nav-toggle"
@@ -100,6 +152,7 @@ export default function SiteHeader({
                 </button>
             </header>
 
+            {/* MENU MOBILE */}
             {menuOpen && (
                 <div className="mobile-menu">
                     {NAV_LINKS.map((link) => (
