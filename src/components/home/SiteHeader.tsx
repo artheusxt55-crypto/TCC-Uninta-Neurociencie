@@ -1,4 +1,4 @@
-import { IconClose, IconCube, IconMenu } from "./icons";
+import { IconClose, IconMenu } from "./icons";
 import { ROUTES } from "./content";
 
 type SiteHeaderProps = {
@@ -28,7 +28,12 @@ export default function SiteHeader({
                     className="brand-mark"
                     aria-label="EducaCube — início"
                 >
-                    <IconCube className="brand-glyph" />
+                    <img
+                        src="/eduacubehomelogo.png"
+                        alt=""
+                        className="brand-logo"
+                        aria-hidden="true"
+                    />
 
                     <span className="brand-name">
                         Educa
