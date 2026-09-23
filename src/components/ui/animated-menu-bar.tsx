@@ -71,43 +71,75 @@ function MenuItemButton({
     onSelect,
 }: MenuItemButtonProps) {
     const [hovered, setHovered] = React.useState(false);
-    const collapseTimer =
-        React.useRef<ReturnType<typeof setTimeout>>();
 
-    const expand = () => {
-        if (collapseTimer.current) {
-            clearTimeout(collapseTimer.current);
+    const enterTimer = React.useRef<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const leaveTimer = React.useRef<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const expanded = active || hovered;
+
+    const clearTimers = () => {
+        if (enterTimer.current) {
+            clearTimeout(enterTimer.current);
+            enterTimer.current = null;
         }
+
+        if (leaveTimer.current) {
+            clearTimeout(leaveTimer.current);
+            leaveTimer.current = null;
+        }
+    };
+
+    const handleMouseEnter = () => {
+        clearTimers();
+
+        /*
+         * Pequeno atraso antes de abrir.
+         * Isso impede que o menu reaja a
+         * movimentos acidentais do mouse.
+         */
+        enterTimer.current = setTimeout(() => {
+            setHovered(true);
+        }, 180);
+    };
+
+    const handleMouseLeave = () => {
+        clearTimers();
+
+        /*
+         * O fechamento também espera um pouco.
+         * Isso cria uma sensação mais estável.
+         */
+        leaveTimer.current = setTimeout(() => {
+            setHovered(false);
+        }, 140);
+    };
+
+    const handleFocus = () => {
+        clearTimers();
         setHovered(true);
     };
 
-    const scheduleCollapse = () => {
-        collapseTimer.current = setTimeout(() => {
-            setHovered(false);
-        }, 80);
+    const handleBlur = () => {
+        clearTimers();
+        setHovered(false);
     };
 
     React.useEffect(() => {
         return () => {
-            if (collapseTimer.current) {
-                clearTimeout(collapseTimer.current);
-            }
+            clearTimers();
         };
     }, []);
-
-    const expanded = active || hovered;
 
     const handleClick = (
         event: React.MouseEvent<HTMLAnchorElement>
     ) => {
         onSelect?.(item.key);
 
-        /*
-         * Links internos da Home:
-         * #inicio
-         * #como-funciona
-         * #ferramentas
-         */
         if (item.href.startsWith("#")) {
             const target = document.querySelector(item.href);
 
@@ -119,10 +151,6 @@ function MenuItemButton({
                     block: "start",
                 });
 
-                /*
-                 * Mantém a URL sincronizada sem
-                 * provocar um reload da página.
-                 */
                 window.history.replaceState(
                     null,
                     "",
@@ -143,10 +171,10 @@ function MenuItemButton({
                 .filter(Boolean)
                 .join(" ")}
             aria-current={active ? "page" : undefined}
-            onMouseEnter={expand}
-            onMouseLeave={scheduleCollapse}
-            onFocus={expand}
-            onBlur={scheduleCollapse}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             onClick={handleClick}
         >
             <span className="educacube-menu-item__icon">
