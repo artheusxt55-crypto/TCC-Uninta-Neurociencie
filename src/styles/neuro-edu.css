@@ -3163,37 +3163,13 @@
     font-weight: 500;
     line-height: 1;
 
-    transform: translateX(-6px);
+    transform: translateX(-4px);
 
-    /*
-     * Texto entra depois do ícone.
-     */
     transition:
-        width 420ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        ),
-        max-width 420ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        ),
-        margin-left 360ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        ),
-        opacity 300ms ease 80ms,
-        transform 420ms cubic-bezier(
-            0.22,
-            1,
-            0.36,
-            1
-        );
+        max-width 520ms cubic-bezier(0.16, 1, 0.3, 1),
+        margin-left 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 320ms ease,
+        transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .educacube-menu-item__label.is-visible {
@@ -3207,10 +3183,6 @@
     transform: translateX(0);
 }
 
-/* =========================================================
-   ITEM ATIVO
-   ========================================================= */
-
 .educacube-menu-item.is-active
 .educacube-menu-item__label {
     width: auto;
@@ -3221,49 +3193,4 @@
     opacity: 1;
 
     transform: translateX(0);
-}
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 1180px) {
-    .educacube-animated-menu {
-        gap: 3px;
-    }
-
-    .educacube-menu-item {
-        padding-left: 6px;
-        padding-right: 6px;
-    }
-
-    .educacube-menu-item__label.is-visible,
-    .educacube-menu-item.is-active
-    .educacube-menu-item__label {
-        max-width: 145px;
-    }
-}
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 900px) {
-    .educacube-animated-menu {
-        display: none;
-    }
-}
-
-/* =========================================================
-   ACESSIBILIDADE
-   Usuários que preferem menos movimento
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-    .educacube-menu-item,
-    .educacube-menu-item__icon,
-    .educacube-menu-item__label {
-        transition: none !important;
-        animation: none !important;
-    }
 }
