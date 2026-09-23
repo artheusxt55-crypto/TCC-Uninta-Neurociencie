@@ -31,7 +31,7 @@ export default function SiteHeader({
                     <img
                         src="/eduacubehomelogo.png"
                         alt=""
-                        className="brand-logo"
+                        className="brand-glyph"
                         aria-hidden="true"
                     />
 
