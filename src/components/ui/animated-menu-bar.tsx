@@ -64,7 +64,6 @@ interface MenuItemButtonProps {
     active: boolean;
     hovered: boolean;
     onHover: (key: MenuItemKey) => void;
-    onLeave: () => void;
     onSelect?: (key: MenuItemKey) => void;
 }
 
@@ -73,7 +72,6 @@ function MenuItemButton({
     active,
     hovered,
     onHover,
-    onLeave,
     onSelect,
 }: MenuItemButtonProps) {
     const expanded = active || hovered;
@@ -116,9 +114,7 @@ function MenuItemButton({
                 .join(" ")}
             aria-current={active ? "page" : undefined}
             onMouseEnter={() => onHover(item.key)}
-            onMouseLeave={onLeave}
             onFocus={() => onHover(item.key)}
-            onBlur={onLeave}
             onClick={handleClick}
         >
             <span className="educacube-menu-item__icon">
@@ -153,63 +149,67 @@ export function AnimatedMenuBar({
         typeof setTimeout
     > | null>(null);
 
-    const leaveTimer = React.useRef<ReturnType<
+    const closeTimer = React.useRef<ReturnType<
         typeof setTimeout
     > | null>(null);
 
-    const clearTimers = () => {
+    const clearTimers = React.useCallback(() => {
         if (hoverTimer.current) {
             clearTimeout(hoverTimer.current);
             hoverTimer.current = null;
         }
 
-        if (leaveTimer.current) {
-            clearTimeout(leaveTimer.current);
-            leaveTimer.current = null;
+        if (closeTimer.current) {
+            clearTimeout(closeTimer.current);
+            closeTimer.current = null;
         }
-    };
+    }, []);
 
-    const handleHover = (key: MenuItemKey) => {
-        clearTimers();
+    const handleHover = React.useCallback(
+        (key: MenuItemKey) => {
+            clearTimers();
 
-        /*
-         * Se o usuário apenas atravessar o menu,
-         * não abrimos cada item instantaneamente.
-         *
-         * O item só expande se o cursor permanecer
-         * sobre ele.
-         */
-        setHoveredItem(key);
+            /*
+             * O item visualmente acompanha o cursor,
+             * mas só é confirmado depois de 300ms.
+             *
+             * Isso evita disparar animações quando
+             * o usuário simplesmente atravessa o menu.
+             */
+            setHoveredItem(key);
 
-        hoverTimer.current = setTimeout(() => {
-            setConfirmedHover(key);
-        }, 260);
-    };
+            hoverTimer.current = setTimeout(() => {
+                setConfirmedHover(key);
+            }, 300);
+        },
+        [clearTimers]
+    );
 
-    const handleLeave = () => {
+    const handleMenuLeave = React.useCallback(() => {
         clearTimers();
 
         setHoveredItem(null);
 
         /*
-         * Pequena tolerância antes de fechar.
+         * Pequena tolerância para evitar fechamento
+         * brusco quando o cursor sai da área.
          */
-        leaveTimer.current = setTimeout(() => {
+        closeTimer.current = setTimeout(() => {
             setConfirmedHover(null);
-        }, 180);
-    };
+        }, 200);
+    }, [clearTimers]);
 
     React.useEffect(() => {
         return () => {
             clearTimers();
         };
-    }, []);
+    }, [clearTimers]);
 
     return (
         <nav
             className="educacube-animated-menu"
             aria-label="Navegação principal"
-            onMouseLeave={handleLeave}
+            onMouseLeave={handleMenuLeave}
         >
             {MENU_ITEMS.map((item) => (
                 <MenuItemButton
@@ -217,19 +217,9 @@ export function AnimatedMenuBar({
                     item={item}
                     active={active === item.key}
                     hovered={
-                        hoveredItem === item.key &&
                         confirmedHover === item.key
                     }
                     onHover={handleHover}
-                    onLeave={() => {
-                        /*
-                         * Não fechamos imediatamente ao mudar
-                         * de um item para outro.
-                         *
-                         * O menu permanece estável até o cursor
-                         * realmente sair da área do menu.
-                         */
-                    }}
                     onSelect={onSelect}
                 />
             ))}
