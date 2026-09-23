@@ -79,6 +79,12 @@ function MenuItemButton({
     ) => {
         onSelect?.(item.key);
 
+        /*
+         * Links internos da Home:
+         * #inicio
+         * #como-funciona
+         * #ferramentas
+         */
         if (item.href.startsWith("#")) {
             const target = document.querySelector(item.href);
 
@@ -90,6 +96,10 @@ function MenuItemButton({
                     block: "start",
                 });
 
+                /*
+                 * Mantém a URL sincronizada sem
+                 * provocar um reload da página.
+                 */
                 window.history.replaceState(
                     null,
                     "",
