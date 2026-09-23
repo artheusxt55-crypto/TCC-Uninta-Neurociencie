@@ -71,6 +71,29 @@ function MenuItemButton({
     onSelect,
 }: MenuItemButtonProps) {
     const [hovered, setHovered] = React.useState(false);
+    const collapseTimer =
+        React.useRef<ReturnType<typeof setTimeout>>();
+
+    const expand = () => {
+        if (collapseTimer.current) {
+            clearTimeout(collapseTimer.current);
+        }
+        setHovered(true);
+    };
+
+    const scheduleCollapse = () => {
+        collapseTimer.current = setTimeout(() => {
+            setHovered(false);
+        }, 80);
+    };
+
+    React.useEffect(() => {
+        return () => {
+            if (collapseTimer.current) {
+                clearTimeout(collapseTimer.current);
+            }
+        };
+    }, []);
 
     const expanded = active || hovered;
 
@@ -120,10 +143,10 @@ function MenuItemButton({
                 .filter(Boolean)
                 .join(" ")}
             aria-current={active ? "page" : undefined}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onFocus={() => setHovered(true)}
-            onBlur={() => setHovered(false)}
+            onMouseEnter={expand}
+            onMouseLeave={scheduleCollapse}
+            onFocus={expand}
+            onBlur={scheduleCollapse}
             onClick={handleClick}
         >
             <span className="educacube-menu-item__icon">
