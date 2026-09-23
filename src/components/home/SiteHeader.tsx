@@ -33,11 +33,21 @@ export default function SiteHeader({
                         alt=""
                         className="brand-glyph"
                         aria-hidden="true"
+                        width={46}
+                        height={46}
+                        style={{
+                            width: "46px",
+                            height: "46px",
+                            objectFit: "contain",
+                            flexShrink: 0,
+                        }}
                     />
 
                     <span className="brand-name">
                         Educa
-                        <span className="brand-name__cube">Cube</span>
+                        <span className="brand-name__cube">
+                            Cube
+                        </span>
                     </span>
 
                     <span className="brand-affiliation">
@@ -100,9 +110,13 @@ export default function SiteHeader({
                         </a>
                     ))}
 
-                    <a href={ROUTES.login}>Área do Aluno</a>
+                    <a href={ROUTES.login}>
+                        Área do Aluno
+                    </a>
 
-                    <a href={ROUTES.aura}>AURA AI</a>
+                    <a href={ROUTES.aura}>
+                        AURA AI
+                    </a>
                 </div>
             )}
         </>
