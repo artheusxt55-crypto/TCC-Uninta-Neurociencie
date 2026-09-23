@@ -36,8 +36,8 @@ export default function SiteHeader({
                         width={46}
                         height={46}
                         style={{
-                            width: "46px",
-                            height: "46px",
+                            width: "55px",
+                            height: "55px",
                             objectFit: "contain",
                             flexShrink: 0,
                         }}
