@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
 import { IconClose, IconMenu } from "./icons";
 import { ROUTES } from "./content";
+import AnimatedMenuBar, {
+    type MenuItemKey,
+} from "../ui/animated-menu-bar";
 
 type SiteHeaderProps = {
     menuOpen: boolean;
@@ -7,7 +11,7 @@ type SiteHeaderProps = {
     onCloseMenu: () => void;
 };
 
-const NAV_LINKS = [
+const MOBILE_NAV_LINKS = [
     { href: "#inicio", label: "Início" },
     { href: "#como-funciona", label: "Como funciona" },
     { href: "#ferramentas", label: "Módulos" },
@@ -15,34 +19,78 @@ const NAV_LINKS = [
     { href: ROUTES.atlas, label: "Mapa da aprendizagem" },
 ] as const;
 
+function getCurrentMenuItem(): MenuItemKey {
+    const hash = window.location.hash;
+
+    switch (hash) {
+        case "#como-funciona":
+            return "como-funciona";
+
+        case "#ferramentas":
+            return "modulos";
+
+        default:
+            return "inicio";
+    }
+}
+
 export default function SiteHeader({
     menuOpen,
     onToggleMenu,
     onCloseMenu,
 }: SiteHeaderProps) {
+    const [activeMenu, setActiveMenu] =
+        useState<MenuItemKey>("inicio");
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            setActiveMenu(getCurrentMenuItem());
+        };
+
+        handleHashChange();
+
+        window.addEventListener(
+            "hashchange",
+            handleHashChange
+        );
+
+        return () => {
+            window.removeEventListener(
+                "hashchange",
+                handleHashChange
+            );
+        };
+    }, []);
+
+    const handleMenuSelect = (key: MenuItemKey) => {
+        setActiveMenu(key);
+    };
+
+    const handleMobileLinkClick = (
+        href: string
+    ) => {
+        if (href === "#inicio") {
+            setActiveMenu("inicio");
+        }
+
+        if (href === "#como-funciona") {
+            setActiveMenu("como-funciona");
+        }
+
+        if (href === "#ferramentas") {
+            setActiveMenu("modulos");
+        }
+
+        onCloseMenu();
+    };
+
     return (
         <>
-            <header
-                className="site-header"
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    width: "100%",
-                    gap: "20px",
-                    flexWrap: "nowrap",
-                }}
-            >
-                {/* MARCA */}
+            <header className="site-header">
                 <a
                     href="#inicio"
                     className="brand-mark"
                     aria-label="EducaCube — início"
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        flexShrink: 0,
-                        whiteSpace: "nowrap",
-                    }}
                 >
                     <img
                         src="/eduacubehomelogo.png"
@@ -71,55 +119,15 @@ export default function SiteHeader({
                     </span>
                 </a>
 
-                {/* NAVEGAÇÃO */}
-                <nav
-                    className="site-nav"
-                    aria-label="Navegação principal"
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "28px",
-                        flex: 1,
-                        flexWrap: "nowrap",
-                        whiteSpace: "nowrap",
-                        minWidth: 0,
-                    }}
-                >
-                    {NAV_LINKS.map((link) => (
-                        <a
-                            key={link.href}
-                            href={link.href}
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                whiteSpace: "nowrap",
-                                flexShrink: 0,
-                            }}
-                        >
-                            {link.label}
-                        </a>
-                    ))}
-                </nav>
+                <AnimatedMenuBar
+                    active={activeMenu}
+                    onSelect={handleMenuSelect}
+                />
 
-                {/* AÇÕES */}
-                <div
-                    className="site-actions"
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        flexShrink: 0,
-                        whiteSpace: "nowrap",
-                    }}
-                >
+                <div className="site-actions">
                     <a
                         href={ROUTES.login}
                         className="btn-ghost"
-                        style={{
-                            whiteSpace: "nowrap",
-                            flexShrink: 0,
-                        }}
                     >
                         Área do Aluno
                     </a>
@@ -127,16 +135,11 @@ export default function SiteHeader({
                     <a
                         href={ROUTES.aura}
                         className="btn-primary"
-                        style={{
-                            whiteSpace: "nowrap",
-                            flexShrink: 0,
-                        }}
                     >
                         AURA AI
                     </a>
                 </div>
 
-                {/* MENU MOBILE */}
                 <button
                     type="button"
                     className="nav-toggle"
@@ -148,28 +151,41 @@ export default function SiteHeader({
                     aria-expanded={menuOpen}
                     onClick={onToggleMenu}
                 >
-                    {menuOpen ? <IconClose /> : <IconMenu />}
+                    {menuOpen ? (
+                        <IconClose />
+                    ) : (
+                        <IconMenu />
+                    )}
                 </button>
             </header>
 
-            {/* MENU MOBILE */}
             {menuOpen && (
                 <div className="mobile-menu">
-                    {NAV_LINKS.map((link) => (
+                    {MOBILE_NAV_LINKS.map((link) => (
                         <a
                             key={link.href}
                             href={link.href}
-                            onClick={onCloseMenu}
+                            onClick={() =>
+                                handleMobileLinkClick(
+                                    link.href
+                                )
+                            }
                         >
                             {link.label}
                         </a>
                     ))}
 
-                    <a href={ROUTES.login}>
+                    <a
+                        href={ROUTES.login}
+                        onClick={onCloseMenu}
+                    >
                         Área do Aluno
                     </a>
 
-                    <a href={ROUTES.aura}>
+                    <a
+                        href={ROUTES.aura}
+                        onClick={onCloseMenu}
+                    >
                         AURA AI
                     </a>
                 </div>
