@@ -3070,9 +3070,9 @@
     white-space: nowrap;
 
     transition:
-        background-color 180ms ease,
-        border-color 180ms ease,
-        transform 180ms ease;
+        background-color 260ms ease,
+        border-color 260ms ease,
+        transform 260ms ease;
 }
 
 .educacube-menu-item:hover {
@@ -3096,8 +3096,8 @@
     flex: 0 0 22px;
 
     transition:
-        transform 220ms ease,
-        opacity 180ms ease;
+        transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 260ms ease;
 }
 
 .educacube-menu-item:hover
@@ -3125,10 +3125,10 @@
     transform: translateX(-5px);
 
     transition:
-        max-width 260ms cubic-bezier(0.22, 1, 0.36, 1),
-        margin-left 220ms ease,
-        opacity 160ms ease,
-        transform 220ms ease;
+        max-width 380ms cubic-bezier(0.16, 1, 0.3, 1),
+        margin-left 380ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 280ms ease 60ms,
+        transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .educacube-menu-item__label.is-visible {
