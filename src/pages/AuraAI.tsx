@@ -52,6 +52,8 @@ import MorphingSquare from "../components/MorphingSquare";
 
 import { renderAuraMarkdown } from "../components/aura-markdown";
 
+import { perguntarAura } from "../lib/aura-engine";
+
 import "../styles/aura-ai.css";
 
 /* ================================================================
@@ -207,30 +209,6 @@ const SUGGESTIONS: Suggestion[] = [
       "Compare a pedagogia de Piaget com a de Vygotsky, destacando aplicações práticas.",
   },
 ];
-
-const DEMO_RESPONSE = `**Conceito**
-
-A aprendizagem significativa ocorre quando um novo conteúdo se conecta ao que o estudante já sabe, em vez de ser memorizado de forma isolada.
-
-**Como funciona**
-
-- O professor identifica os conhecimentos prévios da turma
-- O novo conteúdo é apresentado em relação a esses conhecimentos
-- O estudante reorganiza sua estrutura de pensamento para incorporar a novidade
-
-**Exemplo**
-
-Ao ensinar frações, partir de situações concretas (dividir uma pizza, repartir um valor) antes de introduzir a notação simbólica.
-
-**Aplicação pedagógica**
-
-1. Comece com uma pergunta diagnóstica
-2. Conecte o novo conteúdo a uma situação já vivida pela turma
-3. Só então formalize a definição técnica
-
-**Ponto-chave**
-
-Conteúdo sem conexão prévia tende a ser esquecido rapidamente; conteúdo ancorado em conhecimento existente se mantém.`;
 
 /* ================================================================
    STORAGE
@@ -1160,9 +1138,11 @@ export default function AuraEducacube() {
     return id;
   }
 
-  function appendAssistantResponse(
+  async function appendAssistantResponse(
     conversationId: string,
-    token: number
+    token: number,
+    promptText: string,
+    historyForContext: AuraMessage[]
   ) {
     if (
       token !==
@@ -1173,60 +1153,137 @@ export default function AuraEducacube() {
 
     setAuraState("generating");
 
-    generatingTimeoutRef.current =
-      window.setTimeout(() => {
-        if (
-          token !==
-          generationTokenRef.current
-        ) {
-          return;
-        }
+    try {
+      const contexto = historyForContext
+        .filter(
+          (message) =>
+            message.status !== "error"
+        )
+        .slice(-8)
+        .map(
+          (message) =>
+            `${
+              message.role === "user"
+                ? "Professor"
+                : "AURA"
+            }: ${message.content}`
+        );
 
-        const assistantMessage: AuraMessage =
-          {
-            id: generateId(),
-            role: "assistant",
-            content: DEMO_RESPONSE,
-            status: "complete",
-            createdAt: Date.now(),
-          };
+      const resposta =
+        await perguntarAura(
+          promptText,
+          contexto
+        );
 
-        setMessages((previous) => {
-          const next = [
-            ...previous,
-            assistantMessage,
-          ];
+      if (
+        token !==
+        generationTokenRef.current
+      ) {
+        return;
+      }
 
-          updateConversationMessages(
-            conversationId,
-            next
+      const assistantMessage: AuraMessage =
+        {
+          id: generateId(),
+          role: "assistant",
+          content:
+            resposta.resposta?.trim() ||
+            "Não recebi uma resposta válida agora. Tente novamente.",
+          status: "complete",
+          createdAt: Date.now(),
+        };
+
+      setMessages((previous) => {
+        const next = [
+          ...previous,
+          assistantMessage,
+        ];
+
+        updateConversationMessages(
+          conversationId,
+          next
+        );
+
+        return next;
+      });
+
+      setAuraState("complete");
+
+      completeTimeoutRef.current =
+        window.setTimeout(() => {
+          if (
+            token !==
+            generationTokenRef.current
+          ) {
+            return;
+          }
+
+          setAuraState(
+            isOnline
+              ? "idle"
+              : "offline"
           );
+        }, 900);
+    } catch (error) {
+      if (
+        token !==
+        generationTokenRef.current
+      ) {
+        return;
+      }
 
-          return next;
-        });
+      console.error(
+        "Erro ao consultar a AURA:",
+        error
+      );
 
-        setAuraState("complete");
+      const errorMessage: AuraMessage =
+        {
+          id: generateId(),
+          role: "assistant",
+          content: "",
+          status: "error",
+          createdAt: Date.now(),
+        };
 
-        completeTimeoutRef.current =
-          window.setTimeout(() => {
-            if (
-              token !==
-              generationTokenRef.current
-            ) {
-              return;
-            }
+      setMessages((previous) => {
+        const next = [
+          ...previous,
+          errorMessage,
+        ];
 
-            setAuraState(
-              isOnline
-                ? "idle"
-                : "offline"
-            );
-          }, 900);
-      }, 1100);
+        updateConversationMessages(
+          conversationId,
+          next
+        );
+
+        return next;
+      });
+
+      setAuraState("error");
+
+      completeTimeoutRef.current =
+        window.setTimeout(() => {
+          if (
+            token !==
+            generationTokenRef.current
+          ) {
+            return;
+          }
+
+          setAuraState(
+            isOnline
+              ? "idle"
+              : "offline"
+          );
+        }, 1200);
+    }
   }
 
-  function startDemoGeneration(
-    conversationId: string
+  function runGeneration(
+    conversationId: string,
+    promptText: string,
+    historyForContext: AuraMessage[]
   ) {
     clearGenerationTimers();
 
@@ -1244,11 +1301,13 @@ export default function AuraEducacube() {
           return;
         }
 
-        appendAssistantResponse(
+        void appendAssistantResponse(
           conversationId,
-          token
+          token,
+          promptText,
+          historyForContext
         );
-      }, 700);
+      }, 600);
   }
 
   /* ================================================================
@@ -1285,11 +1344,16 @@ export default function AuraEducacube() {
         createdAt: Date.now(),
       };
 
+    let historySnapshot: AuraMessage[] =
+      [];
+
     setMessages((previous) => {
       const next = [
         ...previous,
         userMessage,
       ];
+
+      historySnapshot = next;
 
       updateConversationMessages(
         conversationId,
@@ -1302,8 +1366,10 @@ export default function AuraEducacube() {
     setInput("");
     setAttachments([]);
 
-    startDemoGeneration(
-      conversationId
+    runGeneration(
+      conversationId,
+      trimmed,
+      historySnapshot
     );
   }
 
@@ -1756,25 +1822,11 @@ export default function AuraEducacube() {
       updatedMessages
     );
 
-    const token =
-      generationTokenRef.current;
-
-    setAuraState("thinking");
-
-    thinkingTimeoutRef.current =
-      window.setTimeout(() => {
-        if (
-          token !==
-          generationTokenRef.current
-        ) {
-          return;
-        }
-
-        appendAssistantResponse(
-          activeConversationId,
-          token
-        );
-      }, 600);
+    runGeneration(
+      activeConversationId,
+      previousUser.content,
+      updatedMessages
+    );
   }
 
   function retryLastMessage() {
@@ -1794,25 +1846,11 @@ export default function AuraEducacube() {
 
     clearGenerationTimers();
 
-    setAuraState("thinking");
-
-    const token =
-      generationTokenRef.current;
-
-    thinkingTimeoutRef.current =
-      window.setTimeout(() => {
-        if (
-          token !==
-          generationTokenRef.current
-        ) {
-          return;
-        }
-
-        appendAssistantResponse(
-          activeConversationId,
-          token
-        );
-      }, 600);
+    runGeneration(
+      activeConversationId,
+      lastUserMessage.content,
+      messages
+    );
   }
 
   /* ================================================================
@@ -3314,8 +3352,7 @@ export default function AuraEducacube() {
                     </AnimatePresence>
 
                     <AnimatePresence>
-                      {auraState ===
-                        "thinking" && (
+                      {isBusy && (
                         <motion.div
                           className="aura-thinking"
                           initial={
@@ -3348,8 +3385,10 @@ export default function AuraEducacube() {
                           />
 
                           <span>
-                            AURA está
-                            pensando
+                            {auraState ===
+                            "generating"
+                              ? "AURA está respondendo"
+                              : "AURA está pensando"}
                           </span>
 
                           <span className="aura-thinking-dots">
@@ -3681,6 +3720,7 @@ export default function AuraEducacube() {
                           : "Sem conexão no momento..."
                       }
                       rows={1}
+                      maxLength={6000}
                       className="aura-textarea"
                       disabled={
                         !isOnline
