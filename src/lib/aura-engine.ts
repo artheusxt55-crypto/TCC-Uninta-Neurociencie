@@ -9,7 +9,12 @@ export interface AuraResponse {
   }>;
 }
 
-export async function analisarComGroq(
+/**
+ * Envia a pergunta do professor para o backend da AURA
+ * (Gemini, via /api/chat) junto com um resumo do contexto
+ * recente da conversa.
+ */
+export async function perguntarAura(
   prompt: string,
   contexto: string[] = []
 ): Promise<AuraResponse> {
@@ -48,12 +53,12 @@ export async function analisarComGroq(
 }
 
 /**
- * Salva o histórico localmente.
+ * Histórico de conversas salvo localmente no navegador.
  *
  * Dados sensíveis e chaves de API NÃO devem ser armazenados aqui.
- * O histórico persistente no servidor poderá ser conectado depois.
+ * Um histórico persistente no servidor poderá ser conectado depois.
  */
-export function salvarNoRedis(
+export function salvarHistoricoLocal(
   userId: string,
   conversa: unknown
 ): void {
@@ -67,7 +72,7 @@ export function salvarNoRedis(
   }
 }
 
-export function buscarDoRedis<T = unknown>(
+export function buscarHistoricoLocal<T = unknown>(
   userId: string
 ): T | null {
   try {
