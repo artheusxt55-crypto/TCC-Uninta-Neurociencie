@@ -25,15 +25,42 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email } = req.body;
+    const authorization = req.headers.authorization || "";
 
-    if (!email) {
-      return res.status(400).json({
-        error: "E-mail não informado",
+    if (!authorization.startsWith("Bearer ")) {
+      return res.status(401).json({
+        error: "Token Bearer não informado",
+      });
+    }
+
+    const token = authorization.substring(7).trim();
+
+    if (!token) {
+      return res.status(401).json({
+        error: "Token vazio",
       });
     }
 
     const adminAuth = getFirebaseAdmin();
+
+    // O token comprova quem está pedindo a verificação: nunca
+    // confiamos em um e-mail enviado livremente pelo cliente,
+    // isso evita que alguém dispare e-mails para contas de terceiros.
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const email = decodedToken.email;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Esta conta não possui e-mail associado.",
+      });
+    }
+
+    if (decodedToken.email_verified) {
+      return res.status(200).json({
+        success: true,
+        message: "E-mail já verificado.",
+      });
+    }
 
     // Firebase gera o link REAL de verificação
     const verificationLink =
@@ -515,8 +542,7 @@ export default async function handler(req, res) {
       console.error("Erro Resend:", data);
 
       return res.status(500).json({
-        error: "Erro ao enviar e-mail",
-        details: data,
+        error: "Erro ao enviar e-mail de verificação.",
       });
     }
 
@@ -534,11 +560,6 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       error: "Erro interno ao enviar verificação",
-
-      details:
-        error instanceof Error
-          ? error.message
-          : String(error),
     });
   }
 }
