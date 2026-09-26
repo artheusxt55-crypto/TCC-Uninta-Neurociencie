@@ -1,8 +1,3 @@
-// ============================================================
-// /api/chat
-// Endpoint da AURA (assistente pedagógica do EducaCube)
-// Modelo: Google Gemini
-// ============================================================
 
 const GEMINI_MODEL =
   process.env.GEMINI_MODEL || "gemini-3.8-flash";
@@ -14,10 +9,6 @@ const MAX_PROMPT_LENGTH = 6000;
 const MAX_CONTEXT_ITEMS = 8;
 const MAX_CONTEXT_ITEM_LENGTH = 2000;
 
-// ============================================================
-// RATE LIMIT
-// Upstash Redis — janela fixa por IP
-// ============================================================
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_WINDOW_SECONDS = 300; // 5 minutos
