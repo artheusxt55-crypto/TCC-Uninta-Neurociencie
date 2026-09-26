@@ -151,4 +151,73 @@ export default async function handler(req, res) {
   if (limitado) {
     return res.status(429).json({
       error:
-        "Muitas mensagens em pouco tempo. Aguarde alguns minutos e
+        "Muitas mensagens em pouco tempo. Aguarde alguns minutos e tente novamente.",
+    });
+  }
+
+  const { prompt, contexto } = req.body ?? {};
+
+  if (typeof prompt !== "string" || !prompt.trim()) {
+    return res.status(400).json({ error: "Envie uma pergunta válida." });
+  }
+
+  if (prompt.length > MAX_PROMPT_LENGTH) {
+    return res.status(400).json({
+      error: `Sua pergunta é muito longa (limite de ${MAX_PROMPT_LENGTH} caracteres).`,
+    });
+  }
+
+  const contextoSeguro = sanitizeContexto(contexto);
+
+  try {
+    const geminiResponse = await fetch(
+      `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: buildContents(prompt, contextoSeguro),
+          systemInstruction: {
+            parts: [{ text: AURA_SYSTEM_PROMPT }],
+          },
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+          },
+        }),
+      }
+    );
+
+    const data = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+      console.error("Erro da API Gemini:", data);
+      return res.status(502).json({
+        error:
+          "A AURA não conseguiu gerar uma resposta agora. Tente novamente em instantes.",
+      });
+    }
+
+    const candidate = data?.candidates?.[0];
+
+    const respostaIA = candidate?.content?.parts
+      ?.map((part) => part.text ?? "")
+      .join("")
+      .trim();
+
+    if (!respostaIA) {
+      const bloqueada = candidate?.finishReason === "SAFETY";
+
+      return res.status(502).json({
+        error: bloqueada
+          ? "Não posso responder a essa pergunta."
+          : "A AURA não conseguiu gerar uma resposta agora. Tente novamente.",
+      });
+    }
+
+    return res.status(200).json({ resposta: respostaIA });
+  } catch (error) {
+    console.error("Erro na API /api/chat:", error);
+    return res.status(500).json({ error: "Erro ao processar sua mensagem." });
+  }
+}
